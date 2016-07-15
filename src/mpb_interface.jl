@@ -32,12 +32,12 @@ function loadproblem!(m::SCIPMathProgModel, A, varlb, varub, obj, rowlb, rowub, 
 
     for v in 1:ncols
         # TODO: define enum for vartype?
-        _addVar(m.ptr_model, varlb[v], varub[v], 3, C_NULL)
+        _addVar(m.ptr_model, varlb[v], varub[v], Cint(3), Ptr{Cint}(C_NULL))
     end
     for c in 1:nrows
         # TODO: care about sparse matrices
         denserow = collect(A[c, :])
-        _addLinCons(m.ptr_model, nvars, varindices, denserow, rowlb[c], rowub[c], C_NULL)
+        _addLinCons(m.ptr_model, nvars, varindices, denserow, rowlb[c], rowub[c], Ptr{Cint}(C_NULL))
     end
 
     _setObj(m.ptr_model, nvars, varindices, obj)
