@@ -61,3 +61,13 @@ function status(m::SCIPMathProgModel)
     stat = _getStatus(m.ptr_model)
     return statusmap[stat + 1]
 end
+
+getobjval(m::SCIPMathProgModel) = 0.0 # TODO: implement!
+
+function getsolution(m::SCIPMathProgModel)
+    nvars = _getNumVars(m.ptr_model)
+    values = zeros(nvars)
+    _getVarValues(m.ptr_model, values)
+    @show values
+    values
+end
