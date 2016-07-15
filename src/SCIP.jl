@@ -11,4 +11,6 @@ importall MathProgBase.SolverInterface
 
 include("wrapper.jl")
 
+include("mpb_interface.jl")
+
 end
