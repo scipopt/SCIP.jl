@@ -46,3 +46,18 @@ function loadproblem!(m::SCIPMathProgModel, A, varlb, varub, obj, rowlb, rowub, 
 end
 
 optimize!(m::SCIPMathProgModel) = _solve(m.ptr_model)
+
+function status(m::SCIPMathProgModel)
+    statusmap = [:Optimal,
+                 :Infeasible,
+                 :Unbounded,
+                 :InfeasibleOrUnbounded,
+                 :UserLimit, # node limit
+                 :UserLimit, # time limit
+                 :UserLimit, # memory limit
+                 :UserLimit, # user limit
+                 :Unknown
+                 ]
+    stat = _getStatus(m.ptr_model)
+    return statusmap[stat + 1]
+end
