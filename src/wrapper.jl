@@ -1,4 +1,4 @@
-function _createModel(model::Ptr{Ptr{Void}})
+function _createModel(model::Vector{Ptr{Void}})
     ccall((:CSIPcreateModel, csip), Cint, (Ptr{Ptr{Void}}, ), model)
 end
 
@@ -13,22 +13,22 @@ function _addVar(model::Ptr{Void}, lowerbound::Cdouble, upperbound::Cdouble,
           model, lowerbound, upperbound, vartype, idx)
 end
 
-function _chgVarLB(model::Ptr{Void}, numindices::Cint, indices::Ptr{Cint},
-                   lowerbounds::Ptr{Cdouble})
+function _chgVarLB(model::Ptr{Void}, numindices::Cint, indices::Vector{Cint},
+                   lowerbounds::Vector{Cdouble})
     ccall((:CSIPchgVarLB, csip), Cint,
           (Ptr{Void}, Cint, Ptr{Cint}, Ptr{Cdouble}),
           model, numindices, indices, lowerbounds)
 end
 
-function _chgVarUB(model::Ptr{Void}, numindices::Cint, indices::Ptr{Cint},
-                   upperbounds::Ptr{Cdouble})
+function _chgVarUB(model::Ptr{Void}, numindices::Cint, indices::Vector{Cint},
+                   upperbounds::Vector{Cdouble})
     ccall((:CSIPchgVarUB, csip), Cint,
           (Ptr{Void}, Cint, Ptr{Cint}, Ptr{Cdouble}),
           model, numindices, indices, upperbounds)
 end
 
-function _addLinCons(model::Ptr{Void}, numindices::Cint, indices::Ptr{Cint},
-                     coefs::Ptr{Cdouble}, lhs::Cdouble, rhs::Cdouble,
+function _addLinCons(model::Ptr{Void}, numindices::Cint, indices::Vector{Cint},
+                     coefs::Vector{Cdouble}, lhs::Cdouble, rhs::Cdouble,
                      idx::Ptr{Cint})
     ccall((:CSIPaddLinCons, csip), Cint,
           (Ptr{Void}, Cint, Ptr{Cint}, Ptr{Cdouble}, Cdouble, Cdouble, Ptr{Cint}),
@@ -36,9 +36,9 @@ function _addLinCons(model::Ptr{Void}, numindices::Cint, indices::Ptr{Cint},
 end
 
 function _addQuadCons(model::Ptr{Void}, numlinindices::Cint,
-                      linindices::Ptr{Cint}, lincoefs::Ptr{Cdouble},
-                      numquadterms::Cint, quadrowindices::Ptr{Cint},
-                      quadcolindices::Ptr{Cint}, quadcoefs::Ptr{Cdouble},
+                      linindices::Vector{Cint}, lincoefs::Vector{Cdouble},
+                      numquadterms::Cint, quadrowindices::Vector{Cint},
+                      quadcolindices::Vector{Cint}, quadcoefs::Vector{Cdouble},
                       lhs::Cdouble, rhs::Cdouble, idx::Ptr{Cint})
     ccall((:CSIPaddQuadCons, csip), Cint,
           (Ptr{Void}, Cint, Ptr{Cint}, Ptr{Cdouble}, Cint, Ptr{Cint}, Ptr{Cint},
@@ -47,22 +47,22 @@ function _addQuadCons(model::Ptr{Void}, numlinindices::Cint,
           quadrowindices, quadcolindices, quadcoefs, lhs, rhs, idx)
 end
 
-function _addSOS1(model::Ptr{Void}, numindices::Cint, indices::Ptr{Cint},
-                  weights::Ptr{Cdouble}, idx::Ptr{Cint})
+function _addSOS1(model::Ptr{Void}, numindices::Cint, indices::Vector{Cint},
+                  weights::Vector{Cdouble}, idx::Ptr{Cint})
     ccall((:CSIPaddSOS1, csip), Cint,
           (Ptr{Void}, Cint, Ptr{Cint}, Ptr{Cdouble}, Ptr{Cint}),
           model, numindices, indices, weights, idx)
 end
 
-function _addSOS2(model::Ptr{Void}, numindices::Cint, indices::Ptr{Cint},
-                  weights::Ptr{Cdouble}, idx::Ptr{Cint})
+function _addSOS2(model::Ptr{Void}, numindices::Cint, indices::Vector{Cint},
+                  weights::Vector{Cdouble}, idx::Ptr{Cint})
     ccall((:CSIPaddSOS2, csip), Cint,
           (Ptr{Void}, Cint, Ptr{Cint}, Ptr{Cdouble}, Ptr{Cint}),
           model, numindices, indices, weights, idx)
 end
 
-function _setObj(model::Ptr{Void}, numindices::Cint, indices::Ptr{Cint},
-                 coefs::Ptr{Cdouble})
+function _setObj(model::Ptr{Void}, numindices::Cint, indices::Vector{Cint},
+                 coefs::Vector{Cdouble})
     ccall((:CSIPsetObj, csip), Cint,
           (Ptr{Void}, Cint, Ptr{Cint}, Ptr{Cdouble}),
           model, numindices, indices, coefs)
@@ -80,7 +80,7 @@ function _solve(model::Ptr{Void})
     ccall((:CSIPsolve, csip), Cint, (Ptr{Void}, ), model)
 end
 
-function _getVarValues(model::Ptr{Void}, output::Ptr{Cdouble})
+function _getVarValues(model::Ptr{Void}, output::Vector{Cdouble})
     ccall((:CSIPgetVarValues, csip), Cint, (Ptr{Void}, Ptr{Cdouble}),
           model, output)
 end
@@ -104,18 +104,18 @@ function _getNumVars(model::Ptr{Void})
     ccall((:CSIPgetNumVars, csip), Cint, (Ptr{Void}, ), model)
 end
 
-function _setInitialSolution(model::Ptr{Void}, values::Ptr{Cdouble})
+function _setInitialSolution(model::Ptr{Void}, values::Vector{Cdouble})
     ccall((:CSIPsetInitialSolution, csip), Cint, (Ptr{Void}, Ptr{Cdouble}),
           model, values)
 end
 
-function _cbGetVarValues(cbdata::Ptr{Void}, output::Ptr{Cdouble})
+function _cbGetVarValues(cbdata::Ptr{Void}, output::Vector{Cdouble})
     ccall((:CSIPcbGetVarValues, csip), Cint, (Ptr{Void}, Ptr{Cdouble}),
           cbdata, output)
 end
 
-function _cbAddLinCons(cbdata::Ptr{Void}, numindices::Cint, indices::Ptr{Cint},
-                       coefs::Ptr{Cdouble}, lhs::Cdouble, rhs::Cdouble, islocal::Cint)
+function _cbAddLinCons(cbdata::Ptr{Void}, numindices::Cint, indices::Vector{Cint},
+                       coefs::Vector{Cdouble}, lhs::Cdouble, rhs::Cdouble, islocal::Cint)
     ccall((:CSIPcbAddLinCons, csip), Cint,
           (Ptr{Void}, Cint, Ptr{Cint}, Ptr{Cdouble}, Cdouble, Cdouble, Cint),
           cbdata, numindices, indices, coefs, lhs, rhs, islocal)
@@ -128,12 +128,12 @@ function _addLazyCallback(model::Ptr{Void}, cb::Void, fractional::Cint,
           model, cb, fractional, userdata)
 end
 
-function _heurGetVarValues(heurdata::Ptr{Void}, output::Ptr{Cdouble})
+function _heurGetVarValues(heurdata::Ptr{Void}, output::Vector{Cdouble})
     ccall((:CSIPheurGetVarValues, csip), Cint, (Ptr{Void}, Ptr{Cdouble}),
           heurdata, output)
 end
 
-function _heurSetSolution(heurdata::Ptr{Void}, values::Ptr{Cdouble})
+function _heurSetSolution(heurdata::Ptr{Void}, values::Vector{Cdouble})
     ccall((:CSIPheurSetSolution, csip), Cint, (Ptr{Void}, Ptr{Cdouble}),
           heurdata, values)
 end
