@@ -28,7 +28,7 @@ function loadproblem!(m::SCIPMathProgModel, A, varlb, varub, obj, rowlb, rowub, 
 
     nrows, ncols = size(A)
     nvars = Cint(ncols)
-    varindices = Vector{Cint}(1:nvars)
+    varindices = Vector{Cint}(0:nvars-1)
 
     for v in 1:ncols
         # TODO: define enum for vartype?
