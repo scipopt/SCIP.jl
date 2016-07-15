@@ -44,3 +44,5 @@ function loadproblem!(m::SCIPMathProgModel, A, varlb, varub, obj, rowlb, rowub, 
 
     # TODO: set sense
 end
+
+optimize!(m::SCIPMathProgModel) = _solve(m.ptr_model)
