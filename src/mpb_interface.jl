@@ -28,19 +28,21 @@ function loadproblem!(m::SCIPMathProgModel, A, varlb, varub, obj, rowlb, rowub, 
 
     nrows, ncols = size(A)
     nvars = Cint(ncols)
-    varindices = Vector{Cint}(0:nvars-1)
+    varindices = collect(zero(Cint):nvars - one(Cint))
 
     for v in 1:ncols
         # TODO: define enum for vartype?
-        _addVar(m.ptr_model, varlb[v], varub[v], Cint(3), Ptr{Cint}(C_NULL))
+        _addVar(m.ptr_model, float(varlb[v]), float(varub[v]),
+                Cint(3), Ptr{Cint}(C_NULL))
     end
     for c in 1:nrows
         # TODO: care about sparse matrices
-        denserow = collect(A[c, :])
-        _addLinCons(m.ptr_model, nvars, varindices, denserow, rowlb[c], rowub[c], Ptr{Cint}(C_NULL))
+        denserow = float(collect(A[c, :]))
+        _addLinCons(m.ptr_model, nvars, varindices, denserow,
+                    float(rowlb[c]), float(rowub[c]), Ptr{Cint}(C_NULL))
     end
 
-    _setObj(m.ptr_model, nvars, varindices, obj)
+    _setObj(m.ptr_model, nvars, varindices, float(obj))
 
     # TODO: set sense
 end
@@ -56,18 +58,28 @@ function status(m::SCIPMathProgModel)
                  :UserLimit, # time limit
                  :UserLimit, # memory limit
                  :UserLimit, # user limit
-                 :Unknown
+                 :Unknown    # TODO: find good value
                  ]
     stat = _getStatus(m.ptr_model)
     return statusmap[stat + 1]
 end
 
-getobjval(m::SCIPMathProgModel) = 0.0 # TODO: implement!
+function getobjval(m::SCIPMathProgModel)
+    _getObjValue(m.ptr_model)
+end
 
 function getsolution(m::SCIPMathProgModel)
     nvars = _getNumVars(m.ptr_model)
     values = zeros(nvars)
     _getVarValues(m.ptr_model, values)
-    @show values
     values
 end
+
+# Not supported by SCIP or CSIP, but expected from MPB
+# TODO: print warning when called?
+# TODO: should we just support `mixintprog` but not `linprog`?
+
+getreducedcosts(m::SCIPMathProgModel) = nothing
+getconstrduals(m::SCIPMathProgModel) = nothing
+getinfeasibilityray(m::SCIPMathProgModel) = nothing
+getunboundedray(m::SCIPMathProgModel) = nothing
