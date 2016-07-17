@@ -1,26 +1,3 @@
-export SCIPSolver
-
-# Model
-
-type SCIPMathProgModel <: AbstractLinearQuadraticModel
-    ptr_model::Ptr{Void}
-
-    function SCIPMathProgModel()
-        _arr = Array(Ptr{Void}, 1)
-        # TODO: check return code (everywhere!)
-        ccall((:CSIPcreateModel, csip), Cint, (Ptr{Ptr{Void}}, ), _arr)
-        new(_arr[1])
-
-        # QUESTION: Why is _arr not garbage-collected?
-    end
-end
-
-# Solver
-
-immutable SCIPSolver <: AbstractMathProgSolver
-end
-LinearQuadraticModel(s::SCIPSolver) = SCIPMathProgModel()
-
 # Interface
 
 function loadproblem!(m::SCIPMathProgModel, A, varlb, varub, obj, rowlb, rowub, sense)
@@ -32,17 +9,17 @@ function loadproblem!(m::SCIPMathProgModel, A, varlb, varub, obj, rowlb, rowub, 
 
     for v in 1:ncols
         # TODO: define enum for vartype?
-        _addVar(m.ptr_model, float(varlb[v]), float(varub[v]),
+        _addVar(m, float(varlb[v]), float(varub[v]),
                 Cint(3), Ptr{Cint}(C_NULL))
     end
     for c in 1:nrows
         # TODO: care about sparse matrices
         denserow = float(collect(A[c, :]))
-        _addLinCons(m.ptr_model, nvars, varindices, denserow,
+        _addLinCons(m, nvars, varindices, denserow,
                     float(rowlb[c]), float(rowub[c]), Ptr{Cint}(C_NULL))
     end
 
-    _setObj(m.ptr_model, nvars, varindices, float(obj))
+    _setObj(m, nvars, varindices, float(obj))
 
     # TODO: set sense
 end
@@ -58,11 +35,11 @@ function setvartype!(m::SCIPMathProgModel, vartype::Vector{Symbol})
     nvars = Cint(length(vartype))
     scipvartypes = map(vt -> vartypemap[vt], vartype)
     for idx = one(Cint):nvars
-        _chgVarType(m.ptr_model, idx - one(Cint), scipvartypes[idx])
+        _chgVarType(m, idx - one(Cint), scipvartypes[idx])
     end
 end
 
-optimize!(m::SCIPMathProgModel) = _solve(m.ptr_model)
+optimize!(m::SCIPMathProgModel) = _solve(m)
 
 function status(m::SCIPMathProgModel)
     statusmap = [:Optimal,
@@ -75,18 +52,18 @@ function status(m::SCIPMathProgModel)
                  :UserLimit, # user limit
                  :Unknown    # TODO: find good value
                  ]
-    stat = _getStatus(m.ptr_model)
+    stat = _getStatus(m)
     return statusmap[stat + 1]
 end
 
 function getobjval(m::SCIPMathProgModel)
-    _getObjValue(m.ptr_model)
+    _getObjValue(m)
 end
 
 function getsolution(m::SCIPMathProgModel)
-    nvars = _getNumVars(m.ptr_model)
+    nvars = _getNumVars(m)
     values = zeros(nvars)
-    _getVarValues(m.ptr_model, values)
+    _getVarValues(m, values)
     values
 end
 

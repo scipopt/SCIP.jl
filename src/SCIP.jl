@@ -9,8 +9,8 @@ end
 
 importall MathProgBase.SolverInterface
 
+include("types.jl")
 include("wrapper.jl")
-
 include("mpb_interface.jl")
 
 end

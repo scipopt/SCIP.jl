@@ -1,47 +1,43 @@
-function _createModel(model::Vector{Ptr{Void}})
-    ccall((:CSIPcreateModel, csip), Cint, (Ptr{Ptr{Void}}, ), model)
+function _freeModel(model::SCIPMathProgModel)
+    ccall((:CSIPfreeModel, csip), Cint, (Ptr{Void}, ), model.ptr_model)
 end
 
-function _freeModel(model::Ptr{Void})
-    ccall((:CSIPfreeModel, csip), Cint, (Ptr{Void}, ), model)
-end
-
-function _addVar(model::Ptr{Void}, lowerbound::Cdouble, upperbound::Cdouble,
-                 vartype::Cint, idx::Ptr{Cint})
+function _addVar(model::SCIPMathProgModel, lowerbound::Cdouble,
+                 upperbound::Cdouble, vartype::Cint, idx::Ptr{Cint})
     ccall((:CSIPaddVar, csip), Cint,
           (Ptr{Void}, Cdouble, Cdouble, Cint, Ptr{Cint}),
-          model, lowerbound, upperbound, vartype, idx)
+          model.ptr_model, lowerbound, upperbound, vartype, idx)
 end
 
-function _chgVarLB(model::Ptr{Void}, numindices::Cint, indices::Vector{Cint},
-                   lowerbounds::Vector{Cdouble})
+function _chgVarLB(model::SCIPMathProgModel, numindices::Cint,
+                   indices::Vector{Cint}, lowerbounds::Vector{Cdouble})
     ccall((:CSIPchgVarLB, csip), Cint,
           (Ptr{Void}, Cint, Ptr{Cint}, Ptr{Cdouble}),
-          model, numindices, indices, lowerbounds)
+          model.ptr_model, numindices, indices, lowerbounds)
 end
 
-function _chgVarUB(model::Ptr{Void}, numindices::Cint, indices::Vector{Cint},
-                   upperbounds::Vector{Cdouble})
+function _chgVarUB(model::SCIPMathProgModel, numindices::Cint,
+                   indices::Vector{Cint}, upperbounds::Vector{Cdouble})
     ccall((:CSIPchgVarUB, csip), Cint,
           (Ptr{Void}, Cint, Ptr{Cint}, Ptr{Cdouble}),
-          model, numindices, indices, upperbounds)
+          model.ptr_model, numindices, indices, upperbounds)
 end
 
-function _chgVarType(model::Ptr{Void}, varindex::Cint, vartype::Cint)
+function _chgVarType(model::SCIPMathProgModel, varindex::Cint, vartype::Cint)
     ccall((:CSIPchgVarType, csip), Cint,
           (Ptr{Void}, Cint, Cint),
-          model, varindex, vartype)
+          model.ptr_model, varindex, vartype)
 end
 
-function _addLinCons(model::Ptr{Void}, numindices::Cint, indices::Vector{Cint},
-                     coefs::Vector{Cdouble}, lhs::Cdouble, rhs::Cdouble,
-                     idx::Ptr{Cint})
+function _addLinCons(model::SCIPMathProgModel, numindices::Cint,
+                     indices::Vector{Cint}, coefs::Vector{Cdouble},
+                     lhs::Cdouble, rhs::Cdouble, idx::Ptr{Cint})
     ccall((:CSIPaddLinCons, csip), Cint,
           (Ptr{Void}, Cint, Ptr{Cint}, Ptr{Cdouble}, Cdouble, Cdouble, Ptr{Cint}),
-          model, numindices, indices, coefs, lhs, rhs, idx)
+          model.ptr_model, numindices, indices, coefs, lhs, rhs, idx)
 end
 
-function _addQuadCons(model::Ptr{Void}, numlinindices::Cint,
+function _addQuadCons(model::SCIPMathProgModel, numlinindices::Cint,
                       linindices::Vector{Cint}, lincoefs::Vector{Cdouble},
                       numquadterms::Cint, quadrowindices::Vector{Cint},
                       quadcolindices::Vector{Cint}, quadcoefs::Vector{Cdouble},
@@ -49,70 +45,72 @@ function _addQuadCons(model::Ptr{Void}, numlinindices::Cint,
     ccall((:CSIPaddQuadCons, csip), Cint,
           (Ptr{Void}, Cint, Ptr{Cint}, Ptr{Cdouble}, Cint, Ptr{Cint}, Ptr{Cint},
            Ptr{Cdouble}, Cdouble, Cdouble, Ptr{Cint}),
-          model, numlinindices, linindices, lincoefs, numquadterms,
+          model.ptr_model, numlinindices, linindices, lincoefs, numquadterms,
           quadrowindices, quadcolindices, quadcoefs, lhs, rhs, idx)
 end
 
-function _addSOS1(model::Ptr{Void}, numindices::Cint, indices::Vector{Cint},
-                  weights::Vector{Cdouble}, idx::Ptr{Cint})
+function _addSOS1(model::SCIPMathProgModel, numindices::Cint,
+                  indices::Vector{Cint}, weights::Vector{Cdouble},
+                  idx::Ptr{Cint})
     ccall((:CSIPaddSOS1, csip), Cint,
           (Ptr{Void}, Cint, Ptr{Cint}, Ptr{Cdouble}, Ptr{Cint}),
-          model, numindices, indices, weights, idx)
+          model.ptr_model, numindices, indices, weights, idx)
 end
 
-function _addSOS2(model::Ptr{Void}, numindices::Cint, indices::Vector{Cint},
-                  weights::Vector{Cdouble}, idx::Ptr{Cint})
+function _addSOS2(model::SCIPMathProgModel, numindices::Cint,
+                  indices::Vector{Cint}, weights::Vector{Cdouble},
+                  idx::Ptr{Cint})
     ccall((:CSIPaddSOS2, csip), Cint,
           (Ptr{Void}, Cint, Ptr{Cint}, Ptr{Cdouble}, Ptr{Cint}),
-          model, numindices, indices, weights, idx)
+          model.ptr_model, numindices, indices, weights, idx)
 end
 
-function _setObj(model::Ptr{Void}, numindices::Cint, indices::Vector{Cint},
-                 coefs::Vector{Cdouble})
+function _setObj(model::SCIPMathProgModel, numindices::Cint,
+                 indices::Vector{Cint}, coefs::Vector{Cdouble})
     ccall((:CSIPsetObj, csip), Cint,
           (Ptr{Void}, Cint, Ptr{Cint}, Ptr{Cdouble}),
-          model, numindices, indices, coefs)
+          model.ptr_model, numindices, indices, coefs)
 end
 
-function _setSenseMinimize(model::Ptr{Void})
-    ccall((:CSIPsetSenseMinimize, csip), Cint, (Ptr{Void}, ), model)
+function _setSenseMinimize(model::SCIPMathProgModel)
+    ccall((:CSIPsetSenseMinimize, csip), Cint, (Ptr{Void}, ), model.ptr_model)
 end
 
-function _setSenseMaximize(model::Ptr{Void})
-    ccall((:CSIPsetSenseMaximize, csip), Cint, (Ptr{Void}, ), model)
+function _setSenseMaximize(model::SCIPMathProgModel)
+    ccall((:CSIPsetSenseMaximize, csip), Cint, (Ptr{Void}, ), model.ptr_model)
 end
 
-function _solve(model::Ptr{Void})
-    ccall((:CSIPsolve, csip), Cint, (Ptr{Void}, ), model)
+function _solve(model::SCIPMathProgModel)
+    ccall((:CSIPsolve, csip), Cint, (Ptr{Void}, ), model.ptr_model)
 end
 
-function _getVarValues(model::Ptr{Void}, output::Vector{Cdouble})
+function _getVarValues(model::SCIPMathProgModel, output::Vector{Cdouble})
     ccall((:CSIPgetVarValues, csip), Cint, (Ptr{Void}, Ptr{Cdouble}),
-          model, output)
+          model.ptr_model, output)
 end
 
-function _getObjValue(model::Ptr{Void})
-    ccall((:CSIPgetObjValue, csip), Cdouble, (Ptr{Void}, ), model)
+function _getObjValue(model::SCIPMathProgModel)
+    ccall((:CSIPgetObjValue, csip), Cdouble, (Ptr{Void}, ), model.ptr_model)
 end
 
-function _getStatus(model::Ptr{Void})
-    ccall((:CSIPgetStatus, csip), Cint, (Ptr{Void}, ), model)
+function _getStatus(model::SCIPMathProgModel)
+    ccall((:CSIPgetStatus, csip), Cint, (Ptr{Void}, ), model.ptr_model)
 end
 
-function _setParameterGeneric(model::Ptr{Void}, name::Ptr{UInt8},
+function _setParameterGeneric(model::SCIPMathProgModel, name::Ptr{UInt8},
                               value::Ptr{Void})
     ccall((:CSIPsetParameterGeneric, csip), Cint,
           (Ptr{Void}, Ptr{UInt8}, Ptr{Void}),
-          model, name, value)
+          model.ptr_model, name, value)
 end
 
-function _getNumVars(model::Ptr{Void})
-    ccall((:CSIPgetNumVars, csip), Cint, (Ptr{Void}, ), model)
+function _getNumVars(model::SCIPMathProgModel)
+    ccall((:CSIPgetNumVars, csip), Cint, (Ptr{Void}, ), model.ptr_model)
 end
 
-function _setInitialSolution(model::Ptr{Void}, values::Vector{Cdouble})
+function _setInitialSolution(model::SCIPMathProgModel, values::Vector{Cdouble})
     ccall((:CSIPsetInitialSolution, csip), Cint, (Ptr{Void}, Ptr{Cdouble}),
-          model, values)
+          model.ptr_model, values)
 end
 
 function _cbGetVarValues(cbdata::Ptr{Void}, output::Vector{Cdouble})
@@ -120,18 +118,19 @@ function _cbGetVarValues(cbdata::Ptr{Void}, output::Vector{Cdouble})
           cbdata, output)
 end
 
-function _cbAddLinCons(cbdata::Ptr{Void}, numindices::Cint, indices::Vector{Cint},
-                       coefs::Vector{Cdouble}, lhs::Cdouble, rhs::Cdouble, islocal::Cint)
+function _cbAddLinCons(cbdata::Ptr{Void}, numindices::Cint,
+                       indices::Vector{Cint}, coefs::Vector{Cdouble},
+                       lhs::Cdouble, rhs::Cdouble, islocal::Cint)
     ccall((:CSIPcbAddLinCons, csip), Cint,
           (Ptr{Void}, Cint, Ptr{Cint}, Ptr{Cdouble}, Cdouble, Cdouble, Cint),
           cbdata, numindices, indices, coefs, lhs, rhs, islocal)
 end
 
-function _addLazyCallback(model::Ptr{Void}, cb::Void, fractional::Cint,
+function _addLazyCallback(model::SCIPMathProgModel, cb::Void, fractional::Cint,
                           userdata::Ptr{Void})
     ccall((:CSIPaddLazyCallback, csip), Cint,
           (Ptr{Void}, Void, Cint, Ptr{Void}),
-          model, cb, fractional, userdata)
+          model.ptr_model, cb, fractional, userdata)
 end
 
 function _heurGetVarValues(heurdata::Ptr{Void}, output::Vector{Cdouble})
@@ -144,12 +143,13 @@ function _heurSetSolution(heurdata::Ptr{Void}, values::Vector{Cdouble})
           heurdata, values)
 end
 
-function _addHeuristicCallback(model::Ptr{Void}, heur::Void,
+function _addHeuristicCallback(model::SCIPMathProgModel, heur::Void,
                                userdata::Ptr{Void})
     ccall((:CSIPaddHeuristicCallback, csip), Cint, (Ptr{Void}, Void, Ptr{Void}),
-          model, heur, userdata)
+          model.ptr_model, heur, userdata)
 end
 
-function _getInternalSCIP(model::Ptr{Void})
-    ccall((:CSIPgetInternalSCIP, csip), Ptr{Void}, (Ptr{Void}, ), model)
+function _getInternalSCIP(model::SCIPMathProgModel)
+    ccall((:CSIPgetInternalSCIP, csip), Ptr{Void}, (Ptr{Void}, ),
+          model.ptr_model)
 end
