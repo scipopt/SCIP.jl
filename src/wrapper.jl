@@ -27,6 +27,12 @@ function _chgVarUB(model::Ptr{Void}, numindices::Cint, indices::Vector{Cint},
           model, numindices, indices, upperbounds)
 end
 
+function _chgVarType(model::Ptr{Void}, varindex::Cint, vartype::Cint)
+    ccall((:CSIPchgVarType, csip), Cint,
+          (Ptr{Void}, Cint, Cint),
+          model, varindex, vartype)
+end
+
 function _addLinCons(model::Ptr{Void}, numindices::Cint, indices::Vector{Cint},
                      coefs::Vector{Cdouble}, lhs::Cdouble, rhs::Cdouble,
                      idx::Ptr{Cint})

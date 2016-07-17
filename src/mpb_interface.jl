@@ -47,6 +47,21 @@ function loadproblem!(m::SCIPMathProgModel, A, varlb, varub, obj, rowlb, rowub, 
     # TODO: set sense
 end
 
+# TODO: mapping for :SemiCont, :SemiInt
+const vartypemap = Dict{Symbol, Cint}(
+  :Cont => 3,
+  :Bin => 0,
+  :Int => 1
+)
+
+function setvartype!(m::SCIPMathProgModel, vartype::Vector{Symbol})
+    nvars = Cint(length(vartype))
+    scipvartypes = map(vt -> vartypemap[vt], vartype)
+    for idx = one(Cint):nvars
+        _chgVarType(m.ptr_model, idx - one(Cint), scipvartypes[idx])
+    end
+end
+
 optimize!(m::SCIPMathProgModel) = _solve(m.ptr_model)
 
 function status(m::SCIPMathProgModel)
