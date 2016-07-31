@@ -1,28 +1,11 @@
 # Interface
 
-function loadproblem!(m::SCIPMathProgModel, A, varlb, varub, obj, rowlb, rowub, sense)
-    # TODO: clean old model?
+###########################################################################################################
+##### Methods common to all: AbstractLinearQuadraticModel, AbstractConicModel, AbstractNonlinearModel #####
+##### see: http://mathprogbasejl.readthedocs.io/en/latest/solverinterface.html                        #####
+###########################################################################################################
 
-    nrows, ncols = size(A)
-    nvars = Cint(ncols)
-    varindices = collect(zero(Cint):nvars - one(Cint))
-
-    for v in 1:ncols
-        # TODO: define enum for vartype?
-        _addVar(m, float(varlb[v]), float(varub[v]),
-                Cint(3), Ptr{Cint}(C_NULL))
-    end
-    for c in 1:nrows
-        # TODO: care about sparse matrices
-        denserow = float(collect(A[c, :]))
-        _addLinCons(m, nvars, varindices, denserow,
-                    float(rowlb[c]), float(rowub[c]), Ptr{Cint}(C_NULL))
-    end
-
-    _setObj(m, nvars, varindices, float(obj))
-
-    # TODO: set sense
-end
+# TODO: getobjbound, getobjgap, getrawsolver,  getsolvetime, setsense!, getsense, numvar, numconstr, freemodel!, getvartype
 
 # TODO: mapping for :SemiCont, :SemiInt
 const vartypemap = Dict{Symbol, Cint}(
@@ -75,3 +58,42 @@ getreducedcosts(m::SCIPMathProgModel) = nothing
 getconstrduals(m::SCIPMathProgModel) = nothing
 getinfeasibilityray(m::SCIPMathProgModel) = nothing
 getunboundedray(m::SCIPMathProgModel) = nothing
+
+###########################################################################
+##### Methods specific to AbstractLinearQuadraticModel                #####
+##### see: http://mathprogbasejl.readthedocs.io/en/latest/lpqcqp.html #####
+###########################################################################
+
+function loadproblem!(m::SCIPMathProgModel, A, varlb, varub, obj, rowlb, rowub, sense)
+    # TODO: clean old model?
+
+    nrows, ncols = size(A)
+    nvars = Cint(ncols)
+    varindices = collect(zero(Cint):nvars - one(Cint))
+
+    for v in 1:ncols
+        # TODO: define enum for vartype?
+        _addVar(m, float(varlb[v]), float(varub[v]),
+                Cint(3), Ptr{Cint}(C_NULL))
+    end
+    for c in 1:nrows
+        # TODO: care about sparse matrices
+        denserow = float(collect(A[c, :]))
+        _addLinCons(m, nvars, varindices, denserow,
+                    float(rowlb[c]), float(rowub[c]), Ptr{Cint}(C_NULL))
+    end
+
+    _setObj(m, nvars, varindices, float(obj))
+
+    # TODO: set sense
+end
+
+##########################################################################
+##### Methods specific to AbstractConicModel                         #####
+##### see: http://mathprogbasejl.readthedocs.io/en/latest/conic.html #####
+##########################################################################
+
+########################################################################
+##### Methods specific to AbstractNonlinear                        #####
+##### see: http://mathprogbasejl.readthedocs.io/en/latest/nlp.html #####
+########################################################################
