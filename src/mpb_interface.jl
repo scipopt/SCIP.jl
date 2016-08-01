@@ -85,7 +85,11 @@ function loadproblem!(m::SCIPMathProgModel, A, varlb, varub, obj, rowlb, rowub, 
 
     _setObj(m, nvars, varindices, float(obj))
 
-    # TODO: set sense
+    if sense == :Max
+        _setSenseMaximize(m)
+    else
+        _setSenseMinimize(m)
+    end
 end
 
 ##########################################################################
