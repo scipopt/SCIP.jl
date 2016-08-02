@@ -1,5 +1,5 @@
 facts("solve LP with linprog") do
-    solver = SCIPSolver()
+    solver = SCIPSolver("display/verblevel", 0)
 
     context("feasible LP") do
         # min -x

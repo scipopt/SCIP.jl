@@ -5,7 +5,7 @@
 ##### see: http://mathprogbasejl.readthedocs.io/en/latest/solverinterface.html                        #####
 ###########################################################################################################
 
-# TODO: getobjbound, getobjgap, getrawsolver,  getsolvetime, setsense!, getsense, numvar, numconstr, freemodel!, getvartype
+# TODO: getobjgap, getrawsolver,  getsolvetime, getsense, numvar, numconstr, freemodel!, getvartype
 
 # TODO: mapping for :SemiCont, :SemiInt
 const vartypemap = Dict{Symbol, Cint}(
@@ -39,15 +39,22 @@ function status(m::SCIPMathProgModel)
     return statusmap[stat + 1]
 end
 
-function getobjval(m::SCIPMathProgModel)
-    _getObjValue(m)
-end
+getobjbound(m::SCIPMathProgModel) = _getObjValue(m)
+getobjval(m::SCIPMathProgModel) = _getObjValue(m)
 
 function getsolution(m::SCIPMathProgModel)
     nvars = _getNumVars(m)
     values = zeros(nvars)
     _getVarValues(m, values)
     values
+end
+
+function setsense!(m::SCIPMathProgModel, sense)
+    if sense == :Max
+        _setSenseMaximize(m)
+    else
+        _setSenseMinimize(m)
+    end
 end
 
 # Not supported by SCIP or CSIP, but expected from MPB
