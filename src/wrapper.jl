@@ -23,6 +23,12 @@ function _chgVarUB(model::SCIPMathProgModel, numindices::Cint,
           model.ptr_model, numindices, indices, upperbounds)
 end
 
+function _getVarType(model::SCIPMathProgModel, varindex::Cint)
+    ccall((:CSIPgetVarType, csip), Cint,
+          (Ptr{Void}, Cint),
+          model.ptr_model, varindex)
+end
+
 function _chgVarType(model::SCIPMathProgModel, varindex::Cint, vartype::Cint)
     ccall((:CSIPchgVarType, csip), Cint,
           (Ptr{Void}, Cint, Cint),

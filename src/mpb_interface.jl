@@ -5,7 +5,7 @@
 ##### see: http://mathprogbasejl.readthedocs.io/en/latest/solverinterface.html                        #####
 ###########################################################################################################
 
-# TODO: getobjgap, getrawsolver,  getsolvetime, getsense, numvar, numconstr, freemodel!, getvartype
+# TODO: getobjgap, getrawsolver,  getsolvetime, getsense, numvar, numconstr, freemodel!
 
 # TODO: mapping for :SemiCont, :SemiInt
 const vartypemap = Dict{Symbol, Cint}(
@@ -13,6 +13,20 @@ const vartypemap = Dict{Symbol, Cint}(
   :Bin => 0,
   :Int => 1
 )
+const revvartypemap = Dict{Cint, Symbol}(
+  3 => :Cont,
+  0 => :Bin,
+  1 => :Int
+)
+
+function getvartype(m::SCIPMathProgModel)
+    nvars = _getNumVars(m)
+    types = zeros(nvars)
+    for idx = one(Cint):nvars
+        types[idx] = _getVarType(m, idx - one(Cint))
+    end
+    return map(x -> revvartypemap[x], types)
+end
 
 function setvartype!(m::SCIPMathProgModel, vartype::Vector{Symbol})
     nvars = Cint(length(vartype))
@@ -97,6 +111,18 @@ function loadproblem!(m::SCIPMathProgModel, A, varlb, varub, obj, rowlb, rowub, 
     else
         _setSenseMinimize(m)
     end
+end
+
+function addsos1!(m::SCIPMathProgModel, idx, weight)
+    nidx = Cint(length(idx))
+    cidx = convert(Vector{Cint}, idx - 1)
+    _addSOS1(m, nidx, cidx, weight, Ptr{Cint}(C_NULL))
+end
+
+function addsos2!(m::SCIPMathProgModel, idx, weight)
+    nidx = Cint(length(idx))
+    cidx = convert(Vector{Cint}, idx - 1)
+    _addSOS2(m, nidx, cidx, weight, Ptr{Cint}(C_NULL))
 end
 
 ##########################################################################
