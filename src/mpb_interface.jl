@@ -125,6 +125,22 @@ function addsos2!(m::SCIPMathProgModel, idx, weight)
     _addSOS2(m, nidx, cidx, weight, Ptr{Cint}(C_NULL))
 end
 
+function addquadconstr!(m::SCIPMathProgModel, linearidx, linearval, quadrowidx, quadcolidx, quadval, sense, rhs)
+    clhs = -Inf
+    crhs =  Inf
+    if sense == '<'
+        crhs = rhs
+    elseif sense == '>'
+        clhs = rhs
+    else
+        @assert sense == '='
+        clhs = rhs
+        crhs = rhs
+    end
+    _addQuadCons(m, Cint(length(linearidx)), convert(Vector{Cint}, linearidx - 1),
+                 linearval, Cint(length(quadrowidx)), convert(Vector{Cint}, quadrowidx - 1),
+                 convert(Vector{Cint}, quadcolidx - 1), quadval, clhs, crhs, Ptr{Cint}(C_NULL))
+end
 ##########################################################################
 ##### Methods specific to AbstractConicModel                         #####
 ##### see: http://mathprogbasejl.readthedocs.io/en/latest/conic.html #####
