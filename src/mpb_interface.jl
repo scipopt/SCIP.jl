@@ -71,14 +71,11 @@ function setsense!(m::SCIPMathProgModel, sense)
     end
 end
 
-# Not supported by SCIP or CSIP, but expected from MPB
-# TODO: print warning when called?
-# TODO: should we just support `mixintprog` but not `linprog`?
-
-getreducedcosts(m::SCIPMathProgModel) = nothing
-getconstrduals(m::SCIPMathProgModel) = nothing
-getinfeasibilityray(m::SCIPMathProgModel) = nothing
-getunboundedray(m::SCIPMathProgModel) = nothing
+# Not supported by SCIP or CSIP, but expected from MPB for `linprog`.
+getreducedcosts(m::SCIPMathProgModel) = error("Duals not available through SCIP")
+getconstrduals(m::SCIPMathProgModel) = error("Duals not available through SCIP")
+getinfeasibilityray(m::SCIPMathProgModel) = error("Duals not available through SCIP")
+getunboundedray(m::SCIPMathProgModel) = error("Duals not available through SCIP")
 
 ###########################################################################
 ##### Methods specific to AbstractLinearQuadraticModel                #####
