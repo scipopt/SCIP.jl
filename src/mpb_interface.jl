@@ -72,10 +72,10 @@ function setsense!(m::SCIPMathProgModel, sense)
 end
 
 # Not supported by SCIP or CSIP, but expected from MPB for `linprog`.
-getreducedcosts(m::SCIPMathProgModel) = error("Duals not available through SCIP")
+getreducedcosts(m::SCIPMathProgModel) = error("Reduced costs not available through SCIP")
 getconstrduals(m::SCIPMathProgModel) = error("Duals not available through SCIP")
-getinfeasibilityray(m::SCIPMathProgModel) = error("Duals not available through SCIP")
-getunboundedray(m::SCIPMathProgModel) = error("Duals not available through SCIP")
+getinfeasibilityray(m::SCIPMathProgModel) = error("Infeasibility ray not available through SCIP")
+getunboundedray(m::SCIPMathProgModel) = error("Unbounded ray not available through SCIP")
 
 ###########################################################################
 ##### Methods specific to AbstractLinearQuadraticModel                #####
