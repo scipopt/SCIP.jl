@@ -53,7 +53,7 @@ function status(m::SCIPMathProgModel)
     return statusmap[stat + 1]
 end
 
-getobjbound(m::SCIPMathProgModel) = _getObjValue(m)
+getobjbound(m::SCIPMathProgModel) = _getObjBound(m)
 getobjval(m::SCIPMathProgModel) = _getObjValue(m)
 
 function getsolution(m::SCIPMathProgModel)

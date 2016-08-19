@@ -99,6 +99,10 @@ function _getObjValue(model::SCIPMathProgModel)
     ccall((:CSIPgetObjValue, csip), Cdouble, (Ptr{Void}, ), model.ptr_model)
 end
 
+function _getObjBound(model::SCIPMathProgModel)
+    ccall((:CSIPgetObjBound, csip), Cdouble, (Ptr{Void}, ), model.ptr_model)
+end
+
 function _getStatus(model::SCIPMathProgModel)
     ccall((:CSIPgetStatus, csip), Cint, (Ptr{Void}, ), model.ptr_model)
 end
