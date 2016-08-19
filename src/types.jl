@@ -4,19 +4,23 @@ export SCIPSolver
 
 type SCIPMathProgModel <: AbstractLinearQuadraticModel
     ptr_model::Ptr{Void}
+    options
 
-    function SCIPMathProgModel()
+    function SCIPMathProgModel(options...)
         _arr = Array(Ptr{Void}, 1)
         # TODO: check return code (everywhere!)
         ccall((:CSIPcreateModel, csip), Cint, (Ptr{Ptr{Void}}, ), _arr)
-        new(_arr[1])
-
+        m = new(_arr[1], options)
         # QUESTION: Why is _arr not garbage-collected?
+        setparams!(m)
+        return m
     end
 end
 
 # Solver
 
 immutable SCIPSolver <: AbstractMathProgSolver
+    options
 end
-LinearQuadraticModel(s::SCIPSolver) = SCIPMathProgModel()
+SCIPSolver(kwargs...) = SCIPSolver(kwargs)
+LinearQuadraticModel(s::SCIPSolver) = SCIPMathProgModel(s.options)
