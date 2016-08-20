@@ -170,16 +170,35 @@ function setlazycallback!(m::SCIPMathProgModel, f)
     _addLazyCallback(m, cbfunction, fractional, userdata)
 end
 
+# TODO: how do we know? :-\
+cbgetstate(d::SCIPCallbackData) = :MIPSol
+
 function cbgetlpsolution(d::SCIPCallbackData, output)
-    # _cbGetVarValues(cbdata!)
+    _cbGetVarValues(d.csip_cbdata, output)
 end
+cbgetmipsolution(d::SCIPCallbackData, output) = cbgetlpsolution(d, output)
 
 function cbgetlpsolution(d::SCIPCallbackData)
     output = Array(Float64, _getNumVars(m))
     cbgetlpsolution(d, output)
 end
+cbgetmipsolution(d::SCIPCallbackData) = cbgetlpsolution(d)
 
 function cbaddlazy!(d::SCIPCallbackData, varidx, varcoef, sense, rhs)
+    clhs = -Inf
+    crhs =  Inf
+    if sense == '<'
+        crhs = rhs
+    elseif sense == '>'
+        clhs = rhs
+    else
+        @assert sense == '='
+        clhs = rhs
+        crhs = rhs
+    end
+    _cbAddLinCons(d.csip_cbdata, convert(Cint, length(varidx)),
+                  convert(Vector{Cint}, varidx - 1), varcoef, clhs, crhs,
+                  convert(Cint, 0))
 end
 
 # function cbaddlazylocal!(d::SCIPCallbackData, varidx, varcoef, sense, rhs)
