@@ -136,10 +136,10 @@ function _cbAddLinCons(cbdata::Ptr{Void}, numindices::Cint,
           cbdata, numindices, indices, coefs, lhs, rhs, islocal)
 end
 
-function _addLazyCallback(model::SCIPMathProgModel, cb::Void, fractional::Cint,
-                          userdata::Ptr{Void})
+function _addLazyCallback(model::SCIPMathProgModel, cb::Ptr{Void},
+                          fractional::Cint, userdata)
     ccall((:CSIPaddLazyCallback, csip), Cint,
-          (Ptr{Void}, Void, Cint, Ptr{Void}),
+          (Ptr{Void}, Ptr{Void}, Cint, Any),
           model.ptr_model, cb, fractional, userdata)
 end
 

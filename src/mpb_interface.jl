@@ -138,6 +138,53 @@ function addquadconstr!(m::SCIPMathProgModel, linearidx, linearval, quadrowidx, 
                  linearval, Cint(length(quadrowidx)), convert(Vector{Cint}, quadrowidx - 1),
                  convert(Vector{Cint}, quadcolidx - 1), quadval, clhs, crhs, Ptr{Cint}(C_NULL))
 end
+
+##########################################################################
+##### Methods specific to MIP Callbacks                              #####
+##########################################################################
+
+type SCIPCallbackData <: MathProgCallbackData
+    model::SCIPMathProgModel
+    csip_cbdata::Ptr{Void}
+end
+
+# this is the function that should fit the CSIP_LAZYCALLBACK signature
+function lazycb_wrapper(csip_model::Ptr{Void}, csip_cbdata::Ptr{Void},
+                        userdata::Ptr{Void})
+    # m, f = unsafe_pointer_to_objref(userdata)::(SCIPMathProgModel, Function)
+    # WTF: TypeError: typeassert: expected Type{T}, got Tuple{DataType,DataType}
+    m, f = unsafe_pointer_to_objref(userdata)
+    d = SCIPCallbackData(m, csip_cbdata)
+    f(d)
+
+    return convert(Cint, 0) # CSIP_RETCODE_OK
+end
+
+function setlazycallback!(m::SCIPMathProgModel, f)
+    # f is function(d::SCIPCallbackData)
+
+    cbfunction = cfunction(lazycb_wrapper, Cint, (Ptr{Void}, Ptr{Void}, Ptr{Void}))
+    fractional = Cint(1) # JuMP will work this out?!
+    userdata = (m, f)
+
+    _addLazyCallback(m, cbfunction, fractional, userdata)
+end
+
+function cbgetlpsolution(d::SCIPCallbackData, output)
+    # _cbGetVarValues(cbdata!)
+end
+
+function cbgetlpsolution(d::SCIPCallbackData)
+    output = Array(Float64, _getNumVars(m))
+    cbgetlpsolution(d, output)
+end
+
+function cbaddlazy!(d::SCIPCallbackData, varidx, varcoef, sense, rhs)
+end
+
+# function cbaddlazylocal!(d::SCIPCallbackData, varidx, varcoef, sense, rhs)
+# end
+
 ##########################################################################
 ##### Methods specific to AbstractConicModel                         #####
 ##### see: http://mathprogbasejl.readthedocs.io/en/latest/conic.html #####
