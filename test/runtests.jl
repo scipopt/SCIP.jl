@@ -7,7 +7,7 @@ include("mixintprog.jl")
 include(joinpath(Pkg.dir("JuMP"),"test","solvers.jl"))
 
 using JuMP
-solver = SCIPSolver()
+solver = SCIPSolver("display/verblevel", 0)
 lp_solvers = lp_solvers[1:1] # just need one
 ip_solvers = [solver]
 quad_solvers = []
