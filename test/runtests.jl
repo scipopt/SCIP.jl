@@ -17,6 +17,10 @@ lazy_solvers = [solver]
 include(joinpath(Pkg.dir("JuMP"),"test","model.jl"))
 include(joinpath(Pkg.dir("JuMP"),"test","probmod.jl"))
 lazylocal_solvers = [solver]
+cut_solvers = []
+cutlocal_solvers = []
+heur_solvers = []
+info_solvers = []
 #include(joinpath(Pkg.dir("JuMP"),"test","qcqpmodel.jl"))
 #include(joinpath(Pkg.dir("JuMP"),"test","callback.jl"))
 #include(joinpath(Pkg.dir("JuMP"),"test","nonlinear.jl"))
