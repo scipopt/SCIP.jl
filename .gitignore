@@ -3,3 +3,5 @@
 *.jl.mem
 deps/deps.jl
 *~
+/test/test.lp
+/test/test.mps
