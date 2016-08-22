@@ -90,6 +90,10 @@ function _solve(model::SCIPMathProgModel)
     ccall((:CSIPsolve, csip), Cint, (Ptr{Void}, ), model.ptr_model)
 end
 
+function _interrupt(model::SCIPMathProgModel)
+    ccall((:CSIPinterrupt, csip), Cint, (Ptr{Void}, ), model.ptr_model)
+end
+
 function _getVarValues(model::SCIPMathProgModel, output::Vector{Cdouble})
     ccall((:CSIPgetVarValues, csip), Cint, (Ptr{Void}, Ptr{Cdouble}),
           model.ptr_model, output)

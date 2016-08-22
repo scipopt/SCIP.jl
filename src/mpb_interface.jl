@@ -155,7 +155,8 @@ function lazycb_wrapper(csip_model::Ptr{Void}, csip_cbdata::Ptr{Void},
     # WTF: TypeError: typeassert: expected Type{T}, got Tuple{DataType,DataType}
     m, f = unsafe_pointer_to_objref(userdata)
     d = SCIPCallbackData(m, csip_cbdata)
-    f(d)
+    ret = f(d)
+    ret == :Exit && _interrupt(m)
 
     return convert(Cint, 0) # CSIP_RETCODE_OK
 end
