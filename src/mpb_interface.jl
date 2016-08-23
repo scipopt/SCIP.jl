@@ -143,18 +143,18 @@ end
 ##### Methods specific to MIP Callbacks                              #####
 ##########################################################################
 
-type SCIPCallbackData <: MathProgCallbackData
+type SCIPLazyCallbackData <: MathProgCallbackData
     model::SCIPMathProgModel
-    csip_cbdata::Ptr{Void}
+    csip_lazydata::Ptr{Void}
 end
 
 # this is the function that should fit the CSIP_LAZYCALLBACK signature
-function lazycb_wrapper(csip_model::Ptr{Void}, csip_cbdata::Ptr{Void},
+function lazycb_wrapper(csip_model::Ptr{Void}, csip_lazydata::Ptr{Void},
                         userdata::Ptr{Void})
     # m, f = unsafe_pointer_to_objref(userdata)::(SCIPMathProgModel, Function)
     # WTF: TypeError: typeassert: expected Type{T}, got Tuple{DataType,DataType}
     m, f = unsafe_pointer_to_objref(userdata)
-    d = SCIPCallbackData(m, csip_cbdata)
+    d = SCIPLazyCallbackData(m, csip_lazydata)
     ret = f(d)
     ret == :Exit && _interrupt(m)
 
@@ -162,7 +162,7 @@ function lazycb_wrapper(csip_model::Ptr{Void}, csip_cbdata::Ptr{Void},
 end
 
 function setlazycallback!(m::SCIPMathProgModel, f)
-    # f is function(d::SCIPCallbackData)
+    # f is function(d::SCIPLazyCallbackData)
 
     cbfunction = cfunction(lazycb_wrapper, Cint, (Ptr{Void}, Ptr{Void}, Ptr{Void}))
     fractional = Cint(1) # JuMP will work this out?!
@@ -172,20 +172,20 @@ function setlazycallback!(m::SCIPMathProgModel, f)
 end
 
 # TODO: how do we know? :-\
-cbgetstate(d::SCIPCallbackData) = :MIPSol
+cbgetstate(d::SCIPLazyCallbackData) = :MIPSol
 
-function cbgetlpsolution(d::SCIPCallbackData, output)
-    _cbGetVarValues(d.csip_cbdata, output)
+function cbgetlpsolution(d::SCIPLazyCallbackData, output)
+    _lazyGetVarValues(d.csip_lazydata, output)
 end
-cbgetmipsolution(d::SCIPCallbackData, output) = cbgetlpsolution(d, output)
+cbgetmipsolution(d::SCIPLazyCallbackData, output) = cbgetlpsolution(d, output)
 
-function cbgetlpsolution(d::SCIPCallbackData)
+function cbgetlpsolution(d::SCIPLazyCallbackData)
     output = Array(Float64, _getNumVars(m))
     cbgetlpsolution(d, output)
 end
-cbgetmipsolution(d::SCIPCallbackData) = cbgetlpsolution(d)
+cbgetmipsolution(d::SCIPLazyCallbackData) = cbgetlpsolution(d)
 
-function cbaddlazy!(d::SCIPCallbackData, varidx, varcoef, sense, rhs)
+function cbaddlazy!(d::SCIPLazyCallbackData, varidx, varcoef, sense, rhs)
     clhs = -Inf
     crhs =  Inf
     if sense == '<'
@@ -197,12 +197,12 @@ function cbaddlazy!(d::SCIPCallbackData, varidx, varcoef, sense, rhs)
         clhs = rhs
         crhs = rhs
     end
-    _cbAddLinCons(d.csip_cbdata, convert(Cint, length(varidx)),
+    _lazyAddLinCons(d.csip_lazydata, convert(Cint, length(varidx)),
                   convert(Vector{Cint}, varidx - 1), varcoef, clhs, crhs,
                   convert(Cint, 0))
 end
 
-# function cbaddlazylocal!(d::SCIPCallbackData, varidx, varcoef, sense, rhs)
+# function cbaddlazylocal!(d::SCIPLazyCallbackData, varidx, varcoef, sense, rhs)
 # end
 
 ##########################################################################

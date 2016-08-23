@@ -127,24 +127,24 @@ function _setInitialSolution(model::SCIPMathProgModel, values::Vector{Cdouble})
           model.ptr_model, values)
 end
 
-function _cbGetVarValues(cbdata::Ptr{Void}, output::Vector{Cdouble})
-    ccall((:CSIPcbGetVarValues, csip), Cint, (Ptr{Void}, Ptr{Cdouble}),
-          cbdata, output)
+function _lazyGetVarValues(lazydata::Ptr{Void}, output::Vector{Cdouble})
+    ccall((:CSIPlazybGetVarValues, csip), Cint, (Ptr{Void}, Ptr{Cdouble}),
+          lazydata, output)
 end
 
-function _cbAddLinCons(cbdata::Ptr{Void}, numindices::Cint,
+function _lazyAddLinCons(lazydata::Ptr{Void}, numindices::Cint,
                        indices::Vector{Cint}, coefs::Vector{Cdouble},
                        lhs::Cdouble, rhs::Cdouble, islocal::Cint)
-    ccall((:CSIPcbAddLinCons, csip), Cint,
+    ccall((:CSIPlazybAddLinCons, csip), Cint,
           (Ptr{Void}, Cint, Ptr{Cint}, Ptr{Cdouble}, Cdouble, Cdouble, Cint),
-          cbdata, numindices, indices, coefs, lhs, rhs, islocal)
+          lazydata, numindices, indices, coefs, lhs, rhs, islocal)
 end
 
-function _addLazyCallback(model::SCIPMathProgModel, cb::Ptr{Void},
+function _addLazyCallback(model::SCIPMathProgModel, lazycb::Ptr{Void},
                           fractional::Cint, userdata)
     ccall((:CSIPaddLazyCallback, csip), Cint,
           (Ptr{Void}, Ptr{Void}, Cint, Any),
-          model.ptr_model, cb, fractional, userdata)
+          model.ptr_model, lazycb, fractional, userdata)
 end
 
 function _heurGetVarValues(heurdata::Ptr{Void}, output::Vector{Cdouble})
