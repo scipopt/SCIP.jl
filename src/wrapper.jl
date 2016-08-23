@@ -128,14 +128,14 @@ function _setInitialSolution(model::SCIPMathProgModel, values::Vector{Cdouble})
 end
 
 function _lazyGetVarValues(lazydata::Ptr{Void}, output::Vector{Cdouble})
-    ccall((:CSIPlazybGetVarValues, csip), Cint, (Ptr{Void}, Ptr{Cdouble}),
+    ccall((:CSIPlazyGetVarValues, csip), Cint, (Ptr{Void}, Ptr{Cdouble}),
           lazydata, output)
 end
 
 function _lazyAddLinCons(lazydata::Ptr{Void}, numindices::Cint,
                        indices::Vector{Cint}, coefs::Vector{Cdouble},
                        lhs::Cdouble, rhs::Cdouble, islocal::Cint)
-    ccall((:CSIPlazybAddLinCons, csip), Cint,
+    ccall((:CSIPlazyAddLinCons, csip), Cint,
           (Ptr{Void}, Cint, Ptr{Cint}, Ptr{Cdouble}, Cdouble, Cdouble, Cint),
           lazydata, numindices, indices, coefs, lhs, rhs, islocal)
 end

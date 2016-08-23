@@ -143,6 +143,8 @@ end
 ##### Methods specific to MIP Callbacks                              #####
 ##########################################################################
 
+# use a different type for heuristic callback and multiple dispatch to implements
+# the methods that they share
 type SCIPLazyCallbackData <: MathProgCallbackData
     model::SCIPMathProgModel
     csip_lazydata::Ptr{Void}
@@ -171,18 +173,48 @@ function setlazycallback!(m::SCIPMathProgModel, f)
     _addLazyCallback(m, cbfunction, fractional, userdata)
 end
 
-# TODO: how do we know? :-\
-cbgetstate(d::SCIPLazyCallbackData) = :MIPSol
+# if we are called from a lazy callback, we check whether the LP relaxation is integral
+function cbgetstate(d::SCIPLazyCallbackData)
+    :MIPSol
+    #TODO: we should return...
+    # in ENFOLP: if sol is integral -> :MIPSol, otherwise MIPNode
+    # in CHECK: if integral -> :MIPSol, oltherwise :Other
+    # in ENFOPS: same as CHECK
+    # The problem seems to be that we currently cannot know where we are in SCIP.jl
+
+    #n = ccall((:SCIPgetNLPBranchCands, csip), Cint, (Ptr{Void},), _getInternalSCIP(d.model)) << this method can only be call in ENFOLP (?)
+    #n = issolintegral(getvartype(d.model))
+    #return n ? :MIPSol : :MIPNode
+end
+
+# TODO: 1. this function should probably be in helper.jl
+# 2. this is terrible: SCIP should decide, but there doesn't seem to a public method that does that.
+function issolintegral(vartypes::Vector{Symbol}, values::Vector{Float64})
+    for (vt, val) in zip(vartypes, values)
+        if vt == :Cont
+            continue
+        end
+        if abs(round(val)-val) > 1e-6
+            return false
+        end
+    end
+
+    return true
+end
 
 function cbgetlpsolution(d::SCIPLazyCallbackData, output)
     _lazyGetVarValues(d.csip_lazydata, output)
 end
+
+#TODO: what should we do if there is no best solution?
 cbgetmipsolution(d::SCIPLazyCallbackData, output) = cbgetlpsolution(d, output)
 
 function cbgetlpsolution(d::SCIPLazyCallbackData)
     output = Array(Float64, _getNumVars(m))
     cbgetlpsolution(d, output)
 end
+
+#TODO: what should we do if there is no best solution?
 cbgetmipsolution(d::SCIPLazyCallbackData) = cbgetlpsolution(d)
 
 function cbaddlazy!(d::SCIPLazyCallbackData, varidx, varcoef, sense, rhs)
