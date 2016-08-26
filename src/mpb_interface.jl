@@ -138,6 +138,82 @@ function addquadconstr!(m::SCIPMathProgModel, linearidx, linearval, quadrowidx, 
                  linearval, Cint(length(quadrowidx)), convert(Vector{Cint}, quadrowidx - 1),
                  convert(Vector{Cint}, quadcolidx - 1), quadval, clhs, crhs, Ptr{Cint}(C_NULL))
 end
+
+##########################################################################
+##### Methods specific to MIP Callbacks                              #####
+##########################################################################
+
+# use a different type for heuristic callback and multiple dispatch to implements
+# the methods that they share
+type SCIPLazyCallbackData <: MathProgCallbackData
+    model::SCIPMathProgModel
+    csip_lazydata::Ptr{Void}
+end
+
+# this is the function that should fit the CSIP_LAZYCALLBACK signature
+function lazycb_wrapper(csip_model::Ptr{Void}, csip_lazydata::Ptr{Void},
+                        userdata::Ptr{Void})
+    # m, f = unsafe_pointer_to_objref(userdata)::(SCIPMathProgModel, Function)
+    # WTF: TypeError: typeassert: expected Type{T}, got Tuple{DataType,DataType}
+    m, f = unsafe_pointer_to_objref(userdata)
+    d = SCIPLazyCallbackData(m, csip_lazydata)
+    ret = f(d)
+    ret == :Exit && _interrupt(m)
+
+    return convert(Cint, 0) # CSIP_RETCODE_OK
+end
+
+function setlazycallback!(m::SCIPMathProgModel, f)
+    # f is function(d::SCIPLazyCallbackData)
+
+    cbfunction = cfunction(lazycb_wrapper, Cint, (Ptr{Void}, Ptr{Void}, Ptr{Void}))
+    userdata = (m, f)
+
+    _addLazyCallback(m, cbfunction, userdata)
+end
+
+# if we are called from a lazy callback, we check whether the LP relaxation is integral
+function cbgetstate(d::SCIPLazyCallbackData)
+    context = _lazyGetContext(d.csip_lazydata)
+    mapping = [:MIPNode, :MIPSol, :Other]
+    mapping[context + 1]
+end
+
+function cbgetlpsolution(d::SCIPLazyCallbackData, output)
+    _lazyGetVarValues(d.csip_lazydata, output)
+end
+
+#TODO: what should we do if there is no best solution?
+cbgetmipsolution(d::SCIPLazyCallbackData, output) = cbgetlpsolution(d, output)
+
+function cbgetlpsolution(d::SCIPLazyCallbackData)
+    output = Array(Float64, _getNumVars(m))
+    cbgetlpsolution(d, output)
+end
+
+#TODO: what should we do if there is no best solution?
+cbgetmipsolution(d::SCIPLazyCallbackData) = cbgetlpsolution(d)
+
+function cbaddlazy!(d::SCIPLazyCallbackData, varidx, varcoef, sense, rhs)
+    clhs = -Inf
+    crhs =  Inf
+    if sense == '<'
+        crhs = rhs
+    elseif sense == '>'
+        clhs = rhs
+    else
+        @assert sense == '='
+        clhs = rhs
+        crhs = rhs
+    end
+    _lazyAddLinCons(d.csip_lazydata, convert(Cint, length(varidx)),
+                  convert(Vector{Cint}, varidx - 1), varcoef, clhs, crhs,
+                  convert(Cint, 0))
+end
+
+# function cbaddlazylocal!(d::SCIPLazyCallbackData, varidx, varcoef, sense, rhs)
+# end
+
 ##########################################################################
 ##### Methods specific to AbstractConicModel                         #####
 ##### see: http://mathprogbasejl.readthedocs.io/en/latest/conic.html #####

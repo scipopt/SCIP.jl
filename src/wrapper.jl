@@ -90,6 +90,10 @@ function _solve(model::SCIPMathProgModel)
     ccall((:CSIPsolve, csip), Cint, (Ptr{Void}, ), model.ptr_model)
 end
 
+function _interrupt(model::SCIPMathProgModel)
+    ccall((:CSIPinterrupt, csip), Cint, (Ptr{Void}, ), model.ptr_model)
+end
+
 function _getVarValues(model::SCIPMathProgModel, output::Vector{Cdouble})
     ccall((:CSIPgetVarValues, csip), Cint, (Ptr{Void}, Ptr{Cdouble}),
           model.ptr_model, output)
@@ -123,24 +127,27 @@ function _setInitialSolution(model::SCIPMathProgModel, values::Vector{Cdouble})
           model.ptr_model, values)
 end
 
-function _cbGetVarValues(cbdata::Ptr{Void}, output::Vector{Cdouble})
-    ccall((:CSIPcbGetVarValues, csip), Cint, (Ptr{Void}, Ptr{Cdouble}),
-          cbdata, output)
+function _lazyGetContext(lazydata::Ptr{Void})
+    ccall((:CSIPlazyGetContext, csip), Cint, (Ptr{Void}, ), lazydata)
 end
 
-function _cbAddLinCons(cbdata::Ptr{Void}, numindices::Cint,
+function _lazyGetVarValues(lazydata::Ptr{Void}, output::Vector{Cdouble})
+    ccall((:CSIPlazyGetVarValues, csip), Cint, (Ptr{Void}, Ptr{Cdouble}),
+          lazydata, output)
+end
+
+function _lazyAddLinCons(lazydata::Ptr{Void}, numindices::Cint,
                        indices::Vector{Cint}, coefs::Vector{Cdouble},
                        lhs::Cdouble, rhs::Cdouble, islocal::Cint)
-    ccall((:CSIPcbAddLinCons, csip), Cint,
+    ccall((:CSIPlazyAddLinCons, csip), Cint,
           (Ptr{Void}, Cint, Ptr{Cint}, Ptr{Cdouble}, Cdouble, Cdouble, Cint),
-          cbdata, numindices, indices, coefs, lhs, rhs, islocal)
+          lazydata, numindices, indices, coefs, lhs, rhs, islocal)
 end
 
-function _addLazyCallback(model::SCIPMathProgModel, cb::Void, fractional::Cint,
-                          userdata::Ptr{Void})
+function _addLazyCallback(model::SCIPMathProgModel, lazycb::Ptr{Void}, userdata)
     ccall((:CSIPaddLazyCallback, csip), Cint,
-          (Ptr{Void}, Void, Cint, Ptr{Void}),
-          model.ptr_model, cb, fractional, userdata)
+          (Ptr{Void}, Ptr{Void}, Any),
+          model.ptr_model, lazycb, userdata)
 end
 
 function _heurGetVarValues(heurdata::Ptr{Void}, output::Vector{Cdouble})
