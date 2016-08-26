@@ -67,6 +67,7 @@ function status(m::SCIPMathProgModel)
 end
 
 getobjbound(m::SCIPMathProgModel) = _getObjBound(m)
+
 getobjval(m::SCIPMathProgModel) = _getObjValue(m)
 
 function getsolution(m::SCIPMathProgModel)
@@ -84,16 +85,13 @@ function setsense!(m::SCIPMathProgModel, sense)
     end
 end
 
-# Not supported by SCIP or CSIP, but expected from MPB for `linprog`.
-getreducedcosts(m::SCIPMathProgModel) = error("Reduced costs not available through SCIP")
-getconstrduals(m::SCIPMathProgModel) = error("Duals not available through SCIP")
-getinfeasibilityray(m::SCIPMathProgModel) = error("Infeasibility ray not available through SCIP")
-getunboundedray(m::SCIPMathProgModel) = error("Unbounded ray not available through SCIP")
-
 ###########################################################################
 ##### Methods specific to AbstractLinearQuadraticModel                #####
 ##### see: http://mathprogbasejl.readthedocs.io/en/latest/lpqcqp.html #####
 ###########################################################################
+
+loadproblem!(m::SCIPMathProgModel, filename::AbstractString) =
+    error("Not implemented for SCIP.jl")
 
 function loadproblem!(m::SCIPMathProgModel, A, varlb, varub, obj, rowlb, rowub, sense)
     # TODO: clean old model?
@@ -123,6 +121,79 @@ function loadproblem!(m::SCIPMathProgModel, A, varlb, varub, obj, rowlb, rowub, 
     end
 end
 
+writeproblem(m::SCIPMathProgModel, filename::AbstractString) =
+    error("Not implemented for SCIP.jl")
+
+getvarLB(m::SCIPMathProgModel) = error("Not implemented for SCIP.jl")
+
+function setvarLB!(m::SCIPMathProgModel, lb)
+    indices = collect(zero(Cint):Cint(numvar(m) - 1))
+    _chgVarLB(m, Cint(numvar(m)), indices, float(lb))
+end
+
+getvarUB(m::SCIPMathProgModel) = error("Not implemented for SCIP.jl")
+
+function setvarUB!(m::SCIPMathProgModel, ub)
+    indices = collect(zero(Cint):Cint(numvar(m) - 1))
+    _chgVarUB(m, Cint(numvar(m)), indices, float(ub))
+end
+
+getconstrLB(m::SCIPMathProgModel) = error("Not implemented for SCIP.jl")
+
+# setconstrLB!(m::SCIPMathProgModel, lb) = error("Not implemented for SCIP.jl")
+
+getconstrUB(m::SCIPMathProgModel) = error("Not implemented for SCIP.jl")
+
+# setconstrUB!(m::SCIPMathProgModel, ub) = error("Not implemented for SCIP.jl")
+
+getobj(m::SCIPMathProgModel) = error("Not implemented for SCIP.jl")
+
+function setobj!(m::SCIPMathProgModel, obj)
+    indices = collect(zero(Cint):Cint(numvar(m) - 1))
+    _setObj(m, Cint(numvar(m)), indices, float(obj))
+end
+
+getconstrmatrix(m::SCIPMathProgModel) = error("Not implemented for SCIP.jl")
+
+addvar!(m::SCIPMathProgModel, constridx, constrcoef, l, u, objcoef) =
+    error("Not implemented for SCIP.jl")
+
+addvar!(m::SCIPMathProgModel, l, u, objcoef) = error("Not implemented for SCIP.jl")
+
+function addconstr!(m::SCIPMathProgModel, varidx, coef, lb, ub)
+    _addLinCons(m, Cint(length(varidx)), Vector{Cint}(varidx - 1), float(coef),
+                float(lb), float(ub), Ptr{Cint}(C_NULL))
+end
+
+numlinconstr(m::SCIPMathProgModel) = error("Not implemented for SCIP.jl")
+
+getconstrsolution(m::SCIPMathProgModel) = error("Not implemented for SCIP.jl")
+
+getreducedcosts(m::SCIPMathProgModel) = error("Not implemented for SCIP.jl")
+
+getconstrduals(m::SCIPMathProgModel) = error("Not implemented for SCIP.jl")
+
+getinfeasibilityray(m::SCIPMathProgModel) = error("Not implemented for SCIP.jl")
+
+getbasis(m::SCIPMathProgModel) = error("Not implemented for SCIP.jl")
+
+getunboundedray(m::SCIPMathProgModel) = error("Not implemented for SCIP.jl")
+
+getsimplexiter(m::SCIPMathProgModel) = error("Not implemented for SCIP.jl")
+
+getbarrieriter(m::SCIPMathProgModel) = error("Not implemented for SCIP.jl")
+
+function setwarmstart!(m::SCIPMathProgModel, v)
+    # does not support incomplete solutions (with NaN)
+    _setInitialSolution(m, float(v))
+end
+
+##########################################################################
+##### Methods specific to Integer Programming                        #####
+##########################################################################
+
+getnodecount(m::SCIPMathProgModel) = error("Not implemented for SCIP.jl")
+
 function addsos1!(m::SCIPMathProgModel, idx, weight)
     nidx = Cint(length(idx))
     cidx = convert(Vector{Cint}, idx - 1)
@@ -134,6 +205,20 @@ function addsos2!(m::SCIPMathProgModel, idx, weight)
     cidx = convert(Vector{Cint}, idx - 1)
     _addSOS2(m, nidx, cidx, weight, Ptr{Cint}(C_NULL))
 end
+
+##########################################################################
+##### Methods specific to Quadratic Programming                      #####
+##########################################################################
+
+numquadconstr(m::SCIPMathProgModel) = error("Not implemented for SCIP.jl")
+
+setquadobj!(m::SCIPMathProgModel, Q) = error("Not implemented for SCIP.jl")
+
+setquadobj!(m::SCIPMathProgModel, rowidx, colidx, quadval) =
+    error("Not implemented for SCIP.jl")
+
+setquadobjterms!(m::SCIPMathProgModel, rowidx, colidx, quadval) =
+    error("Not implemented for SCIP.jl")
 
 function addquadconstr!(m::SCIPMathProgModel, linearidx, linearval, quadrowidx, quadcolidx, quadval, sense, rhs)
     clhs = -Inf
@@ -151,6 +236,16 @@ function addquadconstr!(m::SCIPMathProgModel, linearidx, linearval, quadrowidx, 
                  linearval, Cint(length(quadrowidx)), convert(Vector{Cint}, quadrowidx - 1),
                  convert(Vector{Cint}, quadcolidx - 1), quadval, clhs, crhs, Ptr{Cint}(C_NULL))
 end
+
+getquadconstrsolution(m::SCIPMathProgModel) = error("Not implemented for SCIP.jl")
+
+getquadconstrduals(m::SCIPMathProgModel) = error("Not implemented for SCIP.jl")
+
+getquadinfeasibilityray(m::SCIPMathProgModel) = error("Not implemented for SCIP.jl")
+
+getquadconstrRHS(m::SCIPMathProgModel) = error("Not implemented for SCIP.jl")
+
+setquadconstrRHS!(m::SCIPMathProgModel, lb) = error("Not implemented for SCIP.jl")
 
 ##########################################################################
 ##### Methods specific to MIP Callbacks                              #####
