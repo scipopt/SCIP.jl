@@ -127,6 +127,10 @@ function _setInitialSolution(model::SCIPMathProgModel, values::Vector{Cdouble})
           model.ptr_model, values)
 end
 
+function _lazyGetContext(lazydata::Ptr{Void})
+    ccall((:CSIPlazyGetContext, csip), Cint, (Ptr{Void}, ), lazydata)
+end
+
 function _lazyGetVarValues(lazydata::Ptr{Void}, output::Vector{Cdouble})
     ccall((:CSIPlazyGetVarValues, csip), Cint, (Ptr{Void}, Ptr{Cdouble}),
           lazydata, output)
@@ -140,11 +144,10 @@ function _lazyAddLinCons(lazydata::Ptr{Void}, numindices::Cint,
           lazydata, numindices, indices, coefs, lhs, rhs, islocal)
 end
 
-function _addLazyCallback(model::SCIPMathProgModel, lazycb::Ptr{Void},
-                          fractional::Cint, userdata)
+function _addLazyCallback(model::SCIPMathProgModel, lazycb::Ptr{Void}, userdata)
     ccall((:CSIPaddLazyCallback, csip), Cint,
-          (Ptr{Void}, Ptr{Void}, Cint, Any),
-          model.ptr_model, lazycb, fractional, userdata)
+          (Ptr{Void}, Ptr{Void}, Any),
+          model.ptr_model, lazycb, userdata)
 end
 
 function _heurGetVarValues(heurdata::Ptr{Void}, output::Vector{Cdouble})

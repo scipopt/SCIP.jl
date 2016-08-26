@@ -167,39 +167,16 @@ function setlazycallback!(m::SCIPMathProgModel, f)
     # f is function(d::SCIPLazyCallbackData)
 
     cbfunction = cfunction(lazycb_wrapper, Cint, (Ptr{Void}, Ptr{Void}, Ptr{Void}))
-    fractional = Cint(1) # JuMP will work this out?!
     userdata = (m, f)
 
-    _addLazyCallback(m, cbfunction, fractional, userdata)
+    _addLazyCallback(m, cbfunction, userdata)
 end
 
 # if we are called from a lazy callback, we check whether the LP relaxation is integral
 function cbgetstate(d::SCIPLazyCallbackData)
-    :MIPSol
-    #TODO: we should return...
-    # in ENFOLP: if sol is integral -> :MIPSol, otherwise MIPNode
-    # in CHECK: if integral -> :MIPSol, oltherwise :Other
-    # in ENFOPS: same as CHECK
-    # The problem seems to be that we currently cannot know where we are in SCIP.jl
-
-    #n = ccall((:SCIPgetNLPBranchCands, csip), Cint, (Ptr{Void},), _getInternalSCIP(d.model)) << this method can only be call in ENFOLP (?)
-    #n = issolintegral(getvartype(d.model))
-    #return n ? :MIPSol : :MIPNode
-end
-
-# TODO: 1. this function should probably be in helper.jl
-# 2. this is terrible: SCIP should decide, but there doesn't seem to a public method that does that.
-function issolintegral(vartypes::Vector{Symbol}, values::Vector{Float64})
-    for (vt, val) in zip(vartypes, values)
-        if vt == :Cont
-            continue
-        end
-        if abs(round(val)-val) > 1e-6
-            return false
-        end
-    end
-
-    return true
+    context = _lazyGetContext(d.csip_lazydata)
+    mapping = [:MIPNode, :MIPSol, :Other]
+    mapping[context + 1]
 end
 
 function cbgetlpsolution(d::SCIPLazyCallbackData, output)
