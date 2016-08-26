@@ -254,7 +254,9 @@ setquadconstrRHS!(m::SCIPMathProgModel, lb) = error("Not implemented for SCIP.jl
 
 # use a different type for heuristic callback and multiple dispatch to implements
 # the methods that they share
-type SCIPLazyCallbackData <: MathProgCallbackData
+abstract SCIPCallbackData <: MathProgCallbackData
+
+type SCIPLazyCallbackData <: SCIPCallbackData
     model::SCIPMathProgModel
     csip_lazydata::Ptr{Void}
 end
@@ -322,6 +324,33 @@ end
 
 # function cbaddlazylocal!(d::SCIPLazyCallbackData, varidx, varcoef, sense, rhs)
 # end
+
+type SCIPHeurCallbackData <: SCIPCallbackData
+    model::SCIPMathProgModel
+    csip_heurdata::Ptr{Void}
+end
+
+# this is the function that should fit the CSIP_HEURCALLBACK signature
+function heurcb_wrapper(csip_model::Ptr{Void}, csip_heurdata::Ptr{Void},
+                        userdata::Ptr{Void})
+    # m, f = unsafe_pointer_to_objref(userdata)::(SCIPMathProgModel, Function)
+    # WTF: TypeError: typeassert: expected Type{T}, got Tuple{DataType,DataType}
+    m, f = unsafe_pointer_to_objref(userdata)
+    d = SCIPHeurCallbackData(m, csip_heurdata)
+    ret = f(d)
+    ret == :Exit && _interrupt(m)
+
+    return convert(Cint, 0) # CSIP_RETCODE_OK
+end
+
+function setheuristiccallback!(m::SCIPMathProgModel, f)
+    # f is function(d::SCIPHeurCallbackData)
+
+    cbfunction = cfunction(heurcb_wrapper, Cint, (Ptr{Void}, Ptr{Void}, Ptr{Void}))
+    userdata = (m, f)
+
+    _addHeuristicCallback(m, cbfunction, userdata)
+end
 
 ##########################################################################
 ##### Methods specific to AbstractConicModel                         #####

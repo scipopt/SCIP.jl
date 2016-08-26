@@ -164,9 +164,8 @@ function _heurSetSolution(heurdata::Ptr{Void}, values::Vector{Cdouble})
           heurdata, values)
 end
 
-function _addHeuristicCallback(model::SCIPMathProgModel, heur::Void,
-                               userdata::Ptr{Void})
-    ccall((:CSIPaddHeuristicCallback, csip), Cint, (Ptr{Void}, Void, Ptr{Void}),
+function _addHeuristicCallback(model::SCIPMathProgModel, heur::Ptr{Void}, userdata)
+    ccall((:CSIPaddHeuristicCallback, csip), Cint, (Ptr{Void}, Ptr{Void}, Any),
           model.ptr_model, heur, userdata)
 end
 
