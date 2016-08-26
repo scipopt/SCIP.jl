@@ -212,7 +212,8 @@ end
 
 numquadconstr(m::SCIPMathProgModel) = error("Not implemented for SCIP.jl")
 
-setquadobj!(m::SCIPMathProgModel, Q) = error("Not implemented for SCIP.jl")
+setquadobj!{T<:Real}(m::SCIPMathProgModel, Q::Array{T, 2}) =
+    error("Not implemented for SCIP.jl")
 
 setquadobj!(m::SCIPMathProgModel, rowidx, colidx, quadval) =
     error("Not implemented for SCIP.jl")
