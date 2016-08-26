@@ -5,7 +5,20 @@
 ##### see: http://mathprogbasejl.readthedocs.io/en/latest/solverinterface.html                        #####
 ###########################################################################################################
 
-# TODO: getobjgap, getrawsolver,  getsolvetime, getsense, numvar, numconstr, freemodel!
+getobjgap(m::SCIPMathProgModel) = error("Not implemented for SCIP.jl!")
+
+getrawsolver(m::SCIPMathProgModel) = error("Not implemented for SCIP.jl!")
+
+getsolvetime(m::SCIPMathProgModel) = error("Not implemented for SCIP.jl!")
+
+getsense(m::SCIPMathProgModel) = error("Not implemented for SCIP.jl!")
+
+numvar(m::SCIPMathProgModel) = _getNumVars(m)
+
+"The number of proper constraints, excluding those from lazy callbacks."
+numconstr(m::SCIPMathProgModel) = _getNumConss(m)
+
+freemodel!(m::SCIPMathProgModel) = error("Not implemented for SCIP.jl!")
 
 # TODO: mapping for :SemiCont, :SemiInt
 const vartypemap = Dict{Symbol, Cint}(

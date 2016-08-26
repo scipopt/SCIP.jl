@@ -122,6 +122,10 @@ function _getNumVars(model::SCIPMathProgModel)
     ccall((:CSIPgetNumVars, csip), Cint, (Ptr{Void}, ), model.ptr_model)
 end
 
+function _getNumConss(model::SCIPMathProgModel)
+    ccall((:CSIPgetNumConss, csip), Cint, (Ptr{Void}, ), model.ptr_model)
+end
+
 function _setInitialSolution(model::SCIPMathProgModel, values::Vector{Cdouble})
     ccall((:CSIPsetInitialSolution, csip), Cint, (Ptr{Void}, Ptr{Cdouble}),
           model.ptr_model, values)
