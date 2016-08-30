@@ -159,8 +159,8 @@ function _heurGetVarValues(heurdata::Ptr{Void}, output::Vector{Cdouble})
           heurdata, output)
 end
 
-function _heurSetSolution(heurdata::Ptr{Void}, values::Vector{Cdouble})
-    ccall((:CSIPheurSetSolution, csip), Cint, (Ptr{Void}, Ptr{Cdouble}),
+function _heurAddSolution(heurdata::Ptr{Void}, values::Vector{Cdouble})
+    ccall((:CSIPheurAddSolution, csip), Cint, (Ptr{Void}, Ptr{Cdouble}),
           heurdata, values)
 end
 
