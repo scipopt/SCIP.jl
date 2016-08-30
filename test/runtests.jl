@@ -8,6 +8,10 @@ include(joinpath(Pkg.dir("JuMP"),"test","solvers.jl"))
 
 using JuMP
 solver = SCIPSolver("display/verblevel", 0)
+heursolver = SCIPSolver("display/verblevel", 0,
+                        "presolving/maxrounds", 0,
+                        "separating/maxrounds", 0,
+                        "separating/maxroundsroot", 0)
 if length(lp_solvers) < 1
     error("Need at least one LP solver, eg, Clp")
 end
@@ -20,7 +24,7 @@ lazy_solvers = [solver]
 lazylocal_solvers = []
 cut_solvers = []
 cutlocal_solvers = []
-heur_solvers = []
+heur_solvers = [heursolver]
 info_solvers = []
 include(joinpath(Pkg.dir("JuMP"),"test","model.jl"))
 include(joinpath(Pkg.dir("JuMP"),"test","probmod.jl"))
