@@ -254,7 +254,9 @@ setquadconstrRHS!(m::SCIPMathProgModel, lb) = error("Not implemented for SCIP.jl
 
 # use a different type for heuristic callback and multiple dispatch to implements
 # the methods that they share
-type SCIPLazyCallbackData <: MathProgCallbackData
+abstract SCIPCallbackData <: MathProgCallbackData
+
+type SCIPLazyCallbackData <: SCIPCallbackData
     model::SCIPMathProgModel
     csip_lazydata::Ptr{Void}
 end
@@ -295,7 +297,7 @@ end
 #TODO: what should we do if there is no best solution?
 cbgetmipsolution(d::SCIPLazyCallbackData, output) = cbgetlpsolution(d, output)
 
-function cbgetlpsolution(d::SCIPLazyCallbackData)
+function cbgetlpsolution(d::SCIPCallbackData)
     output = Array(Float64, _getNumVars(m))
     cbgetlpsolution(d, output)
 end
@@ -322,6 +324,61 @@ end
 
 # function cbaddlazylocal!(d::SCIPLazyCallbackData, varidx, varcoef, sense, rhs)
 # end
+
+type SCIPHeurCallbackData <: SCIPCallbackData
+    model::SCIPMathProgModel
+    csip_heurdata::Ptr{Void}
+    sol::Vector{Float64}
+end
+
+# this is the function that should fit the CSIP_HEURCALLBACK signature
+function heurcb_wrapper(csip_model::Ptr{Void}, csip_heurdata::Ptr{Void},
+                        userdata::Ptr{Void})
+    # m, f = unsafe_pointer_to_objref(userdata)::(SCIPMathProgModel, Function)
+    # WTF: TypeError: typeassert: expected Type{T}, got Tuple{DataType,DataType}
+    m, f = unsafe_pointer_to_objref(userdata)
+    d = SCIPHeurCallbackData(m, csip_heurdata, fill(NaN, numvar(m)))
+
+    ret = f(d)
+    ret == :Exit && _interrupt(m)
+
+    return convert(Cint, 0) # CSIP_RETCODE_OK
+end
+
+function setheuristiccallback!(m::SCIPMathProgModel, f)
+    # f is function(d::SCIPHeurCallbackData)
+
+    cbfunction = cfunction(heurcb_wrapper, Cint, (Ptr{Void}, Ptr{Void}, Ptr{Void}))
+    userdata = (m, f)
+
+    _addHeuristicCallback(m, cbfunction, userdata)
+end
+
+# TODO: detect :MIPSol like with lazy constraints?
+cbgetstate(d::SCIPHeurCallbackData) = :MIPNode
+
+function cbgetlpsolution(d::SCIPHeurCallbackData, output)
+    _heurGetVarValues(d.csip_heurdata, output)
+end
+
+function cbaddsolution!(d::SCIPHeurCallbackData)
+    # check for unspecified values (NaN)
+    complete = (findfirst(v -> v === NaN, d.sol) == 0)
+
+    if complete
+        # add solution that was filled from cbsetsolutionvalue
+        _heurAddSolution(d.csip_heurdata, d.sol)
+    else
+        warn("Incomplete solutions not supported, skipping candidate.")
+    end
+
+    # reset solution vector for the next solution
+    d.sol = fill(NaN, numvar(d.model))
+end
+
+function cbsetsolutionvalue!(d::SCIPHeurCallbackData, varidx, value)
+    d.sol[varidx] = value
+end
 
 ##########################################################################
 ##### Methods specific to AbstractConicModel                         #####

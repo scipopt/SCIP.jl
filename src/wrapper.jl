@@ -159,14 +159,13 @@ function _heurGetVarValues(heurdata::Ptr{Void}, output::Vector{Cdouble})
           heurdata, output)
 end
 
-function _heurSetSolution(heurdata::Ptr{Void}, values::Vector{Cdouble})
-    ccall((:CSIPheurSetSolution, csip), Cint, (Ptr{Void}, Ptr{Cdouble}),
+function _heurAddSolution(heurdata::Ptr{Void}, values::Vector{Cdouble})
+    ccall((:CSIPheurAddSolution, csip), Cint, (Ptr{Void}, Ptr{Cdouble}),
           heurdata, values)
 end
 
-function _addHeuristicCallback(model::SCIPMathProgModel, heur::Void,
-                               userdata::Ptr{Void})
-    ccall((:CSIPaddHeuristicCallback, csip), Cint, (Ptr{Void}, Void, Ptr{Void}),
+function _addHeuristicCallback(model::SCIPMathProgModel, heur::Ptr{Void}, userdata)
+    ccall((:CSIPaddHeuristicCallback, csip), Cint, (Ptr{Void}, Ptr{Void}, Any),
           model.ptr_model, heur, userdata)
 end
 
