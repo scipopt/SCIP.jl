@@ -1,7 +1,7 @@
 # SCIP.jl
 Julia interface to [SCIP](http://scip.zib.de) solver.
 
-[![Build Status](https://travis-ci.org/leethargo/SCIP.jl.svg?branch=ml%2Ftravis)](https://travis-ci.org/leethargo/SCIP.jl)
+[![Build Status](https://travis-ci.org/leethargo/SCIP.jl.svg?branch=master)](https://travis-ci.org/leethargo/SCIP.jl)
 
 ## Related Projects
 
