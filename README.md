@@ -1,6 +1,8 @@
 # SCIP.jl
 Julia interface to [SCIP](http://scip.zib.de) solver.
 
+[![Build Status](https://travis-ci.org/leethargo/SCIP.jl.svg?branch=ml%2Ftravis)](https://travis-ci.org/leethargo/SCIP.jl)
+
 ## Related Projects
 
 - [SCIP](http://scip.zib.de): actual solver (implemented in C) that is wrapped
@@ -12,6 +14,6 @@ Julia interface to [SCIP](http://scip.zib.de) solver.
   functions.
 - [MathProgBase](https://github.com/JuliaOpt/MathProgBase.jl): We aim to
   implement MPB's abstract solver interfaces, so that one can use SCIP.jl
-  through [JuMP](https://github.com/JuliaOpt/JuMP.jl). At first, the
-  `LinearQuadraticModel` should be implemented, supporting lazy constraint and
-  heuristic callbacks.
+  through [JuMP](https://github.com/JuliaOpt/JuMP.jl). For now, the
+  `LinearQuadraticModel` interface is implemented, supporting lazy constraint
+  and heuristic callbacks.

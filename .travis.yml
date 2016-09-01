@@ -2,13 +2,30 @@
 language: julia
 os:
   - linux
-  - osx
 julia:
-  - release
-  - nightly
+  - 0.4
+  - 0.5
 notifications:
   email: false
-# uncomment the following lines to override the default test script
-#script:
-#  - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
-#  - julia -e 'Pkg.clone(pwd()); Pkg.build("SCIP"); Pkg.test("SCIP"; coverage=true)'
+sudo: required
+dist: trusty
+script:
+  - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
+  - julia -e 'Pkg.clone(pwd())'
+  - wget http://scip.zib.de/download/release/scipoptsuite-3.2.1.tgz
+  - tar xzf scipoptsuite-3.2.1.tgz
+  - cd scipoptsuite-3.2.1/
+  - rm Makefile.doit
+  - wget http://scip.zib.de/download/bugfixes/scip-3.2.1/Makefile.doit
+  - make SHARED=true GMP=false READLINE=false ZLIB=false scipoptlib
+  - cd ..
+  - wget https://github.com/leethargo/CSIP/archive/master.zip
+  - unzip master.zip
+  - cd CSIP-master
+  - mkdir lib
+  - ln -s `readlink -f ../scipoptsuite-3.2.1/scip-3.2.1/src` lib/include
+  - ln -s `readlink -f ../scipoptsuite-3.2.1/lib/libscipopt.so` lib/libscipopt.so
+  - make test
+  - export CSIP_HOME=`pwd`
+  - cd ..
+  - julia -e 'Pkg.build("SCIP"); Pkg.test("SCIP"; coverage=true)'
