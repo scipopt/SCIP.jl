@@ -219,7 +219,9 @@ setquadobj!(m::SCIPMathProgModel, rowidx, colidx, quadval) =
     error("Not implemented for SCIP.jl")
 
 setquadobjterms!(m::SCIPMathProgModel, rowidx, colidx, quadval) =
-    error("Not implemented for SCIP.jl")
+    _setQuadObj(m, Cint(0), Array{Cint}(0), Array{Cdouble}(0),
+                 Cint(length(rowidx)), convert(Vector{Cint}, rowidx - 1),
+                 convert(Vector{Cint}, colidx - 1), quadval)
 
 function addquadconstr!(m::SCIPMathProgModel, linearidx, linearval, quadrowidx, quadcolidx, quadval, sense, rhs)
     clhs = -Inf

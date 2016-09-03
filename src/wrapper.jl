@@ -78,6 +78,17 @@ function _setObj(model::SCIPMathProgModel, numindices::Cint,
           model.ptr_model, numindices, indices, coefs)
 end
 
+function _setQuadObj(model::SCIPMathProgModel, numlinindices::Cint,
+                      linindices::Vector{Cint}, lincoefs::Vector{Cdouble},
+                      numquadterms::Cint, quadrowindices::Vector{Cint},
+                      quadcolindices::Vector{Cint}, quadcoefs::Vector{Cdouble})
+    ccall((:CSIPsetQuadObj, csip), Cint,
+          (Ptr{Void}, Cint, Ptr{Cint}, Ptr{Cdouble}, Cint, Ptr{Cint}, Ptr{Cint},
+           Ptr{Cdouble}),
+          model.ptr_model, numlinindices, linindices, lincoefs, numquadterms,
+          quadrowindices, quadcolindices, quadcoefs)
+end
+
 function _setSenseMinimize(model::SCIPMathProgModel)
     ccall((:CSIPsetSenseMinimize, csip), Cint, (Ptr{Void}, ), model.ptr_model)
 end
