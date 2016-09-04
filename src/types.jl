@@ -1,6 +1,6 @@
 export SCIPSolver
 
-# Model
+# Linear Quadratic Model
 
 type SCIPMathProgModel <: AbstractLinearQuadraticModel
     ptr_model::Ptr{Void}
@@ -17,6 +17,12 @@ type SCIPMathProgModel <: AbstractLinearQuadraticModel
     end
 end
 
+# Nonlinear Model
+
+type SCIPNonlinearModel <: AbstractNonlinearModel
+    m::SCIPMathProgModel
+end
+
 # Solver
 
 immutable SCIPSolver <: AbstractMathProgSolver
@@ -24,3 +30,4 @@ immutable SCIPSolver <: AbstractMathProgSolver
 end
 SCIPSolver(kwargs...) = SCIPSolver(kwargs)
 LinearQuadraticModel(s::SCIPSolver) = SCIPMathProgModel(s.options)
+NonlinearModel(s::SCIPSolver) = SCIPMathProgModel(s.options)
