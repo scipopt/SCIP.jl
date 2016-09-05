@@ -32,3 +32,6 @@ include(joinpath(Pkg.dir("JuMP"),"test","probmod.jl"))
 include(joinpath(Pkg.dir("JuMP"),"test","callback.jl"))
 #include(joinpath(Pkg.dir("JuMP"),"test","nonlinear.jl"))
 #include(joinpath(Pkg.dir("JuMP"),"test","sdp.jl"))
+
+# return proper code (e.g. for TravisCI)
+FactCheck.exitstatus()
