@@ -17,3 +17,20 @@ Julia interface to [SCIP](http://scip.zib.de) solver.
   through [JuMP](https://github.com/JuliaOpt/JuMP.jl). For now, the
   `LinearQuadraticModel` interface is implemented, supporting lazy constraint
   and heuristic callbacks.
+
+## Installation
+
+The SCIP.jl package requires SCIP to be installed.
+
+[Download](http://scip.zib.de/download.php?fname=scipoptsuite-3.2.1.tgz) the
+SCIP Optimization Suite, copy the
+[patched file](http://scip.zib.de/download/bugfixes/scip-3.2.1/Makefile.doit)
+and build the shared library with
+```
+make SHARED=true GMP=false READLINE=false ZLIB=false OPT=opt scipoptlib
+```
+
+Now you should be able to build SCIP.jl in Julia with
+```
+Pkg.build("SCIP")
+```
