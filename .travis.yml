@@ -23,6 +23,7 @@ script:
   - wget https://github.com/SCIP-Interfaces/CSIP/archive/v0.3.1.zip
   - unzip v0.3.1.zip
   - cd CSIP-0.3.1
+  - make
   - make test
   - export CSIP_HOME=`pwd`
   - cd ..
