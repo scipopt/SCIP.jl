@@ -55,6 +55,15 @@ function _addQuadCons(model::SCIPMathProgModel, numlinindices::Cint,
           quadrowindices, quadcolindices, quadcoefs, lhs, rhs, idx)
 end
 
+function _addNonLinCons(model::SCIPMathProgModel, nops::Cint,
+                     ops::Vector{Cint}, children::Vector{Cint},
+                     beg::Vector{Cint}, values::Vector{Cdouble},
+                     lhs::Cdouble, rhs::Cdouble, idx::Ptr{Cint})
+    ccall((:CSIPaddNonLinCons, csip), Cint,
+          (Ptr{Void}, Cint, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{Cdouble}, Cdouble, Cdouble, Ptr{Cint}),
+          model.ptr_model, nops, ops, children, beg, values, lhs, rhs, idx)
+end
+
 function _addSOS1(model::SCIPMathProgModel, numindices::Cint,
                   indices::Vector{Cint}, weights::Vector{Cdouble},
                   idx::Ptr{Cint})
@@ -79,14 +88,22 @@ function _setObj(model::SCIPMathProgModel, numindices::Cint,
 end
 
 function _setQuadObj(model::SCIPMathProgModel, numlinindices::Cint,
-                      linindices::Vector{Cint}, lincoefs::Vector{Cdouble},
-                      numquadterms::Cint, quadrowindices::Vector{Cint},
-                      quadcolindices::Vector{Cint}, quadcoefs::Vector{Cdouble})
+                     linindices::Vector{Cint}, lincoefs::Vector{Cdouble},
+                     numquadterms::Cint, quadrowindices::Vector{Cint},
+                     quadcolindices::Vector{Cint}, quadcoefs::Vector{Cdouble})
     ccall((:CSIPsetQuadObj, csip), Cint,
           (Ptr{Void}, Cint, Ptr{Cint}, Ptr{Cdouble}, Cint, Ptr{Cint}, Ptr{Cint},
            Ptr{Cdouble}),
           model.ptr_model, numlinindices, linindices, lincoefs, numquadterms,
           quadrowindices, quadcolindices, quadcoefs)
+end
+
+function _setNonlinearObj(model::SCIPMathProgModel, nops::Cint,
+                          ops::Vector{Cint}, children::Vector{Cint},
+                          beg::Vector{Cint}, values::Vector{Cdouble})
+    ccall((:CSIPsetNonlinearObj, csip), Cint,
+          (Ptr{Void}, Cint, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{Cdouble}),
+          model.ptr_model, nops, ops, children, beg, values)
 end
 
 function _setSenseMinimize(model::SCIPMathProgModel)

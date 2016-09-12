@@ -391,3 +391,147 @@ end
 ##### Methods specific to AbstractNonlinear                        #####
 ##### see: http://mathprogbasejl.readthedocs.io/en/latest/nlp.html #####
 ########################################################################
+const julia_op_to_csip_op = Dict{Symbol, Int}(
+   :- => 9,
+   :/ => 11,
+   :sqrt => 13,
+   :^ => 14,
+   :exp => 17,
+   :log => 18,
+   :+ => 64,
+   :* => 65
+)
+
+#inspired in ReverseDiffSparse's conversion.jl
+immutable CSIPNodeData
+    nodetype::Int
+    childids::Array{Int}
+end
+
+# for backward compatibility with 0.4 (from JuMP/macros.jl)
+function comparison_to_call(ex)
+    if Meta.isexpr(ex,:comparison) && length(ex.args) == 3
+        return Expr(:call, ex.args[2], ex.args[1], ex.args[3])
+    else
+        return ex
+    end
+end
+
+# parse constraint expression into something easier for CSIP
+function constr_expr_to_nodedata(ex::Expr)
+    values = Float64[]
+    csipex = CSIPNodeData[]
+
+    # for compatibility with 0.4
+    ex = comparison_to_call(ex)
+
+    # a ex.args is [side, comp, expr, comp, side] or [expr, comp, side]
+    if length(ex.args) == 5 # two sided constraint
+        expr_to_csip(ex.args[3], values, csipex)
+    else
+        @assert length(ex.args) == 3
+        expr_to_csip(ex.args[2], values, csipex)
+    end
+    return csipex, values
+end
+
+# parse objective expression into something easier for CSIP
+function obj_expr_to_nodedata(ex::Expr)
+    values = Float64[]
+    csipex = CSIPNodeData[]
+    expr_to_csip(ex, values, csipex)
+    return csipex, values
+end
+
+# store expression tree as an array of CSIPNodeData
+# Each element of a CSIPNodeData consists of the operator identifier
+# and an array with the position of the operator's children.
+# For each node in the expression tree, first process its children
+# (creating an array with their position) and afterwards add create a new
+# node with the node's operator and the position of its children.
+function expr_to_csip(ex::Expr, values, csipex)
+    if Meta.isexpr(ex,:call) # functional operator
+        # create node
+        childids = []
+        op = ex.args[1]
+        nchildren = length(ex.args)
+        for c in 2:nchildren  # the first actual children is in positin 2
+            pos = expr_to_csip(ex.args[c], values, csipex)
+            push!(childids, pos)
+        end
+        push!(csipex, CSIPNodeData(julia_op_to_csip_op[op], childids))
+
+    elseif Meta.isexpr(ex, :ref) # variable
+        @assert ex.args[1] == :x
+        push!(csipex, CSIPNodeData(1, [ex.args[2]]))
+
+    else # not supported I guess
+        error("Unrecognized expression $ex: $(ex.head), probably not supported")
+    end
+    return length(csipex)
+end
+
+# parsing values
+function expr_to_csip(ex::Number, values, csipex)
+    valueidx = length(values)+1
+    push!(values,ex)
+    push!(csipex, CSIPNodeData(2, [valueidx]))
+    return length(csipex)
+end
+
+
+# the AbstractNLPEvaluator contains the constraints and objective.
+# One can get different data from it (with initialize)
+# SCIP doesn't need most of the data, just the epression
+function loadproblem!(m::SCIPMathProgModel, numVars, numConstr,
+                      l, u, lb, ub, sense, d::AbstractNLPEvaluator)
+    # add variables
+    for v in 1:numVars
+        _addVar(m, float(l[v]), float(u[v]), Cint(3), Ptr{Cint}(C_NULL))
+    end
+
+    # we want to get the expressions
+    initialize(d, [:ExprGraph])
+
+    # add constraints
+    for c in 1:numConstr
+        csipex, values = constr_expr_to_nodedata(constr_expr(d, c))
+        children = Cint[]
+        beg = Cint[1]
+        ops = Cint[]
+        for node in csipex
+            ops = [ops; node.nodetype]
+            children = [children; node.childids]
+            push!(beg, beg[end]+length(node.childids))
+        end
+        _addNonLinCons(m, Cint(length(ops)),
+                       convert(Vector{Cint},ops),
+                       convert(Vector{Cint},children - 1),
+                       convert(Vector{Cint},beg - 1),
+                       values, float(lb[c]), float(ub[c]),
+                       Ptr{Cint}(C_NULL))
+    end
+
+    # add objective
+    csipex, values = obj_expr_to_nodedata(obj_expr(d))
+    children = Cint[]
+    beg = Cint[1]
+    ops = Cint[]
+    for node in csipex
+        ops = [ops; node.nodetype]
+        children = [children; node.childids]
+        push!(beg, beg[end]+length(node.childids))
+    end
+    _setNonlinearObj(m, Cint(length(ops)),
+                     convert(Vector{Cint},ops),
+                     convert(Vector{Cint},children - 1),
+                     convert(Vector{Cint},beg - 1),
+                     values)
+
+    # set sense
+    if sense == :Max
+        _setSenseMaximize(m)
+    else
+        _setSenseMinimize(m)
+    end
+end
