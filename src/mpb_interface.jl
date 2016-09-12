@@ -408,17 +408,29 @@ immutable CSIPNodeData
     childids::Array{Int}
 end
 
+# for backward compatibility with 0.4 (from JuMP/macros.jl)
+function comparison_to_call(ex)
+    if Meta.isexpr(ex,:comparison) && length(ex.args) == 3
+        return Expr(:call, ex.args[2], ex.args[1], ex.args[3])
+    else
+        return ex
+    end
+end
+
 # parse constraint expression into something easier for CSIP
 function constr_expr_to_nodedata(ex::Expr)
     values = Float64[]
     csipex = CSIPNodeData[]
+
+    # for compatibility with 0.4
+    ex = comparison_to_call(ex)
 
     # a ex.args is [side, comp, expr, comp, side] or [expr, comp, side]
     if length(ex.args) == 5 # two sided constraint
         expr_to_csip(ex.args[3], values, csipex)
     else
         @assert length(ex.args) == 3
-        expr_to_csip(ex.args[1], values, csipex)
+        expr_to_csip(ex.args[2], values, csipex)
     end
     return csipex, values
 end
