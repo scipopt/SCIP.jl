@@ -1,3 +1,2 @@
 julia 0.4
-MathProgBase
-FactCheck
+MathProgBase 0.5 0.6
