@@ -1,32 +1,30 @@
-# inspired from Gurobi's build.jl
+using BinDeps
+using Compat
 
-depsfile = joinpath(dirname(@__FILE__),"deps.jl")
-if isfile(depsfile)
-    rm(depsfile)
-end
+CSIP_VERSION = "0.3.1"
+CSIP_URL = "https://github.com/SCIP-Interfaces/CSIP/archive/v$(CSIP_VERSION).zip"
+CSIP_LIB = "libcsip"
+CSIP_UNPACKED = "CSIP-$(CSIP_VERSION)"
 
-function write_depsfile(path)
-    f = open(depsfile,"w")
-    println(f,"const csip = \"$path\"")
-    close(f)
-end
+@BinDeps.setup
 
-paths_to_try = ["csip"]
-if haskey(ENV, "CSIP_HOME")
-    @unix_only push!(paths_to_try,
-                     joinpath(ENV["CSIP_HOME"], "lib", string("libcsip.so")))
-end
+@assert haskey(ENV, "SCIPOPTDIR") "Environment variable `SCIPOPTDIR` not set!"
 
-found = false
-for l in paths_to_try
-    d = Libdl.dlopen_e(l)
-    if d != C_NULL
-        found = true
-        write_depsfile(l)
-        break
-    end
-end
+# TODO use some kind of validation?
+csipdep = library_dependency(CSIP_LIB)
 
-if !found
-    error("Unable to locate CSIP. Please set environment variable CSIP_HOME.")
-end
+@compat provides(Sources, Dict(URI(CSIP_URL) => csipdep),
+                 unpacked_dir=CSIP_UNPACKED)
+
+@compat provides(SimpleBuild,
+    (@build_steps begin
+         GetSources(csipdep)
+         @build_steps begin
+             ChangeDirectory(joinpath(BinDeps.srcdir(csipdep), CSIP_UNPACKED))
+             `make`
+             `mkdir -p $(libdir(csipdep))`
+             `install lib/libcsip.so $(libdir(csipdep))`
+         end
+    end), csipdep, os = :Unix)
+
+@compat @BinDeps.install Dict(:libcsip => :libcsip)
