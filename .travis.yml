@@ -19,7 +19,7 @@ script:
   - wget http://scip.zib.de/download/bugfixes/scip-3.2.1/Makefile.doit
   - make SHARED=true GMP=false READLINE=false ZLIB=false scipoptlib
   - cd ..
-  - wget https://github.com/leethargo/CSIP/archive/master.zip
+  - wget https://github.com/SCIP-Interfaces/CSIP/archive/v0.3.0.zip
   - unzip master.zip
   - cd CSIP-master
   - mkdir lib
