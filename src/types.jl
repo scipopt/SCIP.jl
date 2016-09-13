@@ -9,7 +9,7 @@ type SCIPMathProgModel <: AbstractLinearQuadraticModel
     function SCIPMathProgModel(options...)
         _arr = Array(Ptr{Void}, 1)
         # TODO: check return code (everywhere!)
-        ccall((:CSIPcreateModel, csip), Cint, (Ptr{Ptr{Void}}, ), _arr)
+        ccall((:CSIPcreateModel, libcsip), Cint, (Ptr{Ptr{Void}}, ), _arr)
         m = new(_arr[1], options)
         # QUESTION: Why is _arr not garbage-collected?
         setparams!(m)
