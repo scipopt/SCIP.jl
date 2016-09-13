@@ -10,8 +10,12 @@ CSIP_UNPACKED = "CSIP-$(CSIP_VERSION)"
 
 @assert haskey(ENV, "SCIPOPTDIR") "Environment variable `SCIPOPTDIR` not set!"
 
-# TODO use some kind of validation?
-csipdep = library_dependency(CSIP_LIB)
+function validate_csip(name, handle)
+    csip_version = ccall(Libdl.dlsym(handle, :CSIPgetVersion), Cint, ())
+    csip_version == 032
+end
+
+csipdep = library_dependency(CSIP_LIB, validate=validate_csip)
 
 @compat provides(Sources, Dict(URI(CSIP_URL) => csipdep),
                  unpacked_dir=CSIP_UNPACKED)
