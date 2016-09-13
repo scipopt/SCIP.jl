@@ -1,5 +1,4 @@
 using BinDeps
-using Compat
 
 CSIP_VERSION = "0.3.2"
 CSIP_URL = "https://github.com/SCIP-Interfaces/CSIP/archive/v$(CSIP_VERSION).zip"
@@ -17,10 +16,10 @@ end
 
 csipdep = library_dependency(CSIP_LIB, validate=validate_csip)
 
-@compat provides(Sources, Dict(URI(CSIP_URL) => csipdep),
+provides(Sources, Dict(URI(CSIP_URL) => csipdep),
                  unpacked_dir=CSIP_UNPACKED)
 
-@compat provides(SimpleBuild,
+provides(SimpleBuild,
     (@build_steps begin
          GetSources(csipdep)
          @build_steps begin
@@ -31,4 +30,4 @@ csipdep = library_dependency(CSIP_LIB, validate=validate_csip)
          end
     end), csipdep, os = :Unix)
 
-@compat @BinDeps.install Dict(:libcsip => :libcsip)
+@BinDeps.install Dict(:libcsip => :libcsip)
