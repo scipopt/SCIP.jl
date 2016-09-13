@@ -1,7 +1,7 @@
 using BinDeps
 using Compat
 
-CSIP_VERSION = "0.3.1"
+CSIP_VERSION = "0.3.2"
 CSIP_URL = "https://github.com/SCIP-Interfaces/CSIP/archive/v$(CSIP_VERSION).zip"
 CSIP_LIB = "libcsip"
 CSIP_UNPACKED = "CSIP-$(CSIP_VERSION)"
