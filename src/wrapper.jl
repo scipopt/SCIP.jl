@@ -1,4 +1,4 @@
-Function _freeModel(model::SCIPMathProgModel)
+function _freeModel(model::SCIPMathProgModel)
     ccall((:CSIPfreeModel, libcsip), Cint, (Ptr{Void}, ), model.ptr_model)
 end
 
