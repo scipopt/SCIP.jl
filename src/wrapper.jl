@@ -1,3 +1,15 @@
+function _majorVersion()
+    ccall((:CSIPmajorVersion, libcsip), Cint, ())
+end
+
+function _minorVersion()
+    ccall((:CSIPminorVersion, libcsip), Cint, ())
+end
+
+function _patchVersion()
+    ccall((:CSIPpatchVersion, libcsip), Cint, ())
+end
+
 function _freeModel(model::SCIPMathProgModel)
     ccall((:CSIPfreeModel, libcsip), Cint, (Ptr{Void}, ), model.ptr_model)
 end
