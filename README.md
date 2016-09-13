@@ -30,6 +30,11 @@ and build the shared library with
 make SHARED=true GMP=false READLINE=false ZLIB=false OPT=opt scipoptlib
 ```
 
+Next set the environment variable `SCIPOPTDIR` to point to the directory that
+contains the `scipoptsuite` sources. CSIP needs the library in
+`${SCIPOPTDIR}/lib/scipoptlib.so` and the C header files in
+`${SCIPOPTDIR}/scip-*/src/`.
+
 Now you should be able to build SCIP.jl in Julia with
 ```
 Pkg.build("SCIP")
