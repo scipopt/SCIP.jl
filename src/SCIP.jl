@@ -1,3 +1,5 @@
+__precompile__()
+
 module SCIP
 
 if isfile(joinpath(dirname(@__FILE__),"..","deps","deps.jl"))
@@ -5,7 +7,6 @@ if isfile(joinpath(dirname(@__FILE__),"..","deps","deps.jl"))
 else
     error("SCIP.jl not properly installed. Please run Pkg.build(\"SCIP\")")
 end
-
 
 importall MathProgBase.SolverInterface
 
