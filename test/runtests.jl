@@ -2,6 +2,7 @@ using SCIP
 using MathProgBase
 using FactCheck
 
+include("more_tests.jl")
 include("mixintprog.jl")
 
 include(joinpath(Pkg.dir("JuMP"),"test","solvers.jl"))
