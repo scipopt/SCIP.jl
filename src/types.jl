@@ -5,6 +5,8 @@ export SCIPSolver
 type SCIPMathProgModel <: AbstractLinearQuadraticModel
     ptr_model::Ptr{Void}
     options
+    lazy_userdata
+    heur_userdata
 
     function SCIPMathProgModel(options...)
         _arr = Array(Ptr{Void}, 1)

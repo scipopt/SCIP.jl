@@ -280,9 +280,9 @@ function setlazycallback!(m::SCIPMathProgModel, f)
     # f is function(d::SCIPLazyCallbackData)
 
     cbfunction = cfunction(lazycb_wrapper, Cint, (Ptr{Void}, Ptr{Void}, Ptr{Void}))
-    userdata = (m, f)
+    m.lazy_userdata = (m, f)
 
-    _addLazyCallback(m, cbfunction, userdata)
+    _addLazyCallback(m, cbfunction, m.lazy_userdata)
 end
 
 # if we are called from a lazy callback, we check whether the LP relaxation is integral
@@ -351,9 +351,9 @@ function setheuristiccallback!(m::SCIPMathProgModel, f)
     # f is function(d::SCIPHeurCallbackData)
 
     cbfunction = cfunction(heurcb_wrapper, Cint, (Ptr{Void}, Ptr{Void}, Ptr{Void}))
-    userdata = (m, f)
+    m.heur_userdata = (m, f)
 
-    _addHeuristicCallback(m, cbfunction, userdata)
+    _addHeuristicCallback(m, cbfunction, m.heur_userdata)
 end
 
 # TODO: detect :MIPSol like with lazy constraints?
