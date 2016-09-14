@@ -39,3 +39,14 @@ Now you should be able to build SCIP.jl in Julia with
 ```
 Pkg.build("SCIP")
 ```
+
+## Setting Parameters
+
+SCIP has a [long list of parameters](http://scip.zib.de/doc/html/PARAMETERS.php)
+that can all be set through SCIP.jl, by passing them to the constructor of
+`SCIPSolver`. To set a value `val` to a parameter `name`, pass the two
+parameters `(name, val)`. For example, let's set two parameters, to disable
+output and increase the gap limit to 0.05:
+```
+solver = SCIPSolver("display/verblevel", 0, "limits/gap", 0.05)
+```

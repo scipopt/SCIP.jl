@@ -151,10 +151,51 @@ function _getStatus(model::SCIPMathProgModel)
     ccall((:CSIPgetStatus, libcsip), Cint, (Ptr{Void}, ), model.ptr_model)
 end
 
-function _setParameterGeneric(model::SCIPMathProgModel, name::Ptr{UInt8},
-                              value::Ptr{Void})
-    ccall((:CSIPsetParameterGeneric, libcsip), Cint,
-          (Ptr{Void}, Ptr{UInt8}, Ptr{Void}),
+function _getParamType(model::SCIPMathProgModel, name::Ptr{UInt8})
+    ccall((:CSIPgetParamType, libcsip), Cint,
+          (Ptr{Void}, Ptr{UInt8}),
+          model.ptr_model, name)
+end
+
+function _setBoolParam(model::SCIPMathProgModel, name::Ptr{UInt8},
+                              value::Cint)
+    ccall((:CSIPsetBoolParam, libcsip), Cint,
+          (Ptr{Void}, Ptr{UInt8}, Cint),
+          model.ptr_model, name, value)
+end
+
+function _setIntParam(model::SCIPMathProgModel, name::Ptr{UInt8},
+                              value::Cint)
+    ccall((:CSIPsetIntParam, libcsip), Cint,
+          (Ptr{Void}, Ptr{UInt8}, Cint),
+          model.ptr_model, name, value)
+end
+
+function _setLongintParam(model::SCIPMathProgModel, name::Ptr{UInt8},
+                              value::Clonglong)
+    ccall((:CSIPsetLongintParam, libcsip), Cint,
+          (Ptr{Void}, Ptr{UInt8}, Clonglong),
+          model.ptr_model, name, value)
+end
+
+function _setRealParam(model::SCIPMathProgModel, name::Ptr{UInt8},
+                              value::Cdouble)
+    ccall((:CSIPsetRealParam, libcsip), Cint,
+          (Ptr{Void}, Ptr{UInt8}, Cdouble),
+          model.ptr_model, name, value)
+end
+
+function _setCharParam(model::SCIPMathProgModel, name::Ptr{UInt8},
+                              value::Cchar)
+    ccall((:CSIPsetCharParam, libcsip), Cint,
+          (Ptr{Void}, Ptr{UInt8}, Cchar),
+          model.ptr_model, name, value)
+end
+
+function _setStringParam(model::SCIPMathProgModel, name::Ptr{UInt8},
+                         value::Ptr{UInt8})
+    ccall((:CSIPsetStringParam, libcsip), Cint,
+          (Ptr{Void}, Ptr{UInt8}, Ptr{UInt8}),
           model.ptr_model, name, value)
 end
 
