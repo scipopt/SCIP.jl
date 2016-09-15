@@ -1,6 +1,6 @@
 using BinDeps
 
-CSIP_VERSION = "0.3.3"
+CSIP_VERSION = "0.3.4"
 CSIP_URL = "https://github.com/SCIP-Interfaces/CSIP/archive/v$(CSIP_VERSION).zip"
 CSIP_LIB = "libcsip"
 CSIP_UNPACKED = "CSIP-$(CSIP_VERSION)"
@@ -11,7 +11,7 @@ CSIP_UNPACKED = "CSIP-$(CSIP_VERSION)"
 
 function validate_csip(name, handle)
     csip_version = ccall(Libdl.dlsym(handle, :CSIPgetVersion), Cint, ())
-    csip_version == 033
+    csip_version == 034
 end
 
 csipdep = library_dependency(CSIP_LIB, validate=validate_csip)

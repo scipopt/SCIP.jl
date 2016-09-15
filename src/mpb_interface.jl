@@ -9,7 +9,7 @@ getobjgap(m::SCIPMathProgModel) = error("Not implemented for SCIP.jl!")
 
 getrawsolver(m::SCIPMathProgModel) = error("Not implemented for SCIP.jl!")
 
-getsolvetime(m::SCIPMathProgModel) = error("Not implemented for SCIP.jl!")
+getsolvetime(m::SCIPMathProgModel) = ccall((:SCIPgetSolvingTime, libcsip), Cdouble, (Ptr{Void},), _getInternalSCIP(m))
 
 getsense(m::SCIPMathProgModel) = error("Not implemented for SCIP.jl!")
 
