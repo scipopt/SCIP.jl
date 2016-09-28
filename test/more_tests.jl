@@ -16,6 +16,6 @@ facts("testing more mpb interface methods") do
     MathProgBase.setvartype!(m, [:Int, :Int, :Int])
     MathProgBase.optimize!(m)
     @fact MathProgBase.status(m) --> :Optimal
-    @fact MathProgBase.getsolvetime(m) --> greater_than(0.1)
+    @fact MathProgBase.getsolvetime(m) --> greater_than(0.001)
     @fact MathProgBase.getsolution(m) --> roughly([750, -200, -25])
 end
