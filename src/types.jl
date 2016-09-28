@@ -27,7 +27,7 @@ end
 
 # Solver
 
-immutable SCIPSolver <: AbstractMathProgSolver
+type SCIPSolver <: AbstractMathProgSolver
     options
 end
 SCIPSolver(kwargs...) = SCIPSolver(kwargs)
