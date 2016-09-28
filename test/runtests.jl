@@ -8,7 +8,8 @@ include("mixintprog.jl")
 include(joinpath(Pkg.dir("JuMP"),"test","solvers.jl"))
 
 using JuMP
-solver = SCIPSolver("display/verblevel", 0)
+solver = SCIPSolver()
+MathProgBase.setparameters!(solver, Silent=true, TimeLimit=100.0)
 heursolver = SCIPSolver("display/verblevel", 0,
                         "presolving/maxrounds", 0,
                         "separating/maxrounds", 0,

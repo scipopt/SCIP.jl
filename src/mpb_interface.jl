@@ -85,6 +85,41 @@ function setsense!(m::SCIPMathProgModel, sense)
     end
 end
 
+function setparameters!(s::SCIPSolver; mpboptions...)
+    opts = collect(Any,s.options)
+    for (optname, optval) in mpboptions
+        if optname == :TimeLimit
+            push!(opts, "limits/time")
+            push!(opts, optval)
+        elseif optname == :Silent
+            if optval == true
+                push!(opts, "display/verblevel")
+                push!(opts, 0)
+            end
+        else
+            error("Unrecognized parameter $optname")
+        end
+    end
+    s.options = opts
+    return
+end
+
+function setparameters!(m::SCIPMathProgModel; mpboptions...)
+    for (optname, optval) in mpboptions
+        if optname == :TimeLimit
+            setparameter!(m, "limits/time", float(optval))
+        elseif optname == :Silent
+            if optval == true
+                setparameter!(m, "display/verblevel", 0)
+            end
+        else
+            error("Unrecognized parameter $optname")
+        end
+    end
+end
+
+
+
 ###########################################################################
 ##### Methods specific to AbstractLinearQuadraticModel                #####
 ##### see: http://mathprogbasejl.readthedocs.io/en/latest/lpqcqp.html #####
