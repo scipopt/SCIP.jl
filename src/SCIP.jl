@@ -8,6 +8,8 @@ else
     error("SCIP.jl not properly installed. Please run Pkg.build(\"SCIP\")")
 end
 
+include("../deps/csip_version.jl")
+
 importall MathProgBase.SolverInterface
 
 include("types.jl")
@@ -16,14 +18,14 @@ include("mpb_interface.jl")
 include("params.jl")
 
 function CSIPversion()
-    "$(_majorVersion()).$(_minorVersion()).$(_patchVersion())"
+    VersionNumber("$(_majorVersion()).$(_minorVersion()).$(_patchVersion())")
 end
 
 function __init__()
-    version = VersionNumber(CSIPversion())
-    if !(version.major == 0 && version.minor == 3 && version.patch == 4)
+    csip_installed = CSIPversion()
+    if csip_installed != csip_required
         depsdir = realpath(joinpath(dirname(@__FILE__),"..","deps"))
-        error("Current CSIP version installed is $(version), but we require version 0.3.4. On Linux, delete the contents of the `$depsdir` directory except for `build.jl`, then rerun Pkg.build(\"SCIP\").")
+        error("Current CSIP version installed is $(csip_installed), but we require $(csip_required). On Linux, delete the contents of the `$depsdir` directory except for `build.jl`, then rerun Pkg.build(\"SCIP\").")
     end
 end
 
