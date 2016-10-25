@@ -14,7 +14,6 @@ type SCIPModel
         ccall((:CSIPcreateModel, libcsip), Cint, (Ptr{Ptr{Void}}, ), _arr)
         m = new(_arr[1], options)
         # QUESTION: Why is _arr not garbage-collected?
-        setparams!(m)
         return m
     end
 end
@@ -44,9 +43,13 @@ end
 SCIPSolver(kwargs...) = SCIPSolver(kwargs)
 
 function LinearQuadraticModel(s::SCIPSolver)
-    SCIPLinearQuadraticModel(SCIPModel(s.options))
+    m = SCIPLinearQuadraticModel(SCIPModel(s.options))
+    setparams!(m)
+    m
 end
 
 function NonlinearModel(s::SCIPSolver)
-    SCIPNonlinearModel(SCIPModel(s.options))
+    m = SCIPNonlinearModel(SCIPModel(s.options))
+    setparams!(m)
+    m
 end
