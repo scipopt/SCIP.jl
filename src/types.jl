@@ -44,9 +44,9 @@ end
 SCIPSolver(kwargs...) = SCIPSolver(kwargs)
 
 function LinearQuadraticModel(s::SCIPSolver)
-    SCIPLinearQuadraticModel(SCIPMathProgModel(s.options))
+    SCIPLinearQuadraticModel(SCIPModel(s.options))
 end
 
 function NonlinearModel(s::SCIPSolver)
-    SCIPNonlinearModel(SCIPMathProgModel(s.options))
+    SCIPNonlinearModel(SCIPModel(s.options))
 end
