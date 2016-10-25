@@ -118,7 +118,10 @@ function setparameters!(m::SCIPMathProgModel; mpboptions...)
     end
 end
 
-
+function setwarmstart!(m::SCIPMathProgModel, v)
+    # does not support incomplete solutions (with NaN)
+    _setInitialSolution(m, float(v))
+end
 
 ###########################################################################
 ##### Methods specific to AbstractLinearQuadraticModel                #####
@@ -217,11 +220,6 @@ getunboundedray(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.j
 getsimplexiter(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
 
 getbarrieriter(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
-
-function setwarmstart!(m::SCIPLinearQuadraticModel, v)
-    # does not support incomplete solutions (with NaN)
-    _setInitialSolution(m, float(v))
-end
 
 ##########################################################################
 ##### Methods specific to Integer Programming                        #####
