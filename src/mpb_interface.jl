@@ -118,17 +118,20 @@ function setparameters!(m::SCIPMathProgModel; mpboptions...)
     end
 end
 
-
+function setwarmstart!(m::SCIPMathProgModel, v)
+    # does not support incomplete solutions (with NaN)
+    _setInitialSolution(m, float(v))
+end
 
 ###########################################################################
 ##### Methods specific to AbstractLinearQuadraticModel                #####
 ##### see: http://mathprogbasejl.readthedocs.io/en/latest/lpqcqp.html #####
 ###########################################################################
 
-loadproblem!(m::SCIPMathProgModel, filename::AbstractString) =
+loadproblem!(m::SCIPLinearQuadraticModel, filename::AbstractString) =
     error("Not implemented for SCIP.jl")
 
-function loadproblem!(m::SCIPMathProgModel, A, varlb, varub, obj, rowlb, rowub, sense)
+function loadproblem!(m::SCIPLinearQuadraticModel, A, varlb, varub, obj, rowlb, rowub, sense)
     # TODO: clean old model?
 
     nrows, ncols = size(A)
@@ -156,86 +159,81 @@ function loadproblem!(m::SCIPMathProgModel, A, varlb, varub, obj, rowlb, rowub, 
     end
 end
 
-writeproblem(m::SCIPMathProgModel, filename::AbstractString) =
+writeproblem(m::SCIPLinearQuadraticModel, filename::AbstractString) =
     error("Not implemented for SCIP.jl")
 
-getvarLB(m::SCIPMathProgModel) = error("Not implemented for SCIP.jl")
+getvarLB(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
 
-function setvarLB!(m::SCIPMathProgModel, lb)
+function setvarLB!(m::SCIPLinearQuadraticModel, lb)
     indices = collect(zero(Cint):Cint(numvar(m) - 1))
     _chgVarLB(m, Cint(numvar(m)), indices, float(lb))
 end
 
-getvarUB(m::SCIPMathProgModel) = error("Not implemented for SCIP.jl")
+getvarUB(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
 
-function setvarUB!(m::SCIPMathProgModel, ub)
+function setvarUB!(m::SCIPLinearQuadraticModel, ub)
     indices = collect(zero(Cint):Cint(numvar(m) - 1))
     _chgVarUB(m, Cint(numvar(m)), indices, float(ub))
 end
 
-getconstrLB(m::SCIPMathProgModel) = error("Not implemented for SCIP.jl")
+getconstrLB(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
 
-# setconstrLB!(m::SCIPMathProgModel, lb) = error("Not implemented for SCIP.jl")
+# setconstrLB!(m::SCIPLinearQuadraticModel, lb) = error("Not implemented for SCIP.jl")
 
-getconstrUB(m::SCIPMathProgModel) = error("Not implemented for SCIP.jl")
+getconstrUB(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
 
-# setconstrUB!(m::SCIPMathProgModel, ub) = error("Not implemented for SCIP.jl")
+# setconstrUB!(m::SCIPLinearQuadraticModel, ub) = error("Not implemented for SCIP.jl")
 
-getobj(m::SCIPMathProgModel) = error("Not implemented for SCIP.jl")
+getobj(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
 
-function setobj!(m::SCIPMathProgModel, obj)
+function setobj!(m::SCIPLinearQuadraticModel, obj)
     indices = collect(zero(Cint):Cint(numvar(m) - 1))
     _setObj(m, Cint(numvar(m)), indices, float(obj))
 end
 
-getconstrmatrix(m::SCIPMathProgModel) = error("Not implemented for SCIP.jl")
+getconstrmatrix(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
 
-addvar!(m::SCIPMathProgModel, constridx, constrcoef, l, u, objcoef) =
+addvar!(m::SCIPLinearQuadraticModel, constridx, constrcoef, l, u, objcoef) =
     error("Not implemented for SCIP.jl")
 
-addvar!(m::SCIPMathProgModel, l, u, objcoef) = error("Not implemented for SCIP.jl")
+addvar!(m::SCIPLinearQuadraticModel, l, u, objcoef) = error("Not implemented for SCIP.jl")
 
-function addconstr!(m::SCIPMathProgModel, varidx, coef, lb, ub)
+function addconstr!(m::SCIPLinearQuadraticModel, varidx, coef, lb, ub)
     _addLinCons(m, Cint(length(varidx)), Vector{Cint}(varidx - 1), float(coef),
                 float(lb), float(ub), Ptr{Cint}(C_NULL))
 end
 
-numlinconstr(m::SCIPMathProgModel) = error("Not implemented for SCIP.jl")
+numlinconstr(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
 
-getconstrsolution(m::SCIPMathProgModel) = error("Not implemented for SCIP.jl")
+getconstrsolution(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
 
-getreducedcosts(m::SCIPMathProgModel) = error("Not implemented for SCIP.jl")
+getreducedcosts(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
 
-getconstrduals(m::SCIPMathProgModel) = error("Not implemented for SCIP.jl")
+getconstrduals(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
 
-getinfeasibilityray(m::SCIPMathProgModel) = error("Not implemented for SCIP.jl")
+getinfeasibilityray(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
 
-getbasis(m::SCIPMathProgModel) = error("Not implemented for SCIP.jl")
+getbasis(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
 
-getunboundedray(m::SCIPMathProgModel) = error("Not implemented for SCIP.jl")
+getunboundedray(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
 
-getsimplexiter(m::SCIPMathProgModel) = error("Not implemented for SCIP.jl")
+getsimplexiter(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
 
-getbarrieriter(m::SCIPMathProgModel) = error("Not implemented for SCIP.jl")
-
-function setwarmstart!(m::SCIPMathProgModel, v)
-    # does not support incomplete solutions (with NaN)
-    _setInitialSolution(m, float(v))
-end
+getbarrieriter(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
 
 ##########################################################################
 ##### Methods specific to Integer Programming                        #####
 ##########################################################################
 
-getnodecount(m::SCIPMathProgModel) = error("Not implemented for SCIP.jl")
+getnodecount(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
 
-function addsos1!(m::SCIPMathProgModel, idx, weight)
+function addsos1!(m::SCIPLinearQuadraticModel, idx, weight)
     nidx = Cint(length(idx))
     cidx = convert(Vector{Cint}, idx - 1)
     _addSOS1(m, nidx, cidx, weight, Ptr{Cint}(C_NULL))
 end
 
-function addsos2!(m::SCIPMathProgModel, idx, weight)
+function addsos2!(m::SCIPLinearQuadraticModel, idx, weight)
     nidx = Cint(length(idx))
     cidx = convert(Vector{Cint}, idx - 1)
     _addSOS2(m, nidx, cidx, weight, Ptr{Cint}(C_NULL))
@@ -245,20 +243,20 @@ end
 ##### Methods specific to Quadratic Programming                      #####
 ##########################################################################
 
-numquadconstr(m::SCIPMathProgModel) = error("Not implemented for SCIP.jl")
+numquadconstr(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
 
-setquadobj!{T<:Real}(m::SCIPMathProgModel, Q::Array{T, 2}) =
+setquadobj!{T<:Real}(m::SCIPLinearQuadraticModel, Q::Array{T, 2}) =
     error("Not implemented for SCIP.jl")
 
-setquadobj!(m::SCIPMathProgModel, rowidx, colidx, quadval) =
+setquadobj!(m::SCIPLinearQuadraticModel, rowidx, colidx, quadval) =
     error("Not implemented for SCIP.jl")
 
-setquadobjterms!(m::SCIPMathProgModel, rowidx, colidx, quadval) =
+setquadobjterms!(m::SCIPLinearQuadraticModel, rowidx, colidx, quadval) =
     _setQuadObj(m, Cint(0), Array{Cint}(0), Array{Cdouble}(0),
                  Cint(length(rowidx)), convert(Vector{Cint}, rowidx - 1),
                  convert(Vector{Cint}, colidx - 1), quadval)
 
-function addquadconstr!(m::SCIPMathProgModel, linearidx, linearval, quadrowidx, quadcolidx, quadval, sense, rhs)
+function addquadconstr!(m::SCIPLinearQuadraticModel, linearidx, linearval, quadrowidx, quadcolidx, quadval, sense, rhs)
     clhs = -Inf
     crhs =  Inf
     if sense == '<'
@@ -275,15 +273,15 @@ function addquadconstr!(m::SCIPMathProgModel, linearidx, linearval, quadrowidx, 
                  convert(Vector{Cint}, quadcolidx - 1), quadval, clhs, crhs, Ptr{Cint}(C_NULL))
 end
 
-getquadconstrsolution(m::SCIPMathProgModel) = error("Not implemented for SCIP.jl")
+getquadconstrsolution(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
 
-getquadconstrduals(m::SCIPMathProgModel) = error("Not implemented for SCIP.jl")
+getquadconstrduals(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
 
-getquadinfeasibilityray(m::SCIPMathProgModel) = error("Not implemented for SCIP.jl")
+getquadinfeasibilityray(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
 
-getquadconstrRHS(m::SCIPMathProgModel) = error("Not implemented for SCIP.jl")
+getquadconstrRHS(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
 
-setquadconstrRHS!(m::SCIPMathProgModel, lb) = error("Not implemented for SCIP.jl")
+setquadconstrRHS!(m::SCIPLinearQuadraticModel, lb) = error("Not implemented for SCIP.jl")
 
 ##########################################################################
 ##### Methods specific to MIP Callbacks                              #####
@@ -315,9 +313,9 @@ function setlazycallback!(m::SCIPMathProgModel, f)
     # f is function(d::SCIPLazyCallbackData)
 
     cbfunction = cfunction(lazycb_wrapper, Cint, (Ptr{Void}, Ptr{Void}, Ptr{Void}))
-    m.lazy_userdata = (m, f)
+    m.inner.lazy_userdata = (m, f)
 
-    _addLazyCallback(m, cbfunction, m.lazy_userdata)
+    _addLazyCallback(m, cbfunction, m.inner.lazy_userdata)
 end
 
 # if we are called from a lazy callback, we check whether the LP relaxation is integral
@@ -386,9 +384,9 @@ function setheuristiccallback!(m::SCIPMathProgModel, f)
     # f is function(d::SCIPHeurCallbackData)
 
     cbfunction = cfunction(heurcb_wrapper, Cint, (Ptr{Void}, Ptr{Void}, Ptr{Void}))
-    m.heur_userdata = (m, f)
+    m.inner.heur_userdata = (m, f)
 
-    _addHeuristicCallback(m, cbfunction, m.heur_userdata)
+    _addHeuristicCallback(m, cbfunction, m.inner.heur_userdata)
 end
 
 # TODO: detect :MIPSol like with lazy constraints?
@@ -518,7 +516,7 @@ end
 # the AbstractNLPEvaluator contains the constraints and objective.
 # One can get different data from it (with initialize)
 # SCIP doesn't need most of the data, just the epression
-function loadproblem!(m::SCIPMathProgModel, numVars, numConstr,
+function loadproblem!(m::SCIPNonlinearModel, numVars, numConstr,
                       l, u, lb, ub, sense, d::AbstractNLPEvaluator)
     # add variables
     for v in 1:numVars
