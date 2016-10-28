@@ -119,8 +119,11 @@ function setparameters!(m::SCIPMathProgModel; mpboptions...)
 end
 
 function setwarmstart!(m::SCIPMathProgModel, v)
-    # does not support incomplete solutions (with NaN)
-    _setInitialSolution(m, float(v))
+    if findfirst(isnan, v) != 0
+        warn("SCIP does not support incomplete solutions (with NaN values)")
+    else
+        _setInitialSolution(m, float(v))
+    end
 end
 
 ###########################################################################
@@ -398,9 +401,7 @@ end
 
 function cbaddsolution!(d::SCIPHeurCallbackData)
     # check for unspecified values (NaN)
-    complete = (findfirst(v -> v === NaN, d.sol) == 0)
-
-    if complete
+    if findfirst(isnan, d.sol) == 0
         # add solution that was filled from cbsetsolutionvalue
         _heurAddSolution(d.csip_heurdata, d.sol)
     else
