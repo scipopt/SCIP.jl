@@ -22,7 +22,6 @@ end
 lp_solvers = lp_solvers[1:1] # just need one
 ip_solvers = [solver]
 quad_solvers = []
-quad_mip_solvers = []
 quad_mip_solvers = [solver]
 lazy_solvers = [solver]
 lazylocal_solvers = []
