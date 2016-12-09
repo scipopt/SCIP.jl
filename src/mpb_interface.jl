@@ -146,11 +146,20 @@ function loadproblem!(m::SCIPLinearQuadraticModel, A, varlb, varub, obj, rowlb, 
         _addVar(m, float(varlb[v]), float(varub[v]),
                 Cint(3), Ptr{Cint}(C_NULL))
     end
-    for c in 1:nrows
-        # TODO: care about sparse matrices
-        denserow = float(collect(A[c, :]))
-        _addLinCons(m, nvars, varindices, denserow,
-                    float(rowlb[c]), float(rowub[c]), Ptr{Cint}(C_NULL))
+    if issparse(A)
+        At = A' # faster column-wise access in loop
+        for c in 1:nrows
+            idx, val = findnz(At[:,c])
+            _idx = Vector{Cint}(idx - 1) # 0 based indexing
+            _nvars = Cint(length(_idx))
+            _addLinCons(m, _nvars, _idx, float(val),
+                        float(rowlb[c]), float(rowub[c]), Ptr{Cint}(C_NULL))
+        end
+    else
+        for c in 1:nrows
+            _addLinCons(m, nvars, varindices, float(A[c, :]),
+                        float(rowlb[c]), float(rowub[c]), Ptr{Cint}(C_NULL))
+        end
     end
 
     _setObj(m, nvars, varindices, float(obj))
