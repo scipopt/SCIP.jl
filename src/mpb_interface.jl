@@ -324,7 +324,7 @@ end
 # if we are called from a lazy callback, we check whether the LP relaxation is integral
 function cbgetstate(d::SCIPLazyCallbackData)
     context = _lazyGetContext(d.csip_lazydata)
-    mapping = [:MIPNode, :MIPSol, :Other]
+    mapping = [:MIPNode, :MIPSol, :Intermediate]
     mapping[context + 1]
 end
 
