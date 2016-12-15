@@ -146,11 +146,20 @@ function loadproblem!(m::SCIPLinearQuadraticModel, A, varlb, varub, obj, rowlb, 
         _addVar(m, float(varlb[v]), float(varub[v]),
                 Cint(3), Ptr{Cint}(C_NULL))
     end
-    for c in 1:nrows
-        # TODO: care about sparse matrices
-        denserow = float(collect(A[c, :]))
-        _addLinCons(m, nvars, varindices, denserow,
-                    float(rowlb[c]), float(rowub[c]), Ptr{Cint}(C_NULL))
+    if issparse(A)
+        At = A' # faster column-wise access in loop
+        for c in 1:nrows
+            idx, val = findnz(At[:,c])
+            _idx = Vector{Cint}(idx - 1) # 0 based indexing
+            _nvars = Cint(length(_idx))
+            _addLinCons(m, _nvars, _idx, float(val),
+                        float(rowlb[c]), float(rowub[c]), Ptr{Cint}(C_NULL))
+        end
+    else
+        for c in 1:nrows
+            _addLinCons(m, nvars, varindices, float(A[c, :]),
+                        float(rowlb[c]), float(rowub[c]), Ptr{Cint}(C_NULL))
+        end
     end
 
     _setObj(m, nvars, varindices, float(obj))
@@ -442,22 +451,10 @@ immutable CSIPNodeData
     childids::Array{Int}
 end
 
-# for backward compatibility with 0.4 (from JuMP/macros.jl)
-function comparison_to_call(ex)
-    if Meta.isexpr(ex,:comparison) && length(ex.args) == 3
-        return Expr(:call, ex.args[2], ex.args[1], ex.args[3])
-    else
-        return ex
-    end
-end
-
 # parse constraint expression into something easier for CSIP
 function constr_expr_to_nodedata(ex::Expr)
     values = Float64[]
     csipex = CSIPNodeData[]
-
-    # for compatibility with 0.4
-    ex = comparison_to_call(ex)
 
     # a ex.args is [side, comp, expr, comp, side] or [expr, comp, side]
     if length(ex.args) == 5 # two sided constraint
