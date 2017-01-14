@@ -13,9 +13,16 @@ type SCIPModel
         # TODO: check return code (everywhere!)
         ccall((:CSIPcreateModel, libcsip), Cint, (Ptr{Ptr{Void}}, ), _arr)
         m = new(_arr[1], options)
-        # QUESTION: Why is _arr not garbage-collected?
+        @assert m.ptr_model != C_NULL
+
+        finalizer(m, freescip)
         return m
     end
+end
+
+function freescip(m::SCIPModel)
+    @assert m.ptr_model != C_NULL
+    _freeModel(m)
 end
 
 # Linear Quadratic Model
