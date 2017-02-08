@@ -23,15 +23,17 @@ Julia interface to [SCIP](http://scip.zib.de) solver.
 The SCIP.jl package requires [SCIP](http://scip.zib.de/) to be installed.
 
 [Download](http://scip.zib.de/download.php?fname=scipoptsuite-3.2.1.tgz) the
-SCIP Optimization Suite and build the shared library with
+SCIP Optimization Suite, untar it and, build the shared library with
 
 ```
 make SHARED=true GMP=false READLINE=false ZLIB=false OPT=opt scipoptlib
 ```
 
 Next set the **environment variable `SCIPOPTDIR`** to point to the directory that contains the `scipoptsuite` sources. 
-```
-export SCIPOPTDIR=/path/to/scipoptdirsuite/directory
+``
+export SCIPOPTDIR=/path/to/scipoptdirsuite/sources
+For example
+export SCIPOPTDIR=/home/hduser/Downloads/scipoptsuite-3.2.1
 ```
 CSIP needs the library in `${SCIPOPTDIR}/lib/scipoptlib.so` and the C header files in `${SCIPOPTDIR}/scip-*/src/`.
 
