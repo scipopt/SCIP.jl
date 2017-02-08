@@ -32,7 +32,6 @@ make SHARED=true GMP=false READLINE=false ZLIB=false OPT=opt scipoptlib
 Next set the **environment variable `SCIPOPTDIR`** to point to the directory that contains the `scipoptsuite` sources. 
 ```
 export SCIPOPTDIR=/path/to/scipoptdirsuite/directory
-
 ```
 CSIP needs the library in `${SCIPOPTDIR}/lib/scipoptlib.so` and the C header files in `${SCIPOPTDIR}/scip-*/src/`.
 
