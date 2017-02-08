@@ -33,7 +33,7 @@ Next set the **environment variable `SCIPOPTDIR`** to point to the directory tha
 
 ```
 export SCIPOPTDIR=/path/to/scipoptdirsuite/sources
-*For example:* export SCIPOPTDIR=/home/hduser/Downloads/scipoptsuite-3.2.1
+Example: export SCIPOPTDIR=/home/hduser/Downloads/scipoptsuite-3.2.1
 ```
 CSIP needs the library in `${SCIPOPTDIR}/lib/scipoptlib.so` and the C header files in `${SCIPOPTDIR}/scip-*/src/`.
 
