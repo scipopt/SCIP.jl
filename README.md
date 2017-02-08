@@ -23,21 +23,22 @@ Julia interface to [SCIP](http://scip.zib.de) solver.
 The SCIP.jl package requires SCIP to be installed.
 
 [Download](http://scip.zib.de/download.php?fname=scipoptsuite-3.2.1.tgz) the
-SCIP Optimization Suite, copy the
-[patched file](http://scip.zib.de/download/bugfixes/scip-3.2.1/Makefile.doit)
-and build the shared library with
+SCIP Optimization Suite and build the shared library with
+
 ```
 make SHARED=true GMP=false READLINE=false ZLIB=false OPT=opt scipoptlib
 ```
 
-Next set the environment variable `SCIPOPTDIR` to point to the directory that
-contains the `scipoptsuite` sources. CSIP needs the library in
-`${SCIPOPTDIR}/lib/scipoptlib.so` and the C header files in
-`${SCIPOPTDIR}/scip-*/src/`.
+Next set the **environment variable `SCIPOPTDIR`** to point to the directory that contains the `scipoptsuite` sources. 
 
-Now you should be able to build SCIP.jl in Julia with
+CSIP needs the library in `${SCIPOPTDIR}/lib/scipoptlib.so` and the C header files in `${SCIPOPTDIR}/scip-*/src/`.
+
+Clone the SCIP repository in your local machine and build it in Julia with
+
 ```
+Pkg.clone("https://github.com/SCIP-Interfaces/SCIP.jl.git")
 Pkg.build("SCIP")
+
 ```
 
 ## Setting Parameters
