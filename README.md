@@ -30,7 +30,8 @@ make SHARED=true GMP=false READLINE=false ZLIB=false OPT=opt scipoptlib
 ```
 
 Next set the **environment variable `SCIPOPTDIR`** to point to the directory that contains the `scipoptsuite` sources. 
-``
+
+```
 export SCIPOPTDIR=/path/to/scipoptdirsuite/sources
 For example
 export SCIPOPTDIR=/home/hduser/Downloads/scipoptsuite-3.2.1
