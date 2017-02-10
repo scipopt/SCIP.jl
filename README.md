@@ -20,25 +20,32 @@ Julia interface to [SCIP](http://scip.zib.de) solver.
 
 ## Installation
 
-The SCIP.jl package requires [SCIP](http://scip.zib.de/) to be installed.
+Follow the steps below to get SCIP.jl working
 
-[Download](http://scip.zib.de/download.php?fname=scipoptsuite-3.2.1.tgz) the
-SCIP Optimization Suite, untar it and, build the shared library with
-
-```
-make SHARED=true GMP=false READLINE=false ZLIB=false OPT=opt scipoptlib
-```
-
-Next set the **environment variable `SCIPOPTDIR`** to point to the directory that contains the `scipoptsuite` sources. 
+1.The SCIP.jl package requires [SCIP](http://scip.zib.de/) to be installed. [Download](http://scip.zib.de/download.php?fname=scipoptsuite-3.2.1.tgz) the SCIP Optimization Suite, untar it.
 
 ```
-export SCIPOPTDIR=/path/to/scipoptdirsuite
-Example: export SCIPOPTDIR=/home/hduser/Downloads/scipoptsuite-3.2.1
+wget http://scip.zib.de/download/release/scipoptsuite-3.2.1.tgz
+tar xzf scipoptsuite-3.2.1.tgz
 ```
-CSIP needs the library in `${SCIPOPTDIR}/lib/scipoptlib.so` and the C header files in `${SCIPOPTDIR}/scip-*/src/`.
 
-This package is registered in `METADATA.jl` and can be installed as usual
+2. Replace the existing `Makefile.doit` and with the [patched file](http://scip.zib.de/download/bugfixes/scip-3.2.1/Makefile.doit)
+```
+cd scipoptsuite-3.2.1/
+rm Makefile.doit
+wget http://scip.zib.de/download/bugfixes/scip-3.2.1/Makefile.doit
 
+3. Build the shared library with
+```
+make SHARED=true GMP=false READLINE=false ZLIB=false scipoptlib
+```
+
+4. Set the **environment variable `SCIPOPTDIR`** to point to the directory that contains the `scipoptsuite` sources. CSIP needs the library in `${SCIPOPTDIR}/lib/scipoptlib.so` and the C header files in `${SCIPOPTDIR}/scip-*/src/`.
+```
+export SCIPOPTDIR=`pwd`
+```
+
+5. This package is registered in `METADATA.jl` and can be installed in Julia with
 ```
 Pkg.add"SCIP")
 ```
