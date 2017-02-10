@@ -37,11 +37,10 @@ Example: export SCIPOPTDIR=/home/hduser/Downloads/scipoptsuite-3.2.1
 ```
 CSIP needs the library in `${SCIPOPTDIR}/lib/scipoptlib.so` and the C header files in `${SCIPOPTDIR}/scip-*/src/`.
 
-Clone the SCIP github repository in your local machine and build it in Julia with
+This package is registered in `METADATA.jl` and can be installed as usual
 
 ```
-Pkg.clone("https://github.com/SCIP-Interfaces/SCIP.jl.git")
-Pkg.build("SCIP")
+Pkg.add"SCIP")
 ```
 
 ## Setting Parameters
