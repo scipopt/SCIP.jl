@@ -29,7 +29,7 @@ wget http://scip.zib.de/download/release/scipoptsuite-3.2.1.tgz
 tar xzf scipoptsuite-3.2.1.tgz
 ```
 
-Replace the existing `Makefile.doit` and with the [patched file](http://scip.zib.de/download/bugfixes/scip-3.2.1/Makefile.doit)
+Replace the existing `Makefile.doit` with the [patched file](http://scip.zib.de/download/bugfixes/scip-3.2.1/Makefile.doit)
 ```
 cd scipoptsuite-3.2.1/
 rm Makefile.doit
