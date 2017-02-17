@@ -461,7 +461,7 @@ function constr_expr_to_nodedata(ex::Expr)
         expr_to_csip(ex.args[3], values, csipex)
     else
         @assert length(ex.args) == 3
-        expr_to_csip(ex.args[2], values, csipex)
+        expr_to_csip(ex.args[1], values, csipex)
     end
     return csipex, values
 end
