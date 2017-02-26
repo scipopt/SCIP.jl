@@ -1,5 +1,5 @@
 # todo: find a meaningful name for this file
-facts("testing more mpb interface methods") do
+@testset "testing more mpb interface methods" begin
     m = MathProgBase.LinearQuadraticModel(SCIPSolver("display/verblevel", 0))
 
     # take a bit more time integer problem
@@ -10,12 +10,12 @@ facts("testing more mpb interface methods") do
     lb = [40600 -92375]
     ub = lb
     MathProgBase.loadproblem!(m, A, l, u, c, lb, ub, :Min)
-    @fact MathProgBase.numconstr(m) --> 2
-    @fact MathProgBase.numvar(m) --> 3
+    @test MathProgBase.numconstr(m) == 2
+    @test MathProgBase.numvar(m) == 3
 
     MathProgBase.setvartype!(m, [:Int, :Int, :Int])
     MathProgBase.optimize!(m)
-    @fact MathProgBase.status(m) --> :Optimal
-    @fact MathProgBase.getsolvetime(m) --> greater_than(0.001)
-    @fact MathProgBase.getsolution(m) --> roughly([750, -200, -25])
+    @test MathProgBase.status(m) == :Optimal
+    @test MathProgBase.getsolvetime(m) >= 0.001
+    @test MathProgBase.getsolution(m) ≈ [750, -200, -25]
 end

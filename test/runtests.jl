@@ -1,6 +1,6 @@
+using Base.Test
 using SCIP
 using MathProgBase
-using FactCheck
 
 include("more_tests.jl")
 include("mixintprog.jl")
@@ -45,6 +45,3 @@ include(joinpath(Pkg.dir("JuMP"),"test","qcqpmodel.jl"))
 include(joinpath(Pkg.dir("JuMP"),"test","callback.jl"))
 include(joinpath(Pkg.dir("JuMP"),"test","nonlinear.jl"))
 #include(joinpath(Pkg.dir("JuMP"),"test","sdp.jl"))
-
-# return proper code (e.g. for TravisCI)
-FactCheck.exitstatus()
