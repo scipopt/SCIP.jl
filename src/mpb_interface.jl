@@ -456,12 +456,12 @@ function constr_expr_to_nodedata(ex::Expr)
     values = Float64[]
     csipex = CSIPNodeData[]
 
-    # a ex.args is [side, comp, expr, comp, side] or [expr, comp, side]
+    # a ex.args is [side, comp, expr, comp, side] or [comp, expr, side]
     if length(ex.args) == 5 # two sided constraint
         expr_to_csip(ex.args[3], values, csipex)
     else
         @assert length(ex.args) == 3
-        expr_to_csip(ex.args[1], values, csipex)
+        expr_to_csip(ex.args[2], values, csipex)
     end
     return csipex, values
 end
