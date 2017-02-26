@@ -20,7 +20,7 @@ Julia interface to [SCIP](http://scip.zib.de) solver.
 
 ## Installation
 
-Follow the steps below to get SCIP.jl working
+Follow the steps below to get SCIP.jl working. These instructions are **only tested on GNU/Linux** systems. With minor adjustments, it might also work on OS X.
 
 1.The SCIP.jl package requires [SCIP](http://scip.zib.de/) to be installed. [Download](http://scip.zib.de/download.php?fname=scipoptsuite-3.2.1.tgz) the SCIP Optimization Suite, untar it.
 ```
