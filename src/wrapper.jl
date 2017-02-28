@@ -10,8 +10,8 @@ function _patchVersion()
     ccall((:CSIPpatchVersion, libcsip), Cint, ())
 end
 
-function _freeModel(model::SCIPMathProgModel)
-    ccall((:CSIPfreeModel, libcsip), Cint, (Ptr{Void}, ), model.inner.ptr_model)
+function _freeModel(inner::SCIPModel)
+    ccall((:CSIPfreeModel, libcsip), Cint, (Ptr{Void}, ), inner.ptr_model)
 end
 
 function _addVar(model::SCIPMathProgModel, lowerbound::Cdouble,

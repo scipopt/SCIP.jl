@@ -18,7 +18,14 @@ numvar(m::SCIPMathProgModel) = _getNumVars(m)
 "The number of proper constraints, excluding those from lazy callbacks."
 numconstr(m::SCIPMathProgModel) = _getNumConss(m)
 
-freemodel!(m::SCIPMathProgModel) = error("Not implemented for SCIP.jl!")
+function freemodel!(m::SCIPMathProgModel)
+    if m.inner.ptr_model != C_NULL
+        # call finalizer directly
+        freescip(m.inner)
+    else
+        Base.warn_once("Tried to free already freed model, ignoring.")
+    end
+end
 
 # TODO: mapping for :SemiCont, :SemiInt
 const vartypemap = Dict{Symbol, Cint}(
