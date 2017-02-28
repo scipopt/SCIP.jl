@@ -21,14 +21,17 @@ if length(lp_solvers) < 1
 end
 lp_solvers = lp_solvers[1:1] # just need one
 ip_solvers = [solver]
+sos_solvers = [solver]
 quad_solvers = []
 quad_mip_solvers = [solver]
 lazy_solvers = [solver]
+lazy_soc_solvers = [solver]
 lazylocal_solvers = []
 cut_solvers = []
 cutlocal_solvers = []
 heur_solvers = [heursolver]
 info_solvers = []
+rsoc_solvers = [solver]
 minlp_solvers = [nlsolver]
 
 # nlp_solvers fails becuase:
