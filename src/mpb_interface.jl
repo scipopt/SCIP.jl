@@ -19,8 +19,12 @@ numvar(m::SCIPMathProgModel) = _getNumVars(m)
 numconstr(m::SCIPMathProgModel) = _getNumConss(m)
 
 function freemodel!(m::SCIPMathProgModel)
-    # call finalizer directly
-    freescip(m.inner)
+    if m.inner.ptr_model != C_NULL
+        # call finalizer directly
+        freescip(m.inner)
+    else
+        Base.warn_once("Tried to free already freed model, ignoring.")
+    end
 end
 
 # TODO: mapping for :SemiCont, :SemiInt

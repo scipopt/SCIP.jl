@@ -25,8 +25,6 @@ function freescip(m::SCIPModel)
     if m.ptr_model != C_NULL
         _freeModel(m)
         m.ptr_model = C_NULL
-    else
-        Base.warn_once("Tried to free already freed model, ignoring.")
     end
 end
 
