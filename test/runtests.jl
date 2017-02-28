@@ -14,8 +14,6 @@ heursolver = SCIPSolver("display/verblevel", 0,
                         "presolving/maxrounds", 0,
                         "separating/maxrounds", 0,
                         "separating/maxroundsroot", 0)
-nlsolver = SCIPSolver("display/verblevel", 0)
-# "numerics/feastol", 1e-7) # doesn't work, no convert from Ptr{Void} to Float64
 if length(lp_solvers) < 1
     error("Need at least one LP solver, eg, Clp")
 end
@@ -32,15 +30,15 @@ cutlocal_solvers = []
 heur_solvers = [heursolver]
 info_solvers = []
 rsoc_solvers = [solver]
-minlp_solvers = [nlsolver]
+minlp_solvers = [solver]
 
-# nlp_solvers fails becuase:
+# nlp_solvers fails because:
 # - some dual information: fixed by deleting getconstrduals
 # - some strange exprresions: can be fixed by adding SCIPSolver to the excluded
 #   list in "Test ifelse". This is on JuMP's side
 # - numerical tolerances: I tried setting SCIP feastol to 1e-9 and still got
 #   numerical issues. However, the solution is feasible for SCIP.
-#nlp_solvers = [nlsolver]
+#nlp_solvers = [solver]
 
 include(joinpath(Pkg.dir("JuMP"),"test","model.jl"))
 include(joinpath(Pkg.dir("JuMP"),"test","probmod.jl"))
