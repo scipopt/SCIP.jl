@@ -63,3 +63,6 @@ function NonlinearModel(s::SCIPSolver)
     setparams!(m)
     m
 end
+
+ConicModel(s::SCIPSolver) = LPQPtoConicBridge(LinearQuadraticModel(s))
+supportedcones(::SCIPSolver) = [:Free,:Zero,:NonNeg,:NonPos,:SOC]
