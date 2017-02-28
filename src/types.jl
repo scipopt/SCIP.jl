@@ -21,8 +21,13 @@ type SCIPModel
 end
 
 function freescip(m::SCIPModel)
-    @assert m.ptr_model != C_NULL
-    _freeModel(m)
+    # avoid double free
+    if m.ptr_model != C_NULL
+        _freeModel(m)
+        m.ptr_model = C_NULL
+    else
+        Base.warn_once("Tried to free already freed model, ignoring.")
+    end
 end
 
 # Linear Quadratic Model
