@@ -34,15 +34,16 @@ minlp_solvers = [solver]
 
 # nlp_solvers fails because:
 # - some dual information: fixed by deleting getconstrduals
-# - some strange exprresions: can be fixed by adding SCIPSolver to the excluded
+# - some strange expressions: can be fixed by adding SCIPSolver to the excluded
 #   list in "Test ifelse". This is on JuMP's side
 # - numerical tolerances: I tried setting SCIP feastol to 1e-9 and still got
 #   numerical issues. However, the solution is feasible for SCIP.
-#nlp_solvers = [solver]
+# nlp_solvers = [solver]
 
 include(joinpath(Pkg.dir("JuMP"),"test","model.jl"))
 include(joinpath(Pkg.dir("JuMP"),"test","probmod.jl"))
 include(joinpath(Pkg.dir("JuMP"),"test","qcqpmodel.jl"))
 include(joinpath(Pkg.dir("JuMP"),"test","callback.jl"))
 include(joinpath(Pkg.dir("JuMP"),"test","nonlinear.jl"))
-#include(joinpath(Pkg.dir("JuMP"),"test","sdp.jl"))
+# include(joinpath(Pkg.dir("JuMP"),"test","sdp.jl"))
+# include(joinpath(Pkg.dir("JuMP"),"test","socduals.jl"))
