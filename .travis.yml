@@ -2,6 +2,7 @@
 language: julia
 os:
   - linux
+  - osx
 julia:
   - 0.5
 notifications:
@@ -17,6 +18,7 @@ script:
   - rm Makefile.doit
   - wget http://scip.zib.de/download/bugfixes/scip-3.2.1/Makefile.doit
   - make SHARED=true GMP=false READLINE=false ZLIB=false scipoptlib
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then g++ -install_name @rpath/libscipopt.dylib -dynamiclib -undefined suppress -flat_namespace -m64 -shared -o lib/libscipopt.dylib obj/*.o scip-*/obj/*/lib/objscip/*.o soplex-*/obj/*/lib/*o          ; fi
   - export SCIPOPTDIR=`pwd`
   - cd ..
   - julia -e 'Pkg.build("SCIP"); Pkg.test("SCIP"; coverage=true)'
