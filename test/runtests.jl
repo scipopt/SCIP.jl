@@ -8,6 +8,7 @@ include("mixintprog.jl")
 include(joinpath(Pkg.dir("JuMP"),"test","solvers.jl"))
 
 using JuMP
+using OffsetArrays # for JuMP/test/model.jl
 solver = SCIPSolver()
 MathProgBase.setparameters!(solver, Silent=true, TimeLimit=100.0)
 heursolver = SCIPSolver("display/verblevel", 0,

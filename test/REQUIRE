@@ -1,2 +1,3 @@
 JuMP 0.16
 GLPKMathProgInterface
+OffsetArrays 0.2.13
