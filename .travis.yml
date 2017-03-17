@@ -9,6 +9,7 @@ notifications:
   email: false
 sudo: required
 dist: trusty
+osx_image: xcode8.2
 script:
   - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
   - julia -e 'Pkg.clone(pwd())'
@@ -16,7 +17,7 @@ script:
   - tar xzf scipoptsuite-4.0.0.tgz
   - cd scipoptsuite-4.0.0/
   - make SHARED=true GMP=false READLINE=false ZLIB=false scipoptlib
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then g++ -install_name @rpath/libscipopt.dylib -dynamiclib -undefined suppress -flat_namespace -m64 -shared -o lib/libscipopt.dylib obj/*.o scip-*/obj/*/lib/objscip/*.o soplex-*/obj/*/lib/*o          ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then g++ -install_name @rpath/libscipopt.dylib -dynamiclib -undefined suppress -flat_namespace -m64 -shared -o lib/libscipopt.dylib scip-*/obj/shared/O.darwin.x86_64.gnu.opt/lib/*/*.o soplex-*/obj/O.darwin.x86_64.gnu.opt/lib/*o          ; fi
   - export SCIPOPTDIR=`pwd`
   - cd ..
   - julia -e 'Pkg.build("SCIP"); Pkg.test("SCIP"; coverage=true)'

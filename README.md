@@ -32,9 +32,9 @@ tar xzf scipoptsuite-4.0.0.tgz
 ```
 make SHARED=true GMP=false READLINE=false ZLIB=false scipoptlib
 ```
-**An additional step for macOS users:** 
+**An additional step for macOS users:**
 ```
-g++ -install_name @rpath/libscipopt.dylib -dynamiclib -undefined suppress -flat_namespace -m64 -shared -o lib/libscipopt.dylib obj/*.o scip-*/obj/*/lib/objscip/*.o soplex-*/obj/*/lib/*o
+g++ -install_name @rpath/libscipopt.dylib -dynamiclib -undefined suppress -flat_namespace -m64 -shared -o lib/libscipopt.dylib scip-*/obj/shared/O.darwin.x86_64.gnu.opt/lib/*/*.o soplex-*/obj/O.darwin.x86_64.gnu.opt/lib/*o
 ```
 3.Set the **environment variable `SCIPOPTDIR`** to point to the directory that contains the `scipoptsuite` sources. CSIP needs the library in `${SCIPOPTDIR}/lib/scipoptlib.so` and the C header files in `${SCIPOPTDIR}/scip-*/src/`.
 ```
