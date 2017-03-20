@@ -15,10 +15,7 @@ heursolver = SCIPSolver("display/verblevel", 0,
                         "presolving/maxrounds", 0,
                         "separating/maxrounds", 0,
                         "separating/maxroundsroot", 0)
-if length(lp_solvers) < 1
-    error("Need at least one LP solver, eg, Clp")
-end
-lp_solvers = lp_solvers[1:1] # just need one
+lp_solvers = []
 ip_solvers = [solver]
 sos_solvers = [solver]
 quad_solvers = []
