@@ -20,32 +20,29 @@ Julia interface to [SCIP](http://scip.zib.de) solver.
 
 ## Installation
 
-Follow the steps below to get SCIP.jl working. These instructions are **only tested on GNU/Linux** systems. With minor adjustments, it might also work on OS X.
+Follow the steps below to get SCIP.jl working.
 
-1.The SCIP.jl package requires [SCIP](http://scip.zib.de/) to be installed. [Download](http://scip.zib.de/download.php?fname=scipoptsuite-3.2.1.tgz) the SCIP Optimization Suite, untar it.
+1.The SCIP.jl package requires [SCIP](http://scip.zib.de/) to be installed in the newest version (4.0.0).
+[Download](http://scip.zib.de/download.php?fname=scipoptsuite-4.0.0.tgz) the SCIP Optimization Suite, untar it.
 ```
-wget http://scip.zib.de/download/release/scipoptsuite-3.2.1.tgz
-tar xzf scipoptsuite-3.2.1.tgz
+wget http://scip.zib.de/download/release/scipoptsuite-4.0.0.tgz
+tar xzf scipoptsuite-4.0.0.tgz
 ```
-2.Replace the existing `Makefile.doit` with the [patched file](http://scip.zib.de/download/bugfixes/scip-3.2.1/Makefile.doit)
-```
-cd scipoptsuite-3.2.1/
-rm Makefile.doit
-wget http://scip.zib.de/download/bugfixes/scip-3.2.1/Makefile.doit
-```
-3.Build the shared library with
+2.Build the shared library with
 ```
 make SHARED=true GMP=false READLINE=false ZLIB=false scipoptlib
 ```
-**An additional step for macOS users:** 
+**An additional step for OS X users:**
 ```
 g++ -install_name @rpath/libscipopt.dylib -dynamiclib -undefined suppress -flat_namespace -m64 -shared -o lib/libscipopt.dylib obj/*.o scip-*/obj/*/lib/objscip/*.o soplex-*/obj/*/lib/*o
 ```
-4.Set the **environment variable `SCIPOPTDIR`** to point to the directory that contains the `scipoptsuite` sources. CSIP needs the library in `${SCIPOPTDIR}/lib/scipoptlib.so` and the C header files in `${SCIPOPTDIR}/scip-*/src/`.
+Note that support for OS X is currently broken with the update to SCIP 4.0.0.
+
+3.Set the **environment variable `SCIPOPTDIR`** to point to the directory that contains the `scipoptsuite` sources. CSIP needs the library in `${SCIPOPTDIR}/lib/scipoptlib.so` and the C header files in `${SCIPOPTDIR}/scip-*/src/`.
 ```
 export SCIPOPTDIR=`pwd`
 ```
-5.This package is registered in `METADATA.jl` and can be installed in Julia with
+4.This package is registered in `METADATA.jl` and can be installed in Julia with
 ```
 Pkg.add("SCIP")
 ```
