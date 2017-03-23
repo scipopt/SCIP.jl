@@ -15,7 +15,7 @@ include("../deps/csip_version.jl")
 importall MathProgBase.SolverInterface
 
 include("types.jl")
-include("wrapper.jl")
+include("csip_wrapper.jl")
 include("mpb_interface.jl")
 include("params.jl")
 
