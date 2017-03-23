@@ -16,6 +16,7 @@ importall MathProgBase.SolverInterface
 
 include("types.jl")
 include("csip_wrapper.jl")
+include("scip_wrapper.jl")
 include("mpb_interface.jl")
 include("params.jl")
 
