@@ -5,5 +5,5 @@ function _writeOrigProblem(model::SCIPMathProgModel, filename::Cstring,
                            extension::Cstring, genericnames::Cint)
     ccall((:SCIPwriteOrigProblem, libcsip), Cint,
           (Ptr{Void}, Cstring, Cstring, Cint),
-          model.inner.ptr_model, filename, extension, genericnames)
+          _getInternalSCIP(model), filename, extension, genericnames)
 end
