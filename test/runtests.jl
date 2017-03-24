@@ -2,13 +2,14 @@ using Base.Test
 using SCIP
 using MathProgBase
 
+using JuMP
+using OffsetArrays # for JuMP/test/model.jl
+
 include("more_tests.jl")
 include("mixintprog.jl")
 
 include(joinpath(Pkg.dir("JuMP"),"test","solvers.jl"))
 
-using JuMP
-using OffsetArrays # for JuMP/test/model.jl
 solver = SCIPSolver()
 MathProgBase.setparameters!(solver, Silent=true, TimeLimit=300.0)
 heursolver = SCIPSolver("display/verblevel", 0,
