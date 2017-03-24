@@ -178,8 +178,9 @@ function loadproblem!(m::SCIPLinearQuadraticModel, A, varlb, varub, obj, rowlb, 
     end
 end
 
-writeproblem(m::SCIPLinearQuadraticModel, filename::AbstractString) =
-    error("Not implemented for SCIP.jl")
+function writeproblem(m::SCIPLinearQuadraticModel, filename::AbstractString)
+    _writeOrigProblem(m, Cstring(pointer(filename)), Cstring(C_NULL), Cint(0))
+end
 
 getvarLB(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
 

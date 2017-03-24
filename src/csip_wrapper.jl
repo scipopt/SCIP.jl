@@ -1,3 +1,5 @@
+# calls to CSIP library, wrapping SCIP
+
 function _majorVersion()
     ccall((:CSIPmajorVersion, libcsip), Cint, ())
 end

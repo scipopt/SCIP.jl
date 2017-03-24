@@ -19,3 +19,38 @@
     @test MathProgBase.getsolvetime(m) >= 0.001
     @test MathProgBase.getsolution(m) ≈ [750, -200, -25]
 end
+
+modelPath = joinpath(dirname(@__FILE__), "model")
+
+@testset "test writeproblem" begin
+    m = Model(solver=SCIPSolver("display/verblevel", 0))
+    @variable(m, x >= 2)
+    @constraint(m, 3x <= 40)
+    @objective(m, :Max, 5x)
+    solve(m)
+
+    cipfname = modelPath * "test.cip"
+    MathProgBase.writeproblem(internalmodel(m), cipfname)
+
+    cipstr = String[
+        "STATISTICS",
+        "  Problem name     : name",
+        "  Variables        : 1 (0 binary, 0 integer, 0 implicit integer, 1 continuous)",
+        "  Constraints      : 1 initial, 1 maximal",
+        "OBJECTIVE",
+        "  Sense            : maximize",
+        "VARIABLES",
+        "  [continuous] <_var0_>: obj=5, original bounds=[2,+inf]",
+        "CONSTRAINTS",
+        "  [linear] <lincons>:  +3<_var0_>[C] <= 40;",
+        "END"]
+
+    open(cipfname) do file
+        lineno = 1
+        while !eof(file)
+            line = readline(file)
+            @test strip(line) == strip(cipstr[lineno])
+            lineno += 1
+        end
+    end
+end
