@@ -54,3 +54,24 @@ modelPath = joinpath(dirname(@__FILE__), "model")
         end
     end
 end
+
+@testset "test_#49_initialsol_nlp" begin
+    m = Model(solver=SCIPSolver("display/verblevel", 0,
+                                "heuristics/trivial/freq", -1,
+                                "limits/solutions", 1))
+
+    @variable(m, 0 <= x[1:3] <= 10, start=5.0)
+    @variable(m, y, Bin, start=1.0)
+
+    @NLconstraint(m, x[1] + x[2] <= x[3]*y)
+    @constraint(m, x[1] - x[2] == 0)
+
+    @objective(m, Min, x[1])
+
+    # This makes the initial point feasible
+    setvalue(x[3], 10.0)
+
+    solve(m)
+
+    @test getvalue(x)[3] == 10.0
+end
