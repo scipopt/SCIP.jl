@@ -9,7 +9,7 @@ type SCIPModel
     heur_userdata
 
     function SCIPModel(options...)
-        _arr = Array(Ptr{Void}, 1)
+        _arr = Array{Ptr{Void}}(1)
         # TODO: check return code (everywhere!)
         ccall((:CSIPcreateModel, libcsip), Cint, (Ptr{Ptr{Void}}, ), _arr)
         m = new(_arr[1], options)
