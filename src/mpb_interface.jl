@@ -309,9 +309,9 @@ setquadconstrRHS!(m::SCIPLinearQuadraticModel, lb) = error("Not implemented for 
 
 # use a different type for heuristic callback and multiple dispatch to implements
 # the methods that they share
-abstract SCIPCallbackData <: MathProgCallbackData
+abstract type SCIPCallbackData <: MathProgCallbackData end
 
-type SCIPLazyCallbackData <: SCIPCallbackData
+mutable struct SCIPLazyCallbackData <: SCIPCallbackData
     model::SCIPMathProgModel
     csip_lazydata::Ptr{Void}
 end
@@ -380,7 +380,7 @@ end
 # function cbaddlazylocal!(d::SCIPLazyCallbackData, varidx, varcoef, sense, rhs)
 # end
 
-type SCIPHeurCallbackData <: SCIPCallbackData
+mutable struct SCIPHeurCallbackData <: SCIPCallbackData
     model::SCIPMathProgModel
     csip_heurdata::Ptr{Void}
     sol::Vector{Float64}
@@ -454,7 +454,7 @@ const julia_op_to_csip_op = Dict{Symbol, Int}(
 )
 
 #inspired in ReverseDiffSparse's conversion.jl
-immutable CSIPNodeData
+struct CSIPNodeData
     nodetype::Int
     childids::Array{Int}
 end

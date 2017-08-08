@@ -2,14 +2,14 @@ export SCIPSolver
 
 # Common inner model
 
-type SCIPModel
+mutable struct SCIPModel
     ptr_model::Ptr{Void}
     options
     lazy_userdata
     heur_userdata
 
     function SCIPModel(options...)
-        _arr = Array(Ptr{Void}, 1)
+        _arr = Array{Ptr{Void}}(1)
         # TODO: check return code (everywhere!)
         ccall((:CSIPcreateModel, libcsip), Cint, (Ptr{Ptr{Void}}, ), _arr)
         m = new(_arr[1], options)
@@ -30,13 +30,13 @@ end
 
 # Linear Quadratic Model
 
-type SCIPLinearQuadraticModel <: AbstractLinearQuadraticModel
+struct SCIPLinearQuadraticModel <: AbstractLinearQuadraticModel
     inner::SCIPModel
 end
 
 # Nonlinear Model
 
-type SCIPNonlinearModel <: AbstractNonlinearModel
+struct SCIPNonlinearModel <: AbstractNonlinearModel
     inner::SCIPModel
 end
 
@@ -46,7 +46,7 @@ SCIPMathProgModel = Union{SCIPLinearQuadraticModel, SCIPNonlinearModel}
 
 # Solver
 
-type SCIPSolver <: AbstractMathProgSolver
+mutable struct SCIPSolver <: AbstractMathProgSolver
     options
 end
 
