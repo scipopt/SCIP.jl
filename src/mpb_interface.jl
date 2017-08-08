@@ -309,7 +309,7 @@ setquadconstrRHS!(m::SCIPLinearQuadraticModel, lb) = error("Not implemented for 
 
 # use a different type for heuristic callback and multiple dispatch to implements
 # the methods that they share
-abstract SCIPCallbackData <: MathProgCallbackData
+abstract type SCIPCallbackData <: MathProgCallbackData end
 
 type SCIPLazyCallbackData <: SCIPCallbackData
     model::SCIPMathProgModel
