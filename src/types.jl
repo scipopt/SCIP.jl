@@ -2,7 +2,7 @@ export SCIPSolver
 
 # Common inner model
 
-type SCIPModel
+mutable struct SCIPModel
     ptr_model::Ptr{Void}
     options
     lazy_userdata
@@ -30,13 +30,13 @@ end
 
 # Linear Quadratic Model
 
-type SCIPLinearQuadraticModel <: AbstractLinearQuadraticModel
+struct SCIPLinearQuadraticModel <: AbstractLinearQuadraticModel
     inner::SCIPModel
 end
 
 # Nonlinear Model
 
-type SCIPNonlinearModel <: AbstractNonlinearModel
+struct SCIPNonlinearModel <: AbstractNonlinearModel
     inner::SCIPModel
 end
 
@@ -46,7 +46,7 @@ SCIPMathProgModel = Union{SCIPLinearQuadraticModel, SCIPNonlinearModel}
 
 # Solver
 
-type SCIPSolver <: AbstractMathProgSolver
+mutable struct SCIPSolver <: AbstractMathProgSolver
     options
 end
 
