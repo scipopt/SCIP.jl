@@ -125,12 +125,9 @@ function setparameters!(m::SCIPMathProgModel; mpboptions...)
     end
 end
 
+"Set warm-start solution candidate. Missing values are indicated by NaN."
 function setwarmstart!(m::SCIPMathProgModel, v)
-    if findfirst(isnan, v) != 0
-        warn("SCIP does not support incomplete solutions (with NaN values)")
-    else
-        _setInitialSolution(m, float(v))
-    end
+    _setInitialSolution(m, float(v))
 end
 
 ###########################################################################

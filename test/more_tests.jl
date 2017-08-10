@@ -75,3 +75,21 @@ end
 
     @test getvalue(x)[3] == 10.0
 end
+
+@testset "test_incomplete_warmstart" begin
+    m = Model(solver=SCIPSolver("display/verblevel", 0,
+                                "heuristics/trivial/freq", -1,
+                                "limits/solutions", 1))
+
+    @variable(m, 0 <= x <= 2, Int, start=1.0)
+    @variable(m, 0 <= y <= 2)
+
+    @constraint(m, x + y == 2)
+
+    @objective(m, Max, x + 2y)
+
+    solve(m)
+
+    @test getvalue(x) ≈ 1.0
+    @test getvalue(y) ≈ 1.0
+end
