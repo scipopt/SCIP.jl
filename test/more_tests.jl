@@ -77,7 +77,7 @@ end
 end
 
 @testset "test_incomplete_warmstart" begin
-    m = Model(solver=SCIPSolver(#"display/verblevel", 0,
+    m = Model(solver=SCIPSolver("display/verblevel", 0,
                                 "heuristics/trivial/freq", -1,
                                 "limits/solutions", 1))
 
