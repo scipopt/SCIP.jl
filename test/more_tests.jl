@@ -53,6 +53,7 @@ modelPath = joinpath(dirname(@__FILE__), "model")
             lineno += 1
         end
     end
+    rm(cipfname) # clean up for future test runs
 end
 
 @testset "test_#49_initialsol_nlp" begin
