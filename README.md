@@ -20,7 +20,7 @@ Julia interface to [SCIP](http://scip.zib.de) solver.
 
 ## Installation
 
-Follow the steps below to get SCIP.jl working.
+Follow the steps below to get SCIP.jl working. Unfortunately, these steps can not be automated as part of `Pkg.build("SCIP")`, because the academic license of SCIP does not allow distribution of the source code without tracking the download metadata. See the [license](http://scip.zib.de/academic.txt) for details.
 
 1.The SCIP.jl package requires [SCIP](http://scip.zib.de/) to be installed in the newest version (4.0.0).
 [Download](http://scip.zib.de/download.php?fname=scipoptsuite-4.0.0.tgz) the SCIP Optimization Suite, untar it.
