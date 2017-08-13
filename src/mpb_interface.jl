@@ -262,7 +262,7 @@ end
 
 numquadconstr(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
 
-setquadobj!{T<:Real}(m::SCIPLinearQuadraticModel, Q::Array{T, 2}) =
+setquadobj!(m::SCIPLinearQuadraticModel, Q::Array{T, 2}) where {T<:Real} =
     error("Not implemented for SCIP.jl")
 
 setquadobj!(m::SCIPLinearQuadraticModel, rowidx, colidx, quadval) =
