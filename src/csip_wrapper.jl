@@ -256,3 +256,8 @@ function _getInternalSCIP(model::SCIPMathProgModel)
     ccall((:CSIPgetInternalSCIP, libcsip), Ptr{Void}, (Ptr{Void}, ),
           model.inner.ptr_model)
 end
+
+function _setMessagePrefix(model::SCIPMathProgModel, prefix::Ptr{UInt8})
+    ccall((:CSIPsetMessagePrefix, libcsip), Cint, (Ptr{Void}, Cstring),
+          model.inner.ptr_model, prefix)
+end

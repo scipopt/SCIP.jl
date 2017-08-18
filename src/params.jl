@@ -23,3 +23,10 @@ end
 setparameter!(m::SCIPMathProgModel, name::Compat.String, value::Float64) = (@assert isascii(name); _setRealParam(m, pointer(name), Cdouble(value)))
 setparameter!(m::SCIPMathProgModel, name::Compat.String, value::Char) = (@assert isascii(name); _setCharParam(m, pointer(name), Cchar(value)))
 setparameter!(m::SCIPMathProgModel, name::Compat.String, value::Compat.String) = (@assert isascii(name) && isascii(value); _setStringParam(m, pointer(name), pointer(value)))
+
+# Set a prefix string to be printed with all messages from the solver
+function setprefix!(m::SCIPMathProgModel, prefix)
+    prefix ≠ nothing || return
+    @assert isascii(prefix)
+    _setMessagePrefix(m, pointer(prefix))
+end
