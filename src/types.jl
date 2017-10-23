@@ -48,19 +48,24 @@ SCIPMathProgModel = Union{SCIPLinearQuadraticModel, SCIPNonlinearModel}
 
 mutable struct SCIPSolver <: AbstractMathProgSolver
     options
-end
+    prefix
 
-SCIPSolver(kwargs...) = SCIPSolver(kwargs)
+    function SCIPSolver(kwargs...; prefix=nothing)
+        new(kwargs, prefix)
+    end
+end
 
 function LinearQuadraticModel(s::SCIPSolver)
     m = SCIPLinearQuadraticModel(SCIPModel(s.options))
     setparams!(m)
+    setprefix!(m, s.prefix)
     m
 end
 
 function NonlinearModel(s::SCIPSolver)
     m = SCIPNonlinearModel(SCIPModel(s.options))
     setparams!(m)
+    setprefix!(m, s.prefix)
     m
 end
 
