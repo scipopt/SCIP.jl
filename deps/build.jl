@@ -1,5 +1,9 @@
 using BinDeps
 
+if VERSION >= v"0.7.0-DEV.3382"
+    using Libdl
+end
+
 include("csip_version.jl")
 
 CSIP_URL = "https://github.com/SCIP-Interfaces/CSIP/archive/v$(CSIP_VERSION).zip"
