@@ -11,14 +11,7 @@ dist: trusty
 script:
   - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
   - julia -e 'Pkg.clone(pwd())'
-  - wget http://scip.zib.de/download/release/scipoptsuite-5.0.0.tgz
-  - tar xzf scipoptsuite-5.0.0.tgz
-  - cd scipoptsuite-5.0.0/
-  - export SCIPOPTDIR=`pwd`/install
-  - mkdir build
-  - cd build
-  - cmake -DCMAKE_INSTALL_PREFIX=$SCIPOPTDIR ..
-  - make
-  - make install
-  - cd ..
+  - wget http://scip.zib.de/download/release/SCIPOptSuite-5.0.1-Linux.deb
+  - sudo dpkg -i SCIPOptSuite-5.0.1-Linux.deb
+  - export SCIPOPTDIR="/usr"
   - julia -e 'Pkg.build("SCIP"); Pkg.test("SCIP"; coverage=true)'
