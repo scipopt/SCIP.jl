@@ -8,10 +8,11 @@ notifications:
   email: false
 sudo: required
 dist: trusty
+before_install:
+  - wget http://scip.zib.de/download/release/SCIPOptSuite-5.0.1-Linux.deb
+  - sudo dpkg -i SCIPOptSuite-5.0.1-Linux.deb
 script:
   - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
   - julia -e 'Pkg.clone(pwd())'
-  - wget http://scip.zib.de/download/release/SCIPOptSuite-5.0.1-Linux.deb
-  - sudo dpkg -i SCIPOptSuite-5.0.1-Linux.deb
   - export SCIPOPTDIR="/usr"
   - julia -e 'Pkg.build("SCIP"); Pkg.test("SCIP"; coverage=true)'
