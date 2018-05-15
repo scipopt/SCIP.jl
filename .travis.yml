@@ -4,15 +4,15 @@ os:
   - linux
 julia:
   - 0.6
+dist: trusty
+sudo: required
+services:
+  - docker
+before_install:
+  - echo "**** pulling Docker image"
+  - docker pull leethargo/debian4scip
 notifications:
   email: false
-sudo: required
-dist: trusty
-before_install:
-  - wget http://scip.zib.de/download/release/SCIPOptSuite-5.0.1-Linux.deb
-  - sudo dpkg -i SCIPOptSuite-5.0.1-Linux.deb
 script:
-  - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
-  - julia -e 'Pkg.clone(pwd())'
-  - export SCIPOPTDIR="/usr"
-  - julia -e 'Pkg.build("SCIP"); Pkg.test("SCIP"; coverage=true)'
+  - echo "**** running Docker"
+  - docker run --env-file travis_docker_env.list -t -a STDOUT -a STDIN -a STDERR -v $PWD:/mnt leethargo/debian4scip /mnt/travis_docker_test_script.sh $TRAVIS_JULIA_VERSION
