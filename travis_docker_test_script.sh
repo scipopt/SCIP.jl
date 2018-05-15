@@ -10,6 +10,11 @@ PKGNAME="SCIP"
 
 cd /mnt && if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
 
+# install SCIP
+wget http://scip.zib.de/download/release/SCIPOptSuite-5.0.1-Linux.deb
+sudo dpkg -i SCIPOptSuite-5.0.1-Linux.deb
+export SCIPOPTDIR="/usr"
+
 # run tests
 $JULIABIN -e "Pkg.clone(\"/mnt/\", \"$PKGNAME\"); Pkg.build(\"$PKGNAME\"); Pkg.test(\"$PKGNAME\"; coverage=true)"
 TEST_EXIT=$?                    # return with this
