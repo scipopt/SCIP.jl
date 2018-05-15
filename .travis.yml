@@ -10,9 +10,9 @@ services:
   - docker
 before_install:
   - echo "**** pulling Docker image"
-  - docker pull leethargo/debian4scip
+  - docker pull leethargo/scip-julia
 notifications:
   email: false
 script:
   - echo "**** running Docker"
-  - docker run --env-file travis_docker_env.list -t -a STDOUT -a STDIN -a STDERR -v $PWD:/mnt leethargo/debian4scip /mnt/travis_docker_test_script.sh $TRAVIS_JULIA_VERSION
+  - docker run --env-file travis_docker_env.list -t -a STDOUT -a STDIN -a STDERR -v $PWD:/mnt leethargo/scip-julia /mnt/travis_docker_test_script.sh $TRAVIS_JULIA_VERSION
