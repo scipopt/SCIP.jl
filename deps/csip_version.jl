@@ -1,5 +1,5 @@
 # required version and utilities in a single location
-CSIP_VERSION = "0.5.0"
+CSIP_VERSION = "0.5.1"
 
 function vn2int(vn::VersionNumber)
     100*vn.major + 10*vn.minor + vn.patch

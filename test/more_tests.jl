@@ -94,3 +94,15 @@ end
     @test getvalue(x) ≈ 1.0
     @test getvalue(y) ≈ 1.0
 end
+
+@testset "test_#67_nlp_without_obj" begin
+    m = Model(solver=SCIPSolver("display/verblevel", 0))
+    @variable(m, -5 <= x <= 5)
+    @NLconstraint(m, x <= 2)
+
+    solve(m)
+    xval = getvalue(x)
+
+    @test xval <= 2 + 1e-4
+    @test xval >= -5 - 1e-4
+end
