@@ -175,7 +175,7 @@ function loadproblem!(m::SCIPLinearQuadraticModel, A, varlb, varub, obj, rowlb, 
     end
 end
 
-function writeproblem(m::SCIPLinearQuadraticModel, filename::AbstractString)
+function writeproblem(m::SCIPMathProgModel, filename::AbstractString)
     _writeOrigProblem(m, Cstring(pointer(filename)), Cstring(C_NULL), Cint(0))
 end
 
