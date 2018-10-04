@@ -154,7 +154,7 @@ function SolverInterface.loadproblem!(m::SCIPLinearQuadraticModel, A, varlb, var
         At = A' # faster column-wise access in loop
         for c in 1:nrows
             idx, val = findnz(At[:,c])
-            _idx = Vector{Cint}(idx - 1) # 0 based indexing
+            _idx = Vector{Cint}(idx .- 1) # 0 based indexing
             _nvars = Cint(length(_idx))
             _addLinCons(m, _nvars, _idx, float(val),
                         float(rowlb[c]), float(rowub[c]), Ptr{Cint}(C_NULL))
@@ -216,7 +216,7 @@ SolverInterface.addvar!(m::SCIPLinearQuadraticModel, constridx, constrcoef, l, u
 SolverInterface.addvar!(m::SCIPLinearQuadraticModel, l, u, objcoef) = error("Not implemented for SCIP.jl")
 
 function SolverInterface.addconstr!(m::SCIPLinearQuadraticModel, varidx, coef, lb, ub)
-    _addLinCons(m, Cint(length(varidx)), Vector{Cint}(varidx - 1), float(coef),
+    _addLinCons(m, Cint(length(varidx)), Vector{Cint}(varidx .- 1), float(coef),
                 float(lb), float(ub), Ptr{Cint}(C_NULL))
 end
 

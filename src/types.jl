@@ -15,7 +15,7 @@ mutable struct SCIPModel
         m = new(_arr[1], options)
         @assert m.ptr_model != C_NULL
 
-        finalizer(m, freescip)
+        finalizer(freescip, m)
         return m
     end
 end
