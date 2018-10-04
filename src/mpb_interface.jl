@@ -23,7 +23,7 @@ function SolverInterface.freemodel!(m::SCIPMathProgModel)
         # call finalizer directly
         freescip(m.inner)
     else
-        Base.warn_once("Tried to free already freed model, ignoring.")
+        @warn("Tried to free already freed model, ignoring.")
     end
 end
 
@@ -285,9 +285,9 @@ function SolverInterface.addquadconstr!(m::SCIPLinearQuadraticModel, linearidx, 
         clhs = rhs
         crhs = rhs
     end
-    _addQuadCons(m, Cint(length(linearidx)), convert(Vector{Cint}, linearidx - 1),
-                 linearval, Cint(length(quadrowidx)), convert(Vector{Cint}, quadrowidx - 1),
-                 convert(Vector{Cint}, quadcolidx - 1), quadval, clhs, crhs, Ptr{Cint}(C_NULL))
+    _addQuadCons(m, Cint(length(linearidx)), convert(Vector{Cint}, linearidx .- 1),
+                 linearval, Cint(length(quadrowidx)), convert(Vector{Cint}, quadrowidx .- 1),
+                 convert(Vector{Cint}, quadcolidx .- 1), quadval, clhs, crhs, Ptr{Cint}(C_NULL))
 end
 
 SolverInterface.getquadconstrsolution(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
@@ -329,7 +329,7 @@ end
 function SolverInterface.setlazycallback!(m::SCIPMathProgModel, f)
     # f is function(d::SCIPLazyCallbackData)
 
-    cbfunction = cfunction(lazycb_wrapper, Cint, (Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}))
+    cbfunction = cfunction(lazycb_wrapper, Cint, Tuple{Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}})
     m.inner.lazy_userdata = (m, f)
 
     _addLazyCallback(m, cbfunction, m.inner.lazy_userdata)
@@ -372,7 +372,7 @@ function SolverInterface.cbaddlazy!(d::SCIPLazyCallbackData, varidx, varcoef, se
         crhs = rhs
     end
     _lazyAddLinCons(d.csip_lazydata, convert(Cint, length(varidx)),
-                  convert(Vector{Cint}, varidx - 1), varcoef, clhs, crhs,
+                  convert(Vector{Cint}, varidx .- 1), varcoef, clhs, crhs,
                   convert(Cint, 0))
 end
 
@@ -402,7 +402,7 @@ end
 function SolverInterface.setheuristiccallback!(m::SCIPMathProgModel, f)
     # f is function(d::SCIPHeurCallbackData)
 
-    cbfunction = cfunction(heurcb_wrapper, Cint, (Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}))
+    cbfunction = cfunction(heurcb_wrapper, Cint, Tuple{Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}})
     m.inner.heur_userdata = (m, f)
 
     _addHeuristicCallback(m, cbfunction, m.inner.heur_userdata)
@@ -421,7 +421,7 @@ function SolverInterface.cbaddsolution!(d::SCIPHeurCallbackData)
         # add solution that was filled from cbsetsolutionvalue
         _heurAddSolution(d.csip_heurdata, d.sol)
     else
-        warn("Incomplete solutions not supported, skipping candidate.")
+        @warn("Incomplete solutions not supported, skipping candidate.")
     end
 
     # reset solution vector for the next solution
@@ -544,8 +544,8 @@ function SolverInterface.loadproblem!(m::SCIPNonlinearModel, numVars, numConstr,
         end
         _addNonLinCons(m, Cint(length(ops)),
                        convert(Vector{Cint},ops),
-                       convert(Vector{Cint},children - 1),
-                       convert(Vector{Cint},beg - 1),
+                       convert(Vector{Cint},children .- 1),
+                       convert(Vector{Cint},beg .- 1),
                        values, float(lb[c]), float(ub[c]),
                        Ptr{Cint}(C_NULL))
     end
@@ -562,8 +562,8 @@ function SolverInterface.loadproblem!(m::SCIPNonlinearModel, numVars, numConstr,
     end
     _setNonlinearObj(m, Cint(length(ops)),
                      convert(Vector{Cint},ops),
-                     convert(Vector{Cint},children - 1),
-                     convert(Vector{Cint},beg - 1),
+                     convert(Vector{Cint},children .- 1),
+                     convert(Vector{Cint},beg .- 1),
                      values)
 
     # set sense

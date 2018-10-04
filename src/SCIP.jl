@@ -10,6 +10,8 @@ end
 
 include("../deps/csip_version.jl")
 
+using SparseArrays: issparse
+
 import MathProgBase.SolverInterface
 import MathProgBase.SolverInterface: AbstractLinearQuadraticModel,
                                      AbstractNonlinearModel,
