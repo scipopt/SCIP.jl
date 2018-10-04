@@ -16,10 +16,10 @@ dpkg -i SCIPOptSuite-5.0.1-Linux.deb
 export SCIPOPTDIR="/usr"
 
 # run tests
-$JULIABIN -e "Pkg.clone(\"/mnt/\", \"$PKGNAME\"); Pkg.build(\"$PKGNAME\"); Pkg.test(\"$PKGNAME\"; coverage=true)"
+$JULIABIN -e "using Pkg; Pkg.clone(\"/mnt/\", \"$PKGNAME\"); Pkg.build(\"$PKGNAME\"); Pkg.test(\"$PKGNAME\"; coverage=true)"
 TEST_EXIT=$?                    # return with this
 
 # save coverage results back to host
-PKGDIR=`$JULIABIN -e "print(Pkg.dir(\"$PKGNAME\"))"`
+PKGDIR=`$JULIABIN -e "using Pkg; print(dirname(pathof($PKGNAME)))"`
 rsync -mav --include="*/" --include="*.cov" --exclude="*" $PKGDIR/ /mnt/
 exit $TEST_EXIT
