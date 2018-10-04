@@ -1,5 +1,3 @@
-__precompile__()
-
 module SCIP
 
 import Compat
@@ -12,7 +10,13 @@ end
 
 include("../deps/csip_version.jl")
 
-importall MathProgBase.SolverInterface
+import MathProgBase.SolverInterface
+import MathProgBase.SolverInterface: AbstractLinearQuadraticModel,
+                                     AbstractNonlinearModel,
+                                     AbstractMathProgSolver,
+                                     MathProgCallbackData,
+                                     AbstractNLPEvaluator,
+                                     LinearQuadraticModel
 
 include("types.jl")
 include("csip_wrapper.jl")
@@ -28,7 +32,7 @@ function __init__()
     csip_installed = CSIPversion()
     if csip_installed != csip_required
         depsdir = realpath(joinpath(dirname(@__FILE__),"..","deps"))
-        error("Current CSIP version installed is $(csip_installed), but we require $(csip_required). On Linux, delete the contents of the `$depsdir` directory except for `build.jl` and `csip_version.jl`, then rerun Pkg.build(\"SCIP\").")
+        error("Installed CSIP version is $(csip_installed), but we require $(csip_required). Run Pkg.build(\"SCIP\") to update.")
     end
 end
 

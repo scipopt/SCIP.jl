@@ -20,28 +20,31 @@ Julia interface to [SCIP](http://scip.zib.de) solver.
 
 ## Installation
 
+**Note**: These instructions are meant for and only tested with GNU/Linux. OS X used to work, 
+but there is an issue (#46) since the update to SCIP 4.0.0.
+
 Follow the steps below to get SCIP.jl working. Unfortunately, these steps can not be automated as part of `Pkg.build("SCIP")`, because the academic license of SCIP does not allow distribution of the source code without tracking the download metadata. See the [license](http://scip.zib.de/academic.txt) for details.
 
-1.The SCIP.jl package requires [SCIP](http://scip.zib.de/) to be installed in the newest version (4.0.0).
-[Download](http://scip.zib.de/download.php?fname=scipoptsuite-4.0.0.tgz) the SCIP Optimization Suite, untar it.
+1.The SCIP.jl package requires [SCIP](http://scip.zib.de/) to be installed in the newest version (5.0.0).
+[Download](http://scip.zib.de) the SCIP Optimization Suite.
 ```
-wget http://scip.zib.de/download/release/scipoptsuite-4.0.0.tgz
-tar xzf scipoptsuite-4.0.0.tgz
+tar xzf scipoptsuite-5.0.0.tgz
 ```
-2.Build the shared library with
-```
-make SHARED=true GMP=false READLINE=false ZLIB=false scipoptlib
-```
-**An additional step for OS X users:**
-```
-g++ -install_name @rpath/libscipopt.dylib -dynamiclib -undefined suppress -flat_namespace -m64 -shared -o lib/libscipopt.dylib obj/*.o scip-*/obj/*/lib/objscip/*.o soplex-*/obj/*/lib/*o
-```
-Note that support for OS X is currently broken with the update to SCIP 4.0.0.
 
-3.Set the **environment variable `SCIPOPTDIR`** to point to the directory that contains the `scipoptsuite` sources. CSIP needs the library in `${SCIPOPTDIR}/lib/scipoptlib.so` and the C header files in `${SCIPOPTDIR}/scip-*/src/`.
+2.Choose an installation path and set the **environment variable `SCIPOPTDIR`** to point there.
 ```
-export SCIPOPTDIR=`pwd`
+export SCIPOPTDIR=`my/install/dir`
 ```
+
+3.Build and install the shared library with
+```
+mkdir build
+cd build
+cmake -DCMAKE_INSTALL_PREFIX=$SCIPOPTDIR ..
+make
+make install
+```
+
 4.This package is registered in `METADATA.jl` and can be installed in Julia with
 ```
 Pkg.add("SCIP")

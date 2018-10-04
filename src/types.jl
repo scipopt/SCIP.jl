@@ -3,15 +3,15 @@ export SCIPSolver
 # Common inner model
 
 mutable struct SCIPModel
-    ptr_model::Ptr{Void}
+    ptr_model::Ptr{Cvoid}
     options
     lazy_userdata
     heur_userdata
 
     function SCIPModel(options...)
-        _arr = Array{Ptr{Void}}(1)
+        _arr = Array{Ptr{Cvoid}}(undef, 1)
         # TODO: check return code (everywhere!)
-        ccall((:CSIPcreateModel, libcsip), Cint, (Ptr{Ptr{Void}}, ), _arr)
+        ccall((:CSIPcreateModel, libcsip), Cint, (Ptr{Ptr{Cvoid}}, ), _arr)
         m = new(_arr[1], options)
         @assert m.ptr_model != C_NULL
 
@@ -21,7 +21,7 @@ mutable struct SCIPModel
 end
 
 function freescip(m::SCIPModel)
-    # avoid double free
+    # aCvoid double free
     if m.ptr_model != C_NULL
         _freeModel(m)
         m.ptr_model = C_NULL
@@ -30,39 +30,44 @@ end
 
 # Linear Quadratic Model
 
-struct SCIPLinearQuadraticModel <: AbstractLinearQuadraticModel
+struct SCIPLinearQuadraticModel <: SolverInterface.AbstractLinearQuadraticModel
     inner::SCIPModel
 end
 
 # Nonlinear Model
 
-struct SCIPNonlinearModel <: AbstractNonlinearModel
+struct SCIPNonlinearModel <: SolverInterface.AbstractNonlinearModel
     inner::SCIPModel
 end
 
 # Union type for common behaviour
 
-SCIPMathProgModel = Union{SCIPLinearQuadraticModel, SCIPNonlinearModel}
+const SCIPMathProgModel = Union{SCIPLinearQuadraticModel, SCIPNonlinearModel}
 
 # Solver
 
-mutable struct SCIPSolver <: AbstractMathProgSolver
+mutable struct SCIPSolver <: SolverInterface.AbstractMathProgSolver
     options
+    prefix
+
+    function SCIPSolver(kwargs...; prefix=nothing)
+        new(kwargs, prefix)
+    end
 end
 
-SCIPSolver(kwargs...) = SCIPSolver(kwargs)
-
-function LinearQuadraticModel(s::SCIPSolver)
+function SolverInterface.LinearQuadraticModel(s::SCIPSolver)
     m = SCIPLinearQuadraticModel(SCIPModel(s.options))
     setparams!(m)
+    setprefix!(m, s.prefix)
     m
 end
 
-function NonlinearModel(s::SCIPSolver)
+function SolverInterface.NonlinearModel(s::SCIPSolver)
     m = SCIPNonlinearModel(SCIPModel(s.options))
     setparams!(m)
+    setprefix!(m, s.prefix)
     m
 end
 
-ConicModel(s::SCIPSolver) = LPQPtoConicBridge(LinearQuadraticModel(s))
-supportedcones(::SCIPSolver) = [:Free,:Zero,:NonNeg,:NonPos,:SOC]
+SolverInterface.ConicModel(s::SCIPSolver) = SolverInterface.LPQPtoConicBridge(SolverInterface.LinearQuadraticModel(s))
+SolverInterface.supportedcones(::SCIPSolver) = [:Free,:Zero,:NonNeg,:NonPos,:SOC]

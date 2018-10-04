@@ -1,6 +1,7 @@
-using Base.Test
+using Test
 using SCIP
 using MathProgBase
+import MathProgBase.SolverInterface
 
 using JuMP
 using OffsetArrays # for JuMP/test/model.jl
@@ -8,11 +9,12 @@ using OffsetArrays # for JuMP/test/model.jl
 include("more_tests.jl")
 include("mixintprog.jl")
 
+import Pkg
 include(joinpath(Pkg.dir("JuMP"),"test","solvers.jl"))
 
-solver = SCIPSolver()
+const solver = SCIPSolver()
 MathProgBase.setparameters!(solver, Silent=true, TimeLimit=300.0)
-heursolver = SCIPSolver("display/verblevel", 0,
+const heursolver = SCIPSolver("display/verblevel", 0,
                         "presolving/maxrounds", 0,
                         "separating/maxrounds", 0,
                         "separating/maxroundsroot", 0)
@@ -20,7 +22,7 @@ lp_solvers = []
 ip_solvers = [solver]
 sos_solvers = [solver]
 quad_solvers = []
-quad_mip_solvers = [solver]
+quad_mip_solvers = []
 lazy_solvers = [solver]
 lazy_soc_solvers = [solver]
 lazylocal_solvers = []

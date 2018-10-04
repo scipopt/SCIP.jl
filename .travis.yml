@@ -3,19 +3,16 @@ language: julia
 os:
   - linux
 julia:
-  - 0.6
-  - nightly
+  - 1.0
+dist: trusty
+sudo: required
+services:
+  - docker
+before_install:
+  - echo "**** pulling Docker image"
+  - docker pull leethargo/scip-julia
 notifications:
   email: false
-sudo: required
-dist: trusty
 script:
-  - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
-  - julia -e 'Pkg.clone(pwd())'
-  - wget http://scip.zib.de/download/release/scipoptsuite-4.0.0.tgz
-  - tar xzf scipoptsuite-4.0.0.tgz
-  - cd scipoptsuite-4.0.0/
-  - make SHARED=true GMP=false READLINE=false ZLIB=false scipoptlib
-  - export SCIPOPTDIR=`pwd`
-  - cd ..
-  - julia -e 'Pkg.build("SCIP"); Pkg.test("SCIP"; coverage=true)'
+  - echo "**** running Docker"
+  - docker run --env-file travis_docker_env.list -t -a STDOUT -a STDIN -a STDERR -v $PWD:/mnt leethargo/scip-julia /mnt/travis_docker_test_script.sh $TRAVIS_JULIA_VERSION
