@@ -1,8 +1,6 @@
 using BinDeps
 
-if VERSION >= v"0.7.0-DEV.3382"
-    using Libdl
-end
+using Libdl
 
 include("csip_version.jl")
 
