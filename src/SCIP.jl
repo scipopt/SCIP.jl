@@ -12,7 +12,7 @@ include("../deps/csip_version.jl")
 
 using SparseArrays: issparse, findnz
 
-import MathProgBase.SolverInterface
+import MathProgBase
 import MathProgBase.SolverInterface: AbstractLinearQuadraticModel,
                                      AbstractNonlinearModel,
                                      AbstractMathProgSolver,

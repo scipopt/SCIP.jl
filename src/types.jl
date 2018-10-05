@@ -30,13 +30,13 @@ end
 
 # Linear Quadratic Model
 
-struct SCIPLinearQuadraticModel <: SolverInterface.AbstractLinearQuadraticModel
+struct SCIPLinearQuadraticModel <: MathProgBase.AbstractLinearQuadraticModel
     inner::SCIPModel
 end
 
 # Nonlinear Model
 
-struct SCIPNonlinearModel <: SolverInterface.AbstractNonlinearModel
+struct SCIPNonlinearModel <: MathProgBase.AbstractNonlinearModel
     inner::SCIPModel
 end
 
@@ -46,7 +46,7 @@ const SCIPMathProgModel = Union{SCIPLinearQuadraticModel, SCIPNonlinearModel}
 
 # Solver
 
-mutable struct SCIPSolver <: SolverInterface.AbstractMathProgSolver
+mutable struct SCIPSolver <: MathProgBase.AbstractMathProgSolver
     options
     prefix
 
@@ -55,19 +55,19 @@ mutable struct SCIPSolver <: SolverInterface.AbstractMathProgSolver
     end
 end
 
-function SolverInterface.LinearQuadraticModel(s::SCIPSolver)
+function MathProgBase.LinearQuadraticModel(s::SCIPSolver)
     m = SCIPLinearQuadraticModel(SCIPModel(s.options))
     setparams!(m)
     setprefix!(m, s.prefix)
     m
 end
 
-function SolverInterface.NonlinearModel(s::SCIPSolver)
+function MathProgBase.NonlinearModel(s::SCIPSolver)
     m = SCIPNonlinearModel(SCIPModel(s.options))
     setparams!(m)
     setprefix!(m, s.prefix)
     m
 end
 
-SolverInterface.ConicModel(s::SCIPSolver) = SolverInterface.LPQPtoConicBridge(SolverInterface.LinearQuadraticModel(s))
-SolverInterface.supportedcones(::SCIPSolver) = [:Free,:Zero,:NonNeg,:NonPos,:SOC]
+MathProgBase.ConicModel(s::SCIPSolver) = MathProgBase.LPQPtoConicBridge(MathProgBase.LinearQuadraticModel(s))
+MathProgBase.supportedcones(::SCIPSolver) = [:Free,:Zero,:NonNeg,:NonPos,:SOC]

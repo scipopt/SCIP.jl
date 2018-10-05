@@ -1,7 +1,6 @@
 using Test
 using SCIP
 using MathProgBase
-import MathProgBase.SolverInterface
 
 using JuMP
 using OffsetArrays # for JuMP/test/model.jl
