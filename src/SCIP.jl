@@ -1,7 +1,5 @@
 module SCIP
 
-import Compat
-
 if isfile(joinpath(dirname(@__FILE__),"..","deps","deps.jl"))
     include("../deps/deps.jl")
 else
