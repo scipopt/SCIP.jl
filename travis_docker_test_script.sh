@@ -11,8 +11,8 @@ PKGNAME="SCIP"
 cd /mnt && if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
 
 # install SCIP
-wget http://scip.zib.de/download/release/SCIPOptSuite-5.0.1-Linux.deb
-dpkg -i SCIPOptSuite-5.0.1-Linux.deb
+wget http://scip.zib.de/download/release/SCIPOptSuite-6.0.0-Linux.deb
+dpkg -i SCIPOptSuite-6.0.0-Linux.deb
 export SCIPOPTDIR="/usr"
 
 # run tests
