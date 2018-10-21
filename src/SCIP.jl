@@ -1,8 +1,4 @@
-__precompile__()
-
 module SCIP
-
-import Compat
 
 if isfile(joinpath(dirname(@__FILE__),"..","deps","deps.jl"))
     include("../deps/deps.jl")
@@ -12,7 +8,15 @@ end
 
 include("../deps/csip_version.jl")
 
-importall MathProgBase.SolverInterface
+using SparseArrays: issparse, findnz
+
+import MathProgBase
+import MathProgBase.SolverInterface: AbstractLinearQuadraticModel,
+                                     AbstractNonlinearModel,
+                                     AbstractMathProgSolver,
+                                     MathProgCallbackData,
+                                     AbstractNLPEvaluator,
+                                     LinearQuadraticModel
 
 include("types.jl")
 include("csip_wrapper.jl")

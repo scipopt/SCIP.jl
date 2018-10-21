@@ -1,5 +1,7 @@
 using BinDeps
 
+using Libdl
+
 include("csip_version.jl")
 
 CSIP_URL = "https://github.com/SCIP-Interfaces/CSIP/archive/v$(CSIP_VERSION).zip"

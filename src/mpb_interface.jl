@@ -5,25 +5,25 @@
 ##### see: http://mathprogbasejl.readthedocs.io/en/latest/solverinterface.html                        #####
 ###########################################################################################################
 
-getobjgap(m::SCIPMathProgModel) = error("Not implemented for SCIP.jl!")
+MathProgBase.getobjgap(m::SCIPMathProgModel) = error("Not implemented for SCIP.jl!")
 
-getrawsolver(m::SCIPMathProgModel) = error("Not implemented for SCIP.jl!")
+MathProgBase.getrawsolver(m::SCIPMathProgModel) = error("Not implemented for SCIP.jl!")
 
-getsolvetime(m::SCIPMathProgModel) = ccall((:SCIPgetSolvingTime, libcsip), Cdouble, (Ptr{Void},), _getInternalSCIP(m))
+MathProgBase.getsolvetime(m::SCIPMathProgModel) = ccall((:SCIPgetSolvingTime, libcsip), Cdouble, (Ptr{Cvoid},), _getInternalSCIP(m))
 
-getsense(m::SCIPMathProgModel) = error("Not implemented for SCIP.jl!")
+MathProgBase.getsense(m::SCIPMathProgModel) = error("Not implemented for SCIP.jl!")
 
-numvar(m::SCIPMathProgModel) = _getNumVars(m)
+MathProgBase.numvar(m::SCIPMathProgModel) = _getNumVars(m)
 
 "The number of proper constraints, excluding those from lazy callbacks."
-numconstr(m::SCIPMathProgModel) = _getNumConss(m)
+MathProgBase.numconstr(m::SCIPMathProgModel) = _getNumConss(m)
 
-function freemodel!(m::SCIPMathProgModel)
+function MathProgBase.freemodel!(m::SCIPMathProgModel)
     if m.inner.ptr_model != C_NULL
         # call finalizer directly
         freescip(m.inner)
     else
-        Base.warn_once("Tried to free already freed model, ignoring.")
+        @warn("Tried to free already freed model, ignoring.")
     end
 end
 
@@ -39,7 +39,7 @@ const revvartypemap = Dict{Cint, Symbol}(
   1 => :Int
 )
 
-function getvartype(m::SCIPMathProgModel)
+function MathProgBase.getvartype(m::SCIPMathProgModel)
     nvars = _getNumVars(m)
     types = zeros(nvars)
     for idx = one(Cint):nvars
@@ -48,7 +48,7 @@ function getvartype(m::SCIPMathProgModel)
     return map(x -> revvartypemap[x], types)
 end
 
-function setvartype!(m::SCIPMathProgModel, vartype::Vector{Symbol})
+function MathProgBase.setvartype!(m::SCIPMathProgModel, vartype::Vector{Symbol})
     nvars = Cint(length(vartype))
     scipvartypes = map(vt -> vartypemap[vt], vartype)
     for idx = one(Cint):nvars
@@ -56,9 +56,9 @@ function setvartype!(m::SCIPMathProgModel, vartype::Vector{Symbol})
     end
 end
 
-optimize!(m::SCIPMathProgModel) = _solve(m)
+MathProgBase.optimize!(m::SCIPMathProgModel) = _solve(m)
 
-function status(m::SCIPMathProgModel)
+function MathProgBase.status(m::SCIPMathProgModel)
     statusmap = [:Optimal,
                  :Infeasible,
                  :Unbounded,
@@ -73,18 +73,18 @@ function status(m::SCIPMathProgModel)
     return statusmap[stat + 1]
 end
 
-getobjbound(m::SCIPMathProgModel) = _getObjBound(m)
+MathProgBase.getobjbound(m::SCIPMathProgModel) = _getObjBound(m)
 
-getobjval(m::SCIPMathProgModel) = _getObjValue(m)
+MathProgBase.getobjval(m::SCIPMathProgModel) = _getObjValue(m)
 
-function getsolution(m::SCIPMathProgModel)
+function MathProgBase.getsolution(m::SCIPMathProgModel)
     nvars = _getNumVars(m)
     values = zeros(nvars)
     _getVarValues(m, values)
     values
 end
 
-function setsense!(m::SCIPMathProgModel, sense)
+function MathProgBase.setsense!(m::SCIPMathProgModel, sense)
     if sense == :Max
         _setSenseMaximize(m)
     else
@@ -92,7 +92,7 @@ function setsense!(m::SCIPMathProgModel, sense)
     end
 end
 
-function setparameters!(s::SCIPSolver; mpboptions...)
+function MathProgBase.setparameters!(s::SCIPSolver; mpboptions...)
     opts = collect(Any,s.options)
     for (optname, optval) in mpboptions
         if optname == :TimeLimit
@@ -111,7 +111,7 @@ function setparameters!(s::SCIPSolver; mpboptions...)
     return
 end
 
-function setparameters!(m::SCIPMathProgModel; mpboptions...)
+function MathProgBase.setparameters!(m::SCIPMathProgModel; mpboptions...)
     for (optname, optval) in mpboptions
         if optname == :TimeLimit
             setparameter!(m, "limits/time", float(optval))
@@ -126,7 +126,7 @@ function setparameters!(m::SCIPMathProgModel; mpboptions...)
 end
 
 "Set warm-start solution candidate. Missing values are indicated by NaN."
-function setwarmstart!(m::SCIPMathProgModel, v)
+function MathProgBase.setwarmstart!(m::SCIPMathProgModel, v)
     _setInitialSolution(m, float(v))
 end
 
@@ -135,10 +135,10 @@ end
 ##### see: http://mathprogbasejl.readthedocs.io/en/latest/lpqcqp.html #####
 ###########################################################################
 
-loadproblem!(m::SCIPLinearQuadraticModel, filename::AbstractString) =
+MathProgBase.loadproblem!(m::SCIPLinearQuadraticModel, filename::AbstractString) =
     error("Not implemented for SCIP.jl")
 
-function loadproblem!(m::SCIPLinearQuadraticModel, A, varlb, varub, obj, rowlb, rowub, sense)
+function MathProgBase.loadproblem!(m::SCIPLinearQuadraticModel, A, varlb, varub, obj, rowlb, rowub, sense)
     # TODO: clean old model?
 
     nrows, ncols = size(A)
@@ -154,7 +154,7 @@ function loadproblem!(m::SCIPLinearQuadraticModel, A, varlb, varub, obj, rowlb, 
         At = A' # faster column-wise access in loop
         for c in 1:nrows
             idx, val = findnz(At[:,c])
-            _idx = Vector{Cint}(idx - 1) # 0 based indexing
+            _idx = Vector{Cint}(idx .- 1) # 0 based indexing
             _nvars = Cint(length(_idx))
             _addLinCons(m, _nvars, _idx, float(val),
                         float(rowlb[c]), float(rowub[c]), Ptr{Cint}(C_NULL))
@@ -175,82 +175,82 @@ function loadproblem!(m::SCIPLinearQuadraticModel, A, varlb, varub, obj, rowlb, 
     end
 end
 
-function writeproblem(m::SCIPMathProgModel, filename::AbstractString)
+function MathProgBase.writeproblem(m::SCIPMathProgModel, filename::AbstractString)
     _writeOrigProblem(m, Cstring(pointer(filename)), Cstring(C_NULL), Cint(0))
 end
 
-getvarLB(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
+MathProgBase.getvarLB(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
 
-function setvarLB!(m::SCIPLinearQuadraticModel, lb)
+function MathProgBase.setvarLB!(m::SCIPLinearQuadraticModel, lb)
     indices = collect(zero(Cint):Cint(numvar(m) - 1))
     _chgVarLB(m, Cint(numvar(m)), indices, float(lb))
 end
 
-getvarUB(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
+MathProgBase.getvarUB(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
 
-function setvarUB!(m::SCIPLinearQuadraticModel, ub)
+function MathProgBase.setvarUB!(m::SCIPLinearQuadraticModel, ub)
     indices = collect(zero(Cint):Cint(numvar(m) - 1))
     _chgVarUB(m, Cint(numvar(m)), indices, float(ub))
 end
 
-getconstrLB(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
+MathProgBase.getconstrLB(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
 
 # setconstrLB!(m::SCIPLinearQuadraticModel, lb) = error("Not implemented for SCIP.jl")
 
-getconstrUB(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
+MathProgBase.getconstrUB(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
 
 # setconstrUB!(m::SCIPLinearQuadraticModel, ub) = error("Not implemented for SCIP.jl")
 
-getobj(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
+MathProgBase.getobj(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
 
-function setobj!(m::SCIPLinearQuadraticModel, obj)
+function MathProgBase.setobj!(m::SCIPLinearQuadraticModel, obj)
     indices = collect(zero(Cint):Cint(numvar(m) - 1))
     _setObj(m, Cint(numvar(m)), indices, float(obj))
 end
 
-getconstrmatrix(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
+MathProgBase.getconstrmatrix(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
 
-addvar!(m::SCIPLinearQuadraticModel, constridx, constrcoef, l, u, objcoef) =
+MathProgBase.addvar!(m::SCIPLinearQuadraticModel, constridx, constrcoef, l, u, objcoef) =
     error("Not implemented for SCIP.jl")
 
-addvar!(m::SCIPLinearQuadraticModel, l, u, objcoef) = error("Not implemented for SCIP.jl")
+MathProgBase.addvar!(m::SCIPLinearQuadraticModel, l, u, objcoef) = error("Not implemented for SCIP.jl")
 
-function addconstr!(m::SCIPLinearQuadraticModel, varidx, coef, lb, ub)
-    _addLinCons(m, Cint(length(varidx)), Vector{Cint}(varidx - 1), float(coef),
+function MathProgBase.addconstr!(m::SCIPLinearQuadraticModel, varidx, coef, lb, ub)
+    _addLinCons(m, Cint(length(varidx)), Vector{Cint}(varidx .- 1), float(coef),
                 float(lb), float(ub), Ptr{Cint}(C_NULL))
 end
 
-numlinconstr(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
+MathProgBase.numlinconstr(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
 
-getconstrsolution(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
+MathProgBase.getconstrsolution(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
 
-getreducedcosts(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
+MathProgBase.getreducedcosts(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
 
-getconstrduals(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
+MathProgBase.getconstrduals(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
 
-getinfeasibilityray(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
+MathProgBase.getinfeasibilityray(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
 
-getbasis(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
+MathProgBase.getbasis(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
 
-getunboundedray(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
+MathProgBase.getunboundedray(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
 
-getsimplexiter(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
+MathProgBase.getsimplexiter(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
 
-getbarrieriter(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
+MathProgBase.getbarrieriter(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
 
 ##########################################################################
 ##### Methods specific to Integer Programming                        #####
 ##########################################################################
 
-getnodecount(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
+MathProgBase.getnodecount(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
 
-function addsos1!(m::SCIPLinearQuadraticModel, idx, weight)
+function MathProgBase.addsos1!(m::SCIPLinearQuadraticModel, idx, weight)
     nidx = Cint(length(idx))
     cidx = convert(Vector{Cint}, idx - 1)
     _addSOS1(m, nidx, cidx, weight, Ptr{Cint}(C_NULL))
 end
 
-function addsos2!(m::SCIPLinearQuadraticModel, idx, weight)
+function MathProgBase.addsos2!(m::SCIPLinearQuadraticModel, idx, weight)
     nidx = Cint(length(idx))
     cidx = convert(Vector{Cint}, idx - 1)
     _addSOS2(m, nidx, cidx, weight, Ptr{Cint}(C_NULL))
@@ -260,20 +260,20 @@ end
 ##### Methods specific to Quadratic Programming                      #####
 ##########################################################################
 
-numquadconstr(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
+MathProgBase.numquadconstr(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
 
-setquadobj!(m::SCIPLinearQuadraticModel, Q::Array{T, 2}) where {T<:Real} =
+MathProgBase.setquadobj!(m::SCIPLinearQuadraticModel, Q::Array{T, 2}) where {T<:Real} =
     error("Not implemented for SCIP.jl")
 
-setquadobj!(m::SCIPLinearQuadraticModel, rowidx, colidx, quadval) =
+MathProgBase.setquadobj!(m::SCIPLinearQuadraticModel, rowidx, colidx, quadval) =
     error("Not implemented for SCIP.jl")
 
-setquadobjterms!(m::SCIPLinearQuadraticModel, rowidx, colidx, quadval) =
+MathProgBase.setquadobjterms!(m::SCIPLinearQuadraticModel, rowidx, colidx, quadval) =
     _setQuadObj(m, Cint(0), Array{Cint}(0), Array{Cdouble}(0),
                  Cint(length(rowidx)), convert(Vector{Cint}, rowidx - 1),
                  convert(Vector{Cint}, colidx - 1), quadval)
 
-function addquadconstr!(m::SCIPLinearQuadraticModel, linearidx, linearval, quadrowidx, quadcolidx, quadval, sense, rhs)
+function MathProgBase.addquadconstr!(m::SCIPLinearQuadraticModel, linearidx, linearval, quadrowidx, quadcolidx, quadval, sense, rhs)
     clhs = -Inf
     crhs =  Inf
     if sense == '<'
@@ -285,20 +285,20 @@ function addquadconstr!(m::SCIPLinearQuadraticModel, linearidx, linearval, quadr
         clhs = rhs
         crhs = rhs
     end
-    _addQuadCons(m, Cint(length(linearidx)), convert(Vector{Cint}, linearidx - 1),
-                 linearval, Cint(length(quadrowidx)), convert(Vector{Cint}, quadrowidx - 1),
-                 convert(Vector{Cint}, quadcolidx - 1), quadval, clhs, crhs, Ptr{Cint}(C_NULL))
+    _addQuadCons(m, Cint(length(linearidx)), convert(Vector{Cint}, linearidx .- 1),
+                 linearval, Cint(length(quadrowidx)), convert(Vector{Cint}, quadrowidx .- 1),
+                 convert(Vector{Cint}, quadcolidx .- 1), quadval, clhs, crhs, Ptr{Cint}(C_NULL))
 end
 
-getquadconstrsolution(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
+MathProgBase.getquadconstrsolution(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
 
-getquadconstrduals(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
+MathProgBase.getquadconstrduals(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
 
-getquadinfeasibilityray(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
+MathProgBase.getquadinfeasibilityray(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
 
-getquadconstrRHS(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
+MathProgBase.getquadconstrRHS(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
 
-setquadconstrRHS!(m::SCIPLinearQuadraticModel, lb) = error("Not implemented for SCIP.jl")
+MathProgBase.setquadconstrRHS!(m::SCIPLinearQuadraticModel, lb) = error("Not implemented for SCIP.jl")
 
 ##########################################################################
 ##### Methods specific to MIP Callbacks                              #####
@@ -306,16 +306,16 @@ setquadconstrRHS!(m::SCIPLinearQuadraticModel, lb) = error("Not implemented for 
 
 # use a different type for heuristic callback and multiple dispatch to implements
 # the methods that they share
-abstract type SCIPCallbackData <: MathProgCallbackData end
+abstract type SCIPCallbackData <: MathProgBase.MathProgCallbackData end
 
 mutable struct SCIPLazyCallbackData <: SCIPCallbackData
     model::SCIPMathProgModel
-    csip_lazydata::Ptr{Void}
+    csip_lazydata::Ptr{Cvoid}
 end
 
 # this is the function that should fit the CSIP_LAZYCALLBACK signature
-function lazycb_wrapper(csip_model::Ptr{Void}, csip_lazydata::Ptr{Void},
-                        userdata::Ptr{Void})
+function lazycb_wrapper(csip_model::Ptr{Cvoid}, csip_lazydata::Ptr{Cvoid},
+                        userdata::Ptr{Cvoid})
     # m, f = unsafe_pointer_to_objref(userdata)::(SCIPMathProgModel, Function)
     # WTF: TypeError: typeassert: expected Type{T}, got Tuple{DataType,DataType}
     m, f = unsafe_pointer_to_objref(userdata)
@@ -326,38 +326,40 @@ function lazycb_wrapper(csip_model::Ptr{Void}, csip_lazydata::Ptr{Void},
     return convert(Cint, 0) # CSIP_RETCODE_OK
 end
 
-function setlazycallback!(m::SCIPMathProgModel, f)
+function MathProgBase.setlazycallback!(m::SCIPMathProgModel, f)
     # f is function(d::SCIPLazyCallbackData)
 
-    cbfunction = cfunction(lazycb_wrapper, Cint, (Ptr{Void}, Ptr{Void}, Ptr{Void}))
+    cbfunction = cfunction(lazycb_wrapper, Cint, Tuple{Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}})
     m.inner.lazy_userdata = (m, f)
 
     _addLazyCallback(m, cbfunction, m.inner.lazy_userdata)
 end
 
 # if we are called from a lazy callback, we check whether the LP relaxation is integral
-function cbgetstate(d::SCIPLazyCallbackData)
+function MathProgBase.cbgetstate(d::SCIPLazyCallbackData)
     context = _lazyGetContext(d.csip_lazydata)
     mapping = [:MIPNode, :MIPSol, :Intermediate]
     mapping[context + 1]
 end
 
-function cbgetlpsolution(d::SCIPLazyCallbackData, output)
+function MathProgBase.cbgetlpsolution(d::SCIPLazyCallbackData, output)
     _lazyGetVarValues(d.csip_lazydata, output)
 end
 
 #TODO: what should we do if there is no best solution?
-cbgetmipsolution(d::SCIPLazyCallbackData, output) = cbgetlpsolution(d, output)
+MathProgBase.cbgetmipsolution(d::SCIPLazyCallbackData, output) = 
+    MathProgBase.cbgetlpsolution(d, output)
 
-function cbgetlpsolution(d::SCIPCallbackData)
+function MathProgBase.cbgetlpsolution(d::SCIPCallbackData)
     output = Array(Float64, _getNumVars(m))
-    cbgetlpsolution(d, output)
+    MathProgBase.cbgetlpsolution(d, output)
 end
 
 #TODO: what should we do if there is no best solution?
-cbgetmipsolution(d::SCIPLazyCallbackData) = cbgetlpsolution(d)
+MathProgBase.cbgetmipsolution(d::SCIPLazyCallbackData) =
+    MathProgBase.cbgetlpsolution(d)
 
-function cbaddlazy!(d::SCIPLazyCallbackData, varidx, varcoef, sense, rhs)
+function MathProgBase.cbaddlazy!(d::SCIPLazyCallbackData, varidx, varcoef, sense, rhs)
     clhs = -Inf
     crhs =  Inf
     if sense == '<'
@@ -370,7 +372,7 @@ function cbaddlazy!(d::SCIPLazyCallbackData, varidx, varcoef, sense, rhs)
         crhs = rhs
     end
     _lazyAddLinCons(d.csip_lazydata, convert(Cint, length(varidx)),
-                  convert(Vector{Cint}, varidx - 1), varcoef, clhs, crhs,
+                  convert(Vector{Cint}, varidx .- 1), varcoef, clhs, crhs,
                   convert(Cint, 0))
 end
 
@@ -379,17 +381,17 @@ end
 
 mutable struct SCIPHeurCallbackData <: SCIPCallbackData
     model::SCIPMathProgModel
-    csip_heurdata::Ptr{Void}
+    csip_heurdata::Ptr{Cvoid}
     sol::Vector{Float64}
 end
 
 # this is the function that should fit the CSIP_HEURCALLBACK signature
-function heurcb_wrapper(csip_model::Ptr{Void}, csip_heurdata::Ptr{Void},
-                        userdata::Ptr{Void})
+function heurcb_wrapper(csip_model::Ptr{Cvoid}, csip_heurdata::Ptr{Cvoid},
+                        userdata::Ptr{Cvoid})
     # m, f = unsafe_pointer_to_objref(userdata)::(SCIPMathProgModel, Function)
     # WTF: TypeError: typeassert: expected Type{T}, got Tuple{DataType,DataType}
     m, f = unsafe_pointer_to_objref(userdata)
-    d = SCIPHeurCallbackData(m, csip_heurdata, fill(NaN, numvar(m)))
+    d = SCIPHeurCallbackData(m, csip_heurdata, fill(NaN, MathProgBase.numvar(m)))
 
     ret = f(d)
     ret == :Exit && _interrupt(m)
@@ -397,36 +399,36 @@ function heurcb_wrapper(csip_model::Ptr{Void}, csip_heurdata::Ptr{Void},
     return convert(Cint, 0) # CSIP_RETCODE_OK
 end
 
-function setheuristiccallback!(m::SCIPMathProgModel, f)
+function MathProgBase.setheuristiccallback!(m::SCIPMathProgModel, f)
     # f is function(d::SCIPHeurCallbackData)
 
-    cbfunction = cfunction(heurcb_wrapper, Cint, (Ptr{Void}, Ptr{Void}, Ptr{Void}))
+    cbfunction = cfunction(heurcb_wrapper, Cint, Tuple{Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}})
     m.inner.heur_userdata = (m, f)
 
     _addHeuristicCallback(m, cbfunction, m.inner.heur_userdata)
 end
 
 # TODO: detect :MIPSol like with lazy constraints?
-cbgetstate(d::SCIPHeurCallbackData) = :MIPNode
+MathProgBase.cbgetstate(d::SCIPHeurCallbackData) = :MIPNode
 
-function cbgetlpsolution(d::SCIPHeurCallbackData, output)
+function MathProgBase.cbgetlpsolution(d::SCIPHeurCallbackData, output)
     _heurGetVarValues(d.csip_heurdata, output)
 end
 
-function cbaddsolution!(d::SCIPHeurCallbackData)
+function MathProgBase.cbaddsolution!(d::SCIPHeurCallbackData)
     # check for unspecified values (NaN)
     if findfirst(isnan, d.sol) == 0
         # add solution that was filled from cbsetsolutionvalue
         _heurAddSolution(d.csip_heurdata, d.sol)
     else
-        warn("Incomplete solutions not supported, skipping candidate.")
+        @warn("Incomplete solutions not supported, skipping candidate.")
     end
 
     # reset solution vector for the next solution
-    d.sol = fill(NaN, numvar(d.model))
+    d.sol = fill(NaN, MathProgBase.numvar(d.model))
 end
 
-function cbsetsolutionvalue!(d::SCIPHeurCallbackData, varidx, value)
+function MathProgBase.cbsetsolutionvalue!(d::SCIPHeurCallbackData, varidx, value)
     d.sol[varidx] = value
 end
 
@@ -519,19 +521,19 @@ end
 # the AbstractNLPEvaluator contains the constraints and objective.
 # One can get different data from it (with initialize)
 # SCIP doesn't need most of the data, just the epression
-function loadproblem!(m::SCIPNonlinearModel, numVars, numConstr,
+function MathProgBase.loadproblem!(m::SCIPNonlinearModel, numVars, numConstr,
                       l, u, lb, ub, sense, d::AbstractNLPEvaluator)
     # add variables
-    for v in 1:numVars
+    for v in Base.OneTo(numVars)
         _addVar(m, float(l[v]), float(u[v]), Cint(3), Ptr{Cint}(C_NULL))
     end
 
     # we want to get the expressions
-    initialize(d, [:ExprGraph])
+    MathProgBase.initialize(d, [:ExprGraph])
 
     # add constraints
-    for c in 1:numConstr
-        csipex, values = constr_expr_to_nodedata(constr_expr(d, c))
+    for c in Base.OneTo(numConstr)
+        csipex, values = constr_expr_to_nodedata(MathProgBase.constr_expr(d, c))
         children = Cint[]
         beg = Cint[1]
         ops = Cint[]
@@ -542,14 +544,14 @@ function loadproblem!(m::SCIPNonlinearModel, numVars, numConstr,
         end
         _addNonLinCons(m, Cint(length(ops)),
                        convert(Vector{Cint},ops),
-                       convert(Vector{Cint},children - 1),
-                       convert(Vector{Cint},beg - 1),
+                       convert(Vector{Cint},children .- 1),
+                       convert(Vector{Cint},beg .- 1),
                        values, float(lb[c]), float(ub[c]),
                        Ptr{Cint}(C_NULL))
     end
 
     # add objective
-    csipex, values = obj_expr_to_nodedata(obj_expr(d))
+    csipex, values = obj_expr_to_nodedata(MathProgBase.obj_expr(d))
     children = Cint[]
     beg = Cint[1]
     ops = Cint[]
@@ -560,8 +562,8 @@ function loadproblem!(m::SCIPNonlinearModel, numVars, numConstr,
     end
     _setNonlinearObj(m, Cint(length(ops)),
                      convert(Vector{Cint},ops),
-                     convert(Vector{Cint},children - 1),
-                     convert(Vector{Cint},beg - 1),
+                     convert(Vector{Cint},children .- 1),
+                     convert(Vector{Cint},beg .- 1),
                      values)
 
     # set sense

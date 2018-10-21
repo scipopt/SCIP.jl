@@ -1,4 +1,4 @@
-using Base.Test
+using Test
 using SCIP
 using MathProgBase
 
@@ -8,11 +8,11 @@ using OffsetArrays # for JuMP/test/model.jl
 include("more_tests.jl")
 include("mixintprog.jl")
 
-include(joinpath(Pkg.dir("JuMP"),"test","solvers.jl"))
+joinpath(dirname(pathof(JuMP)),"test","solvers.jl")
 
-solver = SCIPSolver()
+const solver = SCIPSolver()
 MathProgBase.setparameters!(solver, Silent=true, TimeLimit=300.0)
-heursolver = SCIPSolver("display/verblevel", 0,
+const heursolver = SCIPSolver("display/verblevel", 0,
                         "presolving/maxrounds", 0,
                         "separating/maxrounds", 0,
                         "separating/maxroundsroot", 0)
@@ -20,6 +20,7 @@ lp_solvers = []
 ip_solvers = [solver]
 sos_solvers = [solver]
 quad_solvers = []
+semi_solvers = []
 quad_mip_solvers = []
 lazy_solvers = [solver]
 lazy_soc_solvers = [solver]
@@ -30,6 +31,9 @@ heur_solvers = [heursolver]
 info_solvers = []
 rsoc_solvers = [solver]
 minlp_solvers = [solver]
+ip_dual_solvers = [solver]
+soc_solvers = [solver]
+nlp_solvers = []
 
 # nlp_solvers fails because:
 # - some dual information: fixed by deleting getconstrduals
@@ -39,10 +43,9 @@ minlp_solvers = [solver]
 #   numerical issues. However, the solution is feasible for SCIP.
 # nlp_solvers = [solver]
 
-include(joinpath(Pkg.dir("JuMP"),"test","model.jl"))
-include(joinpath(Pkg.dir("JuMP"),"test","probmod.jl"))
-include(joinpath(Pkg.dir("JuMP"),"test","qcqpmodel.jl"))
-include(joinpath(Pkg.dir("JuMP"),"test","callback.jl"))
-include(joinpath(Pkg.dir("JuMP"),"test","nonlinear.jl"))
-# include(joinpath(Pkg.dir("JuMP"),"test","sdp.jl"))
-# include(joinpath(Pkg.dir("JuMP"),"test","socduals.jl"))
+joinpath(dirname(pathof(JuMP)),"test","model.jl")
+joinpath(dirname(pathof(JuMP)),"test","probmod.jl")
+joinpath(dirname(pathof(JuMP)),"test","qcqpmodel.jl")
+joinpath(dirname(pathof(JuMP)),"test","callback.jl")
+joinpath(dirname(pathof(JuMP)),"test","nonlinear.jl")
+joinpath(dirname(pathof(JuMP)),"test","solvers.jl")
