@@ -25,10 +25,10 @@ but there is an issue (#46) since the update to SCIP 4.0.0.
 
 Follow the steps below to get SCIP.jl working. Unfortunately, these steps can not be automated as part of `Pkg.build("SCIP")`, because the academic license of SCIP does not allow distribution of the source code without tracking the download metadata. See the [license](http://scip.zib.de/academic.txt) for details.
 
-1.The SCIP.jl package requires [SCIP](http://scip.zib.de/) to be installed in the newest version (5.0.0).
+1.The SCIP.jl package requires [SCIP](http://scip.zib.de/) to be installed in a recent version (e.g. 6.0.0).
 [Download](http://scip.zib.de) the SCIP Optimization Suite.
 ```
-tar xzf scipoptsuite-5.0.0.tgz
+tar xzf scipoptsuite-6.0.0.tgz
 ```
 
 2.Choose an installation path and set the **environment variable `SCIPOPTDIR`** to point there.
