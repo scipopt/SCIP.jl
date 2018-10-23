@@ -269,7 +269,7 @@ MathProgBase.setquadobj!(m::SCIPLinearQuadraticModel, rowidx, colidx, quadval) =
     error("Not implemented for SCIP.jl")
 
 MathProgBase.setquadobjterms!(m::SCIPLinearQuadraticModel, rowidx, colidx, quadval) =
-    _setQuadObj(m, Cint(0), Array{Cint}(0), Array{Cdouble}(0),
+    _setQuadObj(m, Cint(0), Array{Cint}(undef, 0), Array{Cdouble}(undef, 0),
                  Cint(length(rowidx)), convert(Vector{Cint}, rowidx .- 1),
                  convert(Vector{Cint}, colidx .- 1), quadval)
 
