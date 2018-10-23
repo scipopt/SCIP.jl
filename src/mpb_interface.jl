@@ -270,8 +270,8 @@ MathProgBase.setquadobj!(m::SCIPLinearQuadraticModel, rowidx, colidx, quadval) =
 
 MathProgBase.setquadobjterms!(m::SCIPLinearQuadraticModel, rowidx, colidx, quadval) =
     _setQuadObj(m, Cint(0), Array{Cint}(0), Array{Cdouble}(0),
-                 Cint(length(rowidx)), convert(Vector{Cint}, rowidx - 1),
-                 convert(Vector{Cint}, colidx - 1), quadval)
+                 Cint(length(rowidx)), convert(Vector{Cint}, rowidx .- 1),
+                 convert(Vector{Cint}, colidx .- 1), quadval)
 
 function MathProgBase.addquadconstr!(m::SCIPLinearQuadraticModel, linearidx, linearval, quadrowidx, quadcolidx, quadval, sense, rhs)
     clhs = -Inf
