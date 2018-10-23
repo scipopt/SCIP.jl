@@ -269,9 +269,9 @@ MathProgBase.setquadobj!(m::SCIPLinearQuadraticModel, rowidx, colidx, quadval) =
     error("Not implemented for SCIP.jl")
 
 MathProgBase.setquadobjterms!(m::SCIPLinearQuadraticModel, rowidx, colidx, quadval) =
-    _setQuadObj(m, Cint(0), Array{Cint}(0), Array{Cdouble}(0),
-                 Cint(length(rowidx)), convert(Vector{Cint}, rowidx - 1),
-                 convert(Vector{Cint}, colidx - 1), quadval)
+    _setQuadObj(m, Cint(0), Array{Cint}(undef, 0), Array{Cdouble}(undef, 0),
+                 Cint(length(rowidx)), convert(Vector{Cint}, rowidx .- 1),
+                 convert(Vector{Cint}, colidx .- 1), quadval)
 
 function MathProgBase.addquadconstr!(m::SCIPLinearQuadraticModel, linearidx, linearval, quadrowidx, quadcolidx, quadval, sense, rhs)
     clhs = -Inf
@@ -329,7 +329,8 @@ end
 function MathProgBase.setlazycallback!(m::SCIPMathProgModel, f)
     # f is function(d::SCIPLazyCallbackData)
 
-    cbfunction = cfunction(lazycb_wrapper, Cint, Tuple{Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}})
+    cbfunction = @cfunction(lazycb_wrapper, Cint,
+                            (Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}))
     m.inner.lazy_userdata = (m, f)
 
     _addLazyCallback(m, cbfunction, m.inner.lazy_userdata)
@@ -402,7 +403,8 @@ end
 function MathProgBase.setheuristiccallback!(m::SCIPMathProgModel, f)
     # f is function(d::SCIPHeurCallbackData)
 
-    cbfunction = cfunction(heurcb_wrapper, Cint, Tuple{Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}})
+    cbfunction = @cfunction(heurcb_wrapper, Cint,
+                            (Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}))
     m.inner.heur_userdata = (m, f)
 
     _addHeuristicCallback(m, cbfunction, m.inner.heur_userdata)
