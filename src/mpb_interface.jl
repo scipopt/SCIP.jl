@@ -329,7 +329,8 @@ end
 function MathProgBase.setlazycallback!(m::SCIPMathProgModel, f)
     # f is function(d::SCIPLazyCallbackData)
 
-    cbfunction = cfunction(lazycb_wrapper, Cint, Tuple{Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}})
+    cbfunction = @cfunction(lazycb_wrapper, Cint,
+                            (Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}))
     m.inner.lazy_userdata = (m, f)
 
     _addLazyCallback(m, cbfunction, m.inner.lazy_userdata)
@@ -402,7 +403,8 @@ end
 function MathProgBase.setheuristiccallback!(m::SCIPMathProgModel, f)
     # f is function(d::SCIPHeurCallbackData)
 
-    cbfunction = cfunction(heurcb_wrapper, Cint, Tuple{Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}})
+    cbfunction = @cfunction(heurcb_wrapper, Cint,
+                            (Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}))
     m.inner.heur_userdata = (m, f)
 
     _addHeuristicCallback(m, cbfunction, m.inner.heur_userdata)
