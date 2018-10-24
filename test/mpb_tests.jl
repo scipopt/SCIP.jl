@@ -8,9 +8,10 @@ solver = SCIPSolver("display/verblevel", 0)
 include(joinpath(testdir, "mixintprog.jl"))
 mixintprogtest(solver)
 
+## can't use setquadobj! or get duals
 include(joinpath(testdir, "quadprog.jl"))
-quadprogtest(solver)
-qpdualtest(solver)
+# quadprogtest(solver)
+# qpdualtest(solver)
 socptest(solver)
 
 include(joinpath(testdir, "nlp.jl"))
