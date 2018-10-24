@@ -421,7 +421,7 @@ end
 
 function MathProgBase.cbaddsolution!(d::SCIPHeurCallbackData)
     # check for unspecified values (NaN)
-    if findfirst(isnan, d.sol) == 0
+    if findfirst(isnan, d.sol) == nothing
         # add solution that was filled from cbsetsolutionvalue
         _heurAddSolution(d.csip_heurdata, d.sol)
     else
