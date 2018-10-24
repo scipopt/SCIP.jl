@@ -176,3 +176,49 @@ end
     @test status == :Optimal
     @test getvalue(x) ≈ -2.3
 end
+
+@testset "sos1" begin
+    m = Model(solver=solver)
+    @variable(m, 0 <= x <= 1)
+    @variable(m, 0 <= y <= 1)
+    @variable(m, 0 <= z <= 1)
+    addSOS1(m, [x, y, z])
+    @objective(m, :Max, 2x + 3y + 4z)
+
+    status = solve(m)
+    @test status == :Optimal
+    @test getvalue(x) ≈ 0.0
+    @test getvalue(y) ≈ 0.0
+    @test getvalue(z) ≈ 1.0
+end
+
+@testset "sos2" begin
+    m = Model(solver=solver)
+    @variable(m, 0 <= x <= 1)
+    @variable(m, 0 <= y <= 1)
+    @variable(m, 0 <= z <= 1)
+    addSOS2(m, [x, y, z])
+    @objective(m, :Max, 2x + 3y + 4z)
+
+    status = solve(m)
+    @test status == :Optimal
+    @test getvalue(x) ≈ 0.0
+    @test getvalue(y) ≈ 1.0
+    @test getvalue(z) ≈ 1.0
+end
+
+@testset "sos1 & sos2" begin
+    m = Model(solver=solver)
+    @variable(m, 0 <= x <= 1)
+    @variable(m, 0 <= y <= 1)
+    @variable(m, 0 <= z <= 1)
+    addSOS1(m, [   y, z])
+    addSOS2(m, [x, y, z])
+    @objective(m, :Max, 2x + 3y + 4z)
+
+    status = solve(m)
+    @test status == :Optimal
+    @test getvalue(x) ≈ 1.0
+    @test getvalue(y) ≈ 1.0
+    @test getvalue(z) ≈ 0.0
+end
