@@ -20,4 +20,4 @@ script:
 after_success:
   # push coverage results to Coveralls, .cov files were copied back by script above
   - echo "**** submitting coverage information"
-  - julia -e 'Pkg.add("Coverage"); using Coverage; Coveralls.submit(process_folder()); Codecov.submit(Codecov.process_folder())'
+  - julia -e 'using Pkg; Pkg.add("Coverage"); using Coverage; Coveralls.submit(process_folder()); Codecov.submit(Codecov.process_folder())'
