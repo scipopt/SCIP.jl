@@ -7,6 +7,10 @@ using JuMP
     include("mpb_tests.jl")
 end
 
+@testset "CSIP tests" begin
+    include("csip_tests.jl")
+end
+
 @testset "Other tests" begin
     include("more_tests.jl")
 end
