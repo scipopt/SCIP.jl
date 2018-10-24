@@ -246,13 +246,13 @@ MathProgBase.getnodecount(m::SCIPLinearQuadraticModel) = error("Not implemented 
 
 function MathProgBase.addsos1!(m::SCIPLinearQuadraticModel, idx, weight)
     nidx = Cint(length(idx))
-    cidx = convert(Vector{Cint}, idx - 1)
+    cidx = convert(Vector{Cint}, idx .- 1)
     _addSOS1(m, nidx, cidx, weight, Ptr{Cint}(C_NULL))
 end
 
 function MathProgBase.addsos2!(m::SCIPLinearQuadraticModel, idx, weight)
     nidx = Cint(length(idx))
-    cidx = convert(Vector{Cint}, idx - 1)
+    cidx = convert(Vector{Cint}, idx .- 1)
     _addSOS2(m, nidx, cidx, weight, Ptr{Cint}(C_NULL))
 end
 
