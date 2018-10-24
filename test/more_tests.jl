@@ -72,7 +72,7 @@ end
     # This makes the initial point feasible
     setvalue(x[3], 10.0)
 
-    solve(m)
+    solve(m, suppress_warnings=true)
 
     @test getvalue(x)[3] == 10.0
 end
@@ -89,7 +89,7 @@ end
 
     @objective(m, Max, x + 2y)
 
-    solve(m)
+    solve(m, suppress_warnings=true)
 
     @test getvalue(x) ≈ 1.0
     @test getvalue(y) ≈ 1.0
