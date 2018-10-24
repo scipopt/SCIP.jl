@@ -9,7 +9,7 @@ include(joinpath(testdir, "mixintprog.jl"))
 mixintprogtest(solver)
 
 include(joinpath(testdir, "quadprog.jl"))
-umpquadprogtest(solver)
+quadprogtest(solver)
 qpdualtest(solver)
 socptest(solver)
 
