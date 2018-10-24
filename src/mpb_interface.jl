@@ -286,8 +286,10 @@ function MathProgBase.addquadconstr!(m::SCIPLinearQuadraticModel, linearidx, lin
         crhs = rhs
     end
     _addQuadCons(m, Cint(length(linearidx)), convert(Vector{Cint}, linearidx .- 1),
-                 linearval, Cint(length(quadrowidx)), convert(Vector{Cint}, quadrowidx .- 1),
-                 convert(Vector{Cint}, quadcolidx .- 1), quadval, clhs, crhs, Ptr{Cint}(C_NULL))
+                 convert(Vector{Cdouble}, linearval), Cint(length(quadrowidx)),
+                 convert(Vector{Cint}, quadrowidx .- 1),
+                 convert(Vector{Cint}, quadcolidx .- 1), quadval, clhs, crhs,
+                 Ptr{Cint}(C_NULL))
 end
 
 MathProgBase.getquadconstrsolution(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
