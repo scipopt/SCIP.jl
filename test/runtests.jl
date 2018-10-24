@@ -3,5 +3,10 @@ using SCIP
 using MathProgBase
 using JuMP
 
-include("mpb_tests.jl")
-include("more_tests.jl")
+@testset "MathProgBase tests" begin
+    include("mpb_tests.jl")
+end
+
+@testset "Other tests" begin
+    include("more_tests.jl")
+end
