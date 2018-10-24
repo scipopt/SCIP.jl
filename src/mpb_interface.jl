@@ -246,13 +246,13 @@ MathProgBase.getnodecount(m::SCIPLinearQuadraticModel) = error("Not implemented 
 
 function MathProgBase.addsos1!(m::SCIPLinearQuadraticModel, idx, weight)
     nidx = Cint(length(idx))
-    cidx = convert(Vector{Cint}, idx - 1)
+    cidx = convert(Vector{Cint}, idx .- 1)
     _addSOS1(m, nidx, cidx, weight, Ptr{Cint}(C_NULL))
 end
 
 function MathProgBase.addsos2!(m::SCIPLinearQuadraticModel, idx, weight)
     nidx = Cint(length(idx))
-    cidx = convert(Vector{Cint}, idx - 1)
+    cidx = convert(Vector{Cint}, idx .- 1)
     _addSOS2(m, nidx, cidx, weight, Ptr{Cint}(C_NULL))
 end
 
@@ -286,8 +286,10 @@ function MathProgBase.addquadconstr!(m::SCIPLinearQuadraticModel, linearidx, lin
         crhs = rhs
     end
     _addQuadCons(m, Cint(length(linearidx)), convert(Vector{Cint}, linearidx .- 1),
-                 linearval, Cint(length(quadrowidx)), convert(Vector{Cint}, quadrowidx .- 1),
-                 convert(Vector{Cint}, quadcolidx .- 1), quadval, clhs, crhs, Ptr{Cint}(C_NULL))
+                 convert(Vector{Cdouble}, linearval), Cint(length(quadrowidx)),
+                 convert(Vector{Cint}, quadrowidx .- 1),
+                 convert(Vector{Cint}, quadcolidx .- 1), quadval, clhs, crhs,
+                 Ptr{Cint}(C_NULL))
 end
 
 MathProgBase.getquadconstrsolution(m::SCIPLinearQuadraticModel) = error("Not implemented for SCIP.jl")
@@ -419,7 +421,7 @@ end
 
 function MathProgBase.cbaddsolution!(d::SCIPHeurCallbackData)
     # check for unspecified values (NaN)
-    if findfirst(isnan, d.sol) == 0
+    if findfirst(isnan, d.sol) == nothing
         # add solution that was filled from cbsetsolutionvalue
         _heurAddSolution(d.csip_heurdata, d.sol)
     else

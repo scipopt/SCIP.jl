@@ -17,3 +17,7 @@ notifications:
 script:
   - echo "**** running Docker"
   - docker run --env-file travis_docker_env.list -t -a STDOUT -a STDIN -a STDERR -v $PWD:/mnt leethargo/scip-julia /mnt/travis_docker_test_script.sh $TRAVIS_JULIA_VERSION
+after_success:
+  # push coverage results to Coveralls, .cov files were copied back by script above
+  - echo "**** submitting coverage information"
+  - julia -e 'using Pkg; Pkg.add("Coverage"); using Coverage; Coveralls.submit(process_folder()); Codecov.submit(Codecov.process_folder())'
