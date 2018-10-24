@@ -151,7 +151,7 @@ end
     end
     addlazycallback(m, lazycb)
 
-    status = solve(m)
+    status = solve(m, suppress_warnings=true)
     @test status == :UserLimit
 end
 
@@ -222,3 +222,178 @@ end
     @test getvalue(y) ≈ 1.0
     @test getvalue(z) ≈ 0.0
 end
+
+# not adding test: manythings
+# not adding test: doublelazy
+
+@testset "changeprob" begin
+    m = Model(solver=solver)
+    @variable(m, x, Bin)
+    @variable(m, y, Bin)
+    @variable(m, z, Bin) # have to add it to original model,
+                         # since addvar! not implemented in SCIP.jl
+    @constraint(m, x + y <= 1)
+    @objective(m, :Max, x + 2y)
+
+    status = solve(m)
+    @test status == :Optimal
+    @test getvalue(x) ≈ 0.0
+    @test getvalue(y) ≈ 1.0
+
+    # now change it
+    @constraint(m, x + y + z <= 2)
+    @constraint(m, y + z <= 1)
+    @objective(m, :Max, x + 2y + 2z)
+
+    status = solve(m)
+    @test status == :Optimal
+    @test getvalue(x) ≈ 1.0
+    @test getvalue(y) ≈ 0.0
+    @test getvalue(z) ≈ 1.0
+end
+
+@testset "changequadprob" begin
+    m = Model(solver=solver)
+    @variable(m, x)
+    @variable(m, y)
+    @constraint(m, x + y >= 1)
+    @objective(m, :Min, x^2 + y^2)
+
+    status = solve(m)
+    @test status == :Optimal
+    @test getvalue(x) ≈ 0.5  atol=1e-5
+    @test getvalue(y) ≈ 0.5  atol=1e-5
+
+    # now change it
+    @constraint(m, x + y == 1)
+    @objective(m, :Max, -x^2 + y)
+
+    status = solve(m)
+    @test status == :Optimal
+    @test getvalue(x) ≈ -0.5  atol=1e-5
+    @test getvalue(y) ≈  1.5  atol=1e-5
+end
+
+@testset "changevartype" begin
+    m = Model(solver=solver)
+    @variable(m, 0 <= x <= 9)
+    @variable(m, 0 <= y <= 9)
+    @constraint(m, x + y >= 1.5)
+    @objective(m, :Min, 2x + 3y)
+
+    status = solve(m)
+    @test status == :Optimal
+    @test getvalue(x) ≈ 1.5
+    @test getvalue(y) ≈ 0.0
+
+    # resolve with x as integer
+    setcategory(x, :Int)
+    status = solve(m)
+    @test status == :Optimal
+    @test getvalue(x) ≈ 1.0
+    @test getvalue(y) ≈ 0.5
+end
+
+@testset "initialsol" begin
+    s = SCIPSolver("display/verblevel", 0,
+                   "limits/solutions", 1,
+                   "heuristics/trivial/freq", -1)
+    m = Model(solver=s)
+    @variable(m, 10 <= x <= 100, Int, start=23)
+    @objective(m, :Min, 2x)
+
+    status = solve(m, suppress_warnings=true)
+    @test status == :UserLimit
+    @test getobjectivevalue(m) ≈ 2*23
+    @test getvalue(x) ≈ 23
+end
+
+@testset "initialsol NLP" begin
+    s = SCIPSolver("display/verblevel", 0,
+                   "limits/solutions", 1,
+                   "heuristics/trivial/freq", -1)
+    m = Model(solver=s)
+    @variable(m, x <= 0, start=0)
+    @variable(m, y <= 0, start=-1)
+    @variable(m, z, start=-0.5)
+    @NLconstraint(m, z^2 <= 1)
+    @NLobjective(m, :Max, x + y - z^3)
+
+    status = solve(m, suppress_warnings=true)
+    @test status == :UserLimit
+    @test getobjectivevalue(m) ≈ 0 - 1.0 + 0.5^3
+    @test getvalue(x) ≈ 0.0
+    @test getvalue(y) ≈ -1.0
+    @test getvalue(z) ≈ -0.5
+end
+
+@testset "initialsol partial" begin
+    s = SCIPSolver("display/verblevel", 0,
+                   "limits/solutions", 1,
+                   "heuristics/trivial/freq", -1)
+    m = Model(solver=s)
+    @variable(m, 0 <= x <= 2, Int, start=1)
+    @variable(m, 0 <= y <= 2, Int)
+    @constraint(m, x + y == 2)
+    @objective(m, :Max, x + 2y)
+
+    status = solve(m, suppress_warnings=true)
+    @test status == :UserLimit
+    @test getobjectivevalue(m) ≈ 3
+    @test getvalue(x) ≈ 1
+    @test getvalue(y) ≈ 1
+end
+
+@testset "initialsol NLP partial" begin
+    s = SCIPSolver("display/verblevel", 0,
+                   "limits/solutions", 1,
+                   "heuristics/trivial/freq", -1)
+    m = Model(solver=s)
+    @variable(m, x <= 0)
+    @variable(m, y <= 0, start=-1)
+    @variable(m, z, start=-0.5)
+    @NLconstraint(m, z^2 <= 1)
+    @NLobjective(m, :Max, x + y - z^3)
+
+    status = solve(m, suppress_warnings=true)
+    @test status == :UserLimit
+    @test getobjectivevalue(m) ≈ 0 - 1.0 + 0.5^3
+    @test getvalue(x) ≈ 0.0
+    @test getvalue(y) ≈ -1.0
+    @test getvalue(z) ≈ -0.5
+end
+
+@testset "heurcb" begin
+    s = SCIPSolver("display/verblevel", 0,
+                   "limits/solutions", 1,
+                   "heuristics/feaspump/freq", -1,
+                   "heuristics/randrounding/freq", -1,
+                   "heuristics/rounding/freq", -1,
+                   "heuristics/shiftandpropagate/freq", -1,
+                   "heuristics/shifting/freq", -1,
+                   "heuristics/simplerounding/freq", -1,
+                   "heuristics/trivial/freq", -1,
+                   "presolving/maxrounds", 0,
+                   "separating/maxroundsroot", 0)
+    m = Model(solver=s)
+    @variable(m, 0 <= x <= 3, Int)
+    @variable(m, 0 <= y <= 3, Int)
+    @constraint(m, 2x + 3y >= 6)
+    @constraint(m, 3x + 2y >= 6)
+    @objective(m, :Min, x + y)
+
+    function heurcb(cb)
+        setsolutionvalue(cb, x, 2.0)
+        setsolutionvalue(cb, y, 2.0)
+        addsolution(cb)
+    end
+    addheuristiccallback(m, heurcb)
+
+    status = solve(m, suppress_warnings=true)
+    @test status == :UserLimit
+    @test getvalue(x) ≈ 2.0
+    @test getvalue(y) ≈ 2.0
+end
+
+# not adding test: params (not available through SCIP.jl)
+# not adding test: prefix (only about output)
