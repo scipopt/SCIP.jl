@@ -21,6 +21,7 @@ socptest(solver)
 # convexnlptest(solver)
 # rosenbrocktest(solver)
 
-include(joinpath(testdir, "linproginterface.jl"))
-linprogsolvertest(solver)
-linprogsolvertestextra(solver)
+## can't test methods that are not implemented with SCIP.jl
+# include(joinpath(testdir, "linproginterface.jl"))
+# linprogsolvertest(solver)
+# linprogsolvertestextra(solver)
