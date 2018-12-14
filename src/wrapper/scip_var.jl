@@ -10,20 +10,20 @@ function SCIPcreateVarBasic(scip, var, name, lb::Cdouble, ub::Cdouble, obj::Cdou
     ccall((:SCIPcreateVarBasic, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{Ptr{SCIP_VAR}}, Cstring, Cdouble, Cdouble, Cdouble, SCIP_VARTYPE), scip, var, name, lb, ub, obj, vartype)
 end
 
-function SCIPwriteVarName(scip, file, var, _type::UInt32)
-    ccall((:SCIPwriteVarName, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{FILE}, Ptr{SCIP_VAR}, UInt32), scip, file, var, _type)
+function SCIPwriteVarName(scip, file, var, type::UInt32)
+    ccall((:SCIPwriteVarName, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{FILE}, Ptr{SCIP_VAR}, UInt32), scip, file, var, type)
 end
 
-function SCIPwriteVarsList(scip, file, vars, nvars::Cint, _type::UInt32, delimiter::UInt8)
-    ccall((:SCIPwriteVarsList, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{FILE}, Ptr{Ptr{SCIP_VAR}}, Cint, UInt32, UInt8), scip, file, vars, nvars, _type, delimiter)
+function SCIPwriteVarsList(scip, file, vars, nvars::Cint, type::UInt32, delimiter::UInt8)
+    ccall((:SCIPwriteVarsList, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{FILE}, Ptr{Ptr{SCIP_VAR}}, Cint, UInt32, UInt8), scip, file, vars, nvars, type, delimiter)
 end
 
-function SCIPwriteVarsLinearsum(scip, file, vars, vals, nvars::Cint, _type::UInt32)
-    ccall((:SCIPwriteVarsLinearsum, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{FILE}, Ptr{Ptr{SCIP_VAR}}, Ptr{Cdouble}, Cint, UInt32), scip, file, vars, vals, nvars, _type)
+function SCIPwriteVarsLinearsum(scip, file, vars, vals, nvars::Cint, type::UInt32)
+    ccall((:SCIPwriteVarsLinearsum, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{FILE}, Ptr{Ptr{SCIP_VAR}}, Ptr{Cdouble}, Cint, UInt32), scip, file, vars, vals, nvars, type)
 end
 
-function SCIPwriteVarsPolynomial(scip, file, monomialvars, monomialexps, monomialcoefs, monomialnvars, nmonomials::Cint, _type::UInt32)
-    ccall((:SCIPwriteVarsPolynomial, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{FILE}, Ptr{Ptr{Ptr{SCIP_VAR}}}, Ptr{Ptr{Cdouble}}, Ptr{Cdouble}, Ptr{Cint}, Cint, UInt32), scip, file, monomialvars, monomialexps, monomialcoefs, monomialnvars, nmonomials, _type)
+function SCIPwriteVarsPolynomial(scip, file, monomialvars, monomialexps, monomialcoefs, monomialnvars, nmonomials::Cint, type::UInt32)
+    ccall((:SCIPwriteVarsPolynomial, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{FILE}, Ptr{Ptr{Ptr{SCIP_VAR}}}, Ptr{Ptr{Cdouble}}, Ptr{Cdouble}, Ptr{Cint}, Cint, UInt32), scip, file, monomialvars, monomialexps, monomialcoefs, monomialnvars, nmonomials, type)
 end
 
 function SCIPparseVar(scip, var, str, initial::UInt32, removable::UInt32, varcopy, vardelorig, vartrans, vardeltrans, vardata, endptr, success)

@@ -3,14 +3,31 @@ using Clang
 header_path = "/usr/include/scip"
 all_headers = readdir(header_path)
 
+top_types = [
+    "type_retcode.h",
+    "type_result.h",
+    "type_clock.h",
+    "type_misc.h",
+    "type_timing.h",
+    "type_paramset.h",
+    "type_event.h",
+    "type_lp.h",
+    "type_nlp.h",
+    # "type_var.h", # has problem with `union SCIP_DomChg`
+    "type_prob.h",
+    "type_tree.h",
+    "type_scip.h",
+]
+
 headers = vcat(
+    top_types,
     filter(h -> startswith(h, "scip_"), all_headers),
 )
 clang_includes = [
     "/usr/lib/llvm-6.0/lib/clang/6.0.0/include",
 ]
 
-context = wrap_c.init(
+context = Clang.wrap_c.init(
     # header files we want wrapped
     headers=[joinpath(header_path, h) for h in headers],
     common_file="commons.jl",
@@ -22,4 +39,4 @@ context = wrap_c.init(
     header_library=header_name -> "libscip"
 )
 
-run(context)
+Clang.run(context)

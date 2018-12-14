@@ -118,28 +118,28 @@ function SCIPgetNLPFracVars(scip, fracvars, fracvarssol, fracvarsfrac, nfracvars
     ccall((:SCIPgetNLPFracVars, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{Ptr{Ptr{SCIP_VAR}}}, Ptr{Ptr{Cdouble}}, Ptr{Ptr{Cdouble}}, Ptr{Cint}, Ptr{Cint}), scip, fracvars, fracvarssol, fracvarsfrac, nfracvars, npriofracvars)
 end
 
-function SCIPgetNLPIntPar(scip, _type::SCIP_NLPPARAM, ival)
-    ccall((:SCIPgetNLPIntPar, libscip), SCIP_RETCODE, (Ptr{SCIP}, SCIP_NLPPARAM, Ptr{Cint}), scip, _type, ival)
+function SCIPgetNLPIntPar(scip, type::SCIP_NLPPARAM, ival)
+    ccall((:SCIPgetNLPIntPar, libscip), SCIP_RETCODE, (Ptr{SCIP}, SCIP_NLPPARAM, Ptr{Cint}), scip, type, ival)
 end
 
-function SCIPsetNLPIntPar(scip, _type::SCIP_NLPPARAM, ival::Cint)
-    ccall((:SCIPsetNLPIntPar, libscip), SCIP_RETCODE, (Ptr{SCIP}, SCIP_NLPPARAM, Cint), scip, _type, ival)
+function SCIPsetNLPIntPar(scip, type::SCIP_NLPPARAM, ival::Cint)
+    ccall((:SCIPsetNLPIntPar, libscip), SCIP_RETCODE, (Ptr{SCIP}, SCIP_NLPPARAM, Cint), scip, type, ival)
 end
 
-function SCIPgetNLPRealPar(scip, _type::SCIP_NLPPARAM, dval)
-    ccall((:SCIPgetNLPRealPar, libscip), SCIP_RETCODE, (Ptr{SCIP}, SCIP_NLPPARAM, Ptr{Cdouble}), scip, _type, dval)
+function SCIPgetNLPRealPar(scip, type::SCIP_NLPPARAM, dval)
+    ccall((:SCIPgetNLPRealPar, libscip), SCIP_RETCODE, (Ptr{SCIP}, SCIP_NLPPARAM, Ptr{Cdouble}), scip, type, dval)
 end
 
-function SCIPsetNLPRealPar(scip, _type::SCIP_NLPPARAM, dval::Cdouble)
-    ccall((:SCIPsetNLPRealPar, libscip), SCIP_RETCODE, (Ptr{SCIP}, SCIP_NLPPARAM, Cdouble), scip, _type, dval)
+function SCIPsetNLPRealPar(scip, type::SCIP_NLPPARAM, dval::Cdouble)
+    ccall((:SCIPsetNLPRealPar, libscip), SCIP_RETCODE, (Ptr{SCIP}, SCIP_NLPPARAM, Cdouble), scip, type, dval)
 end
 
-function SCIPgetNLPStringPar(scip, _type::SCIP_NLPPARAM, sval)
-    ccall((:SCIPgetNLPStringPar, libscip), SCIP_RETCODE, (Ptr{SCIP}, SCIP_NLPPARAM, Ptr{Cstring}), scip, _type, sval)
+function SCIPgetNLPStringPar(scip, type::SCIP_NLPPARAM, sval)
+    ccall((:SCIPgetNLPStringPar, libscip), SCIP_RETCODE, (Ptr{SCIP}, SCIP_NLPPARAM, Ptr{Cstring}), scip, type, sval)
 end
 
-function SCIPsetNLPStringPar(scip, _type::SCIP_NLPPARAM, sval)
-    ccall((:SCIPsetNLPStringPar, libscip), SCIP_RETCODE, (Ptr{SCIP}, SCIP_NLPPARAM, Cstring), scip, _type, sval)
+function SCIPsetNLPStringPar(scip, type::SCIP_NLPPARAM, sval)
+    ccall((:SCIPsetNLPStringPar, libscip), SCIP_RETCODE, (Ptr{SCIP}, SCIP_NLPPARAM, Cstring), scip, type, sval)
 end
 
 function SCIPwriteNLP(scip, filename)

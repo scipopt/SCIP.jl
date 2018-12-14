@@ -82,8 +82,8 @@ function SCIPsetBendersPriority(scip, benders, priority::Cint)
     ccall((:SCIPsetBendersPriority, libscip), Cvoid, (Ptr{SCIP}, Ptr{SCIP_BENDERS}, Cint), scip, benders, priority)
 end
 
-function SCIPsolveBendersSubproblems(scip, benders, sol, result, infeasible, auxviol, _type::SCIP_BENDERSENFOTYPE, checkint::UInt32)
-    ccall((:SCIPsolveBendersSubproblems, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_BENDERS}, Ptr{SCIP_SOL}, Ptr{SCIP_RESULT}, Ptr{UInt32}, Ptr{UInt32}, SCIP_BENDERSENFOTYPE, UInt32), scip, benders, sol, result, infeasible, auxviol, _type, checkint)
+function SCIPsolveBendersSubproblems(scip, benders, sol, result, infeasible, auxviol, type::SCIP_BENDERSENFOTYPE, checkint::UInt32)
+    ccall((:SCIPsolveBendersSubproblems, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_BENDERS}, Ptr{SCIP_SOL}, Ptr{SCIP_RESULT}, Ptr{UInt32}, Ptr{UInt32}, SCIP_BENDERSENFOTYPE, UInt32), scip, benders, sol, result, infeasible, auxviol, type, checkint)
 end
 
 function SCIPgetBendersMasterVar(scip, benders, var, mappedvar)
@@ -106,8 +106,8 @@ function SCIPsetupBendersSubproblem(scip, benders, sol, probnumber::Cint)
     ccall((:SCIPsetupBendersSubproblem, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_BENDERS}, Ptr{SCIP_SOL}, Cint), scip, benders, sol, probnumber)
 end
 
-function SCIPsolveBendersSubproblem(scip, benders, sol, probnumber::Cint, infeasible, _type::SCIP_BENDERSENFOTYPE, solvecip::UInt32, objective)
-    ccall((:SCIPsolveBendersSubproblem, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_BENDERS}, Ptr{SCIP_SOL}, Cint, Ptr{UInt32}, SCIP_BENDERSENFOTYPE, UInt32, Ptr{Cdouble}), scip, benders, sol, probnumber, infeasible, _type, solvecip, objective)
+function SCIPsolveBendersSubproblem(scip, benders, sol, probnumber::Cint, infeasible, type::SCIP_BENDERSENFOTYPE, solvecip::UInt32, objective)
+    ccall((:SCIPsolveBendersSubproblem, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_BENDERS}, Ptr{SCIP_SOL}, Cint, Ptr{UInt32}, SCIP_BENDERSENFOTYPE, UInt32, Ptr{Cdouble}), scip, benders, sol, probnumber, infeasible, type, solvecip, objective)
 end
 
 function SCIPfreeBendersSubproblem(scip, benders, probnumber::Cint)
