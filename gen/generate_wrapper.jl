@@ -13,14 +13,15 @@ top_types = [
     "type_event.h",
     "type_lp.h",
     "type_nlp.h",
-    # "type_var.h", # has problem with `union SCIP_DomChg`
+    "type_var.h",
     "type_prob.h",
     "type_tree.h",
     "type_scip.h",
 ]
 
 headers = vcat(
-    top_types,
+    filter(h -> h != "type_var.h", top_types), # problem: `union SCIP_DomChg`
+    filter(h -> startswith(h, "type_") && !in(h, top_types), all_headers),
     filter(h -> startswith(h, "scip_"), all_headers),
 )
 clang_includes = [
