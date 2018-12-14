@@ -600,6 +600,211 @@ struct SCIP_Nlp
 end
 
 const SCIP_NLP = Cvoid
+const NLOCKTYPES = 2
+
+# Skipping MacroDefinition: SCIP_DECL_VARDELORIG ( x ) SCIP_RETCODE x ( SCIP * scip , SCIP_VAR * var , SCIP_VARDATA * * vardata ) /** creates transformed variable for original user variable
+# *
+# *  Because the original variable and the user data of the original variable should not be
+# *  modified during the solving process, a transformed variable is created as a copy of
+# *  the original variable. If the user variable data is never modified during the solving
+# *  process anyways, it is enough to simple copy the user data's pointer. This is the
+# *  default implementation, which is used when a NULL is given as VARTRANS method.
+# *  If the user data may be modified during the solving process (e.g. during preprocessing),
+# *  the VARTRANS method must be given and has to copy the user variable data to a different
+# *  memory location.
+# *
+# *  input:
+# *  - scip            : SCIP main data structure
+# *  - sourcevar       : original variable
+# *  - sourcedata      : source variable data to transform
+# *  - targetvar       : transformed variable
+# *  - targetdata      : pointer to store created transformed variable data
+# */
+# Skipping MacroDefinition: SCIP_DECL_VARTRANS ( x ) SCIP_RETCODE x ( SCIP * scip , SCIP_VAR * sourcevar , SCIP_VARDATA * sourcedata , SCIP_VAR * targetvar , SCIP_VARDATA * * targetdata ) /** frees user data of transformed variable (called when the transformed variable is freed)
+# *
+# *  This method has to be implemented, if the VARTRANS method is not a simple pointer
+# *  copy operation like in the default VARTRANS implementation. It should free the
+# *  user data of the transformed variable, that was created in the VARTRANS method.
+# *
+# *  input:
+# *  - scip            : SCIP main data structure
+# *  - var             : transformed variable the data to free is belonging to
+# *  - vardata         : pointer to the user variable data to free
+# */
+# Skipping MacroDefinition: SCIP_DECL_VARDELTRANS ( x ) SCIP_RETCODE x ( SCIP * scip , SCIP_VAR * var , SCIP_VARDATA * * vardata ) /** copies variable data of source SCIP variable for the target SCIP variable
+# *
+# *  This method should copy the variable data of the source SCIP and create a target variable data for target
+# *  variable. This callback is optimal. If the copying process was successful the target variable gets this variable
+# *  data assigned. In case the result pointer is set to SCIP_DIDNOTRUN the target variable will have no variable data at
+# *  all.
+# *
+# *  The variable map and the constraint map can be used via the function SCIPgetVarCopy() and SCIPgetConsCopy(),
+# *  respectively, to get for certain variables and constraints of the source SCIP the counter parts in the target
+# *  SCIP. You should be very carefully in using these two methods since they could lead to infinity loop.
+# *
+# *  input:
+# *  - scip            : target SCIP data structure
+# *  - sourcescip      : source SCIP main data structure
+# *  - sourcevar       : variable of the source SCIP
+# *  - sourcedata      : variable data of the source variable which should get copied
+# *  - varmap,         : a hashmap which stores the mapping of source variables to corresponding target variables
+# *  - consmap,        : a hashmap which stores the mapping of source constraints to corresponding target constraints
+# *  - targetvar       : variable of the (target) SCIP (targetvar is the copy of sourcevar)
+# *  - targetdata      : pointer to store created copy of the variable data for the (target) SCIP
+# *
+# *  output:
+# *  - result          : pointer to store the result of the call
+# *
+# *  possible return values for *result:
+# *  - SCIP_DIDNOTRUN  : the copying process was not performed 
+# *  - SCIP_SUCCESS    : the copying process was successfully performed
+# */
+# Skipping MacroDefinition: SCIP_DECL_VARCOPY ( x ) SCIP_RETCODE x ( SCIP * scip , SCIP * sourcescip , SCIP_VAR * sourcevar , SCIP_VARDATA * sourcedata , SCIP_HASHMAP * varmap , SCIP_HASHMAP * consmap , SCIP_VAR * targetvar , SCIP_VARDATA * * targetdata , SCIP_RESULT * result ) #
+
+# begin enum SCIP_Varstatus
+const SCIP_Varstatus = UInt32
+const SCIP_VARSTATUS_ORIGINAL = 0 |> UInt32
+const SCIP_VARSTATUS_LOOSE = 1 |> UInt32
+const SCIP_VARSTATUS_COLUMN = 2 |> UInt32
+const SCIP_VARSTATUS_FIXED = 3 |> UInt32
+const SCIP_VARSTATUS_AGGREGATED = 4 |> UInt32
+const SCIP_VARSTATUS_MULTAGGR = 5 |> UInt32
+const SCIP_VARSTATUS_NEGATED = 6 |> UInt32
+# end enum SCIP_Varstatus
+
+const SCIP_VARSTATUS = SCIP_Varstatus
+
+# begin enum SCIP_Vartype
+const SCIP_Vartype = UInt32
+const SCIP_VARTYPE_BINARY = 0 |> UInt32
+const SCIP_VARTYPE_INTEGER = 1 |> UInt32
+const SCIP_VARTYPE_IMPLINT = 2 |> UInt32
+const SCIP_VARTYPE_CONTINUOUS = 3 |> UInt32
+# end enum SCIP_Vartype
+
+const SCIP_VARTYPE = SCIP_Vartype
+
+# begin enum SCIP_DomchgType
+const SCIP_DomchgType = UInt32
+const SCIP_DOMCHGTYPE_DYNAMIC = 0 |> UInt32
+const SCIP_DOMCHGTYPE_BOTH = 1 |> UInt32
+const SCIP_DOMCHGTYPE_BOUND = 2 |> UInt32
+# end enum SCIP_DomchgType
+
+const SCIP_DOMCHGTYPE = SCIP_DomchgType
+
+# begin enum SCIP_BoundchgType
+const SCIP_BoundchgType = UInt32
+const SCIP_BOUNDCHGTYPE_BRANCHING = 0 |> UInt32
+const SCIP_BOUNDCHGTYPE_CONSINFER = 1 |> UInt32
+const SCIP_BOUNDCHGTYPE_PROPINFER = 2 |> UInt32
+# end enum SCIP_BoundchgType
+
+const SCIP_BOUNDCHGTYPE = SCIP_BoundchgType
+
+# begin enum SCIP_LockType
+const SCIP_LockType = UInt32
+const SCIP_LOCKTYPE_MODEL = 0 |> UInt32
+const SCIP_LOCKTYPE_CONFLICT = 1 |> UInt32
+# end enum SCIP_LockType
+
+const SCIP_LOCKTYPE = SCIP_LockType
+
+struct SCIP_DomChgBound
+end
+
+const SCIP_DOMCHGBOUND = Cvoid
+
+struct SCIP_DomChgBoth
+end
+
+const SCIP_DOMCHGBOTH = Cvoid
+
+struct SCIP_DomChgDyn
+end
+
+const SCIP_DOMCHGDYN = Cvoid
+
+struct SCIP_DomChg
+    _SCIP_DomChg::Cvoid
+end
+
+const SCIP_DOMCHG = Cvoid
+
+struct SCIP_BoundChg
+end
+
+const SCIP_BOUNDCHG = Cvoid
+
+struct SCIP_BdChgIdx
+end
+
+const SCIP_BDCHGIDX = Cvoid
+
+struct SCIP_BdChgInfo
+end
+
+const SCIP_BDCHGINFO = Cvoid
+
+struct SCIP_BranchingData
+end
+
+const SCIP_BRANCHINGDATA = Cvoid
+
+struct SCIP_InferenceData
+end
+
+const SCIP_INFERENCEDATA = Cvoid
+
+struct SCIP_HoleChg
+end
+
+const SCIP_HOLECHG = Cvoid
+
+struct SCIP_Hole
+end
+
+const SCIP_HOLE = Cvoid
+
+struct SCIP_Holelist
+end
+
+const SCIP_HOLELIST = Cvoid
+
+struct SCIP_Dom
+end
+
+const SCIP_DOM = Cvoid
+
+struct SCIP_Original
+end
+
+const SCIP_ORIGINAL = Cvoid
+
+struct SCIP_Aggregate
+end
+
+const SCIP_AGGREGATE = Cvoid
+
+struct SCIP_Multaggr
+end
+
+const SCIP_MULTAGGR = Cvoid
+
+struct SCIP_Negate
+end
+
+const SCIP_NEGATE = Cvoid
+
+struct SCIP_Var
+end
+
+const SCIP_VAR = Cvoid
+
+struct SCIP_VarData
+end
+
+const SCIP_VARDATA = Cvoid
 
 # Skipping MacroDefinition: SCIP_DECL_PROBDELORIG ( x ) SCIP_RETCODE x ( SCIP * scip , SCIP_PROBDATA * * probdata ) /** creates user data of transformed problem by transforming the original user problem data
 # *  (called after problem was transformed)

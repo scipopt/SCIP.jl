@@ -20,7 +20,7 @@ top_types = [
 ]
 
 headers = vcat(
-    filter(h -> h != "type_var.h", top_types), # problem: `union SCIP_DomChg`
+    top_types,
     filter(h -> startswith(h, "type_") && !in(h, top_types), all_headers),
     # filter(h -> startswith(h, "pub_"), all_headers),
     filter(h -> startswith(h, "scip_"), all_headers),
