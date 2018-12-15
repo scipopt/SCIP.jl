@@ -3,9 +3,4 @@
 *.jl.*.cov
 *.jl.mem
 deps/deps.jl
-deps/downloads/
-deps/src/
-deps/usr/
 deps/build.log
-/test/test.lp
-/test/test.mps
