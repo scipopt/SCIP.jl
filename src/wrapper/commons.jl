@@ -1173,3 +1173,184 @@ const SCIP_VISUAL = SCIP_Visual
 # Skipping MacroDefinition: SCIPfreeCleanBufferArrayNull ( scip , ptr ) BMSfreeBufferMemoryArrayNull ( SCIPcleanbuffer ( scip ) , ( ptr ) )
 # Skipping MacroDefinition: SCIPdebugMsg ( scip , ... ) while ( FALSE ) SCIPprintDebugMessage ( scip , __FILE__ , __LINE__ , __VA_ARGS__ )
 # Skipping MacroDefinition: SCIPdebugMsgPrint ( scip , ... ) while ( FALSE ) SCIPdebugMessagePrint ( scip , __VA_ARGS__ )
+
+const SCIP_EXPR_DEGREEINFINITY = 65535
+
+# Skipping MacroDefinition: SCIP_DECL_EXPREVAL ( x ) SCIP_RETCODE x ( SCIP_EXPROPDATA opdata , int nargs , SCIP_Real * argvals , SCIP_Real * varvals , SCIP_Real * paramvals , SCIP_Real * result )
+# Skipping MacroDefinition: SCIP_DECL_EXPRINTEVAL ( x ) SCIP_RETCODE x ( SCIP_Real infinity , SCIP_EXPROPDATA opdata , int nargs , SCIP_INTERVAL * argvals , SCIP_INTERVAL * varvals , SCIP_Real * paramvals , SCIP_INTERVAL * result )
+# Skipping MacroDefinition: SCIP_DECL_EXPRCURV ( x ) SCIP_RETCODE x ( SCIP_Real infinity , SCIP_EXPROPDATA opdata , int nargs , SCIP_INTERVAL * argbounds , SCIP_EXPRCURV * argcurv , SCIP_EXPRCURV * result )
+# Skipping MacroDefinition: SCIP_DECL_EXPRCOPYDATA ( x ) SCIP_RETCODE x ( BMS_BLKMEM * blkmem , int nchildren , SCIP_EXPROPDATA opdatasource , SCIP_EXPROPDATA * opdatatarget )
+# Skipping MacroDefinition: SCIP_DECL_EXPRFREEDATA ( x ) void x ( BMS_BLKMEM * blkmem , int nchildren , SCIP_EXPROPDATA opdata )
+# Skipping MacroDefinition: SCIP_DECL_EXPRGRAPHVARADDED ( x ) SCIP_RETCODE x ( SCIP_EXPRGRAPH * exprgraph , void * userdata , void * var , SCIP_EXPRGRAPHNODE * varnode )
+# Skipping MacroDefinition: SCIP_DECL_EXPRGRAPHVARREMOVE ( x ) SCIP_RETCODE x ( SCIP_EXPRGRAPH * exprgraph , void * userdata , void * var , SCIP_EXPRGRAPHNODE * varnode )
+# Skipping MacroDefinition: SCIP_DECL_EXPRGRAPHVARCHGIDX ( x ) SCIP_RETCODE x ( SCIP_EXPRGRAPH * exprgraph , void * userdata , void * var , SCIP_EXPRGRAPHNODE * varnode , int oldidx , int newidx )
+
+const SCIP_EXPRBOUNDSTATUS_VALID = 0x00
+const SCIP_EXPRBOUNDSTATUS_CHILDTIGHTENED = 0x01
+const SCIP_EXPRBOUNDSTATUS_CHILDRELAXED = 0x02
+const SCIP_EXPRBOUNDSTATUS_TIGHTENEDBYPARENT = 0x04
+const SCIP_EXPRBOUNDSTATUS_TIGHTENEDBYPARENTRECENT = 0x08 | SCIP_EXPRBOUNDSTATUS_TIGHTENEDBYPARENT
+const SCIP_EXPRBOUNDSTATUS_TIGHTENEDBYPARENTFORCE = 0x10 | SCIP_EXPRBOUNDSTATUS_TIGHTENEDBYPARENTRECENT
+
+# Skipping MacroDefinition: SCIP_DECL_USEREXPRESTIMATE ( x ) SCIP_RETCODE x ( SCIP_Real infinity , SCIP_USEREXPRDATA * data , int nargs , SCIP_Real * argvals , SCIP_INTERVAL * argbounds , SCIP_Bool overestimate , SCIP_Real * coeffs , SCIP_Real * constant , SCIP_Bool * success )
+# Skipping MacroDefinition: SCIP_DECL_USEREXPREVAL ( x ) SCIP_RETCODE x ( SCIP_USEREXPRDATA * data , int nargs , SCIP_Real * argvals , SCIP_Real * funcvalue , SCIP_Real * gradient , SCIP_Real * hessian )
+# Skipping MacroDefinition: SCIP_DECL_USEREXPRINTEVAL ( x ) SCIP_RETCODE x ( SCIP_Real infinity , SCIP_USEREXPRDATA * data , int nargs , SCIP_INTERVAL * argvals , SCIP_INTERVAL * funcvalue , SCIP_INTERVAL * gradient , SCIP_INTERVAL * hessian )
+# Skipping MacroDefinition: SCIP_DECL_USEREXPRCURV ( x ) SCIP_RETCODE x ( SCIP_Real infinity , SCIP_USEREXPRDATA * data , int nargs , SCIP_INTERVAL * argbounds , SCIP_EXPRCURV * argcurv , SCIP_EXPRCURV * result )
+# Skipping MacroDefinition: SCIP_DECL_USEREXPRPROP ( x ) SCIP_RETCODE x ( SCIP_Real infinity , SCIP_USEREXPRDATA * data , int nargs , SCIP_INTERVAL * argbounds , SCIP_INTERVAL funcbounds , SCIP_Bool * cutoff )
+# Skipping MacroDefinition: SCIP_DECL_USEREXPRCOPYDATA ( x ) SCIP_RETCODE x ( BMS_BLKMEM * blkmem , int nchildren , SCIP_USEREXPRDATA * datasource , SCIP_USEREXPRDATA * * datatarget )
+# Skipping MacroDefinition: SCIP_DECL_USEREXPRFREEDATA ( x ) void x ( BMS_BLKMEM * blkmem , int nchildren , SCIP_USEREXPRDATA * data )
+# Skipping MacroDefinition: SCIP_DECL_USEREXPRPRINT ( x ) void x ( SCIP_USEREXPRDATA * data , SCIP_MESSAGEHDLR * messagehdlr , FILE * file )
+
+@cenum(SCIP_ExprOp,
+    SCIP_EXPR_VARIDX = 1,
+    SCIP_EXPR_CONST = 2,
+    SCIP_EXPR_PARAM = 3,
+    SCIP_EXPR_PLUS = 8,
+    SCIP_EXPR_MINUS = 9,
+    SCIP_EXPR_MUL = 10,
+    SCIP_EXPR_DIV = 11,
+    SCIP_EXPR_SQUARE = 12,
+    SCIP_EXPR_SQRT = 13,
+    SCIP_EXPR_REALPOWER = 14,
+    SCIP_EXPR_INTPOWER = 15,
+    SCIP_EXPR_SIGNPOWER = 16,
+    SCIP_EXPR_EXP = 17,
+    SCIP_EXPR_LOG = 18,
+    SCIP_EXPR_SIN = 19,
+    SCIP_EXPR_COS = 20,
+    SCIP_EXPR_TAN = 21,
+    SCIP_EXPR_MIN = 24,
+    SCIP_EXPR_MAX = 25,
+    SCIP_EXPR_ABS = 26,
+    SCIP_EXPR_SIGN = 27,
+    SCIP_EXPR_SUM = 64,
+    SCIP_EXPR_PRODUCT = 65,
+    SCIP_EXPR_LINEAR = 66,
+    SCIP_EXPR_QUADRATIC = 67,
+    SCIP_EXPR_POLYNOMIAL = 68,
+    SCIP_EXPR_USER = 69,
+    SCIP_EXPR_LAST = 70,
+)
+@cenum(SCIP_ExprCurv,
+    SCIP_EXPRCURV_UNKNOWN = 0,
+    SCIP_EXPRCURV_CONVEX = 1,
+    SCIP_EXPRCURV_CONCAVE = 2,
+    SCIP_EXPRCURV_LINEAR = 3,
+)
+
+const SCIP_EXPROP = SCIP_ExprOp
+const SCIP_ExprOpData = Cvoid
+const SCIP_EXPROPDATA = SCIP_ExprOpData
+const SCIP_Expr = Cvoid
+const SCIP_EXPR = SCIP_Expr
+const SCIP_ExprTree = Cvoid
+const SCIP_EXPRTREE = SCIP_ExprTree
+const SCIP_EXPRCURV = SCIP_ExprCurv
+
+struct SCIP_QuadElement
+    idx1::Cint
+    idx2::Cint
+    coef::Cdouble
+end
+
+const SCIP_QUADELEM = SCIP_QuadElement
+const SCIP_ExprData_Quadratic = Cvoid
+const SCIP_EXPRDATA_QUADRATIC = SCIP_ExprData_Quadratic
+const SCIP_ExprData_Monomial = Cvoid
+const SCIP_EXPRDATA_MONOMIAL = SCIP_ExprData_Monomial
+const SCIP_ExprData_Polynomial = Cvoid
+const SCIP_EXPRDATA_POLYNOMIAL = SCIP_ExprData_Polynomial
+const SCIP_ExprData_User = Cvoid
+const SCIP_EXPRDATA_USER = SCIP_ExprData_User
+const SCIP_ExprGraphNode = Cvoid
+const SCIP_EXPRGRAPHNODE = SCIP_ExprGraphNode
+const SCIP_ExprGraph = Cvoid
+const SCIP_EXPRGRAPH = SCIP_ExprGraph
+const SCIP_EXPRBOUNDSTATUS = UInt8
+const SCIP_UserExprData = Cvoid
+const SCIP_USEREXPRDATA = SCIP_UserExprData
+
+# Skipping MacroDefinition: SCIP_DECL_NLPICOPY ( x ) SCIP_RETCODE x ( BMS_BLKMEM * blkmem , SCIP_NLPI * sourcenlpi , SCIP_NLPI * * targetnlpi )
+# Skipping MacroDefinition: SCIP_DECL_NLPIFREE ( x ) SCIP_RETCODE x ( SCIP_NLPI * nlpi )
+# Skipping MacroDefinition: SCIP_DECL_NLPIGETSOLVERPOINTER ( x ) void * x ( SCIP_NLPI * nlpi )
+# Skipping MacroDefinition: SCIP_DECL_NLPICREATEPROBLEM ( x ) SCIP_RETCODE x ( SCIP_NLPI * nlpi , SCIP_NLPIPROBLEM * * problem , const char * name )
+# Skipping MacroDefinition: SCIP_DECL_NLPIFREEPROBLEM ( x ) SCIP_RETCODE x ( SCIP_NLPI * nlpi , SCIP_NLPIPROBLEM * * problem )
+# Skipping MacroDefinition: SCIP_DECL_NLPIGETPROBLEMPOINTER ( x ) void * x ( SCIP_NLPI * nlpi , SCIP_NLPIPROBLEM * problem )
+# Skipping MacroDefinition: SCIP_DECL_NLPIADDVARS ( x ) SCIP_RETCODE x ( SCIP_NLPI * nlpi , SCIP_NLPIPROBLEM * problem , int nvars , const SCIP_Real * lbs , const SCIP_Real * ubs , const char * * varnames )
+# Skipping MacroDefinition: SCIP_DECL_NLPIADDCONSTRAINTS ( x ) SCIP_RETCODE x ( SCIP_NLPI * nlpi , SCIP_NLPIPROBLEM * problem , int ncons , const SCIP_Real * lhss , const SCIP_Real * rhss , const int * nlininds , int * const * lininds , SCIP_Real * const * linvals , const int * nquadelems , SCIP_QUADELEM * const * quadelems , int * const * exprvaridxs , SCIP_EXPRTREE * const * exprtrees , const char * * names )
+# Skipping MacroDefinition: SCIP_DECL_NLPISETOBJECTIVE ( x ) SCIP_RETCODE x ( SCIP_NLPI * nlpi , SCIP_NLPIPROBLEM * problem , int nlins , const int * lininds , const SCIP_Real * linvals , int nquadelems , const SCIP_QUADELEM * quadelems , const int * exprvaridxs , const SCIP_EXPRTREE * exprtree , const SCIP_Real constant )
+# Skipping MacroDefinition: SCIP_DECL_NLPICHGVARBOUNDS ( x ) SCIP_RETCODE x ( SCIP_NLPI * nlpi , SCIP_NLPIPROBLEM * problem , const int nvars , const int * indices , const SCIP_Real * lbs , const SCIP_Real * ubs )
+# Skipping MacroDefinition: SCIP_DECL_NLPICHGCONSSIDES ( x ) SCIP_RETCODE x ( SCIP_NLPI * nlpi , SCIP_NLPIPROBLEM * problem , int nconss , const int * indices , const SCIP_Real * lhss , const SCIP_Real * rhss )
+# Skipping MacroDefinition: SCIP_DECL_NLPIDELVARSET ( x ) SCIP_RETCODE x ( SCIP_NLPI * nlpi , SCIP_NLPIPROBLEM * problem , int * dstats , int dstatssize )
+# Skipping MacroDefinition: SCIP_DECL_NLPIDELCONSSET ( x ) SCIP_RETCODE x ( SCIP_NLPI * nlpi , SCIP_NLPIPROBLEM * problem , int * dstats , int dstatssize )
+# Skipping MacroDefinition: SCIP_DECL_NLPICHGLINEARCOEFS ( x ) SCIP_RETCODE x ( SCIP_NLPI * nlpi , SCIP_NLPIPROBLEM * problem , int idx , int nvals , const int * varidxs , const SCIP_Real * vals )
+# Skipping MacroDefinition: SCIP_DECL_NLPICHGQUADCOEFS ( x ) SCIP_RETCODE x ( SCIP_NLPI * nlpi , SCIP_NLPIPROBLEM * problem , int idx , int nquadelems , const SCIP_QUADELEM * quadelems )
+# Skipping MacroDefinition: SCIP_DECL_NLPICHGEXPRTREE ( x ) SCIP_RETCODE x ( SCIP_NLPI * nlpi , SCIP_NLPIPROBLEM * problem , int idxcons , const int * exprvaridxs , const SCIP_EXPRTREE * exprtree )
+# Skipping MacroDefinition: SCIP_DECL_NLPICHGNONLINCOEF ( x ) SCIP_RETCODE x ( SCIP_NLPI * nlpi , SCIP_NLPIPROBLEM * problem , int idxcons , int idxparam , SCIP_Real value )
+# Skipping MacroDefinition: SCIP_DECL_NLPICHGOBJCONSTANT ( x ) SCIP_RETCODE x ( SCIP_NLPI * nlpi , SCIP_NLPIPROBLEM * problem , SCIP_Real objconstant )
+# Skipping MacroDefinition: SCIP_DECL_NLPISETINITIALGUESS ( x ) SCIP_RETCODE x ( SCIP_NLPI * nlpi , SCIP_NLPIPROBLEM * problem , SCIP_Real * primalvalues , SCIP_Real * consdualvalues , SCIP_Real * varlbdualvalues , SCIP_Real * varubdualvalues )
+# Skipping MacroDefinition: SCIP_DECL_NLPISOLVE ( x ) SCIP_RETCODE x ( SCIP_NLPI * nlpi , SCIP_NLPIPROBLEM * problem )
+# Skipping MacroDefinition: SCIP_DECL_NLPIGETSOLSTAT ( x ) SCIP_NLPSOLSTAT x ( SCIP_NLPI * nlpi , SCIP_NLPIPROBLEM * problem )
+# Skipping MacroDefinition: SCIP_DECL_NLPIGETTERMSTAT ( x ) SCIP_NLPTERMSTAT x ( SCIP_NLPI * nlpi , SCIP_NLPIPROBLEM * problem )
+# Skipping MacroDefinition: SCIP_DECL_NLPIGETSOLUTION ( x ) SCIP_RETCODE x ( SCIP_NLPI * nlpi , SCIP_NLPIPROBLEM * problem , SCIP_Real * * primalvalues , SCIP_Real * * consdualvalues , SCIP_Real * * varlbdualvalues , SCIP_Real * * varubdualvalues , SCIP_Real * objval )
+# Skipping MacroDefinition: SCIP_DECL_NLPIGETSTATISTICS ( x ) SCIP_RETCODE x ( SCIP_NLPI * nlpi , SCIP_NLPIPROBLEM * problem , SCIP_NLPSTATISTICS * statistics )
+# Skipping MacroDefinition: SCIP_DECL_NLPIGETWARMSTARTSIZE ( x ) SCIP_RETCODE x ( SCIP_NLPI * nlpi , SCIP_NLPIPROBLEM * problem , size_t * size )
+# Skipping MacroDefinition: SCIP_DECL_NLPIGETWARMSTARTMEMO ( x ) SCIP_RETCODE x ( SCIP_NLPI * nlpi , SCIP_NLPIPROBLEM * problem , void * buffer )
+# Skipping MacroDefinition: SCIP_DECL_NLPISETWARMSTARTMEMO ( x ) SCIP_RETCODE x ( SCIP_NLPI * nlpi , SCIP_NLPIPROBLEM * problem , void * buffer )
+# Skipping MacroDefinition: SCIP_DECL_NLPIGETINTPAR ( x ) SCIP_RETCODE x ( SCIP_NLPI * nlpi , SCIP_NLPIPROBLEM * problem , SCIP_NLPPARAM type , int * ival )
+# Skipping MacroDefinition: SCIP_DECL_NLPISETINTPAR ( x ) SCIP_RETCODE x ( SCIP_NLPI * nlpi , SCIP_NLPIPROBLEM * problem , SCIP_NLPPARAM type , int ival )
+# Skipping MacroDefinition: SCIP_DECL_NLPIGETREALPAR ( x ) SCIP_RETCODE x ( SCIP_NLPI * nlpi , SCIP_NLPIPROBLEM * problem , SCIP_NLPPARAM type , SCIP_Real * dval )
+# Skipping MacroDefinition: SCIP_DECL_NLPISETREALPAR ( x ) SCIP_RETCODE x ( SCIP_NLPI * nlpi , SCIP_NLPIPROBLEM * problem , SCIP_NLPPARAM type , SCIP_Real dval )
+# Skipping MacroDefinition: SCIP_DECL_NLPIGETSTRINGPAR ( x ) SCIP_RETCODE x ( SCIP_NLPI * nlpi , SCIP_NLPIPROBLEM * problem , SCIP_NLPPARAM type , const char * * sval )
+# Skipping MacroDefinition: SCIP_DECL_NLPISETSTRINGPAR ( x ) SCIP_RETCODE x ( SCIP_NLPI * nlpi , SCIP_NLPIPROBLEM * problem , SCIP_NLPPARAM type , const char * sval )
+# Skipping MacroDefinition: SCIP_DECL_NLPISETMESSAGEHDLR ( x ) SCIP_RETCODE x ( SCIP_NLPI * nlpi , SCIP_MESSAGEHDLR * messagehdlr )
+
+const SCIP_Nlpi = Cvoid
+const SCIP_NLPI = SCIP_Nlpi
+const SCIP_NlpiData = Cvoid
+const SCIP_NLPIDATA = SCIP_NlpiData
+const SCIP_NlpiProblem = Cvoid
+const SCIP_NLPIPROBLEM = SCIP_NlpiProblem
+const SCIP_NlpStatistics = Cvoid
+const SCIP_NLPSTATISTICS = SCIP_NlpStatistics
+
+@cenum(SCIP_NlpParam,
+    SCIP_NLPPAR_FROMSCRATCH = 0,
+    SCIP_NLPPAR_VERBLEVEL = 1,
+    SCIP_NLPPAR_FEASTOL = 2,
+    SCIP_NLPPAR_RELOBJTOL = 3,
+    SCIP_NLPPAR_LOBJLIM = 4,
+    SCIP_NLPPAR_INFINITY = 5,
+    SCIP_NLPPAR_ITLIM = 6,
+    SCIP_NLPPAR_TILIM = 7,
+    SCIP_NLPPAR_OPTFILE = 8,
+    SCIP_NLPPAR_FASTFAIL = 9,
+)
+
+const SCIP_NLPPARAM = SCIP_NlpParam
+
+@cenum(SCIP_NlpSolStat,
+    SCIP_NLPSOLSTAT_GLOBOPT = 0,
+    SCIP_NLPSOLSTAT_LOCOPT = 1,
+    SCIP_NLPSOLSTAT_FEASIBLE = 2,
+    SCIP_NLPSOLSTAT_LOCINFEASIBLE = 3,
+    SCIP_NLPSOLSTAT_GLOBINFEASIBLE = 4,
+    SCIP_NLPSOLSTAT_UNBOUNDED = 5,
+    SCIP_NLPSOLSTAT_UNKNOWN = 6,
+)
+
+const SCIP_NLPSOLSTAT = SCIP_NlpSolStat
+
+@cenum(SCIP_NlpTermStat,
+    SCIP_NLPTERMSTAT_OKAY = 0,
+    SCIP_NLPTERMSTAT_TILIM = 1,
+    SCIP_NLPTERMSTAT_ITLIM = 2,
+    SCIP_NLPTERMSTAT_LOBJLIM = 3,
+    SCIP_NLPTERMSTAT_NUMERR = 5,
+    SCIP_NLPTERMSTAT_EVALERR = 6,
+    SCIP_NLPTERMSTAT_MEMERR = 7,
+    SCIP_NLPTERMSTAT_LICERR = 8,
+    SCIP_NLPTERMSTAT_OTHER = 9,
+)
+
+const SCIP_NLPTERMSTAT = SCIP_NlpTermStat
