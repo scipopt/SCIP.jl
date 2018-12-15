@@ -1,8 +1,8 @@
 using Clang
 
-header_path = "/usr/include/scip"
-all_headers = readdir(header_path)
-
+HEADER_BASE = "/usr/include" # using system-wide installation of SCIP
+HEADER_DIR = "scip"
+all_headers = readdir(joinpath(HEADER_BASE, HEADER_DIR))
 top_types = [
     "type_retcode.h",
     "type_result.h",
@@ -18,27 +18,21 @@ top_types = [
     "type_tree.h",
     "type_scip.h",
 ]
-
 headers = vcat(
     top_types,
     filter(h -> startswith(h, "type_") && !in(h, top_types), all_headers),
     # filter(h -> startswith(h, "pub_"), all_headers),
     filter(h -> startswith(h, "scip_"), all_headers),
 )
-clang_includes = [
-    "/usr/lib/llvm-6.0/lib/clang/6.0.0/include",
-]
 
-context = Clang.wrap_c.init(
-    # header files we want wrapped
-    headers=[joinpath(header_path, h) for h in headers],
+context = Clang.init(
+    headers=[joinpath(HEADER_BASE, HEADER_DIR, h) for h in headers],
     common_file="commons.jl",
     output_dir="../src/wrapper",
-    clang_includes=clang_includes,
+    clang_includes=vcat(HEADER_BASE, LLVM_INCLUDE),
+    clang_args = ["-I", HEADER_BASE],
     clang_diagnostics=true,
-    # do not wrap included headers
     header_wrapped=(header, cursorname) -> header == cursorname,
     header_library=header_name -> "libscip"
 )
-
 Clang.run(context)
