@@ -1174,6 +1174,71 @@ const SCIP_VISUAL = SCIP_Visual
 # Skipping MacroDefinition: SCIPdebugMsg ( scip , ... ) while ( FALSE ) SCIPprintDebugMessage ( scip , __FILE__ , __LINE__ , __VA_ARGS__ )
 # Skipping MacroDefinition: SCIPdebugMsgPrint ( scip , ... ) while ( FALSE ) SCIPdebugMessagePrint ( scip , __VA_ARGS__ )
 
+@cenum(SCIP_ObjSen{Int32},
+    SCIP_OBJSEN_MAXIMIZE = -1,
+    SCIP_OBJSEN_MINIMIZE = 1,
+)
+
+const SCIP_OBJSEN = SCIP_ObjSen
+
+@cenum(SCIP_LPParam,
+    SCIP_LPPAR_FROMSCRATCH = 0,
+    SCIP_LPPAR_FASTMIP = 1,
+    SCIP_LPPAR_SCALING = 2,
+    SCIP_LPPAR_PRESOLVING = 3,
+    SCIP_LPPAR_PRICING = 4,
+    SCIP_LPPAR_LPINFO = 5,
+    SCIP_LPPAR_FEASTOL = 6,
+    SCIP_LPPAR_DUALFEASTOL = 7,
+    SCIP_LPPAR_BARRIERCONVTOL = 8,
+    SCIP_LPPAR_OBJLIM = 9,
+    SCIP_LPPAR_LPITLIM = 10,
+    SCIP_LPPAR_LPTILIM = 11,
+    SCIP_LPPAR_MARKOWITZ = 12,
+    SCIP_LPPAR_ROWREPSWITCH = 13,
+    SCIP_LPPAR_THREADS = 14,
+    SCIP_LPPAR_CONDITIONLIMIT = 15,
+    SCIP_LPPAR_TIMING = 16,
+    SCIP_LPPAR_RANDOMSEED = 17,
+    SCIP_LPPAR_POLISHING = 18,
+    SCIP_LPPAR_REFACTOR = 19,
+)
+
+const SCIP_LPPARAM = SCIP_LPParam
+
+@cenum(SCIP_Pricing,
+    SCIP_PRICING_LPIDEFAULT = 0,
+    SCIP_PRICING_AUTO = 1,
+    SCIP_PRICING_FULL = 2,
+    SCIP_PRICING_PARTIAL = 3,
+    SCIP_PRICING_STEEP = 4,
+    SCIP_PRICING_STEEPQSTART = 5,
+    SCIP_PRICING_DEVEX = 6,
+)
+
+const SCIP_PRICING = SCIP_Pricing
+
+@cenum(SCIP_BaseStat,
+    SCIP_BASESTAT_LOWER = 0,
+    SCIP_BASESTAT_BASIC = 1,
+    SCIP_BASESTAT_UPPER = 2,
+    SCIP_BASESTAT_ZERO = 3,
+)
+
+const SCIP_BASESTAT = SCIP_BaseStat
+
+@cenum(SCIP_LPSolQuality,
+    SCIP_LPSOLQUALITY_ESTIMCONDITION = 0,
+    SCIP_LPSOLQUALITY_EXACTCONDITION = 1,
+)
+
+const SCIP_LPSOLQUALITY = SCIP_LPSolQuality
+const SCIP_LPi = Cvoid
+const SCIP_LPI = SCIP_LPi
+const SCIP_LPiState = Cvoid
+const SCIP_LPISTATE = SCIP_LPiState
+const SCIP_LPiNorms = Cvoid
+const SCIP_LPINORMS = SCIP_LPiNorms
 const SCIP_EXPR_DEGREEINFINITY = 65535
 
 # Skipping MacroDefinition: SCIP_DECL_EXPREVAL ( x ) SCIP_RETCODE x ( SCIP_EXPROPDATA opdata , int nargs , SCIP_Real * argvals , SCIP_Real * varvals , SCIP_Real * paramvals , SCIP_Real * result )
