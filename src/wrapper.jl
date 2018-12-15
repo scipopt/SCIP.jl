@@ -6,6 +6,7 @@ include(wrap("CEnum"))
 using .CEnum
 
 # all type definitions
+include(wrap("manual_commons"))
 include(wrap("commons"))
 
 # wrappers for scip headers
