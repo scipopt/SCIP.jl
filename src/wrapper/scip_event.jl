@@ -1,5 +1,5 @@
 # Julia wrapper for header: /usr/include/scip/scip_event.h
-# Automatically generated using Clang.jl wrap_c, version 0.0.0
+# Automatically generated using Clang.jl wrap_c
 
 
 function SCIPincludeEventhdlr(scip, name, desc, eventcopy, eventfree, eventinit, eventexit, eventinitsol, eventexitsol, eventdelete, eventexec, eventhdlrdata)
@@ -50,26 +50,26 @@ function SCIPgetNEventhdlrs(scip)
     ccall((:SCIPgetNEventhdlrs, libscip), Cint, (Ptr{SCIP},), scip)
 end
 
-function SCIPcatchEvent(scip, eventtype::SCIP_EVENTTYPE, eventhdlr, eventdata, filterpos)
+function SCIPcatchEvent(scip, eventtype, eventhdlr, eventdata, filterpos)
     ccall((:SCIPcatchEvent, libscip), SCIP_RETCODE, (Ptr{SCIP}, SCIP_EVENTTYPE, Ptr{SCIP_EVENTHDLR}, Ptr{SCIP_EVENTDATA}, Ptr{Cint}), scip, eventtype, eventhdlr, eventdata, filterpos)
 end
 
-function SCIPdropEvent(scip, eventtype::SCIP_EVENTTYPE, eventhdlr, eventdata, filterpos::Cint)
+function SCIPdropEvent(scip, eventtype, eventhdlr, eventdata, filterpos)
     ccall((:SCIPdropEvent, libscip), SCIP_RETCODE, (Ptr{SCIP}, SCIP_EVENTTYPE, Ptr{SCIP_EVENTHDLR}, Ptr{SCIP_EVENTDATA}, Cint), scip, eventtype, eventhdlr, eventdata, filterpos)
 end
 
-function SCIPcatchVarEvent(scip, var, eventtype::SCIP_EVENTTYPE, eventhdlr, eventdata, filterpos)
+function SCIPcatchVarEvent(scip, var, eventtype, eventhdlr, eventdata, filterpos)
     ccall((:SCIPcatchVarEvent, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_VAR}, SCIP_EVENTTYPE, Ptr{SCIP_EVENTHDLR}, Ptr{SCIP_EVENTDATA}, Ptr{Cint}), scip, var, eventtype, eventhdlr, eventdata, filterpos)
 end
 
-function SCIPdropVarEvent(scip, var, eventtype::SCIP_EVENTTYPE, eventhdlr, eventdata, filterpos::Cint)
+function SCIPdropVarEvent(scip, var, eventtype, eventhdlr, eventdata, filterpos)
     ccall((:SCIPdropVarEvent, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_VAR}, SCIP_EVENTTYPE, Ptr{SCIP_EVENTHDLR}, Ptr{SCIP_EVENTDATA}, Cint), scip, var, eventtype, eventhdlr, eventdata, filterpos)
 end
 
-function SCIPcatchRowEvent(scip, row, eventtype::SCIP_EVENTTYPE, eventhdlr, eventdata, filterpos)
+function SCIPcatchRowEvent(scip, row, eventtype, eventhdlr, eventdata, filterpos)
     ccall((:SCIPcatchRowEvent, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_ROW}, SCIP_EVENTTYPE, Ptr{SCIP_EVENTHDLR}, Ptr{SCIP_EVENTDATA}, Ptr{Cint}), scip, row, eventtype, eventhdlr, eventdata, filterpos)
 end
 
-function SCIPdropRowEvent(scip, row, eventtype::SCIP_EVENTTYPE, eventhdlr, eventdata, filterpos::Cint)
+function SCIPdropRowEvent(scip, row, eventtype, eventhdlr, eventdata, filterpos)
     ccall((:SCIPdropRowEvent, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_ROW}, SCIP_EVENTTYPE, Ptr{SCIP_EVENTHDLR}, Ptr{SCIP_EVENTDATA}, Cint), scip, row, eventtype, eventhdlr, eventdata, filterpos)
 end

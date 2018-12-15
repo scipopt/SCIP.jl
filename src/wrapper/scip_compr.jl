@@ -1,12 +1,12 @@
 # Julia wrapper for header: /usr/include/scip/scip_compr.h
-# Automatically generated using Clang.jl wrap_c, version 0.0.0
+# Automatically generated using Clang.jl wrap_c
 
 
-function SCIPincludeCompr(scip, name, desc, priority::Cint, minnnodes::Cint, comprcopy, comprfree, comprinit, comprexit, comprinitsol, comprexitsol, comprexec, comprdata)
+function SCIPincludeCompr(scip, name, desc, priority, minnnodes, comprcopy, comprfree, comprinit, comprexit, comprinitsol, comprexitsol, comprexec, comprdata)
     ccall((:SCIPincludeCompr, libscip), SCIP_RETCODE, (Ptr{SCIP}, Cstring, Cstring, Cint, Cint, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{SCIP_COMPRDATA}), scip, name, desc, priority, minnnodes, comprcopy, comprfree, comprinit, comprexit, comprinitsol, comprexitsol, comprexec, comprdata)
 end
 
-function SCIPincludeComprBasic(scip, compr, name, desc, priority::Cint, minnnodes::Cint, comprexec, comprdata)
+function SCIPincludeComprBasic(scip, compr, name, desc, priority, minnnodes, comprexec, comprdata)
     ccall((:SCIPincludeComprBasic, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{Ptr{SCIP_COMPR}}, Cstring, Cstring, Cint, Cint, Ptr{Cvoid}, Ptr{SCIP_COMPRDATA}), scip, compr, name, desc, priority, minnnodes, comprexec, comprdata)
 end
 
@@ -46,6 +46,6 @@ function SCIPgetNCompr(scip)
     ccall((:SCIPgetNCompr, libscip), Cint, (Ptr{SCIP},), scip)
 end
 
-function SCIPsetComprPriority(scip, compr, priority::Cint)
+function SCIPsetComprPriority(scip, compr, priority)
     ccall((:SCIPsetComprPriority, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_COMPR}, Cint), scip, compr, priority)
 end

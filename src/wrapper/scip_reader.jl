@@ -1,5 +1,5 @@
 # Julia wrapper for header: /usr/include/scip/scip_reader.h
-# Automatically generated using Clang.jl wrap_c, version 0.0.0
+# Automatically generated using Clang.jl wrap_c
 
 
 function SCIPincludeReader(scip, name, desc, extension, readercopy, readerfree, readerread, readerwrite, readerdata)

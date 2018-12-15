@@ -1,12 +1,12 @@
 # Julia wrapper for header: /usr/include/scip/scip_nodesel.h
-# Automatically generated using Clang.jl wrap_c, version 0.0.0
+# Automatically generated using Clang.jl wrap_c
 
 
-function SCIPincludeNodesel(scip, name, desc, stdpriority::Cint, memsavepriority::Cint, nodeselcopy, nodeselfree, nodeselinit, nodeselexit, nodeselinitsol, nodeselexitsol, nodeselselect, nodeselcomp, nodeseldata)
+function SCIPincludeNodesel(scip, name, desc, stdpriority, memsavepriority, nodeselcopy, nodeselfree, nodeselinit, nodeselexit, nodeselinitsol, nodeselexitsol, nodeselselect, nodeselcomp, nodeseldata)
     ccall((:SCIPincludeNodesel, libscip), SCIP_RETCODE, (Ptr{SCIP}, Cstring, Cstring, Cint, Cint, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{SCIP_NODESELDATA}), scip, name, desc, stdpriority, memsavepriority, nodeselcopy, nodeselfree, nodeselinit, nodeselexit, nodeselinitsol, nodeselexitsol, nodeselselect, nodeselcomp, nodeseldata)
 end
 
-function SCIPincludeNodeselBasic(scip, nodesel, name, desc, stdpriority::Cint, memsavepriority::Cint, nodeselselect, nodeselcomp, nodeseldata)
+function SCIPincludeNodeselBasic(scip, nodesel, name, desc, stdpriority, memsavepriority, nodeselselect, nodeselcomp, nodeseldata)
     ccall((:SCIPincludeNodeselBasic, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{Ptr{SCIP_NODESEL}}, Cstring, Cstring, Cint, Cint, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{SCIP_NODESELDATA}), scip, nodesel, name, desc, stdpriority, memsavepriority, nodeselselect, nodeselcomp, nodeseldata)
 end
 
@@ -46,11 +46,11 @@ function SCIPgetNNodesels(scip)
     ccall((:SCIPgetNNodesels, libscip), Cint, (Ptr{SCIP},), scip)
 end
 
-function SCIPsetNodeselStdPriority(scip, nodesel, priority::Cint)
+function SCIPsetNodeselStdPriority(scip, nodesel, priority)
     ccall((:SCIPsetNodeselStdPriority, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_NODESEL}, Cint), scip, nodesel, priority)
 end
 
-function SCIPsetNodeselMemsavePriority(scip, nodesel, priority::Cint)
+function SCIPsetNodeselMemsavePriority(scip, nodesel, priority)
     ccall((:SCIPsetNodeselMemsavePriority, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_NODESEL}, Cint), scip, nodesel, priority)
 end
 

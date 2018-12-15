@@ -1,12 +1,12 @@
 # Julia wrapper for header: /usr/include/scip/scip_presol.h
-# Automatically generated using Clang.jl wrap_c, version 0.0.0
+# Automatically generated using Clang.jl wrap_c
 
 
-function SCIPincludePresol(scip, name, desc, priority::Cint, maxrounds::Cint, timing::SCIP_PRESOLTIMING, presolcopy, presolfree, presolinit, presolexit, presolinitpre, presolexitpre, presolexec, presoldata)
+function SCIPincludePresol(scip, name, desc, priority, maxrounds, timing, presolcopy, presolfree, presolinit, presolexit, presolinitpre, presolexitpre, presolexec, presoldata)
     ccall((:SCIPincludePresol, libscip), SCIP_RETCODE, (Ptr{SCIP}, Cstring, Cstring, Cint, Cint, SCIP_PRESOLTIMING, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{SCIP_PRESOLDATA}), scip, name, desc, priority, maxrounds, timing, presolcopy, presolfree, presolinit, presolexit, presolinitpre, presolexitpre, presolexec, presoldata)
 end
 
-function SCIPincludePresolBasic(scip, presolptr, name, desc, priority::Cint, maxrounds::Cint, timing::SCIP_PRESOLTIMING, presolexec, presoldata)
+function SCIPincludePresolBasic(scip, presolptr, name, desc, priority, maxrounds, timing, presolexec, presoldata)
     ccall((:SCIPincludePresolBasic, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{Ptr{SCIP_PRESOL}}, Cstring, Cstring, Cint, Cint, SCIP_PRESOLTIMING, Ptr{Cvoid}, Ptr{SCIP_PRESOLDATA}), scip, presolptr, name, desc, priority, maxrounds, timing, presolexec, presoldata)
 end
 
@@ -46,6 +46,6 @@ function SCIPgetNPresols(scip)
     ccall((:SCIPgetNPresols, libscip), Cint, (Ptr{SCIP},), scip)
 end
 
-function SCIPsetPresolPriority(scip, presol, priority::Cint)
+function SCIPsetPresolPriority(scip, presol, priority)
     ccall((:SCIPsetPresolPriority, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_PRESOL}, Cint), scip, presol, priority)
 end

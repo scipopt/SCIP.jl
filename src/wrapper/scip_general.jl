@@ -1,5 +1,5 @@
 # Julia wrapper for header: /usr/include/scip/scip_general.h
-# Automatically generated using Clang.jl wrap_c, version 0.0.0
+# Automatically generated using Clang.jl wrap_c
 
 
 function SCIPversion()
@@ -30,7 +30,7 @@ function SCIPprintBuildOptions(scip, file)
     ccall((:SCIPprintBuildOptions, libscip), Cvoid, (Ptr{SCIP}, Ptr{FILE}), scip, file)
 end
 
-function SCIPprintError(retcode::SCIP_RETCODE)
+function SCIPprintError(retcode)
     ccall((:SCIPprintError, libscip), Cvoid, (SCIP_RETCODE,), retcode)
 end
 

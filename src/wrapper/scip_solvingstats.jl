@@ -1,5 +1,5 @@
 # Julia wrapper for header: /usr/include/scip/scip_solvingstats.h
-# Automatically generated using Clang.jl wrap_c, version 0.0.0
+# Automatically generated using Clang.jl wrap_c
 
 
 function SCIPgetNRuns(scip)
@@ -10,7 +10,7 @@ function SCIPgetNReoptRuns(scip)
     ccall((:SCIPgetNReoptRuns, libscip), Cint, (Ptr{SCIP},), scip)
 end
 
-function SCIPaddNNodes(scip, nnodes::Clonglong)
+function SCIPaddNNodes(scip, nnodes)
     ccall((:SCIPaddNNodes, libscip), Cvoid, (Ptr{SCIP}, Clonglong), scip, nnodes)
 end
 
@@ -258,7 +258,7 @@ function SCIPgetCutoffbound(scip)
     ccall((:SCIPgetCutoffbound, libscip), Cdouble, (Ptr{SCIP},), scip)
 end
 
-function SCIPupdateCutoffbound(scip, cutoffbound::Cdouble)
+function SCIPupdateCutoffbound(scip, cutoffbound)
     ccall((:SCIPupdateCutoffbound, libscip), SCIP_RETCODE, (Ptr{SCIP}, Cdouble), scip, cutoffbound)
 end
 
@@ -286,23 +286,23 @@ function SCIPgetNBestSolsFound(scip)
     ccall((:SCIPgetNBestSolsFound, libscip), Clonglong, (Ptr{SCIP},), scip)
 end
 
-function SCIPgetAvgPseudocost(scip, solvaldelta::Cdouble)
+function SCIPgetAvgPseudocost(scip, solvaldelta)
     ccall((:SCIPgetAvgPseudocost, libscip), Cdouble, (Ptr{SCIP}, Cdouble), scip, solvaldelta)
 end
 
-function SCIPgetAvgPseudocostCurrentRun(scip, solvaldelta::Cdouble)
+function SCIPgetAvgPseudocostCurrentRun(scip, solvaldelta)
     ccall((:SCIPgetAvgPseudocostCurrentRun, libscip), Cdouble, (Ptr{SCIP}, Cdouble), scip, solvaldelta)
 end
 
-function SCIPgetAvgPseudocostCount(scip, dir::SCIP_BRANCHDIR)
+function SCIPgetAvgPseudocostCount(scip, dir)
     ccall((:SCIPgetAvgPseudocostCount, libscip), Cdouble, (Ptr{SCIP}, SCIP_BRANCHDIR), scip, dir)
 end
 
-function SCIPgetAvgPseudocostCountCurrentRun(scip, dir::SCIP_BRANCHDIR)
+function SCIPgetAvgPseudocostCountCurrentRun(scip, dir)
     ccall((:SCIPgetAvgPseudocostCountCurrentRun, libscip), Cdouble, (Ptr{SCIP}, SCIP_BRANCHDIR), scip, dir)
 end
 
-function SCIPgetPseudocostCount(scip, dir::SCIP_BRANCHDIR, onlycurrentrun::UInt32)
+function SCIPgetPseudocostCount(scip, dir, onlycurrentrun)
     ccall((:SCIPgetPseudocostCount, libscip), Cdouble, (Ptr{SCIP}, SCIP_BRANCHDIR, UInt32), scip, dir, onlycurrentrun)
 end
 
@@ -310,7 +310,7 @@ function SCIPgetAvgPseudocostScore(scip)
     ccall((:SCIPgetAvgPseudocostScore, libscip), Cdouble, (Ptr{SCIP},), scip)
 end
 
-function SCIPgetPseudocostVariance(scip, branchdir::SCIP_BRANCHDIR, onlycurrentrun::UInt32)
+function SCIPgetPseudocostVariance(scip, branchdir, onlycurrentrun)
     ccall((:SCIPgetPseudocostVariance, libscip), Cdouble, (Ptr{SCIP}, SCIP_BRANCHDIR, UInt32), scip, branchdir, onlycurrentrun)
 end
 
@@ -334,11 +334,11 @@ function SCIPgetAvgConflictlengthScoreCurrentRun(scip)
     ccall((:SCIPgetAvgConflictlengthScoreCurrentRun, libscip), Cdouble, (Ptr{SCIP},), scip)
 end
 
-function SCIPgetAvgInferences(scip, dir::SCIP_BRANCHDIR)
+function SCIPgetAvgInferences(scip, dir)
     ccall((:SCIPgetAvgInferences, libscip), Cdouble, (Ptr{SCIP}, SCIP_BRANCHDIR), scip, dir)
 end
 
-function SCIPgetAvgInferencesCurrentRun(scip, dir::SCIP_BRANCHDIR)
+function SCIPgetAvgInferencesCurrentRun(scip, dir)
     ccall((:SCIPgetAvgInferencesCurrentRun, libscip), Cdouble, (Ptr{SCIP}, SCIP_BRANCHDIR), scip, dir)
 end
 
@@ -350,11 +350,11 @@ function SCIPgetAvgInferenceScoreCurrentRun(scip)
     ccall((:SCIPgetAvgInferenceScoreCurrentRun, libscip), Cdouble, (Ptr{SCIP},), scip)
 end
 
-function SCIPgetAvgCutoffs(scip, dir::SCIP_BRANCHDIR)
+function SCIPgetAvgCutoffs(scip, dir)
     ccall((:SCIPgetAvgCutoffs, libscip), Cdouble, (Ptr{SCIP}, SCIP_BRANCHDIR), scip, dir)
 end
 
-function SCIPgetAvgCutoffsCurrentRun(scip, dir::SCIP_BRANCHDIR)
+function SCIPgetAvgCutoffsCurrentRun(scip, dir)
     ccall((:SCIPgetAvgCutoffsCurrentRun, libscip), Cdouble, (Ptr{SCIP}, SCIP_BRANCHDIR), scip, dir)
 end
 
@@ -370,11 +370,11 @@ function SCIPgetDeterministicTime(scip)
     ccall((:SCIPgetDeterministicTime, libscip), Cdouble, (Ptr{SCIP},), scip)
 end
 
-function SCIPprintOrigProblem(scip, file, extension, genericnames::UInt32)
+function SCIPprintOrigProblem(scip, file, extension, genericnames)
     ccall((:SCIPprintOrigProblem, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{FILE}, Cstring, UInt32), scip, file, extension, genericnames)
 end
 
-function SCIPprintTransProblem(scip, file, extension, genericnames::UInt32)
+function SCIPprintTransProblem(scip, file, extension, genericnames)
     ccall((:SCIPprintTransProblem, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{FILE}, Cstring, UInt32), scip, file, extension, genericnames)
 end
 
@@ -478,7 +478,7 @@ function SCIPprintBranchingStatistics(scip, file)
     ccall((:SCIPprintBranchingStatistics, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{FILE}), scip, file)
 end
 
-function SCIPprintDisplayLine(scip, file, verblevel::SCIP_VERBLEVEL, endline::UInt32)
+function SCIPprintDisplayLine(scip, file, verblevel, endline)
     ccall((:SCIPprintDisplayLine, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{FILE}, SCIP_VERBLEVEL, UInt32), scip, file, verblevel, endline)
 end
 

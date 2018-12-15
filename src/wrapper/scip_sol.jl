@@ -1,5 +1,5 @@
 # Julia wrapper for header: /usr/include/scip/scip_sol.h
-# Automatically generated using Clang.jl wrap_c, version 0.0.0
+# Automatically generated using Clang.jl wrap_c
 
 
 function SCIPcreateSol(scip, sol, heur)
@@ -82,15 +82,15 @@ function SCIPunlinkSol(scip, sol)
     ccall((:SCIPunlinkSol, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_SOL}), scip, sol)
 end
 
-function SCIPsetSolVal(scip, sol, var, val::Cdouble)
+function SCIPsetSolVal(scip, sol, var, val)
     ccall((:SCIPsetSolVal, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_SOL}, Ptr{SCIP_VAR}, Cdouble), scip, sol, var, val)
 end
 
-function SCIPsetSolVals(scip, sol, nvars::Cint, vars, vals)
+function SCIPsetSolVals(scip, sol, nvars, vars, vals)
     ccall((:SCIPsetSolVals, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_SOL}, Cint, Ptr{Ptr{SCIP_VAR}}, Ptr{Cdouble}), scip, sol, nvars, vars, vals)
 end
 
-function SCIPincSolVal(scip, sol, var, incval::Cdouble)
+function SCIPincSolVal(scip, sol, var, incval)
     ccall((:SCIPincSolVal, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_SOL}, Ptr{SCIP_VAR}, Cdouble), scip, sol, var, incval)
 end
 
@@ -98,7 +98,7 @@ function SCIPgetSolVal(scip, sol, var)
     ccall((:SCIPgetSolVal, libscip), Cdouble, (Ptr{SCIP}, Ptr{SCIP_SOL}, Ptr{SCIP_VAR}), scip, sol, var)
 end
 
-function SCIPgetSolVals(scip, sol, nvars::Cint, vars, vals)
+function SCIPgetSolVals(scip, sol, nvars, vars, vals)
     ccall((:SCIPgetSolVals, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_SOL}, Cint, Ptr{Ptr{SCIP_VAR}}, Ptr{Cdouble}), scip, sol, nvars, vars, vals)
 end
 
@@ -114,11 +114,11 @@ function SCIPrecomputeSolObj(scip, sol)
     ccall((:SCIPrecomputeSolObj, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_SOL}), scip, sol)
 end
 
-function SCIPtransformObj(scip, obj::Cdouble)
+function SCIPtransformObj(scip, obj)
     ccall((:SCIPtransformObj, libscip), Cdouble, (Ptr{SCIP}, Cdouble), scip, obj)
 end
 
-function SCIPretransformObj(scip, obj::Cdouble)
+function SCIPretransformObj(scip, obj)
     ccall((:SCIPretransformObj, libscip), Cdouble, (Ptr{SCIP}, Cdouble), scip, obj)
 end
 
@@ -142,15 +142,15 @@ function SCIPareSolsEqual(scip, sol1, sol2)
     ccall((:SCIPareSolsEqual, libscip), UInt32, (Ptr{SCIP}, Ptr{SCIP_SOL}, Ptr{SCIP_SOL}), scip, sol1, sol2)
 end
 
-function SCIPadjustImplicitSolVals(scip, sol, uselprows::UInt32)
+function SCIPadjustImplicitSolVals(scip, sol, uselprows)
     ccall((:SCIPadjustImplicitSolVals, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_SOL}, UInt32), scip, sol, uselprows)
 end
 
-function SCIPprintSol(scip, sol, file, printzeros::UInt32)
+function SCIPprintSol(scip, sol, file, printzeros)
     ccall((:SCIPprintSol, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_SOL}, Ptr{FILE}, UInt32), scip, sol, file, printzeros)
 end
 
-function SCIPprintTransSol(scip, sol, file, printzeros::UInt32)
+function SCIPprintTransSol(scip, sol, file, printzeros)
     ccall((:SCIPprintTransSol, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_SOL}, Ptr{FILE}, UInt32), scip, sol, file, printzeros)
 end
 
@@ -162,15 +162,15 @@ function SCIPgetDualSolVal(scip, cons, dualsolval, boundconstraint)
     ccall((:SCIPgetDualSolVal, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_CONS}, Ptr{Cdouble}, Ptr{UInt32}), scip, cons, dualsolval, boundconstraint)
 end
 
-function SCIPisDualSolAvailable(scip, printreason::UInt32)
+function SCIPisDualSolAvailable(scip, printreason)
     ccall((:SCIPisDualSolAvailable, libscip), UInt32, (Ptr{SCIP}, UInt32), scip, printreason)
 end
 
-function SCIPprintDualSol(scip, file, printzeros::UInt32)
+function SCIPprintDualSol(scip, file, printzeros)
     ccall((:SCIPprintDualSol, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{FILE}, UInt32), scip, file, printzeros)
 end
 
-function SCIPprintRay(scip, sol, file, printzeros::UInt32)
+function SCIPprintRay(scip, sol, file, printzeros)
     ccall((:SCIPprintRay, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_SOL}, Ptr{FILE}, UInt32), scip, sol, file, printzeros)
 end
 
@@ -186,11 +186,11 @@ function SCIPgetBestSol(scip)
     ccall((:SCIPgetBestSol, libscip), Ptr{SCIP_SOL}, (Ptr{SCIP},), scip)
 end
 
-function SCIPprintBestSol(scip, file, printzeros::UInt32)
+function SCIPprintBestSol(scip, file, printzeros)
     ccall((:SCIPprintBestSol, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{FILE}, UInt32), scip, file, printzeros)
 end
 
-function SCIPprintBestTransSol(scip, file, printzeros::UInt32)
+function SCIPprintBestTransSol(scip, file, printzeros)
     ccall((:SCIPprintBestTransSol, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{FILE}, UInt32), scip, file, printzeros)
 end
 
@@ -206,7 +206,7 @@ function SCIPreadSol(scip, filename)
     ccall((:SCIPreadSol, libscip), SCIP_RETCODE, (Ptr{SCIP}, Cstring), scip, filename)
 end
 
-function SCIPreadSolFile(scip, filename, sol, xml::UInt32, partial, error)
+function SCIPreadSolFile(scip, filename, sol, xml, partial, error)
     ccall((:SCIPreadSolFile, libscip), SCIP_RETCODE, (Ptr{SCIP}, Cstring, Ptr{SCIP_SOL}, UInt32, Ptr{UInt32}, Ptr{UInt32}), scip, filename, sol, xml, partial, error)
 end
 
@@ -222,15 +222,15 @@ function SCIPaddCurrentSol(scip, heur, stored)
     ccall((:SCIPaddCurrentSol, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_HEUR}, Ptr{UInt32}), scip, heur, stored)
 end
 
-function SCIPtrySol(scip, sol, printreason::UInt32, completely::UInt32, checkbounds::UInt32, checkintegrality::UInt32, checklprows::UInt32, stored)
+function SCIPtrySol(scip, sol, printreason, completely, checkbounds, checkintegrality, checklprows, stored)
     ccall((:SCIPtrySol, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_SOL}, UInt32, UInt32, UInt32, UInt32, UInt32, Ptr{UInt32}), scip, sol, printreason, completely, checkbounds, checkintegrality, checklprows, stored)
 end
 
-function SCIPtrySolFree(scip, sol, printreason::UInt32, completely::UInt32, checkbounds::UInt32, checkintegrality::UInt32, checklprows::UInt32, stored)
+function SCIPtrySolFree(scip, sol, printreason, completely, checkbounds, checkintegrality, checklprows, stored)
     ccall((:SCIPtrySolFree, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{Ptr{SCIP_SOL}}, UInt32, UInt32, UInt32, UInt32, UInt32, Ptr{UInt32}), scip, sol, printreason, completely, checkbounds, checkintegrality, checklprows, stored)
 end
 
-function SCIPtryCurrentSol(scip, heur, printreason::UInt32, completely::UInt32, checkintegrality::UInt32, checklprows::UInt32, stored)
+function SCIPtryCurrentSol(scip, heur, printreason, completely, checkintegrality, checklprows, stored)
     ccall((:SCIPtryCurrentSol, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_HEUR}, UInt32, UInt32, UInt32, UInt32, Ptr{UInt32}), scip, heur, printreason, completely, checkintegrality, checklprows, stored)
 end
 
@@ -242,31 +242,31 @@ function SCIPgetNPartialSols(scip)
     ccall((:SCIPgetNPartialSols, libscip), Cint, (Ptr{SCIP},), scip)
 end
 
-function SCIPcheckSol(scip, sol, printreason::UInt32, completely::UInt32, checkbounds::UInt32, checkintegrality::UInt32, checklprows::UInt32, feasible)
+function SCIPcheckSol(scip, sol, printreason, completely, checkbounds, checkintegrality, checklprows, feasible)
     ccall((:SCIPcheckSol, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_SOL}, UInt32, UInt32, UInt32, UInt32, UInt32, Ptr{UInt32}), scip, sol, printreason, completely, checkbounds, checkintegrality, checklprows, feasible)
 end
 
-function SCIPcheckSolOrig(scip, sol, feasible, printreason::UInt32, completely::UInt32)
+function SCIPcheckSolOrig(scip, sol, feasible, printreason, completely)
     ccall((:SCIPcheckSolOrig, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_SOL}, Ptr{UInt32}, UInt32, UInt32), scip, sol, feasible, printreason, completely)
 end
 
-function SCIPupdateSolIntegralityViolation(scip, sol, absviol::Cdouble)
+function SCIPupdateSolIntegralityViolation(scip, sol, absviol)
     ccall((:SCIPupdateSolIntegralityViolation, libscip), Cvoid, (Ptr{SCIP}, Ptr{SCIP_SOL}, Cdouble), scip, sol, absviol)
 end
 
-function SCIPupdateSolBoundViolation(scip, sol, absviol::Cdouble, relviol::Cdouble)
+function SCIPupdateSolBoundViolation(scip, sol, absviol, relviol)
     ccall((:SCIPupdateSolBoundViolation, libscip), Cvoid, (Ptr{SCIP}, Ptr{SCIP_SOL}, Cdouble, Cdouble), scip, sol, absviol, relviol)
 end
 
-function SCIPupdateSolLPRowViolation(scip, sol, absviol::Cdouble, relviol::Cdouble)
+function SCIPupdateSolLPRowViolation(scip, sol, absviol, relviol)
     ccall((:SCIPupdateSolLPRowViolation, libscip), Cvoid, (Ptr{SCIP}, Ptr{SCIP_SOL}, Cdouble, Cdouble), scip, sol, absviol, relviol)
 end
 
-function SCIPupdateSolConsViolation(scip, sol, absviol::Cdouble, relviol::Cdouble)
+function SCIPupdateSolConsViolation(scip, sol, absviol, relviol)
     ccall((:SCIPupdateSolConsViolation, libscip), Cvoid, (Ptr{SCIP}, Ptr{SCIP_SOL}, Cdouble, Cdouble), scip, sol, absviol, relviol)
 end
 
-function SCIPupdateSolLPConsViolation(scip, sol, absviol::Cdouble, relviol::Cdouble)
+function SCIPupdateSolLPConsViolation(scip, sol, absviol, relviol)
     ccall((:SCIPupdateSolLPConsViolation, libscip), Cvoid, (Ptr{SCIP}, Ptr{SCIP_SOL}, Cdouble, Cdouble), scip, sol, absviol, relviol)
 end
 

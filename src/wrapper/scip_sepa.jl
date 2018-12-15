@@ -1,12 +1,12 @@
 # Julia wrapper for header: /usr/include/scip/scip_sepa.h
-# Automatically generated using Clang.jl wrap_c, version 0.0.0
+# Automatically generated using Clang.jl wrap_c
 
 
-function SCIPincludeSepa(scip, name, desc, priority::Cint, freq::Cint, maxbounddist::Cdouble, usessubscip::UInt32, delay::UInt32, sepacopy, sepafree, sepainit, sepaexit, sepainitsol, sepaexitsol, sepaexeclp, sepaexecsol, sepadata)
+function SCIPincludeSepa(scip, name, desc, priority, freq, maxbounddist, usessubscip, delay, sepacopy, sepafree, sepainit, sepaexit, sepainitsol, sepaexitsol, sepaexeclp, sepaexecsol, sepadata)
     ccall((:SCIPincludeSepa, libscip), SCIP_RETCODE, (Ptr{SCIP}, Cstring, Cstring, Cint, Cint, Cdouble, UInt32, UInt32, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{SCIP_SEPADATA}), scip, name, desc, priority, freq, maxbounddist, usessubscip, delay, sepacopy, sepafree, sepainit, sepaexit, sepainitsol, sepaexitsol, sepaexeclp, sepaexecsol, sepadata)
 end
 
-function SCIPincludeSepaBasic(scip, sepa, name, desc, priority::Cint, freq::Cint, maxbounddist::Cdouble, usessubscip::UInt32, delay::UInt32, sepaexeclp, sepaexecsol, sepadata)
+function SCIPincludeSepaBasic(scip, sepa, name, desc, priority, freq, maxbounddist, usessubscip, delay, sepaexeclp, sepaexecsol, sepadata)
     ccall((:SCIPincludeSepaBasic, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{Ptr{SCIP_SEPA}}, Cstring, Cstring, Cint, Cint, Cdouble, UInt32, UInt32, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{SCIP_SEPADATA}), scip, sepa, name, desc, priority, freq, maxbounddist, usessubscip, delay, sepaexeclp, sepaexecsol, sepadata)
 end
 
@@ -46,7 +46,7 @@ function SCIPgetNSepas(scip)
     ccall((:SCIPgetNSepas, libscip), Cint, (Ptr{SCIP},), scip)
 end
 
-function SCIPsetSepaPriority(scip, sepa, priority::Cint)
+function SCIPsetSepaPriority(scip, sepa, priority)
     ccall((:SCIPsetSepaPriority, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_SEPA}, Cint), scip, sepa, priority)
 end
 

@@ -1,8 +1,8 @@
 # Julia wrapper for header: /usr/include/scip/scip_dialog.h
-# Automatically generated using Clang.jl wrap_c, version 0.0.0
+# Automatically generated using Clang.jl wrap_c
 
 
-function SCIPincludeDialog(scip, dialog, dialogcopy, dialogexec, dialogdesc, dialogfree, name, desc, issubmenu::UInt32, dialogdata)
+function SCIPincludeDialog(scip, dialog, dialogcopy, dialogexec, dialogdesc, dialogfree, name, desc, issubmenu, dialogdata)
     ccall((:SCIPincludeDialog, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{Ptr{SCIP_DIALOG}}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Cstring, Cstring, UInt32, Ptr{SCIP_DIALOGDATA}), scip, dialog, dialogcopy, dialogexec, dialogdesc, dialogfree, name, desc, issubmenu, dialogdata)
 end
 

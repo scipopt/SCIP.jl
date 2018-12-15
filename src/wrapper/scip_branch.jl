@@ -1,12 +1,12 @@
 # Julia wrapper for header: /usr/include/scip/scip_branch.h
-# Automatically generated using Clang.jl wrap_c, version 0.0.0
+# Automatically generated using Clang.jl wrap_c
 
 
-function SCIPincludeBranchrule(scip, name, desc, priority::Cint, maxdepth::Cint, maxbounddist::Cdouble, branchcopy, branchfree, branchinit, branchexit, branchinitsol, branchexitsol, branchexeclp, branchexecext, branchexecps, branchruledata)
+function SCIPincludeBranchrule(scip, name, desc, priority, maxdepth, maxbounddist, branchcopy, branchfree, branchinit, branchexit, branchinitsol, branchexitsol, branchexeclp, branchexecext, branchexecps, branchruledata)
     ccall((:SCIPincludeBranchrule, libscip), SCIP_RETCODE, (Ptr{SCIP}, Cstring, Cstring, Cint, Cint, Cdouble, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{SCIP_BRANCHRULEDATA}), scip, name, desc, priority, maxdepth, maxbounddist, branchcopy, branchfree, branchinit, branchexit, branchinitsol, branchexitsol, branchexeclp, branchexecext, branchexecps, branchruledata)
 end
 
-function SCIPincludeBranchruleBasic(scip, branchruleptr, name, desc, priority::Cint, maxdepth::Cint, maxbounddist::Cdouble, branchruledata)
+function SCIPincludeBranchruleBasic(scip, branchruleptr, name, desc, priority, maxdepth, maxbounddist, branchruledata)
     ccall((:SCIPincludeBranchruleBasic, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{Ptr{SCIP_BRANCHRULE}}, Cstring, Cstring, Cint, Cint, Cdouble, Ptr{SCIP_BRANCHRULEDATA}), scip, branchruleptr, name, desc, priority, maxdepth, maxbounddist, branchruledata)
 end
 
@@ -58,15 +58,15 @@ function SCIPgetNBranchrules(scip)
     ccall((:SCIPgetNBranchrules, libscip), Cint, (Ptr{SCIP},), scip)
 end
 
-function SCIPsetBranchrulePriority(scip, branchrule, priority::Cint)
+function SCIPsetBranchrulePriority(scip, branchrule, priority)
     ccall((:SCIPsetBranchrulePriority, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_BRANCHRULE}, Cint), scip, branchrule, priority)
 end
 
-function SCIPsetBranchruleMaxdepth(scip, branchrule, maxdepth::Cint)
+function SCIPsetBranchruleMaxdepth(scip, branchrule, maxdepth)
     ccall((:SCIPsetBranchruleMaxdepth, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_BRANCHRULE}, Cint), scip, branchrule, maxdepth)
 end
 
-function SCIPsetBranchruleMaxbounddist(scip, branchrule, maxbounddist::Cdouble)
+function SCIPsetBranchruleMaxbounddist(scip, branchrule, maxbounddist)
     ccall((:SCIPsetBranchruleMaxbounddist, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_BRANCHRULE}, Cdouble), scip, branchrule, maxbounddist)
 end
 
@@ -110,7 +110,7 @@ function SCIPgetNPrioExternBranchConts(scip)
     ccall((:SCIPgetNPrioExternBranchConts, libscip), Cint, (Ptr{SCIP},), scip)
 end
 
-function SCIPaddExternBranchCand(scip, var, score::Cdouble, solval::Cdouble)
+function SCIPaddExternBranchCand(scip, var, score, solval)
     ccall((:SCIPaddExternBranchCand, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_VAR}, Cdouble, Cdouble), scip, var, score, solval)
 end
 
@@ -146,27 +146,27 @@ function SCIPgetNPrioPseudoBranchImpls(scip)
     ccall((:SCIPgetNPrioPseudoBranchImpls, libscip), Cint, (Ptr{SCIP},), scip)
 end
 
-function SCIPgetBranchScore(scip, var, downgain::Cdouble, upgain::Cdouble)
+function SCIPgetBranchScore(scip, var, downgain, upgain)
     ccall((:SCIPgetBranchScore, libscip), Cdouble, (Ptr{SCIP}, Ptr{SCIP_VAR}, Cdouble, Cdouble), scip, var, downgain, upgain)
 end
 
-function SCIPgetBranchScoreMultiple(scip, var, nchildren::Cint, gains)
+function SCIPgetBranchScoreMultiple(scip, var, nchildren, gains)
     ccall((:SCIPgetBranchScoreMultiple, libscip), Cdouble, (Ptr{SCIP}, Ptr{SCIP_VAR}, Cint, Ptr{Cdouble}), scip, var, nchildren, gains)
 end
 
-function SCIPgetBranchingPoint(scip, var, suggestion::Cdouble)
+function SCIPgetBranchingPoint(scip, var, suggestion)
     ccall((:SCIPgetBranchingPoint, libscip), Cdouble, (Ptr{SCIP}, Ptr{SCIP_VAR}, Cdouble), scip, var, suggestion)
 end
 
-function SCIPcalcNodeselPriority(scip, var, branchdir::SCIP_BRANCHDIR, targetvalue::Cdouble)
+function SCIPcalcNodeselPriority(scip, var, branchdir, targetvalue)
     ccall((:SCIPcalcNodeselPriority, libscip), Cdouble, (Ptr{SCIP}, Ptr{SCIP_VAR}, SCIP_BRANCHDIR, Cdouble), scip, var, branchdir, targetvalue)
 end
 
-function SCIPcalcChildEstimate(scip, var, targetvalue::Cdouble)
+function SCIPcalcChildEstimate(scip, var, targetvalue)
     ccall((:SCIPcalcChildEstimate, libscip), Cdouble, (Ptr{SCIP}, Ptr{SCIP_VAR}, Cdouble), scip, var, targetvalue)
 end
 
-function SCIPcreateChild(scip, node, nodeselprio::Cdouble, estimate::Cdouble)
+function SCIPcreateChild(scip, node, nodeselprio, estimate)
     ccall((:SCIPcreateChild, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{Ptr{SCIP_NODE}}, Cdouble, Cdouble), scip, node, nodeselprio, estimate)
 end
 
@@ -174,15 +174,15 @@ function SCIPbranchVar(scip, var, downchild, eqchild, upchild)
     ccall((:SCIPbranchVar, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_VAR}, Ptr{Ptr{SCIP_NODE}}, Ptr{Ptr{SCIP_NODE}}, Ptr{Ptr{SCIP_NODE}}), scip, var, downchild, eqchild, upchild)
 end
 
-function SCIPbranchVarHole(scip, var, left::Cdouble, right::Cdouble, downchild, upchild)
+function SCIPbranchVarHole(scip, var, left, right, downchild, upchild)
     ccall((:SCIPbranchVarHole, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_VAR}, Cdouble, Cdouble, Ptr{Ptr{SCIP_NODE}}, Ptr{Ptr{SCIP_NODE}}), scip, var, left, right, downchild, upchild)
 end
 
-function SCIPbranchVarVal(scip, var, val::Cdouble, downchild, eqchild, upchild)
+function SCIPbranchVarVal(scip, var, val, downchild, eqchild, upchild)
     ccall((:SCIPbranchVarVal, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_VAR}, Cdouble, Ptr{Ptr{SCIP_NODE}}, Ptr{Ptr{SCIP_NODE}}, Ptr{Ptr{SCIP_NODE}}), scip, var, val, downchild, eqchild, upchild)
 end
 
-function SCIPbranchVarValNary(scip, var, val::Cdouble, n::Cint, minwidth::Cdouble, widthfactor::Cdouble, nchildren)
+function SCIPbranchVarValNary(scip, var, val, n, minwidth, widthfactor, nchildren)
     ccall((:SCIPbranchVarValNary, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_VAR}, Cdouble, Cint, Cdouble, Cdouble, Ptr{Cint}), scip, var, val, n, minwidth, widthfactor, nchildren)
 end
 

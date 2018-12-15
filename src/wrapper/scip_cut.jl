@@ -1,5 +1,5 @@
 # Julia wrapper for header: /usr/include/scip/scip_cut.h
-# Automatically generated using Clang.jl wrap_c, version 0.0.0
+# Automatically generated using Clang.jl wrap_c
 
 
 function SCIPgetCutEfficacy(scip, sol, cut)
@@ -10,11 +10,11 @@ function SCIPisCutEfficacious(scip, sol, cut)
     ccall((:SCIPisCutEfficacious, libscip), UInt32, (Ptr{SCIP}, Ptr{SCIP_SOL}, Ptr{SCIP_ROW}), scip, sol, cut)
 end
 
-function SCIPisEfficacious(scip, efficacy::Cdouble)
+function SCIPisEfficacious(scip, efficacy)
     ccall((:SCIPisEfficacious, libscip), UInt32, (Ptr{SCIP}, Cdouble), scip, efficacy)
 end
 
-function SCIPgetVectorEfficacyNorm(scip, vals, nvals::Cint)
+function SCIPgetVectorEfficacyNorm(scip, vals, nvals)
     ccall((:SCIPgetVectorEfficacyNorm, libscip), Cdouble, (Ptr{SCIP}, Ptr{Cdouble}, Cint), scip, vals, nvals)
 end
 
@@ -22,11 +22,11 @@ function SCIPisCutApplicable(scip, cut)
     ccall((:SCIPisCutApplicable, libscip), UInt32, (Ptr{SCIP}, Ptr{SCIP_ROW}), scip, cut)
 end
 
-function SCIPaddCut(scip, sol, cut, forcecut::UInt32, infeasible)
+function SCIPaddCut(scip, sol, cut, forcecut, infeasible)
     ccall((:SCIPaddCut, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_SOL}, Ptr{SCIP_ROW}, UInt32, Ptr{UInt32}), scip, sol, cut, forcecut, infeasible)
 end
 
-function SCIPaddRow(scip, row, forcecut::UInt32, infeasible)
+function SCIPaddRow(scip, row, forcecut, infeasible)
     ccall((:SCIPaddRow, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_ROW}, UInt32, Ptr{UInt32}), scip, row, forcecut, infeasible)
 end
 
@@ -54,7 +54,7 @@ function SCIPgetGlobalCutpool(scip)
     ccall((:SCIPgetGlobalCutpool, libscip), Ptr{SCIP_CUTPOOL}, (Ptr{SCIP},), scip)
 end
 
-function SCIPcreateCutpool(scip, cutpool, agelimit::Cint)
+function SCIPcreateCutpool(scip, cutpool, agelimit)
     ccall((:SCIPcreateCutpool, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{Ptr{SCIP_CUTPOOL}}, Cint), scip, cutpool, agelimit)
 end
 
@@ -102,7 +102,7 @@ function SCIPgetDelayedGlobalCutpool(scip)
     ccall((:SCIPgetDelayedGlobalCutpool, libscip), Ptr{SCIP_CUTPOOL}, (Ptr{SCIP},), scip)
 end
 
-function SCIPseparateSol(scip, sol, pretendroot::UInt32, allowlocal::UInt32, onlydelayed::UInt32, delayed, cutoff)
+function SCIPseparateSol(scip, sol, pretendroot, allowlocal, onlydelayed, delayed, cutoff)
     ccall((:SCIPseparateSol, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_SOL}, UInt32, UInt32, UInt32, Ptr{UInt32}, Ptr{UInt32}), scip, sol, pretendroot, allowlocal, onlydelayed, delayed, cutoff)
 end
 

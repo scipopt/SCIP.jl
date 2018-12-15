@@ -1,8 +1,8 @@
 # Julia wrapper for header: /usr/include/scip/scip_concurrent.h
-# Automatically generated using Clang.jl wrap_c, version 0.0.0
+# Automatically generated using Clang.jl wrap_c
 
 
-function SCIPincludeConcsolverType(scip, name, prefpriodefault::Cdouble, concsolvercreateinst, concsolverdestroyinst, concsolverinitseeds, concsolverexec, concsolvercopysolvdata, concsolverstop, concsolversyncwrite, concsolversyncread, concsolvertypefreedata, data)
+function SCIPincludeConcsolverType(scip, name, prefpriodefault, concsolvercreateinst, concsolverdestroyinst, concsolverinitseeds, concsolverexec, concsolvercopysolvdata, concsolverstop, concsolversyncwrite, concsolversyncread, concsolvertypefreedata, data)
     ccall((:SCIPincludeConcsolverType, libscip), SCIP_RETCODE, (Ptr{SCIP}, Cstring, Cdouble, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{SCIP_CONCSOLVERTYPEDATA}), scip, name, prefpriodefault, concsolvercreateinst, concsolverdestroyinst, concsolverinitseeds, concsolverexec, concsolvercopysolvdata, concsolverstop, concsolversyncwrite, concsolversyncread, concsolvertypefreedata, data)
 end
 

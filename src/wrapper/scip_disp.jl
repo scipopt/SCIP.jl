@@ -1,8 +1,8 @@
 # Julia wrapper for header: /usr/include/scip/scip_disp.h
-# Automatically generated using Clang.jl wrap_c, version 0.0.0
+# Automatically generated using Clang.jl wrap_c
 
 
-function SCIPincludeDisp(scip, name, desc, header, dispstatus::SCIP_DISPSTATUS, dispcopy, dispfree, dispinit, dispexit, dispinitsol, dispexitsol, dispoutput, dispdata, width::Cint, priority::Cint, position::Cint, stripline::UInt32)
+function SCIPincludeDisp(scip, name, desc, header, dispstatus, dispcopy, dispfree, dispinit, dispexit, dispinitsol, dispexitsol, dispoutput, dispdata, width, priority, position, stripline)
     ccall((:SCIPincludeDisp, libscip), SCIP_RETCODE, (Ptr{SCIP}, Cstring, Cstring, Cstring, SCIP_DISPSTATUS, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{SCIP_DISPDATA}, Cint, Cint, Cint, UInt32), scip, name, desc, header, dispstatus, dispcopy, dispfree, dispinit, dispexit, dispinitsol, dispexitsol, dispoutput, dispdata, width, priority, position, stripline)
 end
 
@@ -22,6 +22,6 @@ function SCIPautoselectDisps(scip)
     ccall((:SCIPautoselectDisps, libscip), SCIP_RETCODE, (Ptr{SCIP},), scip)
 end
 
-function SCIPchgDispMode(disp, mode::SCIP_DISPMODE)
+function SCIPchgDispMode(disp, mode)
     ccall((:SCIPchgDispMode, libscip), Cvoid, (Ptr{SCIP_DISP}, SCIP_DISPMODE), disp, mode)
 end

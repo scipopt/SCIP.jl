@@ -1,5 +1,5 @@
 # Julia wrapper for header: /usr/include/scip/scip_timing.h
-# Automatically generated using Clang.jl wrap_c, version 0.0.0
+# Automatically generated using Clang.jl wrap_c
 
 
 function SCIPgetTimeOfDay(scip)
@@ -50,7 +50,7 @@ function SCIPgetClockTime(scip, clck)
     ccall((:SCIPgetClockTime, libscip), Cdouble, (Ptr{SCIP}, Ptr{SCIP_CLOCK}), scip, clck)
 end
 
-function SCIPsetClockTime(scip, clck, sec::Cdouble)
+function SCIPsetClockTime(scip, clck, sec)
     ccall((:SCIPsetClockTime, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_CLOCK}, Cdouble), scip, clck, sec)
 end
 

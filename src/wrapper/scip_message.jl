@@ -1,5 +1,5 @@
 # Julia wrapper for header: /usr/include/scip/scip_message.h
-# Automatically generated using Clang.jl wrap_c, version 0.0.0
+# Automatically generated using Clang.jl wrap_c
 
 
 function SCIPsetMessagehdlr(scip, messagehdlr)
@@ -14,7 +14,7 @@ function SCIPsetMessagehdlrLogfile(scip, filename)
     ccall((:SCIPsetMessagehdlrLogfile, libscip), Cvoid, (Ptr{SCIP}, Cstring), scip, filename)
 end
 
-function SCIPsetMessagehdlrQuiet(scip, quiet::UInt32)
+function SCIPsetMessagehdlrQuiet(scip, quiet)
     ccall((:SCIPsetMessagehdlrQuiet, libscip), Cvoid, (Ptr{SCIP}, UInt32), scip, quiet)
 end
 

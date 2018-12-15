@@ -1,12 +1,12 @@
 # Julia wrapper for header: /usr/include/scip/scip_relax.h
-# Automatically generated using Clang.jl wrap_c, version 0.0.0
+# Automatically generated using Clang.jl wrap_c
 
 
-function SCIPincludeRelax(scip, name, desc, priority::Cint, freq::Cint, relaxcopy, relaxfree, relaxinit, relaxexit, relaxinitsol, relaxexitsol, relaxexec, relaxdata)
+function SCIPincludeRelax(scip, name, desc, priority, freq, relaxcopy, relaxfree, relaxinit, relaxexit, relaxinitsol, relaxexitsol, relaxexec, relaxdata)
     ccall((:SCIPincludeRelax, libscip), SCIP_RETCODE, (Ptr{SCIP}, Cstring, Cstring, Cint, Cint, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{SCIP_RELAXDATA}), scip, name, desc, priority, freq, relaxcopy, relaxfree, relaxinit, relaxexit, relaxinitsol, relaxexitsol, relaxexec, relaxdata)
 end
 
-function SCIPincludeRelaxBasic(scip, relaxptr, name, desc, priority::Cint, freq::Cint, relaxexec, relaxdata)
+function SCIPincludeRelaxBasic(scip, relaxptr, name, desc, priority, freq, relaxexec, relaxdata)
     ccall((:SCIPincludeRelaxBasic, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{Ptr{SCIP_RELAX}}, Cstring, Cstring, Cint, Cint, Ptr{Cvoid}, Ptr{SCIP_RELAXDATA}), scip, relaxptr, name, desc, priority, freq, relaxexec, relaxdata)
 end
 
@@ -46,6 +46,6 @@ function SCIPgetNRelaxs(scip)
     ccall((:SCIPgetNRelaxs, libscip), Cint, (Ptr{SCIP},), scip)
 end
 
-function SCIPsetRelaxPriority(scip, relax, priority::Cint)
+function SCIPsetRelaxPriority(scip, relax, priority)
     ccall((:SCIPsetRelaxPriority, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_RELAX}, Cint), scip, relax, priority)
 end

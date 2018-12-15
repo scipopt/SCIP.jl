@@ -1,5 +1,5 @@
 # Julia wrapper for header: /usr/include/scip/scip_nlp.h
-# Automatically generated using Clang.jl wrap_c, version 0.0.0
+# Automatically generated using Clang.jl wrap_c
 
 
 function SCIPincludeNlpi(scip, nlpi)
@@ -18,7 +18,7 @@ function SCIPgetNNlpis(scip)
     ccall((:SCIPgetNNlpis, libscip), Cint, (Ptr{SCIP},), scip)
 end
 
-function SCIPsetNlpiPriority(scip, nlpi, priority::Cint)
+function SCIPsetNlpiPriority(scip, nlpi, priority)
     ccall((:SCIPsetNlpiPriority, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_NLPI}, Cint), scip, nlpi, priority)
 end
 
@@ -118,27 +118,27 @@ function SCIPgetNLPFracVars(scip, fracvars, fracvarssol, fracvarsfrac, nfracvars
     ccall((:SCIPgetNLPFracVars, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{Ptr{Ptr{SCIP_VAR}}}, Ptr{Ptr{Cdouble}}, Ptr{Ptr{Cdouble}}, Ptr{Cint}, Ptr{Cint}), scip, fracvars, fracvarssol, fracvarsfrac, nfracvars, npriofracvars)
 end
 
-function SCIPgetNLPIntPar(scip, type::SCIP_NLPPARAM, ival)
+function SCIPgetNLPIntPar(scip, type, ival)
     ccall((:SCIPgetNLPIntPar, libscip), SCIP_RETCODE, (Ptr{SCIP}, SCIP_NLPPARAM, Ptr{Cint}), scip, type, ival)
 end
 
-function SCIPsetNLPIntPar(scip, type::SCIP_NLPPARAM, ival::Cint)
+function SCIPsetNLPIntPar(scip, type, ival)
     ccall((:SCIPsetNLPIntPar, libscip), SCIP_RETCODE, (Ptr{SCIP}, SCIP_NLPPARAM, Cint), scip, type, ival)
 end
 
-function SCIPgetNLPRealPar(scip, type::SCIP_NLPPARAM, dval)
+function SCIPgetNLPRealPar(scip, type, dval)
     ccall((:SCIPgetNLPRealPar, libscip), SCIP_RETCODE, (Ptr{SCIP}, SCIP_NLPPARAM, Ptr{Cdouble}), scip, type, dval)
 end
 
-function SCIPsetNLPRealPar(scip, type::SCIP_NLPPARAM, dval::Cdouble)
+function SCIPsetNLPRealPar(scip, type, dval)
     ccall((:SCIPsetNLPRealPar, libscip), SCIP_RETCODE, (Ptr{SCIP}, SCIP_NLPPARAM, Cdouble), scip, type, dval)
 end
 
-function SCIPgetNLPStringPar(scip, type::SCIP_NLPPARAM, sval)
+function SCIPgetNLPStringPar(scip, type, sval)
     ccall((:SCIPgetNLPStringPar, libscip), SCIP_RETCODE, (Ptr{SCIP}, SCIP_NLPPARAM, Ptr{Cstring}), scip, type, sval)
 end
 
-function SCIPsetNLPStringPar(scip, type::SCIP_NLPPARAM, sval)
+function SCIPsetNLPStringPar(scip, type, sval)
     ccall((:SCIPsetNLPStringPar, libscip), SCIP_RETCODE, (Ptr{SCIP}, SCIP_NLPPARAM, Cstring), scip, type, sval)
 end
 
@@ -158,15 +158,15 @@ function SCIPendDiveNLP(scip)
     ccall((:SCIPendDiveNLP, libscip), SCIP_RETCODE, (Ptr{SCIP},), scip)
 end
 
-function SCIPchgVarObjDiveNLP(scip, var, coef::Cdouble)
+function SCIPchgVarObjDiveNLP(scip, var, coef)
     ccall((:SCIPchgVarObjDiveNLP, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_VAR}, Cdouble), scip, var, coef)
 end
 
-function SCIPchgVarBoundsDiveNLP(scip, var, lb::Cdouble, ub::Cdouble)
+function SCIPchgVarBoundsDiveNLP(scip, var, lb, ub)
     ccall((:SCIPchgVarBoundsDiveNLP, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_VAR}, Cdouble, Cdouble), scip, var, lb, ub)
 end
 
-function SCIPchgVarsBoundsDiveNLP(scip, nvars::Cint, vars, lbs, ubs)
+function SCIPchgVarsBoundsDiveNLP(scip, nvars, vars, lbs, ubs)
     ccall((:SCIPchgVarsBoundsDiveNLP, libscip), SCIP_RETCODE, (Ptr{SCIP}, Cint, Ptr{Ptr{SCIP_VAR}}, Ptr{Cdouble}, Ptr{Cdouble}), scip, nvars, vars, lbs, ubs)
 end
 
@@ -174,11 +174,11 @@ function SCIPsolveDiveNLP(scip)
     ccall((:SCIPsolveDiveNLP, libscip), SCIP_RETCODE, (Ptr{SCIP},), scip)
 end
 
-function SCIPcreateNlRow(scip, nlrow, name, constant::Cdouble, nlinvars::Cint, linvars, lincoefs, nquadvars::Cint, quadvars, nquadelems::Cint, quadelems, expression, lhs::Cdouble, rhs::Cdouble, curvature::SCIP_EXPRCURV)
+function SCIPcreateNlRow(scip, nlrow, name, constant, nlinvars, linvars, lincoefs, nquadvars, quadvars, nquadelems, quadelems, expression, lhs, rhs, curvature)
     ccall((:SCIPcreateNlRow, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{Ptr{SCIP_NLROW}}, Cstring, Cdouble, Cint, Ptr{Ptr{SCIP_VAR}}, Ptr{Cdouble}, Cint, Ptr{Ptr{SCIP_VAR}}, Cint, Ptr{SCIP_QUADELEM}, Ptr{SCIP_EXPRTREE}, Cdouble, Cdouble, SCIP_EXPRCURV), scip, nlrow, name, constant, nlinvars, linvars, lincoefs, nquadvars, quadvars, nquadelems, quadelems, expression, lhs, rhs, curvature)
 end
 
-function SCIPcreateEmptyNlRow(scip, nlrow, name, lhs::Cdouble, rhs::Cdouble)
+function SCIPcreateEmptyNlRow(scip, nlrow, name, lhs, rhs)
     ccall((:SCIPcreateEmptyNlRow, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{Ptr{SCIP_NLROW}}, Cstring, Cdouble, Cdouble), scip, nlrow, name, lhs, rhs)
 end
 
@@ -194,27 +194,27 @@ function SCIPreleaseNlRow(scip, nlrow)
     ccall((:SCIPreleaseNlRow, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{Ptr{SCIP_NLROW}}), scip, nlrow)
 end
 
-function SCIPchgNlRowLhs(scip, nlrow, lhs::Cdouble)
+function SCIPchgNlRowLhs(scip, nlrow, lhs)
     ccall((:SCIPchgNlRowLhs, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_NLROW}, Cdouble), scip, nlrow, lhs)
 end
 
-function SCIPchgNlRowRhs(scip, nlrow, rhs::Cdouble)
+function SCIPchgNlRowRhs(scip, nlrow, rhs)
     ccall((:SCIPchgNlRowRhs, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_NLROW}, Cdouble), scip, nlrow, rhs)
 end
 
-function SCIPchgNlRowConstant(scip, nlrow, constant::Cdouble)
+function SCIPchgNlRowConstant(scip, nlrow, constant)
     ccall((:SCIPchgNlRowConstant, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_NLROW}, Cdouble), scip, nlrow, constant)
 end
 
-function SCIPaddLinearCoefToNlRow(scip, nlrow, var, val::Cdouble)
+function SCIPaddLinearCoefToNlRow(scip, nlrow, var, val)
     ccall((:SCIPaddLinearCoefToNlRow, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_NLROW}, Ptr{SCIP_VAR}, Cdouble), scip, nlrow, var, val)
 end
 
-function SCIPaddLinearCoefsToNlRow(scip, nlrow, nvars::Cint, vars, vals)
+function SCIPaddLinearCoefsToNlRow(scip, nlrow, nvars, vars, vals)
     ccall((:SCIPaddLinearCoefsToNlRow, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_NLROW}, Cint, Ptr{Ptr{SCIP_VAR}}, Ptr{Cdouble}), scip, nlrow, nvars, vars, vals)
 end
 
-function SCIPchgNlRowLinearCoef(scip, nlrow, var, coef::Cdouble)
+function SCIPchgNlRowLinearCoef(scip, nlrow, var, coef)
     ccall((:SCIPchgNlRowLinearCoef, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_NLROW}, Ptr{SCIP_VAR}, Cdouble), scip, nlrow, var, coef)
 end
 
@@ -222,19 +222,19 @@ function SCIPaddQuadVarToNlRow(scip, nlrow, var)
     ccall((:SCIPaddQuadVarToNlRow, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_NLROW}, Ptr{SCIP_VAR}), scip, nlrow, var)
 end
 
-function SCIPaddQuadVarsToNlRow(scip, nlrow, nvars::Cint, vars)
+function SCIPaddQuadVarsToNlRow(scip, nlrow, nvars, vars)
     ccall((:SCIPaddQuadVarsToNlRow, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_NLROW}, Cint, Ptr{Ptr{SCIP_VAR}}), scip, nlrow, nvars, vars)
 end
 
-function SCIPaddQuadElementToNlRow(scip, nlrow, quadelem::SCIP_QUADELEM)
+function SCIPaddQuadElementToNlRow(scip, nlrow, quadelem)
     ccall((:SCIPaddQuadElementToNlRow, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_NLROW}, SCIP_QUADELEM), scip, nlrow, quadelem)
 end
 
-function SCIPaddQuadElementsToNlRow(scip, nlrow, nquadelems::Cint, quadelems)
+function SCIPaddQuadElementsToNlRow(scip, nlrow, nquadelems, quadelems)
     ccall((:SCIPaddQuadElementsToNlRow, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_NLROW}, Cint, Ptr{SCIP_QUADELEM}), scip, nlrow, nquadelems, quadelems)
 end
 
-function SCIPchgNlRowQuadElement(scip, nlrow, quadelement::SCIP_QUADELEM)
+function SCIPchgNlRowQuadElement(scip, nlrow, quadelement)
     ccall((:SCIPchgNlRowQuadElement, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_NLROW}, SCIP_QUADELEM), scip, nlrow, quadelement)
 end
 
@@ -242,7 +242,7 @@ function SCIPsetNlRowExprtree(scip, nlrow, exprtree)
     ccall((:SCIPsetNlRowExprtree, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_NLROW}, Ptr{SCIP_EXPRTREE}), scip, nlrow, exprtree)
 end
 
-function SCIPsetNlRowExprtreeParam(scip, nlrow, paramidx::Cint, paramval::Cdouble)
+function SCIPsetNlRowExprtreeParam(scip, nlrow, paramidx, paramval)
     ccall((:SCIPsetNlRowExprtreeParam, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_NLROW}, Cint, Cdouble), scip, nlrow, paramidx, paramval)
 end
 

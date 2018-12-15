@@ -1,5 +1,5 @@
 # Julia wrapper for header: /usr/include/scip/scip_prob.h
-# Automatically generated using Clang.jl wrap_c, version 0.0.0
+# Automatically generated using Clang.jl wrap_c
 
 
 function SCIPcreateProb(scip, name, probdelorig, probtrans, probdeltrans, probinitsol, probexitsol, probcopy, probdata)
@@ -38,11 +38,11 @@ function SCIPreadProb(scip, filename, extension)
     ccall((:SCIPreadProb, libscip), SCIP_RETCODE, (Ptr{SCIP}, Cstring, Cstring), scip, filename, extension)
 end
 
-function SCIPwriteOrigProblem(scip, filename, extension, genericnames::UInt32)
+function SCIPwriteOrigProblem(scip, filename, extension, genericnames)
     ccall((:SCIPwriteOrigProblem, libscip), SCIP_RETCODE, (Ptr{SCIP}, Cstring, Cstring, UInt32), scip, filename, extension, genericnames)
 end
 
-function SCIPwriteTransProblem(scip, filename, extension, genericnames::UInt32)
+function SCIPwriteTransProblem(scip, filename, extension, genericnames)
     ccall((:SCIPwriteTransProblem, libscip), SCIP_RETCODE, (Ptr{SCIP}, Cstring, Cstring, UInt32), scip, filename, extension, genericnames)
 end
 
@@ -50,7 +50,7 @@ function SCIPfreeProb(scip)
     ccall((:SCIPfreeProb, libscip), SCIP_RETCODE, (Ptr{SCIP},), scip)
 end
 
-function SCIPpermuteProb(scip, randseed::UInt32, permuteconss::UInt32, permutebinvars::UInt32, permuteintvars::UInt32, permuteimplvars::UInt32, permutecontvars::UInt32)
+function SCIPpermuteProb(scip, randseed, permuteconss, permutebinvars, permuteintvars, permuteimplvars, permutecontvars)
     ccall((:SCIPpermuteProb, libscip), SCIP_RETCODE, (Ptr{SCIP}, UInt32, UInt32, UInt32, UInt32, UInt32, UInt32), scip, randseed, permuteconss, permutebinvars, permuteintvars, permuteimplvars, permutecontvars)
 end
 
@@ -70,7 +70,7 @@ function SCIPsetProbName(scip, name)
     ccall((:SCIPsetProbName, libscip), SCIP_RETCODE, (Ptr{SCIP}, Cstring), scip, name)
 end
 
-function SCIPchgReoptObjective(scip, objsense::SCIP_OBJSENSE, vars, coefs, nvars::Cint)
+function SCIPchgReoptObjective(scip, objsense, vars, coefs, nvars)
     ccall((:SCIPchgReoptObjective, libscip), SCIP_RETCODE, (Ptr{SCIP}, SCIP_OBJSENSE, Ptr{Ptr{SCIP_VAR}}, Ptr{Cdouble}, Cint), scip, objsense, vars, coefs, nvars)
 end
 
@@ -78,15 +78,15 @@ function SCIPgetObjsense(scip)
     ccall((:SCIPgetObjsense, libscip), SCIP_OBJSENSE, (Ptr{SCIP},), scip)
 end
 
-function SCIPsetObjsense(scip, objsense::SCIP_OBJSENSE)
+function SCIPsetObjsense(scip, objsense)
     ccall((:SCIPsetObjsense, libscip), SCIP_RETCODE, (Ptr{SCIP}, SCIP_OBJSENSE), scip, objsense)
 end
 
-function SCIPaddObjoffset(scip, addval::Cdouble)
+function SCIPaddObjoffset(scip, addval)
     ccall((:SCIPaddObjoffset, libscip), SCIP_RETCODE, (Ptr{SCIP}, Cdouble), scip, addval)
 end
 
-function SCIPaddOrigObjoffset(scip, addval::Cdouble)
+function SCIPaddOrigObjoffset(scip, addval)
     ccall((:SCIPaddOrigObjoffset, libscip), SCIP_RETCODE, (Ptr{SCIP}, Cdouble), scip, addval)
 end
 
@@ -106,7 +106,7 @@ function SCIPgetTransObjscale(scip)
     ccall((:SCIPgetTransObjscale, libscip), Cdouble, (Ptr{SCIP},), scip)
 end
 
-function SCIPsetObjlimit(scip, objlimit::Cdouble)
+function SCIPsetObjlimit(scip, objlimit)
     ccall((:SCIPsetObjlimit, libscip), SCIP_RETCODE, (Ptr{SCIP}, Cdouble), scip, objlimit)
 end
 
@@ -130,7 +130,7 @@ function SCIPaddVar(scip, var)
     ccall((:SCIPaddVar, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_VAR}), scip, var)
 end
 
-function SCIPaddPricedVar(scip, var, score::Cdouble)
+function SCIPaddPricedVar(scip, var, score)
     ccall((:SCIPaddPricedVar, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_VAR}, Cdouble), scip, var, score)
 end
 
@@ -262,7 +262,7 @@ function SCIPgetNCheckConss(scip)
     ccall((:SCIPgetNCheckConss, libscip), Cint, (Ptr{SCIP},), scip)
 end
 
-function SCIPaddConflict(scip, node, cons, validnode, conftype::SCIP_CONFTYPE, iscutoffinvolved::UInt32)
+function SCIPaddConflict(scip, node, cons, validnode, conftype, iscutoffinvolved)
     ccall((:SCIPaddConflict, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_NODE}, Ptr{SCIP_CONS}, Ptr{SCIP_NODE}, SCIP_CONFTYPE, UInt32), scip, node, cons, validnode, conftype, iscutoffinvolved)
 end
 
@@ -310,22 +310,22 @@ function SCIPgetNodeLowerbound(scip, node)
     ccall((:SCIPgetNodeLowerbound, libscip), Cdouble, (Ptr{SCIP}, Ptr{SCIP_NODE}), scip, node)
 end
 
-function SCIPupdateLocalDualbound(scip, newbound::Cdouble)
+function SCIPupdateLocalDualbound(scip, newbound)
     ccall((:SCIPupdateLocalDualbound, libscip), SCIP_RETCODE, (Ptr{SCIP}, Cdouble), scip, newbound)
 end
 
-function SCIPupdateLocalLowerbound(scip, newbound::Cdouble)
+function SCIPupdateLocalLowerbound(scip, newbound)
     ccall((:SCIPupdateLocalLowerbound, libscip), SCIP_RETCODE, (Ptr{SCIP}, Cdouble), scip, newbound)
 end
 
-function SCIPupdateNodeDualbound(scip, node, newbound::Cdouble)
+function SCIPupdateNodeDualbound(scip, node, newbound)
     ccall((:SCIPupdateNodeDualbound, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_NODE}, Cdouble), scip, node, newbound)
 end
 
-function SCIPupdateNodeLowerbound(scip, node, newbound::Cdouble)
+function SCIPupdateNodeLowerbound(scip, node, newbound)
     ccall((:SCIPupdateNodeLowerbound, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_NODE}, Cdouble), scip, node, newbound)
 end
 
-function SCIPchgChildPrio(scip, child, priority::Cdouble)
+function SCIPchgChildPrio(scip, child, priority)
     ccall((:SCIPchgChildPrio, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_NODE}, Cdouble), scip, child, priority)
 end

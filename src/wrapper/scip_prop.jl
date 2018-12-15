@@ -1,12 +1,12 @@
 # Julia wrapper for header: /usr/include/scip/scip_prop.h
-# Automatically generated using Clang.jl wrap_c, version 0.0.0
+# Automatically generated using Clang.jl wrap_c
 
 
-function SCIPincludeProp(scip, name, desc, priority::Cint, freq::Cint, delay::UInt32, timingmask::SCIP_PROPTIMING, presolpriority::Cint, presolmaxrounds::Cint, presoltiming::SCIP_PRESOLTIMING, propcopy, propfree, propinit, propexit, propinitpre, propexitpre, propinitsol, propexitsol, proppresol, propexec, propresprop, propdata)
+function SCIPincludeProp(scip, name, desc, priority, freq, delay, timingmask, presolpriority, presolmaxrounds, presoltiming, propcopy, propfree, propinit, propexit, propinitpre, propexitpre, propinitsol, propexitsol, proppresol, propexec, propresprop, propdata)
     ccall((:SCIPincludeProp, libscip), SCIP_RETCODE, (Ptr{SCIP}, Cstring, Cstring, Cint, Cint, UInt32, SCIP_PROPTIMING, Cint, Cint, SCIP_PRESOLTIMING, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{SCIP_PROPDATA}), scip, name, desc, priority, freq, delay, timingmask, presolpriority, presolmaxrounds, presoltiming, propcopy, propfree, propinit, propexit, propinitpre, propexitpre, propinitsol, propexitsol, proppresol, propexec, propresprop, propdata)
 end
 
-function SCIPincludePropBasic(scip, propptr, name, desc, priority::Cint, freq::Cint, delay::UInt32, timingmask::SCIP_PROPTIMING, propexec, propdata)
+function SCIPincludePropBasic(scip, propptr, name, desc, priority, freq, delay, timingmask, propexec, propdata)
     ccall((:SCIPincludePropBasic, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{Ptr{SCIP_PROP}}, Cstring, Cstring, Cint, Cint, UInt32, SCIP_PROPTIMING, Ptr{Cvoid}, Ptr{SCIP_PROPDATA}), scip, propptr, name, desc, priority, freq, delay, timingmask, propexec, propdata)
 end
 
@@ -42,7 +42,7 @@ function SCIPsetPropExitpre(scip, prop, propexitpre)
     ccall((:SCIPsetPropExitpre, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_PROP}, Ptr{Cvoid}), scip, prop, propexitpre)
 end
 
-function SCIPsetPropPresol(scip, prop, proppresol, presolpriority::Cint, presolmaxrounds::Cint, presoltiming::SCIP_PRESOLTIMING)
+function SCIPsetPropPresol(scip, prop, proppresol, presolpriority, presolmaxrounds, presoltiming)
     ccall((:SCIPsetPropPresol, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_PROP}, Ptr{Cvoid}, Cint, Cint, SCIP_PRESOLTIMING), scip, prop, proppresol, presolpriority, presolmaxrounds, presoltiming)
 end
 
@@ -62,10 +62,10 @@ function SCIPgetNProps(scip)
     ccall((:SCIPgetNProps, libscip), Cint, (Ptr{SCIP},), scip)
 end
 
-function SCIPsetPropPriority(scip, prop, priority::Cint)
+function SCIPsetPropPriority(scip, prop, priority)
     ccall((:SCIPsetPropPriority, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_PROP}, Cint), scip, prop, priority)
 end
 
-function SCIPsetPropPresolPriority(scip, prop, presolpriority::Cint)
+function SCIPsetPropPresolPriority(scip, prop, presolpriority)
     ccall((:SCIPsetPropPresolPriority, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_PROP}, Cint), scip, prop, presolpriority)
 end

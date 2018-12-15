@@ -1,5 +1,5 @@
 # Julia wrapper for header: /usr/include/scip/scip_solve.h
-# Automatically generated using Clang.jl wrap_c, version 0.0.0
+# Automatically generated using Clang.jl wrap_c
 
 
 function SCIPtransformProb(scip)
@@ -22,7 +22,7 @@ function SCIPsolveConcurrent(scip)
     ccall((:SCIPsolveConcurrent, libscip), SCIP_RETCODE, (Ptr{SCIP},), scip)
 end
 
-function SCIPfreeSolve(scip, restart::UInt32)
+function SCIPfreeSolve(scip, restart)
     ccall((:SCIPfreeSolve, libscip), SCIP_RETCODE, (Ptr{SCIP}, UInt32), scip, restart)
 end
 
@@ -42,7 +42,7 @@ function SCIPrestartSolve(scip)
     ccall((:SCIPrestartSolve, libscip), SCIP_RETCODE, (Ptr{SCIP},), scip)
 end
 
-function SCIPenableReoptimization(scip, enable::UInt32)
+function SCIPenableReoptimization(scip, enable)
     ccall((:SCIPenableReoptimization, libscip), SCIP_RETCODE, (Ptr{SCIP}, UInt32), scip, enable)
 end
 
@@ -50,7 +50,7 @@ function SCIPisReoptEnabled(scip)
     ccall((:SCIPisReoptEnabled, libscip), UInt32, (Ptr{SCIP},), scip)
 end
 
-function SCIPgetReoptSolsRun(scip, run::Cint, sols, allocmem::Cint, nsols)
+function SCIPgetReoptSolsRun(scip, run, sols, allocmem, nsols)
     ccall((:SCIPgetReoptSolsRun, libscip), SCIP_RETCODE, (Ptr{SCIP}, Cint, Ptr{Ptr{SCIP_SOL}}, Cint, Ptr{Cint}), scip, run, sols, allocmem, nsols)
 end
 
@@ -62,7 +62,7 @@ function SCIPcheckReoptRestart(scip, node, restart)
     ccall((:SCIPcheckReoptRestart, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_NODE}, Ptr{UInt32}), scip, node, restart)
 end
 
-function SCIPaddReoptDualBndchg(scip, node, var, newbound::Cdouble, oldbound::Cdouble)
+function SCIPaddReoptDualBndchg(scip, node, var, newbound, oldbound)
     ccall((:SCIPaddReoptDualBndchg, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_NODE}, Ptr{SCIP_VAR}, Cdouble, Cdouble), scip, node, var, newbound, oldbound)
 end
 
@@ -70,7 +70,7 @@ function SCIPgetReoptLastOptSol(scip)
     ccall((:SCIPgetReoptLastOptSol, libscip), Ptr{SCIP_SOL}, (Ptr{SCIP},), scip)
 end
 
-function SCIPgetReoptOldObjCoef(scip, var, run::Cint, objcoef)
+function SCIPgetReoptOldObjCoef(scip, var, run, objcoef)
     ccall((:SCIPgetReoptOldObjCoef, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_VAR}, Cint, Ptr{Cdouble}), scip, var, run, objcoef)
 end
 

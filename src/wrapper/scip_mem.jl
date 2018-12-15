@@ -1,5 +1,5 @@
 # Julia wrapper for header: /usr/include/scip/scip_mem.h
-# Automatically generated using Clang.jl wrap_c, version 0.0.0
+# Automatically generated using Clang.jl wrap_c
 
 
 function SCIPblkmem(scip)
@@ -26,11 +26,11 @@ function SCIPgetMemExternEstim(scip)
     ccall((:SCIPgetMemExternEstim, libscip), Clonglong, (Ptr{SCIP},), scip)
 end
 
-function SCIPcalcMemGrowSize(scip, num::Cint)
+function SCIPcalcMemGrowSize(scip, num)
     ccall((:SCIPcalcMemGrowSize, libscip), Cint, (Ptr{SCIP}, Cint), scip, num)
 end
 
-function SCIPensureBlockMemoryArray_call(scip, arrayptr, elemsize::Csize_t, arraysize, minsize::Cint)
+function SCIPensureBlockMemoryArray_call(scip, arrayptr, elemsize, arraysize, minsize)
     ccall((:SCIPensureBlockMemoryArray_call, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{Ptr{Cvoid}}, Csize_t, Ptr{Cint}, Cint), scip, arrayptr, elemsize, arraysize, minsize)
 end
 

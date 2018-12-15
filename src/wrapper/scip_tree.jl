@@ -1,5 +1,5 @@
 # Julia wrapper for header: /usr/include/scip/scip_tree.h
-# Automatically generated using Clang.jl wrap_c, version 0.0.0
+# Automatically generated using Clang.jl wrap_c
 
 
 function SCIPgetFocusNode(scip)
@@ -114,6 +114,6 @@ function SCIPprintNodeRootPath(scip, node, file)
     ccall((:SCIPprintNodeRootPath, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_NODE}, Ptr{FILE}), scip, node, file)
 end
 
-function SCIPsetFocusnodeLP(scip, solvelp::UInt32)
+function SCIPsetFocusnodeLP(scip, solvelp)
     ccall((:SCIPsetFocusnodeLP, libscip), Cvoid, (Ptr{SCIP}, UInt32), scip, solvelp)
 end

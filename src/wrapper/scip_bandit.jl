@@ -1,5 +1,5 @@
 # Julia wrapper for header: /usr/include/scip/scip_bandit.h
-# Automatically generated using Clang.jl wrap_c, version 0.0.0
+# Automatically generated using Clang.jl wrap_c
 
 
 function SCIPincludeBanditvtable(scip, banditvtable, name, banditfree, banditselect, banditupdate, banditreset)
@@ -14,6 +14,6 @@ function SCIPfreeBandit(scip, bandit)
     ccall((:SCIPfreeBandit, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{Ptr{SCIP_BANDIT}}), scip, bandit)
 end
 
-function SCIPresetBandit(scip, bandit, priorities, seed::UInt32)
+function SCIPresetBandit(scip, bandit, priorities, seed)
     ccall((:SCIPresetBandit, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{SCIP_BANDIT}, Ptr{Cdouble}, UInt32), scip, bandit, priorities, seed)
 end

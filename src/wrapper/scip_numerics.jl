@@ -1,5 +1,5 @@
 # Julia wrapper for header: /usr/include/scip/scip_numerics.h
-# Automatically generated using Clang.jl wrap_c, version 0.0.0
+# Automatically generated using Clang.jl wrap_c
 
 
 function SCIPepsilon(scip)
@@ -34,23 +34,23 @@ function SCIPrelaxfeastol(scip)
     ccall((:SCIPrelaxfeastol, libscip), Cdouble, (Ptr{SCIP},), scip)
 end
 
-function SCIPchgFeastol(scip, feastol::Cdouble)
+function SCIPchgFeastol(scip, feastol)
     ccall((:SCIPchgFeastol, libscip), SCIP_RETCODE, (Ptr{SCIP}, Cdouble), scip, feastol)
 end
 
-function SCIPchgLpfeastol(scip, lpfeastol::Cdouble, printnewvalue::UInt32)
+function SCIPchgLpfeastol(scip, lpfeastol, printnewvalue)
     ccall((:SCIPchgLpfeastol, libscip), SCIP_RETCODE, (Ptr{SCIP}, Cdouble, UInt32), scip, lpfeastol, printnewvalue)
 end
 
-function SCIPchgDualfeastol(scip, dualfeastol::Cdouble)
+function SCIPchgDualfeastol(scip, dualfeastol)
     ccall((:SCIPchgDualfeastol, libscip), SCIP_RETCODE, (Ptr{SCIP}, Cdouble), scip, dualfeastol)
 end
 
-function SCIPchgBarrierconvtol(scip, barrierconvtol::Cdouble)
+function SCIPchgBarrierconvtol(scip, barrierconvtol)
     ccall((:SCIPchgBarrierconvtol, libscip), SCIP_RETCODE, (Ptr{SCIP}, Cdouble), scip, barrierconvtol)
 end
 
-function SCIPchgRelaxfeastol(scip, relaxfeastol::Cdouble)
+function SCIPchgRelaxfeastol(scip, relaxfeastol)
     ccall((:SCIPchgRelaxfeastol, libscip), Cdouble, (Ptr{SCIP}, Cdouble), scip, relaxfeastol)
 end
 
@@ -66,279 +66,279 @@ function SCIPgetHugeValue(scip)
     ccall((:SCIPgetHugeValue, libscip), Cdouble, (Ptr{SCIP},), scip)
 end
 
-function SCIPisEQ(scip, val1::Cdouble, val2::Cdouble)
+function SCIPisEQ(scip, val1, val2)
     ccall((:SCIPisEQ, libscip), UInt32, (Ptr{SCIP}, Cdouble, Cdouble), scip, val1, val2)
 end
 
-function SCIPisLT(scip, val1::Cdouble, val2::Cdouble)
+function SCIPisLT(scip, val1, val2)
     ccall((:SCIPisLT, libscip), UInt32, (Ptr{SCIP}, Cdouble, Cdouble), scip, val1, val2)
 end
 
-function SCIPisLE(scip, val1::Cdouble, val2::Cdouble)
+function SCIPisLE(scip, val1, val2)
     ccall((:SCIPisLE, libscip), UInt32, (Ptr{SCIP}, Cdouble, Cdouble), scip, val1, val2)
 end
 
-function SCIPisGT(scip, val1::Cdouble, val2::Cdouble)
+function SCIPisGT(scip, val1, val2)
     ccall((:SCIPisGT, libscip), UInt32, (Ptr{SCIP}, Cdouble, Cdouble), scip, val1, val2)
 end
 
-function SCIPisGE(scip, val1::Cdouble, val2::Cdouble)
+function SCIPisGE(scip, val1, val2)
     ccall((:SCIPisGE, libscip), UInt32, (Ptr{SCIP}, Cdouble, Cdouble), scip, val1, val2)
 end
 
-function SCIPisInfinity(scip, val::Cdouble)
+function SCIPisInfinity(scip, val)
     ccall((:SCIPisInfinity, libscip), UInt32, (Ptr{SCIP}, Cdouble), scip, val)
 end
 
-function SCIPisHugeValue(scip, val::Cdouble)
+function SCIPisHugeValue(scip, val)
     ccall((:SCIPisHugeValue, libscip), UInt32, (Ptr{SCIP}, Cdouble), scip, val)
 end
 
-function SCIPisZero(scip, val::Cdouble)
+function SCIPisZero(scip, val)
     ccall((:SCIPisZero, libscip), UInt32, (Ptr{SCIP}, Cdouble), scip, val)
 end
 
-function SCIPisPositive(scip, val::Cdouble)
+function SCIPisPositive(scip, val)
     ccall((:SCIPisPositive, libscip), UInt32, (Ptr{SCIP}, Cdouble), scip, val)
 end
 
-function SCIPisNegative(scip, val::Cdouble)
+function SCIPisNegative(scip, val)
     ccall((:SCIPisNegative, libscip), UInt32, (Ptr{SCIP}, Cdouble), scip, val)
 end
 
-function SCIPisIntegral(scip, val::Cdouble)
+function SCIPisIntegral(scip, val)
     ccall((:SCIPisIntegral, libscip), UInt32, (Ptr{SCIP}, Cdouble), scip, val)
 end
 
-function SCIPisScalingIntegral(scip, val::Cdouble, scalar::Cdouble)
+function SCIPisScalingIntegral(scip, val, scalar)
     ccall((:SCIPisScalingIntegral, libscip), UInt32, (Ptr{SCIP}, Cdouble, Cdouble), scip, val, scalar)
 end
 
-function SCIPisFracIntegral(scip, val::Cdouble)
+function SCIPisFracIntegral(scip, val)
     ccall((:SCIPisFracIntegral, libscip), UInt32, (Ptr{SCIP}, Cdouble), scip, val)
 end
 
-function SCIPfloor(scip, val::Cdouble)
+function SCIPfloor(scip, val)
     ccall((:SCIPfloor, libscip), Cdouble, (Ptr{SCIP}, Cdouble), scip, val)
 end
 
-function SCIPceil(scip, val::Cdouble)
+function SCIPceil(scip, val)
     ccall((:SCIPceil, libscip), Cdouble, (Ptr{SCIP}, Cdouble), scip, val)
 end
 
-function SCIPround(scip, val::Cdouble)
+function SCIPround(scip, val)
     ccall((:SCIPround, libscip), Cdouble, (Ptr{SCIP}, Cdouble), scip, val)
 end
 
-function SCIPfrac(scip, val::Cdouble)
+function SCIPfrac(scip, val)
     ccall((:SCIPfrac, libscip), Cdouble, (Ptr{SCIP}, Cdouble), scip, val)
 end
 
-function SCIPisSumEQ(scip, val1::Cdouble, val2::Cdouble)
+function SCIPisSumEQ(scip, val1, val2)
     ccall((:SCIPisSumEQ, libscip), UInt32, (Ptr{SCIP}, Cdouble, Cdouble), scip, val1, val2)
 end
 
-function SCIPisSumLT(scip, val1::Cdouble, val2::Cdouble)
+function SCIPisSumLT(scip, val1, val2)
     ccall((:SCIPisSumLT, libscip), UInt32, (Ptr{SCIP}, Cdouble, Cdouble), scip, val1, val2)
 end
 
-function SCIPisSumLE(scip, val1::Cdouble, val2::Cdouble)
+function SCIPisSumLE(scip, val1, val2)
     ccall((:SCIPisSumLE, libscip), UInt32, (Ptr{SCIP}, Cdouble, Cdouble), scip, val1, val2)
 end
 
-function SCIPisSumGT(scip, val1::Cdouble, val2::Cdouble)
+function SCIPisSumGT(scip, val1, val2)
     ccall((:SCIPisSumGT, libscip), UInt32, (Ptr{SCIP}, Cdouble, Cdouble), scip, val1, val2)
 end
 
-function SCIPisSumGE(scip, val1::Cdouble, val2::Cdouble)
+function SCIPisSumGE(scip, val1, val2)
     ccall((:SCIPisSumGE, libscip), UInt32, (Ptr{SCIP}, Cdouble, Cdouble), scip, val1, val2)
 end
 
-function SCIPisSumZero(scip, val::Cdouble)
+function SCIPisSumZero(scip, val)
     ccall((:SCIPisSumZero, libscip), UInt32, (Ptr{SCIP}, Cdouble), scip, val)
 end
 
-function SCIPisSumPositive(scip, val::Cdouble)
+function SCIPisSumPositive(scip, val)
     ccall((:SCIPisSumPositive, libscip), UInt32, (Ptr{SCIP}, Cdouble), scip, val)
 end
 
-function SCIPisSumNegative(scip, val::Cdouble)
+function SCIPisSumNegative(scip, val)
     ccall((:SCIPisSumNegative, libscip), UInt32, (Ptr{SCIP}, Cdouble), scip, val)
 end
 
-function SCIPisFeasEQ(scip, val1::Cdouble, val2::Cdouble)
+function SCIPisFeasEQ(scip, val1, val2)
     ccall((:SCIPisFeasEQ, libscip), UInt32, (Ptr{SCIP}, Cdouble, Cdouble), scip, val1, val2)
 end
 
-function SCIPisFeasLT(scip, val1::Cdouble, val2::Cdouble)
+function SCIPisFeasLT(scip, val1, val2)
     ccall((:SCIPisFeasLT, libscip), UInt32, (Ptr{SCIP}, Cdouble, Cdouble), scip, val1, val2)
 end
 
-function SCIPisFeasLE(scip, val1::Cdouble, val2::Cdouble)
+function SCIPisFeasLE(scip, val1, val2)
     ccall((:SCIPisFeasLE, libscip), UInt32, (Ptr{SCIP}, Cdouble, Cdouble), scip, val1, val2)
 end
 
-function SCIPisFeasGT(scip, val1::Cdouble, val2::Cdouble)
+function SCIPisFeasGT(scip, val1, val2)
     ccall((:SCIPisFeasGT, libscip), UInt32, (Ptr{SCIP}, Cdouble, Cdouble), scip, val1, val2)
 end
 
-function SCIPisFeasGE(scip, val1::Cdouble, val2::Cdouble)
+function SCIPisFeasGE(scip, val1, val2)
     ccall((:SCIPisFeasGE, libscip), UInt32, (Ptr{SCIP}, Cdouble, Cdouble), scip, val1, val2)
 end
 
-function SCIPisFeasZero(scip, val::Cdouble)
+function SCIPisFeasZero(scip, val)
     ccall((:SCIPisFeasZero, libscip), UInt32, (Ptr{SCIP}, Cdouble), scip, val)
 end
 
-function SCIPisFeasPositive(scip, val::Cdouble)
+function SCIPisFeasPositive(scip, val)
     ccall((:SCIPisFeasPositive, libscip), UInt32, (Ptr{SCIP}, Cdouble), scip, val)
 end
 
-function SCIPisFeasNegative(scip, val::Cdouble)
+function SCIPisFeasNegative(scip, val)
     ccall((:SCIPisFeasNegative, libscip), UInt32, (Ptr{SCIP}, Cdouble), scip, val)
 end
 
-function SCIPisFeasIntegral(scip, val::Cdouble)
+function SCIPisFeasIntegral(scip, val)
     ccall((:SCIPisFeasIntegral, libscip), UInt32, (Ptr{SCIP}, Cdouble), scip, val)
 end
 
-function SCIPisFeasFracIntegral(scip, val::Cdouble)
+function SCIPisFeasFracIntegral(scip, val)
     ccall((:SCIPisFeasFracIntegral, libscip), UInt32, (Ptr{SCIP}, Cdouble), scip, val)
 end
 
-function SCIPfeasFloor(scip, val::Cdouble)
+function SCIPfeasFloor(scip, val)
     ccall((:SCIPfeasFloor, libscip), Cdouble, (Ptr{SCIP}, Cdouble), scip, val)
 end
 
-function SCIPfeasCeil(scip, val::Cdouble)
+function SCIPfeasCeil(scip, val)
     ccall((:SCIPfeasCeil, libscip), Cdouble, (Ptr{SCIP}, Cdouble), scip, val)
 end
 
-function SCIPfeasRound(scip, val::Cdouble)
+function SCIPfeasRound(scip, val)
     ccall((:SCIPfeasRound, libscip), Cdouble, (Ptr{SCIP}, Cdouble), scip, val)
 end
 
-function SCIPfeasFrac(scip, val::Cdouble)
+function SCIPfeasFrac(scip, val)
     ccall((:SCIPfeasFrac, libscip), Cdouble, (Ptr{SCIP}, Cdouble), scip, val)
 end
 
-function SCIPisDualfeasEQ(scip, val1::Cdouble, val2::Cdouble)
+function SCIPisDualfeasEQ(scip, val1, val2)
     ccall((:SCIPisDualfeasEQ, libscip), UInt32, (Ptr{SCIP}, Cdouble, Cdouble), scip, val1, val2)
 end
 
-function SCIPisDualfeasLT(scip, val1::Cdouble, val2::Cdouble)
+function SCIPisDualfeasLT(scip, val1, val2)
     ccall((:SCIPisDualfeasLT, libscip), UInt32, (Ptr{SCIP}, Cdouble, Cdouble), scip, val1, val2)
 end
 
-function SCIPisDualfeasLE(scip, val1::Cdouble, val2::Cdouble)
+function SCIPisDualfeasLE(scip, val1, val2)
     ccall((:SCIPisDualfeasLE, libscip), UInt32, (Ptr{SCIP}, Cdouble, Cdouble), scip, val1, val2)
 end
 
-function SCIPisDualfeasGT(scip, val1::Cdouble, val2::Cdouble)
+function SCIPisDualfeasGT(scip, val1, val2)
     ccall((:SCIPisDualfeasGT, libscip), UInt32, (Ptr{SCIP}, Cdouble, Cdouble), scip, val1, val2)
 end
 
-function SCIPisDualfeasGE(scip, val1::Cdouble, val2::Cdouble)
+function SCIPisDualfeasGE(scip, val1, val2)
     ccall((:SCIPisDualfeasGE, libscip), UInt32, (Ptr{SCIP}, Cdouble, Cdouble), scip, val1, val2)
 end
 
-function SCIPisDualfeasZero(scip, val::Cdouble)
+function SCIPisDualfeasZero(scip, val)
     ccall((:SCIPisDualfeasZero, libscip), UInt32, (Ptr{SCIP}, Cdouble), scip, val)
 end
 
-function SCIPisDualfeasPositive(scip, val::Cdouble)
+function SCIPisDualfeasPositive(scip, val)
     ccall((:SCIPisDualfeasPositive, libscip), UInt32, (Ptr{SCIP}, Cdouble), scip, val)
 end
 
-function SCIPisDualfeasNegative(scip, val::Cdouble)
+function SCIPisDualfeasNegative(scip, val)
     ccall((:SCIPisDualfeasNegative, libscip), UInt32, (Ptr{SCIP}, Cdouble), scip, val)
 end
 
-function SCIPisDualfeasIntegral(scip, val::Cdouble)
+function SCIPisDualfeasIntegral(scip, val)
     ccall((:SCIPisDualfeasIntegral, libscip), UInt32, (Ptr{SCIP}, Cdouble), scip, val)
 end
 
-function SCIPisDualfeasFracIntegral(scip, val::Cdouble)
+function SCIPisDualfeasFracIntegral(scip, val)
     ccall((:SCIPisDualfeasFracIntegral, libscip), UInt32, (Ptr{SCIP}, Cdouble), scip, val)
 end
 
-function SCIPdualfeasFloor(scip, val::Cdouble)
+function SCIPdualfeasFloor(scip, val)
     ccall((:SCIPdualfeasFloor, libscip), Cdouble, (Ptr{SCIP}, Cdouble), scip, val)
 end
 
-function SCIPdualfeasCeil(scip, val::Cdouble)
+function SCIPdualfeasCeil(scip, val)
     ccall((:SCIPdualfeasCeil, libscip), Cdouble, (Ptr{SCIP}, Cdouble), scip, val)
 end
 
-function SCIPdualfeasRound(scip, val::Cdouble)
+function SCIPdualfeasRound(scip, val)
     ccall((:SCIPdualfeasRound, libscip), Cdouble, (Ptr{SCIP}, Cdouble), scip, val)
 end
 
-function SCIPdualfeasFrac(scip, val::Cdouble)
+function SCIPdualfeasFrac(scip, val)
     ccall((:SCIPdualfeasFrac, libscip), Cdouble, (Ptr{SCIP}, Cdouble), scip, val)
 end
 
-function SCIPisLbBetter(scip, newlb::Cdouble, oldlb::Cdouble, oldub::Cdouble)
+function SCIPisLbBetter(scip, newlb, oldlb, oldub)
     ccall((:SCIPisLbBetter, libscip), UInt32, (Ptr{SCIP}, Cdouble, Cdouble, Cdouble), scip, newlb, oldlb, oldub)
 end
 
-function SCIPisUbBetter(scip, newub::Cdouble, oldlb::Cdouble, oldub::Cdouble)
+function SCIPisUbBetter(scip, newub, oldlb, oldub)
     ccall((:SCIPisUbBetter, libscip), UInt32, (Ptr{SCIP}, Cdouble, Cdouble, Cdouble), scip, newub, oldlb, oldub)
 end
 
-function SCIPisRelEQ(scip, val1::Cdouble, val2::Cdouble)
+function SCIPisRelEQ(scip, val1, val2)
     ccall((:SCIPisRelEQ, libscip), UInt32, (Ptr{SCIP}, Cdouble, Cdouble), scip, val1, val2)
 end
 
-function SCIPisRelLT(scip, val1::Cdouble, val2::Cdouble)
+function SCIPisRelLT(scip, val1, val2)
     ccall((:SCIPisRelLT, libscip), UInt32, (Ptr{SCIP}, Cdouble, Cdouble), scip, val1, val2)
 end
 
-function SCIPisRelLE(scip, val1::Cdouble, val2::Cdouble)
+function SCIPisRelLE(scip, val1, val2)
     ccall((:SCIPisRelLE, libscip), UInt32, (Ptr{SCIP}, Cdouble, Cdouble), scip, val1, val2)
 end
 
-function SCIPisRelGT(scip, val1::Cdouble, val2::Cdouble)
+function SCIPisRelGT(scip, val1, val2)
     ccall((:SCIPisRelGT, libscip), UInt32, (Ptr{SCIP}, Cdouble, Cdouble), scip, val1, val2)
 end
 
-function SCIPisRelGE(scip, val1::Cdouble, val2::Cdouble)
+function SCIPisRelGE(scip, val1, val2)
     ccall((:SCIPisRelGE, libscip), UInt32, (Ptr{SCIP}, Cdouble, Cdouble), scip, val1, val2)
 end
 
-function SCIPisSumRelEQ(scip, val1::Cdouble, val2::Cdouble)
+function SCIPisSumRelEQ(scip, val1, val2)
     ccall((:SCIPisSumRelEQ, libscip), UInt32, (Ptr{SCIP}, Cdouble, Cdouble), scip, val1, val2)
 end
 
-function SCIPisSumRelLT(scip, val1::Cdouble, val2::Cdouble)
+function SCIPisSumRelLT(scip, val1, val2)
     ccall((:SCIPisSumRelLT, libscip), UInt32, (Ptr{SCIP}, Cdouble, Cdouble), scip, val1, val2)
 end
 
-function SCIPisSumRelLE(scip, val1::Cdouble, val2::Cdouble)
+function SCIPisSumRelLE(scip, val1, val2)
     ccall((:SCIPisSumRelLE, libscip), UInt32, (Ptr{SCIP}, Cdouble, Cdouble), scip, val1, val2)
 end
 
-function SCIPisSumRelGT(scip, val1::Cdouble, val2::Cdouble)
+function SCIPisSumRelGT(scip, val1, val2)
     ccall((:SCIPisSumRelGT, libscip), UInt32, (Ptr{SCIP}, Cdouble, Cdouble), scip, val1, val2)
 end
 
-function SCIPisSumRelGE(scip, val1::Cdouble, val2::Cdouble)
+function SCIPisSumRelGE(scip, val1, val2)
     ccall((:SCIPisSumRelGE, libscip), UInt32, (Ptr{SCIP}, Cdouble, Cdouble), scip, val1, val2)
 end
 
-function SCIPconvertRealToInt(scip, real::Cdouble)
+function SCIPconvertRealToInt(scip, real)
     ccall((:SCIPconvertRealToInt, libscip), Cint, (Ptr{SCIP}, Cdouble), scip, real)
 end
 
-function SCIPconvertRealToLongint(scip, real::Cdouble)
+function SCIPconvertRealToLongint(scip, real)
     ccall((:SCIPconvertRealToLongint, libscip), Clonglong, (Ptr{SCIP}, Cdouble), scip, real)
 end
 
-function SCIPisUpdateUnreliable(scip, newvalue::Cdouble, oldvalue::Cdouble)
+function SCIPisUpdateUnreliable(scip, newvalue, oldvalue)
     ccall((:SCIPisUpdateUnreliable, libscip), UInt32, (Ptr{SCIP}, Cdouble, Cdouble), scip, newvalue, oldvalue)
 end
 
-function SCIPprintReal(scip, file, val::Cdouble, width::Cint, precision::Cint)
+function SCIPprintReal(scip, file, val, width, precision)
     ccall((:SCIPprintReal, libscip), Cvoid, (Ptr{SCIP}, Ptr{FILE}, Cdouble, Cint, Cint), scip, file, val, width, precision)
 end
 
