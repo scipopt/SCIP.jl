@@ -3,5 +3,5 @@
 
 
 function SCIPvalidateSolve(scip, primalreference, dualreference, reftol, quiet, feasible, primalboundcheck, dualboundcheck)
-    ccall((:SCIPvalidateSolve, libscip), SCIP_RETCODE, (Ptr{SCIP}, Cdouble, Cdouble, Cdouble, UInt32, Ptr{UInt32}, Ptr{UInt32}, Ptr{UInt32}), scip, primalreference, dualreference, reftol, quiet, feasible, primalboundcheck, dualboundcheck)
+    ccall((:SCIPvalidateSolve, libscip), SCIP_RETCODE, (Ptr{SCIP_}, Cdouble, Cdouble, Cdouble, UInt32, Ptr{UInt32}, Ptr{UInt32}, Ptr{UInt32}), scip, primalreference, dualreference, reftol, quiet, feasible, primalboundcheck, dualboundcheck)
 end

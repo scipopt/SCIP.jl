@@ -835,7 +835,7 @@ const SCIP_RESULT = SCIP_Result
 
 const SCIP_RETCODE = SCIP_Retcode
 const Scip = Cvoid
-const SCIP = Scip
+const SCIP_ = Scip
 
 # Skipping MacroDefinition: SCIP_DECL_SEPACOPY ( x ) SCIP_RETCODE x ( SCIP * scip , SCIP_SEPA * sepa )
 # Skipping MacroDefinition: SCIP_DECL_SEPAFREE ( x ) SCIP_RETCODE x ( SCIP * scip , SCIP_SEPA * sepa )

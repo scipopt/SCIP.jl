@@ -3,9 +3,9 @@
 
 
 function SCIPenableDebugSol(scip)
-    ccall((:SCIPenableDebugSol, libscip), Cvoid, (Ptr{SCIP},), scip)
+    ccall((:SCIPenableDebugSol, libscip), Cvoid, (Ptr{SCIP_},), scip)
 end
 
 function SCIPdisableDebugSol(scip)
-    ccall((:SCIPdisableDebugSol, libscip), Cvoid, (Ptr{SCIP},), scip)
+    ccall((:SCIPdisableDebugSol, libscip), Cvoid, (Ptr{SCIP_},), scip)
 end
