@@ -6,6 +6,7 @@ scip_headers = vcat(
     filter(h -> startswith(h, "type_"), all_headers),
     # filter(h -> startswith(h, "pub_"), all_headers),
     filter(h -> startswith(h, "scip_"), all_headers),
+    "scipdefplugins.h"
 )
 lpi_headers = ["type_lpi.h"]
 nlpi_headers = ["type_expr.h", "type_nlpi.h"]

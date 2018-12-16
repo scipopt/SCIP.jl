@@ -53,3 +53,6 @@ include(wrap("scip_timing"))
 include(wrap("scip_tree"))
 include(wrap("scip_validation"))
 include(wrap("scip_var"))
+
+# default SCIP plugins
+include(wrap("scipdefplugins"))
