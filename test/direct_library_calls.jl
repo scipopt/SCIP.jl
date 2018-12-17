@@ -26,6 +26,8 @@
     @test rc == SCIP.SCIP_OKAY
     var_ = var__[]
     @test var_ != C_NULL
+    rc = SCIP.SCIPaddVar(scip_, var_)
+    @test rc == SCIP.SCIP_OKAY
 
     rc = SCIP.SCIPsolve(scip_)
     @test rc == SCIP.SCIP_OKAY
@@ -33,9 +35,12 @@
     # check solution value
     sol_ = SCIP.SCIPgetBestSol(scip_)
     @test sol_ != C_NULL
-    # val = SCIP.SCIPgetSolVal(scip_, sol_, var_)
-    # @test val ≈ 3.0
+    val = SCIP.SCIPgetSolVal(scip_, sol_, var_)
+    @test val ≈ 3.0
 
+    # release variables and solver
+    rc = SCIP.SCIPreleaseVar(scip_, var__)
+    @test rc == SCIP.SCIP_OKAY
     rc = SCIP.SCIPfree(scip__)
     @test rc == SCIP.SCIP_OKAY
 end
