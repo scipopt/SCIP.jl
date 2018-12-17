@@ -1174,6 +1174,87 @@ const SCIP_VISUAL = SCIP_Visual
 # Skipping MacroDefinition: SCIPdebugMsg ( scip , ... ) while ( FALSE ) SCIPprintDebugMessage ( scip , __FILE__ , __LINE__ , __VA_ARGS__ )
 # Skipping MacroDefinition: SCIPdebugMsgPrint ( scip , ... ) while ( FALSE ) SCIPdebugMessagePrint ( scip , __VA_ARGS__ )
 
+@cenum(SCIP_BIVAR_CONVEXITY,
+    SCIP_BIVAR_ALLCONVEX = 0,
+    SCIP_BIVAR_1CONVEX_INDEFINITE = 1,
+    SCIP_BIVAR_CONVEX_CONCAVE = 2,
+    SCIP_BIVAR_UNKNOWN = 3,
+)
+
+# Skipping MacroDefinition: SCIP_DECL_SOLVECUMULATIVE ( x ) SCIP_RETCODE x ( int njobs , SCIP_Real * ests , SCIP_Real * lsts , SCIP_Real * objvals , int * durations , int * demands , int capacity , int hmin , int hmax , SCIP_Real timelimit , SCIP_Real memorylimit , SCIP_Longint maxnodes , SCIP_Bool * solved , SCIP_Bool * infeasible , SCIP_Bool * unbounded , SCIP_Bool * error )
+# Skipping MacroDefinition: SCIP_DECL_LINCONSUPGD ( x ) SCIP_RETCODE x ( SCIP * scip , SCIP_CONS * cons , int nvars , SCIP_VAR * * vars , SCIP_Real * vals , SCIP_Real lhs , SCIP_Real rhs , int nposbin , int nnegbin , int nposint , int nnegint , int nposimpl , int nnegimpl , int nposimplbin , int nnegimplbin , int nposcont , int nnegcont , int ncoeffspone , int ncoeffsnone , int ncoeffspint , int ncoeffsnint , int ncoeffspfrac , int ncoeffsnfrac , SCIP_Real poscoeffsum , SCIP_Real negcoeffsum , SCIP_Bool integral , SCIP_CONS * * upgdcons )
+
+const SCIP_LinConsUpgrade = Cvoid
+const SCIP_LINCONSUPGRADE = SCIP_LinConsUpgrade
+
+# Skipping MacroDefinition: SCIP_DECL_NONLINCONSUPGD ( x ) SCIP_RETCODE x ( SCIP * scip , SCIP_CONS * cons , int * nupgdconss , SCIP_CONS * * upgdconss , int upgdconsssize )
+# Skipping MacroDefinition: SCIP_DECL_EXPRGRAPHNODEREFORM ( x ) SCIP_RETCODE x ( SCIP * scip , SCIP_EXPRGRAPH * exprgraph , SCIP_EXPRGRAPHNODE * node , int * naddcons , SCIP_EXPRGRAPHNODE * * reformnode )
+
+@cenum(SCIP_OrbitopeType,
+    SCIP_ORBITOPETYPE_FULL = 0,
+    SCIP_ORBITOPETYPE_PARTITIONING = 1,
+    SCIP_ORBITOPETYPE_PACKING = 2,
+)
+
+const SCIP_ORBITOPETYPE = SCIP_OrbitopeType
+const ARTIFICIALVARNAMEPREFIX = "andresultant_"
+
+@cenum(SCIP_LinearConsType{Int32},
+    SCIP_LINEARCONSTYPE_INVALIDCONS = -1,
+    SCIP_LINEARCONSTYPE_LINEAR = 0,
+    SCIP_LINEARCONSTYPE_LOGICOR = 1,
+    SCIP_LINEARCONSTYPE_KNAPSACK = 2,
+    SCIP_LINEARCONSTYPE_SETPPC = 3,
+)
+
+const SCIP_LINEARCONSTYPE = SCIP_LinearConsType
+
+# Skipping MacroDefinition: SCIP_DECL_QUADCONSUPGD ( x ) SCIP_RETCODE x ( SCIP * scip , SCIP_CONS * cons , int nbinlin , int nbinquad , int nintlin , int nintquad , int nimpllin , int nimplquad , int ncontlin , int ncontquad , SCIP_Bool integral , int * nupgdconss , SCIP_CONS * * upgdconss , int upgdconsssize , SCIP_PRESOLTIMING presoltiming )
+
+const SCIP_QuadVarEventData = Cvoid
+const SCIP_QUADVAREVENTDATA = SCIP_QuadVarEventData
+
+struct SCIP_QuadVarTerm
+    var::Ptr{SCIP_VAR}
+    lincoef::Cdouble
+    sqrcoef::Cdouble
+    nadjbilin::Cint
+    adjbilinsize::Cint
+    adjbilin::Ptr{Cint}
+    eventdata::Ptr{SCIP_QUADVAREVENTDATA}
+end
+
+const SCIP_QUADVARTERM = SCIP_QuadVarTerm
+
+struct SCIP_BilinTerm
+    var1::Ptr{SCIP_VAR}
+    var2::Ptr{SCIP_VAR}
+    coef::Cdouble
+end
+
+const SCIP_BILINTERM = SCIP_BilinTerm
+
+struct SCIP_RowPrep
+    vars::Ptr{Ptr{SCIP_VAR}}
+    coefs::Ptr{Cdouble}
+    nvars::Cint
+    varssize::Cint
+    side::Cdouble
+    sidetype::SCIP_SIDETYPE
+    _local::UInt32
+    name::NTuple{1024, UInt8}
+end
+
+const SCIP_ROWPREP = SCIP_RowPrep
+
+@cenum(SCIP_SetppcType,
+    SCIP_SETPPCTYPE_PARTITIONING = 0,
+    SCIP_SETPPCTYPE_PACKING = 1,
+    SCIP_SETPPCTYPE_COVERING = 2,
+)
+
+const SCIP_SETPPCTYPE = SCIP_SetppcType
+
 @cenum(SCIP_ObjSen{Int32},
     SCIP_OBJSEN_MAXIMIZE = -1,
     SCIP_OBJSEN_MINIMIZE = 1,
