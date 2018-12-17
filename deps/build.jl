@@ -13,13 +13,17 @@ function write_depsfile(path)
 end
 
 libname = "libscip.so"
-paths_to_try = [libname]
+paths_to_try = []
 
+# prefer environment variable
 if haskey(ENV, "SCIPOPTDIR")
     if Compat.Sys.isunix()
         push!(paths_to_try, joinpath(ENV["SCIPOPTDIR"], "lib", libname))
     end
 end
+
+# but also try library path
+push!(paths_to_try, libname)
 
 found = false
 for l in paths_to_try
