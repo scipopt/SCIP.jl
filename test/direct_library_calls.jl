@@ -31,7 +31,7 @@
     @test rc == SCIP.SCIP_OKAY
 
     # add constraint: 2x >= 3   ( really: 3 <= 2 * x <= inf )
-    cons__ = Ref{Ptr{SCIP.SCIP_VAR}}()
+    cons__ = Ref{Ptr{SCIP.SCIP_CONS}}()
     rc = SCIP.SCIPcreateConsBasicLinear(scip_, cons__, "c", 0, C_NULL, C_NULL,
                                         3.0, SCIP.SCIPinfinity(scip_))
     @test rc == SCIP.SCIP_OKAY
