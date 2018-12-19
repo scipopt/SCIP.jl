@@ -21,4 +21,7 @@ end
 # wrapper of SCIP library
 include("wrapper.jl")
 
+# implementation of MOI
+include("MOI_wrapper.jl")
+
 end
