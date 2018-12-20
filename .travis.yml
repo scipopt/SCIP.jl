@@ -18,9 +18,9 @@ before_install:
   - wget http://scip.zib.de/download/release/SCIPOptSuite-$VERSION-Linux.deb
   - sudo dpkg -i SCIPOptSuite-$VERSION-Linux.deb
 script:
-  - julia -e 'Pkg.clone(pwd()); Pkg.build("SCIP"); Pkg.test("SCIP"; coverage=true)'
+  - julia -e 'using Pkg; Pkg.clone(pwd()); Pkg.build("SCIP"); Pkg.test("SCIP"; coverage=true)'
 after_success:
   # push coverage results to Coveralls
-  - julia -e 'cd(Pkg.dir("SCIP")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())'
+  - julia -e 'using Pkg; cd(Pkg.dir("SCIP")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())'
   # push coverage results to Codecov
-  - julia -e 'cd(Pkg.dir("SCIP")); Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder())'
+  - julia -e 'using Pkg; cd(Pkg.dir("SCIP")); Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder())'
