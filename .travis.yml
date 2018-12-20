@@ -1,7 +1,8 @@
 ## Documentation: http://docs.travis-ci.com/user/languages/julia/
 language: julia
-os:
-  - linux
+os: linux
+dist: xenial
+sudo: true
 julia:
   - 1.0
   - nightly
@@ -12,6 +13,10 @@ git:
 matrix:
   allow_failures:
     - julia: nightly
+before_install:
+  - export VERSION=6.0.0
+  - wget http://scip.zib.de/download/release/SCIPOptSuite-$VERSION-Linux.deb
+  - sudo dpkg -i SCIPOptSuite-$VERSION-Linux.deb
 script:
   - julia -e 'Pkg.clone(pwd()); Pkg.build("SCIP"); Pkg.test("SCIP"; coverage=true)'
 after_success:
