@@ -90,3 +90,8 @@ include(wrap("cons_superindicator"))
 include(wrap("cons_symresack"))
 include(wrap("cons_varbound"))
 include(wrap("cons_xor"))
+
+# SCIP_CALL: macro to check return codes, inspired by @assert
+macro SC(ex)
+    return :(@assert $(esc(ex)) == SCIP_OKAY)
+end

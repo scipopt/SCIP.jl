@@ -60,3 +60,10 @@
     rc = SCIP.SCIPfree(scip__)
     @test rc == SCIP.SCIP_OKAY
 end
+
+@testset "SCIP_CALL macro (@SC)" begin
+    # should do nothing
+    @SCIP.SC SCIP.SCIP_OKAY
+
+    @test_throws AssertionError @SCIP.SC SCIP.SCIP_ERROR
+end

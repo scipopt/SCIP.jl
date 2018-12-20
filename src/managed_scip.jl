@@ -6,13 +6,10 @@ mutable struct ManagedSCIP
 
     function ManagedSCIP()
         scip = Ref{Ptr{SCIP_}}()
-        rc = SCIPcreate(scip)
-        @assert rc == SCIP_OKAY
+        @SC SCIPcreate(scip)
         @assert scip[] != C_NULL
-        rc = SCIPincludeDefaultPlugins(scip[])
-        @assert rc == SCIP_OKAY
-        rc = SCIP.SCIPcreateProbBasic(scip[], "")
-        @assert rc == SCIP_OKAY
+        @SC SCIPincludeDefaultPlugins(scip[])
+        @SC SCIP.SCIPcreateProbBasic(scip[], "")
 
         mscip = new(scip, [], [])
         finalizer(free_scip, mscip)
@@ -24,15 +21,12 @@ function free_scip(mscip::ManagedSCIP)
     # avoid double-free
     if mscip.scip[] != C_NULL
         for cons in mscip.conss
-            rc = SCIPreleaseCons(mscip.scip[], cons)
-            @assert rc == SCIP_OKAY
+            @SC SCIPreleaseCons(mscip.scip[], cons)
         end
         for var in mscip.vars
-            rc = SCIPreleaseVar(mscip.scip[], var)
-            @assert rc == SCIP_OKAY
+            @SC SCIPreleaseVar(mscip.scip[], var)
         end
-        rc = SCIPfree(mscip.scip)
-        @assert rc == SCIP_OKAY
+        @SC SCIPfree(mscip.scip)
     end
     @assert mscip.scip[] == C_NULL
 end
@@ -40,12 +34,10 @@ end
 "Add variable to problem (continuous, no bounds)"
 function add_variable(mscip::ManagedSCIP)
     var = Ref{Ptr{SCIP_VAR}}()
-    rc = SCIPcreateVarBasic(
+    @SC rc = SCIPcreateVarBasic(
         mscip.scip[], var, "", -SCIPinfinity(mscip.scip[]),
         SCIPinfinity(mscip.scip[]), 0.0, SCIP_VARTYPE_CONTINUOUS)
-    @assert rc == SCIP_OKAY
-    rc = SCIPaddVar(mscip.scip[], var[])
-    @assert rc == SCIP_OKAY
+    @SC rc = SCIPaddVar(mscip.scip[], var[])
 
     push!(mscip.vars, var)
     # can't delete variable, so we use the array position as index
@@ -57,11 +49,9 @@ function add_linear_constraint(mscip::ManagedSCIP, varidx, coeffs, lhs, rhs)
     @assert length(varidx) == length(coeffs)
     vars = [mscip.vars[i][] for i in varidx]
     cons = Ref{Ptr{SCIP_CONS}}()
-    rc = SCIPcreateConsBasicLinear(
+    @SC rc = SCIPcreateConsBasicLinear(
         mscip.scip[], cons, "", length(vars), vars, coeffs, lhs, rhs)
-    @assert rc == SCIP_OKAY
-    rc = SCIPaddCons(mscip.scip[], cons[])
-    @assert rc == SCIP_OKAY
+    @SC rc = SCIPaddCons(mscip.scip[], cons[])
 
     push!(mscip.conss, cons)
     # can't delete constraint, so we use the array position as index
