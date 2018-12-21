@@ -8,3 +8,7 @@ end
 @testset "managed memory" begin
     include("managed_scip.jl")
 end
+
+@testset "MathOptInterface tests" begin
+    include("MOI_wrapper.jl")
+end

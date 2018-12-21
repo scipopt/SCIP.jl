@@ -31,6 +31,15 @@ function free_scip(mscip::ManagedSCIP)
     @assert mscip.scip[] == C_NULL
 end
 
+"Returns pointer to SCIP instance"
+get_scip(mscip::ManagedSCIP) = mscip.scip[]
+
+"Returns pointer to SCIP variable"
+get_var(mscip::ManagedSCIP, i::Int) = mscip.vars[i][]
+
+"Returns pointer to SCIP constraint"
+get_cons(mscip::ManagedSCIP, i::Int) = mscip.conss[i][]
+
 "Add variable to problem (continuous, no bounds)"
 function add_variable(mscip::ManagedSCIP)
     var = Ref{Ptr{SCIP_VAR}}()
@@ -47,7 +56,7 @@ end
 "Add (ranged) linear constraint to problem"
 function add_linear_constraint(mscip::ManagedSCIP, varidx, coeffs, lhs, rhs)
     @assert length(varidx) == length(coeffs)
-    vars = [mscip.vars[i][] for i in varidx]
+    vars = [get_var(mscip, i) for i in varidx]
     cons = Ref{Ptr{SCIP_CONS}}()
     @SC rc = SCIPcreateConsBasicLinear(
         mscip.scip[], cons, "", length(vars), vars, coeffs, lhs, rhs)
