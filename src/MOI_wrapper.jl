@@ -341,6 +341,11 @@ function MOI.get(o::Optimizer, ::MOI.VariablePrimal, vi::VI)
     return SCIPgetSolVal(scip, SCIPgetBestSol(scip), get_var(o, vi))
 end
 
+function MOI.get(o::Optimizer, ::MOI.ConstraintPrimal, ci::CI{MOI.SingleVariable,<:SS})
+    scip = get_scip(o)
+    return SCIPgetSolVal(scip, SCIPgetBestSol(scip), get_var(o, VI(ci.variable)))
+end
+
 function MOI.get(o::Optimizer, ::MOI.ConstraintPrimal, ci::CI{MOI.ScalarAffineFunction{Float64},<:SS})
     scip = get_scip(o)
     return SCIPgetActivityLinear(scip, get_cons(o, ci), SCIPgetBestSol(scip))
