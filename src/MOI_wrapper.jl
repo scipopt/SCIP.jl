@@ -69,6 +69,7 @@ function register!(o::Optimizer, c::CI{F,S}) where {F,S}
     return c
 end
 
+
 ## general queries and support
 
 MOI.get(::Optimizer, ::MOI.SolverName) = "SCIP"
@@ -86,6 +87,7 @@ MOI.supports(::Optimizer, ::MOI.ObjectiveSense) = true
 MOI.supports(::Optimizer, ::MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}) = true
 
 MOIU.supports_default_copy_to(model::Optimizer, copy_names::Bool) = !copy_names
+
 
 ## model creation, query and modification
 
@@ -238,4 +240,46 @@ end
 function MOI.optimize!(o::Optimizer)
     @SC SCIPsolve(o.mscip.scip[])
     return nothing
+end
+
+term_status_map = Dict(
+    SCIP_STATUS_UNKNOWN => MOI.OPTIMIZE_NOT_CALLED,
+    SCIP_STATUS_USERINTERRUPT => MOI.INTERRUPTED,
+    SCIP_STATUS_NODELIMIT => MOI.NODE_LIMIT,
+    SCIP_STATUS_TOTALNODELIMIT => MOI.NODE_LIMIT,
+    SCIP_STATUS_STALLNODELIMIT => MOI.OTHER_LIMIT,
+    SCIP_STATUS_TIMELIMIT => MOI.TIME_LIMIT,
+    SCIP_STATUS_MEMLIMIT => MOI.MEMORY_LIMIT,
+    SCIP_STATUS_GAPLIMIT => MOI.OTHER_LIMIT,
+    SCIP_STATUS_SOLLIMIT => MOI.SOLUTION_LIMIT,
+    SCIP_STATUS_BESTSOLLIMIT => MOI.OTHER_LIMIT,
+    SCIP_STATUS_RESTARTLIMIT => MOI.OTHER_LIMIT,
+    SCIP_STATUS_OPTIMAL => MOI.OPTIMAL,
+    SCIP_STATUS_INFEASIBLE => MOI.INFEASIBLE,
+    SCIP_STATUS_UNBOUNDED => MOI.DUAL_INFEASIBLE,
+    SCIP_STATUS_INFORUNBD => MOI.INFEASIBLE_OR_UNBOUNDED,
+    SCIP_STATUS_TERMINATE => MOI.INTERRUPTED,
+)
+
+function MOI.get(o::Optimizer, ::MOI.TerminationStatus)
+    term_status_map[SCIPgetStatus(get_scip(o))]
+end
+
+function MOI.get(o::Optimizer, ::MOI.PrimalStatus)
+    SCIPgetNSols(get_scip(o)) > 0 ? MOI.FEASIBLE_POINT : MOI.NO_SOLUTION
+end
+
+function MOI.get(o::Optimizer, ::MOI.ObjectiveValue)
+    scip = get_scip(o)
+    return SCIPgetSolOrigObj(scip, SCIPgetBestSol(scip))
+end
+
+function MOI.get(o::Optimizer, ::MOI.VariablePrimal, vi::VI)
+    scip = get_scip(o)
+    return SCIPgetSolVal(scip, SCIPgetBestSol(scip), get_var(o, vi))
+end
+
+function MOI.get(o::Optimizer, ::MOI.ConstraintPrimal, ci::CI{MOI.ScalarAffineFunction{Float64},<:SS})
+    scip = get_scip(o)
+    return SCIPgetActivityLinear(scip, get_cons(o, ci), SCIPgetBestSol(scip))
 end
