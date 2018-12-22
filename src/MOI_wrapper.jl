@@ -5,17 +5,19 @@ const MOIU = MOI.Utilities
 const VI = MOI.VariableIndex
 const CI = MOI.ConstraintIndex
 
+const VarMap = Dict{Ptr{SCIP_VAR}, Int}
 const ConsMap = Dict{Tuple{DataType, DataType}, Vector{Int}}
 
 mutable struct Optimizer <: MOI.AbstractOptimizer
     mscip::ManagedSCIP
+    var::VarMap
     cons::ConsMap
 
-    Optimizer() = new(ManagedSCIP(), ConsMap())
+    Optimizer() = new(ManagedSCIP(), VarMap(), ConsMap())
 end
 
 
-## convenience methods (not part of MOI)
+## convenience functions (not part of MOI)
 
 "Returns pointer to SCIP instance"
 get_scip(o::Optimizer) = get_scip(o.mscip)
@@ -23,14 +25,39 @@ get_scip(o::Optimizer) = get_scip(o.mscip)
 "Returns pointer to SCIP variable"
 get_var(o::Optimizer, v::VI) = get_var(o.mscip, v.value)
 
+"Returns index of SCIP variable"
+get_index(o::Optimizer, var::Ptr{SCIP_VAR}) = o.var[var]
+
 "Returns pointer to SCIP constraint"
-get_cons(o::Optimizer, v::CI{F,S}) where {F,S} = get_cons(o.mscip, c.value)
+get_cons(o::Optimizer, c::CI{F,S}) where {F,S} = get_cons(o.mscip, c.value)
 
 "Extract bounds from sets"
 bounds(set::MOI.EqualTo{Float64}) = (set.value, set.value)
 bounds(set::MOI.GreaterThan{Float64}) = (set.lower, nothing)
 bounds(set::MOI.LessThan{Float64}) = (nothing, set.upper)
 bounds(set::MOI.Interval{Float64}) = (set.lower, set.upper)
+
+"Make set from bounds"
+function from_bounds(::Type{MOI.EqualTo{Float64}}, lower, upper)
+    @assert lower == upper
+    return MOI.EqualTo{Float64}(lower)
+end
+function from_bounds(::Type{MOI.GreaterThan{Float64}}, lower, upper)
+    MOI.GreaterThan{Float64}(lower)
+end
+function from_bounds(::Type{MOI.LessThan{Float64}}, lower, upper)
+    MOI.LessThan{Float64}(upper)
+end
+function from_bounds(::Type{MOI.Interval{Float64}}, lower, upper)
+    MOI.Interval{Float64}(lower, upper)
+end
+
+"Register variable in mapping"
+function register!(o::Optimizer, var::Ptr{SCIP_VAR}, index::Int)
+    @assert !haskey(o.var, var)
+    o.var[var] = index
+    return index
+end
 
 "Register constraint in mapping"
 function register!(o::Optimizer, c::CI{F,S}) where {F,S}
@@ -58,8 +85,7 @@ MOI.supports_constraint(o::Optimizer, ::Type{<:SF}, ::Type{<:SS}) = true
 MOI.supports(::Optimizer, ::MOI.ObjectiveSense) = true
 MOI.supports(::Optimizer, ::MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}) = true
 
-MOIU.supports_allocate_load(o::Optimizer, copy_names::Bool) = !copy_names
-
+MOIU.supports_default_copy_to(model::Optimizer, copy_names::Bool) = !copy_names
 
 ## model creation, query and modification
 
@@ -72,6 +98,9 @@ function MOI.empty!(o::Optimizer)
     finalize(o.mscip)
     # create a new one
     o.mscip = ManagedSCIP()
+    # clear auxiliary mapping structures
+    o.var = VarMap()
+    o.cons = ConsMap()
     return nothing
 end
 
@@ -79,9 +108,16 @@ function MOI.copy_to(dest::Optimizer, src::MOI.ModelLike; kws...)
     MOIU.automatic_copy_to(dest, src; kws...)
 end
 
-MOI.add_variable(o::Optimizer) = MOI.VariableIndex(add_variable(o.mscip))
+function MOI.add_variable(o::Optimizer)
+    i::Int = add_variable(o.mscip)
+    var::Ptr{SCIP_VAR} = o.mscip.vars[i][] # i == end
+    register!(o, var, i)
+    return MOI.VariableIndex(i)
+end
+
 MOI.add_variables(o::Optimizer, n) = [MOI.add_variable(o) for i=1:n]
 MOI.get(o::Optimizer, ::MOI.NumberOfVariables) = length(o.mscip.vars)
+MOI.get(o::Optimizer, ::MOI.ListOfVariableIndices) = VI.(1:length(o.mscip.vars))
 
 function MOI.add_constraint(o::Optimizer, func::MOI.SingleVariable,
                             set::S) where S <: SS
@@ -113,6 +149,38 @@ function MOI.get(o::Optimizer, ::MOI.NumberOfConstraints{F,S}) where {F,S}
     haskey(o.cons, (F, S)) ? length(o.cons[F, S]) : 0
 end
 
+function MOI.get(o::Optimizer, ::MOI.ConstraintFunction,
+                 ci::CI{MOI.SingleVariable, S}) where S <: SS
+    MOI.SingleVariable(ci)
+end
+
+function MOI.get(o::Optimizer, ::MOI.ConstraintSet,
+                 ci::CI{MOI.SingleVariable, S}) where S <: SS
+    var = get_var(o.mscip, ci.value)
+    lb, ub = SCIPvarGetLbOriginal(var), SCIPvarGetUbOriginal(var)
+    from_bounds(S, lb, ub)
+end
+
+function MOI.get(o::Optimizer, ::MOI.ConstraintFunction,
+                 ci::CI{MOI.ScalarAffineFunction{Float64}, S}) where S <: SS
+    scip, cons = get_scip(o), get_cons(o, ci)
+    nvars::Int = SCIPgetNVarsLinear(scip, cons)
+    vars = unsafe_wrap(Array{Ptr{SCIP_VAR}}, SCIPgetVarsLinear(scip, cons), nvars)
+    vals = unsafe_wrap(Array{Float64}, SCIPgetValsLinear(scip, cons), nvars)
+
+    terms = [MOI.ScalarAffineTerm{Float64}(vals[i], VI(get_index(o, vars[i])))
+             for i=1:nvars]
+    # can not identify constant anymore (is merged with lhs,rhs)
+    return MOI.ScalarAffineFunction{Float64}(terms, 0.0)
+end
+
+function MOI.get(o::Optimizer, ::MOI.ConstraintSet,
+                 ci::CI{MOI.ScalarAffineFunction{Float64}, S}) where S <: SS
+    scip, cons = get_scip(o), get_cons(o, ci)
+    lhs, rhs = SCIPgetLhsLinear(scip, cons), SCIPgetRhsLinear(scip, cons)
+    from_bounds(S, lhs, rhs)
+end
+
 function MOI.set(o::Optimizer,
                  ::MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}},
                  obj::MOI.ScalarAffineFunction{Float64})
@@ -123,14 +191,29 @@ function MOI.set(o::Optimizer,
         @SC SCIPchgVarObj(scip, v[], 0.0)
     end
 
-    # set new objective coefficients
+    # set new objective coefficients, summing coefficients
     for t in obj.terms
-        @SC SCIPchgVarObj(scip, get_var(o, t.variable_index), t.coefficient)
+        var = get_var(o, t.variable_index)
+        oldcoef = SCIPvarGetObj(var)
+        newcoef = oldcoef + t.coefficient
+        @SC SCIPchgVarObj(scip, var, newcoef)
     end
 
     @SC SCIPaddOrigObjoffset(scip, obj.constant - SCIPgetOrigObjoffset(scip))
 
     return nothing
+end
+
+function MOI.get(o::Optimizer,
+                 ::MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}})
+    terms = MOI.ScalarAffineTerm{Float64}[]
+    for i = 1:length(o.mscip.vars)
+        vi = VI(i)
+        coef = SCIPvarGetObj(get_var(o, vi))
+        coef == 0.0 || push!(terms, MOI.ScalarAffineTerm{Float64}(coef, vi))
+    end
+    constant = SCIPgetOrigObjoffset(get_scip(o))
+    return MOI.ScalarAffineFunction{Float64}(terms, constant)
 end
 
 function MOI.set(o::Optimizer, ::MOI.ObjectiveSense,
