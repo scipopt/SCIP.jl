@@ -10,8 +10,6 @@ const config = MOIT.TestConfig(duals=false, infeas_certificates=false)
         "linear1",  # needs MOI.delete
         "linear5",  # needs MOI.delete
         "linear7",  # needs MOI.VectorAffineFunction
-        "linear8b", # TODO: have solutions for unbounded problem
-        "linear8c", # TODO: have solutions for unbounded problem
         "linear11", # needs MOI.delete
         "linear13", # TODO: support MOI.FEASIBILITY_SENSE
         "linear14", # needs MOI.delete
