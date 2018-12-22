@@ -1125,6 +1125,8 @@ const SCIP_VARDATA = SCIP_VarData
 const SCIP_VBCCOLOR = SCIP_VBCColor
 const SCIP_Visual = Cvoid
 const SCIP_VISUAL = SCIP_Visual
+const SCIP_File = Cvoid
+const SCIP_FILE = SCIP_File
 
 # Skipping MacroDefinition: SCIPallocMemory ( scip , ptr ) ( ( BMSallocMemory ( ( ptr ) ) == NULL ) ? SCIP_NOMEMORY : SCIP_OKAY )
 # Skipping MacroDefinition: SCIPallocMemoryArray ( scip , ptr , num ) ( ( BMSallocMemoryArray ( ( ptr ) , ( num ) ) == NULL ) ? SCIP_NOMEMORY : SCIP_OKAY )

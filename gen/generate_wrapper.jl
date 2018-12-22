@@ -4,7 +4,7 @@ HEADER_BASE = "/usr/include" # using system-wide installation of SCIP
 all_headers = readdir(joinpath(HEADER_BASE, "scip"))
 scip_headers = vcat(
     filter(h -> startswith(h, "type_"), all_headers),
-    # filter(h -> startswith(h, "pub_"), all_headers),
+    filter(h -> startswith(h, "pub_"), all_headers),
     filter(h -> startswith(h, "scip_"), all_headers),
     "scipdefplugins.h",
     filter(h -> startswith(h, "cons_"), all_headers),
