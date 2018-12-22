@@ -95,7 +95,7 @@ MOI.supports_constraint(o::Optimizer, ::Type{<:SF}, ::Type{<:SS}) = true
 MOI.supports(::Optimizer, ::MOI.ObjectiveSense) = true
 MOI.supports(::Optimizer, ::MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}) = true
 
-MOIU.supports_default_copy_to(model::Optimizer, copy_names::Bool) = !copy_names
+MOIU.supports_default_copy_to(model::Optimizer, copy_names::Bool) = true
 
 struct Param <: MOI.AbstractOptimizerAttribute
     name::String
@@ -131,6 +131,9 @@ function MOI.copy_to(dest::Optimizer, src::MOI.ModelLike; kws...)
     MOIU.automatic_copy_to(dest, src; kws...)
 end
 
+MOI.get(o::Optimizer, ::MOI.Name) = SCIPgetProbName(get_scip(o))
+MOI.set(o::Optimizer, ::MOI.Name, name::String) = @SC SCIPsetProbName(get_scip(o), name)
+
 function MOI.add_variable(o::Optimizer)
     allow_modification(o)
     i::Int = add_variable(o.mscip)
@@ -142,6 +145,16 @@ end
 MOI.add_variables(o::Optimizer, n) = [MOI.add_variable(o) for i=1:n]
 MOI.get(o::Optimizer, ::MOI.NumberOfVariables) = length(o.mscip.vars)
 MOI.get(o::Optimizer, ::MOI.ListOfVariableIndices) = VI.(1:length(o.mscip.vars))
+
+MOI.get(o::Optimizer, ::MOI.VariableName, vi::VI) = SCIPvarGetName(get_var(o, vi))
+function MOI.set(o::Optimizer, ::MOI.VariableName, vi::VI, name::String)
+    @SC SCIPchgVarName(get_scip(o), get_var(o, vi), name)
+end
+
+function MOI.get(o::Optimizer, ::Type{VI}, name::String)
+    var = SCIPfindVar(get_scip(o), name)
+    return VI(o.var[var])
+end
 
 function MOI.add_constraint(o::Optimizer, func::MOI.SingleVariable,
                             set::S) where S <: SS
