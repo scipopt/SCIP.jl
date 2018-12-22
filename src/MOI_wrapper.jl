@@ -142,6 +142,16 @@ function MOI.add_constraint(o::Optimizer, func::MOI.SingleVariable,
     return register!(o, CI{MOI.SingleVariable, S}(i))
 end
 
+function MOI.set(o::SCIP.Optimizer, ::MOI.ConstraintSet,
+                 ci::CI{MOI.SingleVariable,S}, set::S) where {S <: SS}
+    allow_modification(o)
+    var = get_var(o, VI(ci.value)) # cons index is actually var index
+    lb, ub = bounds(set)
+    lb == nothing || @SC SCIPchgVarLb(get_scip(o), var, lb)
+    ub == nothing || @SC SCIPchgVarUb(get_scip(o), var, ub)
+    return nothing
+end
+
 function MOI.add_constraint(o::Optimizer, func::MOI.ScalarAffineFunction{Float64},
                             set::S) where {S <: SS}
     allow_modification(o)
@@ -247,6 +257,22 @@ function MOI.get(o::Optimizer, ::MOI.ObjectiveSense)
         MOI.MIN_SENSE
 end
 
+function MOI.modify(o::Optimizer, ci::CI{MOI.ScalarAffineFunction{Float64}, <:SS},
+                    change::MOI.ScalarCoefficientChange{Float64})
+    allow_modification(o)
+    @SC SCIPchgCoefLinear(get_scip(o), get_cons(o, ci),
+                          get_var(o, change.variable), change.new_coefficient)
+    return nothing
+end
+
+function MOI.modify(o::Optimizer,
+                    ::MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}},
+                    change::MOI.ScalarCoefficientChange{Float64})
+    allow_modification(o)
+    @SC SCIPchgVarObj(get_scip(o), get_var(o, change.variable),
+                      change.new_coefficient)
+    return nothing
+end
 
 ## optimization and results
 
@@ -281,6 +307,8 @@ end
 function MOI.get(o::Optimizer, ::MOI.PrimalStatus)
     SCIPgetNSols(get_scip(o)) > 0 ? MOI.FEASIBLE_POINT : MOI.NO_SOLUTION
 end
+
+MOI.get(o::Optimizer, ::MOI.ResultCount) = SCIPgetNSols(get_scip(o))
 
 function MOI.get(o::Optimizer, ::MOI.ObjectiveValue)
     scip = get_scip(o)
