@@ -12,8 +12,9 @@ mutable struct Optimizer <: MOI.AbstractOptimizer
     mscip::ManagedSCIP
     var::VarMap
     cons::ConsMap
+    params::Dict{String,Any}
 
-    Optimizer() = new(ManagedSCIP(), VarMap(), ConsMap())
+    Optimizer() = new(ManagedSCIP(), VarMap(), ConsMap(), Dict())
 end
 
 
@@ -96,6 +97,14 @@ MOI.supports(::Optimizer, ::MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float
 
 MOIU.supports_default_copy_to(model::Optimizer, copy_names::Bool) = !copy_names
 
+struct Param <: MOI.AbstractOptimizerAttribute
+    name::String
+end
+function MOI.set(o::Optimizer, param::Param, value)
+    o.params[param.name] = value
+    set_parameter(o.mscip, param.name, value)
+    return nothing
+end
 
 ## model creation, query and modification
 
@@ -111,6 +120,10 @@ function MOI.empty!(o::Optimizer)
     # clear auxiliary mapping structures
     o.var = VarMap()
     o.cons = ConsMap()
+    # reapply parameters
+    for pair in o.params
+        set_parameter(o.mscip, pair.first, pair.second)
+    end
     return nothing
 end
 

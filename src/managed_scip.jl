@@ -66,3 +66,9 @@ function add_linear_constraint(mscip::ManagedSCIP, varidx, coeffs, lhs, rhs)
     # can't delete constraint, so we use the array position as index
     return length(mscip.conss)
 end
+
+"Set generic parameter"
+function set_parameter(mscip::ManagedSCIP, name::String, value)
+    @SC SCIPsetParam(get_scip(mscip), name, Ptr{Cvoid}(value))
+    return nothing
+end
