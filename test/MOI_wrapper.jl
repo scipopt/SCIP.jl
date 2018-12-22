@@ -3,6 +3,8 @@ const MOI = MathOptInterface
 const MOIT = MOI.Test
 
 const optimizer = SCIP.Optimizer()
+MOI.set(optimizer, SCIP.Param("display/verblevel"), 0)
+
 const config = MOIT.TestConfig(duals=false, infeas_certificates=false)
 
 @testset "MOI Continuous Linear" begin
