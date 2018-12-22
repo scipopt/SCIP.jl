@@ -154,6 +154,11 @@ end
 
 function MOI.add_constraint(o::Optimizer, func::MOI.ScalarAffineFunction{Float64},
                             set::S) where {S <: SS}
+    if func.constant != 0.0
+        msg = "SCIP does not support linear constraints with a constant offset."
+        throw(MOI.AddConstraintNotAllowed{MOI.ScalarAffineFunction{Float64}, S}(msg))
+    end
+
     allow_modification(o)
     scip = get_scip(o)
 
@@ -161,11 +166,27 @@ function MOI.add_constraint(o::Optimizer, func::MOI.ScalarAffineFunction{Float64
     coefs = [t.coefficient for t in func.terms]
 
     lhs, rhs = bounds(set)
-    lhs = lhs == nothing ? -SCIPinfinity(scip) : lhs - func.constant
-    rhs = rhs == nothing ?  SCIPinfinity(scip) : rhs - func.constant
+    lhs = lhs == nothing ? -SCIPinfinity(scip) : lhs
+    rhs = rhs == nothing ?  SCIPinfinity(scip) : rhs
 
     i = add_linear_constraint(o.mscip, varidx, coefs, lhs, rhs)
     return register!(o, CI{MOI.ScalarAffineFunction{Float64}, S}(i))
+end
+
+function MOI.set(o::SCIP.Optimizer, ::MOI.ConstraintSet,
+                 ci::CI{MOI.ScalarAffineFunction{Float64},S}, set::S) where {S <: SS}
+    allow_modification(o)
+    scip = get_scip(o)
+    cons = get_cons(o, ci)
+
+    lhs, rhs = bounds(set)
+    lhs = lhs == nothing ? -SCIPinfinity(scip) : lhs
+    rhs = rhs == nothing ?  SCIPinfinity(scip) : rhs
+
+    @SC SCIPchgLhsLinear(scip, cons, lhs)
+    @SC SCIPchgRhsLinear(scip, cons, rhs)
+
+    return nothing
 end
 
 function MOI.get(o::Optimizer, ::MOI.NumberOfConstraints{F,S}) where {F,S}
