@@ -69,6 +69,14 @@ function register!(o::Optimizer, c::CI{F,S}) where {F,S}
     return c
 end
 
+"Go back from solved stage to problem modification stage, invalidating results."
+function allow_modification(o::Optimizer)
+    scip = get_scip(o)
+    if SCIPgetStage(scip) != SCIP_STAGE_PROBLEM
+        @SC SCIPfreeTransform(scip)
+    end
+    return nothing
+end
 
 ## general queries and support
 
@@ -111,6 +119,7 @@ function MOI.copy_to(dest::Optimizer, src::MOI.ModelLike; kws...)
 end
 
 function MOI.add_variable(o::Optimizer)
+    allow_modification(o)
     i::Int = add_variable(o.mscip)
     var::Ptr{SCIP_VAR} = o.mscip.vars[i][] # i == end
     register!(o, var, i)
@@ -123,6 +132,7 @@ MOI.get(o::Optimizer, ::MOI.ListOfVariableIndices) = VI.(1:length(o.mscip.vars))
 
 function MOI.add_constraint(o::Optimizer, func::MOI.SingleVariable,
                             set::S) where S <: SS
+    allow_modification(o)
     var = get_var(o, func.variable)
     lb, ub = bounds(set)
     lb == nothing || @SC SCIPchgVarLb(get_scip(o), var, lb)
@@ -134,6 +144,7 @@ end
 
 function MOI.add_constraint(o::Optimizer, func::MOI.ScalarAffineFunction{Float64},
                             set::S) where {S <: SS}
+    allow_modification(o)
     scip = get_scip(o)
 
     varidx = [t.variable_index.value for t in func.terms]
@@ -186,6 +197,7 @@ end
 function MOI.set(o::Optimizer,
                  ::MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}},
                  obj::MOI.ScalarAffineFunction{Float64})
+    allow_modification(o)
     scip = get_scip(o)
 
     # reset objective coefficient of all variables first
@@ -220,6 +232,7 @@ end
 
 function MOI.set(o::Optimizer, ::MOI.ObjectiveSense,
                  sense::MOI.OptimizationSense)
+    allow_modification(o)
     if sense == MOI.MIN_SENSE
         @SC SCIPsetObjsense(get_scip(o), SCIP_OBJSENSE_MINIMIZE)
     elseif sense == MOI.MAX_SENSE
