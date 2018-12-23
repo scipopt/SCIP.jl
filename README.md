@@ -8,9 +8,9 @@ Julia interface to [SCIP](http://scip.zib.de) solver.
 
 ## Update (December 2018)
 
-We have completely rewritten the interface from scratch,
-using[Clang.jl](https://github.com/ihnorton/Clang.jl) to generate wrappers based
-on the headers of the SCIP library.
+We have completely rewritten the interface from scratch, using
+[Clang.jl](https://github.com/ihnorton/Clang.jl) to generate wrappers based on
+the headers of the SCIP library.
 The goal is to support [JuMP](https://github.com/JuliaOpt/JuMP.jl) (from version
 0.19 on) through
 [MathOptInterface](https://github.com/JuliaOpt/MathOptInterface.jl).
@@ -35,7 +35,7 @@ package should then work out of the box:
 
     pkg> add SCIP
 
-If you [build SCIP from source])(https://scip.zib.de/doc-6.0.0/html/CMAKE.php)
+If you [build SCIP from source](https://scip.zib.de/doc-6.0.0/html/CMAKE.php)
 you should set the environment variable `SCIPOPTDIR` to point the the
 **installation path**. That is, `$SCIPOPTDIR/lib/libscip.so` should exist.
 
@@ -44,7 +44,7 @@ you should set the environment variable `SCIPOPTDIR` to point the the
 **Wrapper of Public API**: All of SCIP's public API methods are wrapped and
 available within the `SCIP` package. This includes the `scip_*.h` and `pub_*.h`
 headers that are collected in `scip.h`, as well as all default constraint
-handlers (`cons_*`.) But the wrapped functions do not transform any data
+handlers (`cons_*.h`.) But the wrapped functions do not transform any data
 structures and work on the *raw* points (e.g. `SCIP*`). Convenience wrapper
 functions based on Julia types are added as needed.
 
