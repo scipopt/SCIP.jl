@@ -14,6 +14,9 @@ const GTS = MOI.GreaterThan{Float64}
 const LTS = MOI.LessThan{Float64}
 const INS = MOI.Interval{Float64}
 const BOUNDS = Union{EQS, GTS, LTS, INS}
+const BINS = MOI.ZeroOne
+const INTS = MOI.Integer
+const TYPES = Union{BINS, INTS}
 # support changes
 const SCC = MOI.ScalarCoefficientChange{Float64}
 # other MOI types
@@ -90,6 +93,8 @@ MOI.get(::Optimizer, ::MOI.SolverName) = "SCIP"
 
 # variable bounds
 MOI.supports_constraint(o::Optimizer, ::Type{SVF}, ::Type{<:BOUNDS}) = true
+# variable types (binary, integer)
+MOI.supports_constraint(o::Optimizer, ::Type{SVF}, ::Type{<:TYPES}) = true
 # linear constraints
 MOI.supports_constraint(o::Optimizer, ::Type{SAF}, ::Type{<:BOUNDS}) = true
 
@@ -151,6 +156,24 @@ MOI.is_valid(o::Optimizer, vi::VI) = 1 <= vi.value <= length(o.mscip.vars)
 MOI.get(o::Optimizer, ::MOI.VariableName, vi::VI) = SCIPvarGetName(get_var(o, vi))
 function MOI.set(o::Optimizer, ::MOI.VariableName, vi::VI, name::String)
     @SC SCIPchgVarName(get_scip(o), get_var(o, vi), name)
+end
+
+scip_vartype(::Type{BINS}) = SCIP_VARTYPE_BINARY
+scip_vartype(::Type{INTS}) = SCIP_VARTYPE_INTEGER
+function MOI.add_constraint(o::Optimizer, func::SVF, set::S) where {S <: TYPES}
+    allow_modification(o)
+    scip = get_scip(o)
+    var = get_var(o, func.variable)
+    infeasible = Ref{Ptr{SCIP_Bool}}
+    @SC SCIPchgVarType(scip, var, scip_vartype(S), infeasible[])
+    if S <: BINS
+        # need to adjust bounds for SCIP?!
+        @SC SCIPchgVarLb(scip, var, 0.0)
+        @SC SCIPchgVarUb(scip, var, 1.0)
+    end
+    # use var index for cons index of this type
+    i = func.variable.value
+    return register!(o, CI{SVF, S}(i))
 end
 
 function MOI.add_constraint(o::Optimizer, func::SVF, set::S) where S <: BOUNDS

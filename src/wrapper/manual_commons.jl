@@ -41,3 +41,6 @@ const FILE = Cvoid
 
 const BMS_BLKMEM = Cvoid
 const BMS_BUFMEM = Cvoid
+
+const SCIP_Bool = Cuint
+const SCIP_Real = Cdouble
