@@ -14,7 +14,12 @@ mutable struct Optimizer <: MOI.AbstractOptimizer
     constypes::ConsTypeMap
     params::Dict{String,Any}
 
-    Optimizer() = new(ManagedSCIP(), PtrMap(), ConsTypeMap(), Dict())
+    # store names of constraints with SingleVariable function
+    sv2name::Dict{CI,String}
+    name2sv::Dict{String,CI}
+
+    Optimizer() = new(ManagedSCIP(), PtrMap(), ConsTypeMap(), Dict(),
+                      Dict(), Dict())
 end
 
 
@@ -120,6 +125,8 @@ function MOI.empty!(o::Optimizer)
     # clear auxiliary mapping structures
     o.index = PtrMap()
     o.constypes = ConsTypeMap()
+    o.sv2name = Dict()
+    o.name2sv = Dict()
     # reapply parameters
     for pair in o.params
         set_parameter(o.mscip, pair.first, pair.second)
@@ -145,6 +152,7 @@ end
 MOI.add_variables(o::Optimizer, n) = [MOI.add_variable(o) for i=1:n]
 MOI.get(o::Optimizer, ::MOI.NumberOfVariables) = length(o.mscip.vars)
 MOI.get(o::Optimizer, ::MOI.ListOfVariableIndices) = VI.(1:length(o.mscip.vars))
+MOI.is_valid(o::Optimizer, vi::VI) = 1 <= vi.value <= length(o.mscip.vars)
 
 MOI.get(o::Optimizer, ::MOI.VariableName, vi::VI) = SCIPvarGetName(get_var(o, vi))
 function MOI.set(o::Optimizer, ::MOI.VariableName, vi::VI, name::String)
@@ -152,8 +160,9 @@ function MOI.set(o::Optimizer, ::MOI.VariableName, vi::VI, name::String)
 end
 
 function MOI.get(o::Optimizer, ::Type{VI}, name::String)
+    # TODO: make sure this is the original variable, not transformed?
     var = SCIPfindVar(get_scip(o), name)
-    return VI(o.index[var])
+    return var == C_NULL ? nothing : VI(o.index[var])
 end
 
 function MOI.add_constraint(o::Optimizer, func::MOI.SingleVariable,
@@ -178,6 +187,10 @@ function MOI.set(o::SCIP.Optimizer, ::MOI.ConstraintSet,
     return nothing
 end
 
+function MOI.is_valid(o::Optimizer, ci::CI{MOI.SingleVariable,<:SS})
+    1 <= ci.value <= length(o.mscip.vars)
+end
+
 function MOI.add_constraint(o::Optimizer, func::MOI.ScalarAffineFunction{Float64},
                             set::S) where {S <: SS}
     if func.constant != 0.0
@@ -196,7 +209,10 @@ function MOI.add_constraint(o::Optimizer, func::MOI.ScalarAffineFunction{Float64
     rhs = rhs == nothing ?  SCIPinfinity(scip) : rhs
 
     i = add_linear_constraint(o.mscip, varidx, coefs, lhs, rhs)
-    return register!(o, CI{MOI.ScalarAffineFunction{Float64}, S}(i))
+    ci = CI{MOI.ScalarAffineFunction{Float64}, S}(i)
+    register!(o, ci)
+    register!(o, get_cons(o, ci), i)
+    return ci
 end
 
 function MOI.set(o::SCIP.Optimizer, ::MOI.ConstraintSet,
@@ -213,6 +229,10 @@ function MOI.set(o::SCIP.Optimizer, ::MOI.ConstraintSet,
     @SC SCIPchgRhsLinear(scip, cons, rhs)
 
     return nothing
+end
+
+function MOI.is_valid(o::Optimizer, ci::CI{MOI.ScalarAffineFunction{Float64},<:SS})
+    1 <= ci.value <= length(o.mscip.cons)
 end
 
 function MOI.get(o::Optimizer, ::MOI.NumberOfConstraints{F,S}) where {F,S}
@@ -262,9 +282,33 @@ function MOI.set(o::Optimizer, ::MOI.ConstraintName,
 end
 
 function MOI.get(o::Optimizer, ::Type{CI{F,S}}, name::String) where {F<:MOI.ScalarAffineFunction{Float64},S<:SS}
-    cons = SCIPfindCons(get_scip(o), name)
-    return CI{F,S}(o.index[cons])
+    cons = SCIPfindOrigCons(get_scip(o), name)
+    return cons == C_NULL ? nothing : CI{F,S}(o.index[cons])
 end
+
+function MOI.get(o::Optimizer, ::MOI.ConstraintName,
+                 ci::CI{MOI.SingleVariable,<:SS})
+    o.sv2name[ci]
+end
+
+function MOI.set(o::Optimizer, ::MOI.ConstraintName,
+                 ci::CI{MOI.SingleVariable,<:SS}, name::String)
+    # delete old reverse reference
+    if haskey(o.sv2name, ci)
+        delete!(o.name2sv, o.sv2name[ci])
+    end
+    # set new name
+    o.sv2name[ci] = name
+    o.name2sv[name] = ci
+    return nothing
+end
+
+function MOI.get(o::Optimizer, ::Type{CI{F,S}}, name::String) where {F<:MOI.SingleVariable,S<:SS}
+    o.name2sv[name]
+end
+
+# for unsupported constraints
+MOI.get(o::Optimizer, ::Type{CI}, name::String) = nothing
 
 function MOI.set(o::Optimizer,
                  ::MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}},
