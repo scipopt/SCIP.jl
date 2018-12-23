@@ -19,3 +19,10 @@ const config = MOIT.TestConfig(duals=false, infeas_certificates=false)
     ]
     MOIT.contlineartest(optimizer, config, excluded)
 end
+
+@testset "MOI Integer Linear" begin
+    excluded = [
+        "int2", # TODO: implement SOS1, SOS2
+    ]
+    MOIT.intlineartest(optimizer, config, excluded)
+end
