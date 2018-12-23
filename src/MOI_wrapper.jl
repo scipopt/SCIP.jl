@@ -406,3 +406,9 @@ function MOI.get(o::Optimizer, ::MOI.ConstraintPrimal, ci::CI{SAF,<:BOUNDS})
     scip = get_scip(o)
     return SCIPgetActivityLinear(scip, get_cons(o, ci), SCIPgetBestSol(scip))
 end
+
+MOI.get(o::Optimizer, ::MOI.ObjectiveBound) = SCIPgetDualbound(get_scip(o))
+MOI.get(o::Optimizer, ::MOI.RelativeGap) = SCIPgetGap(get_scip(o))
+MOI.get(o::Optimizer, ::MOI.SolveTime) = SCIPgetSolvingTime(get_scip(o))
+MOI.get(o::Optimizer, ::MOI.SimplexIterations) = SCIPgetNLPIterations(get_scip(o))
+MOI.get(o::Optimizer, ::MOI.NodeCount) = SCIPgetNNodes(get_scip(o))
