@@ -1,4 +1,3 @@
-using Compat
 using Libdl
 
 depsfile = joinpath(dirname(@__FILE__), "deps.jl")
@@ -17,7 +16,7 @@ paths_to_try = []
 
 # prefer environment variable
 if haskey(ENV, "SCIPOPTDIR")
-    if Compat.Sys.isunix()
+    if Sys.islinux()
         push!(paths_to_try, joinpath(ENV["SCIPOPTDIR"], "lib", libname))
     end
 end
