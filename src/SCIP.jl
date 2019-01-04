@@ -27,4 +27,7 @@ include("managed_scip.jl")
 # implementation of MOI
 include("MOI_wrapper.jl")
 
+# warn about rewrite
+include("compat.jl")
+
 end
