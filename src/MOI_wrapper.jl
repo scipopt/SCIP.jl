@@ -37,38 +37,38 @@ end
 
 ## convenience functions (not part of MOI)
 
-"Returns pointer to SCIP instance"
+"Return pointer to SCIP instance."
 get_scip(o::Optimizer) = get_scip(o.mscip)
 
-"Returns pointer to SCIP variable"
+"Return pointer to SCIP variable."
 get_var(o::Optimizer, v::VI) = get_var(o.mscip, v.value)
 
-"Returns index of SCIP variable/constraint"
+"Return index of SCIP variable/constraint."
 get_index(o::Optimizer, var::Ptr{Cvoid}) = o.index[var]
 
-"Returns pointer to SCIP constraint"
+"Return pointer to SCIP constraint."
 get_cons(o::Optimizer, c::CI{F,S}) where {F,S} = get_cons(o.mscip, c.value)
 
-"Extract bounds from sets"
+"Extract bounds from sets."
 bounds(set::EQS) = (set.value, set.value)
 bounds(set::GTS) = (set.lower, nothing)
 bounds(set::LTS) = (nothing, set.upper)
 bounds(set::INS) = (set.lower, set.upper)
 
-"Make set from bounds"
+"Make set from bounds."
 from_bounds(::Type{EQS}, lower, upper) = EQS(lower) # should == upper
 from_bounds(::Type{GTS}, lower, upper) = GTS(lower)
 from_bounds(::Type{LTS}, lower, upper) = LTS(upper)
 from_bounds(::Type{INS}, lower, upper) = INS(lower, upper)
 
-"Register variable in mapping"
+"Register variable in mapping."
 function register!(o::Optimizer, var::Ptr{SCIP_VAR}, index::Int)
     @assert !haskey(o.index, var)
     o.index[var] = index
     return index
 end
 
-"Register constraint in mapping"
+"Register constraint in mapping."
 function register!(o::Optimizer, c::CI{F,S}) where {F,S}
     if haskey(o.constypes, (F, S))
         push!(o.constypes[F,S], c.value)

@@ -1,4 +1,4 @@
-# holds pointers to SCIP data and takes care of memory mgmt
+"ManagedSCIP holds pointers to SCIP data and takes care of memory management."
 mutable struct ManagedSCIP
     scip::Ref{Ptr{SCIP_}}
     vars::Vector{Ref{Ptr{SCIP_VAR}}}
@@ -16,7 +16,7 @@ mutable struct ManagedSCIP
     end
 end
 
-"Release references and free memory"
+"Release references and free memory."
 function free_scip(mscip::ManagedSCIP)
     # avoid double-free
     if mscip.scip[] != C_NULL
@@ -31,13 +31,13 @@ function free_scip(mscip::ManagedSCIP)
     @assert mscip.scip[] == C_NULL
 end
 
-"Returns pointer to SCIP instance"
+"Return pointer to SCIP instance."
 get_scip(mscip::ManagedSCIP) = mscip.scip[]
 
-"Returns pointer to SCIP variable"
+"Return pointer to SCIP variable."
 get_var(mscip::ManagedSCIP, i::Int) = mscip.vars[i][]
 
-"Returns pointer to SCIP constraint"
+"Return pointer to SCIP constraint."
 get_cons(mscip::ManagedSCIP, i::Int) = mscip.conss[i][]
 
 "Add variable to problem (continuous, no bounds)"
@@ -53,7 +53,7 @@ function add_variable(mscip::ManagedSCIP)
     return length(mscip.vars)
 end
 
-"Add (ranged) linear constraint to problem"
+"Add (ranged) linear constraint to problem."
 function add_linear_constraint(mscip::ManagedSCIP, varidx, coeffs, lhs, rhs)
     @assert length(varidx) == length(coeffs)
     vars = [get_var(mscip, i) for i in varidx]
@@ -67,7 +67,7 @@ function add_linear_constraint(mscip::ManagedSCIP, varidx, coeffs, lhs, rhs)
     return length(mscip.conss)
 end
 
-"Set generic parameter"
+"Set generic parameter."
 function set_parameter(mscip::ManagedSCIP, name::String, value)
     @SC SCIPsetParam(get_scip(mscip), name, Ptr{Cvoid}(value))
     return nothing
