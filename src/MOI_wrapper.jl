@@ -61,14 +61,14 @@ from_bounds(::Type{GTS}, lower, upper) = GTS(lower)
 from_bounds(::Type{LTS}, lower, upper) = LTS(upper)
 from_bounds(::Type{INS}, lower, upper) = INS(lower, upper)
 
-"Register variable in mapping."
+"Register variable in mapping, return variable index."
 function register!(o::Optimizer, var::Ptr{SCIP_VAR}, index::Int)
     @assert !haskey(o.index, var)
     o.index[var] = index
     return index
 end
 
-"Register constraint in mapping."
+"Register constraint in mapping, return constraint index."
 function register!(o::Optimizer, c::CI{F,S}) where {F,S}
     if haskey(o.constypes, (F, S))
         push!(o.constypes[F,S], c.value)

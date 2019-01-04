@@ -18,7 +18,7 @@ end
 
 "Release references and free memory."
 function free_scip(mscip::ManagedSCIP)
-    # avoid double-free
+    # Avoid double-free (SCIP will set the pointers to NULL).
     if mscip.scip[] != C_NULL
         for cons in mscip.conss
             @SC SCIPreleaseCons(mscip.scip[], cons)
@@ -40,7 +40,7 @@ get_var(mscip::ManagedSCIP, i::Int) = mscip.vars[i][]
 "Return pointer to SCIP constraint."
 get_cons(mscip::ManagedSCIP, i::Int) = mscip.conss[i][]
 
-"Add variable to problem (continuous, no bounds)"
+"Add variable to problem (continuous, no bounds), return variable index."
 function add_variable(mscip::ManagedSCIP)
     var = Ref{Ptr{SCIP_VAR}}()
     @SC rc = SCIPcreateVarBasic(
@@ -53,7 +53,17 @@ function add_variable(mscip::ManagedSCIP)
     return length(mscip.vars)
 end
 
-"Add (ranged) linear constraint to problem."
+"""
+Add (ranged) linear constraint to problem, return constraint index.
+
+# Arguments
+- `varidx::AbstractArray{Int}`: indices of variables for affine terms.
+- `coeffs::AbstractArray{Float64}`: coefficients for affine terms.
+- `lhs::Float64`: left-hand side for ranged constraint
+- `rhs::Float64`: right-hand side for ranged constraint
+
+Use `(-)SCIPinfinity(scip)` for one of the bounds if not applicable.
+"""
 function add_linear_constraint(mscip::ManagedSCIP, varidx, coeffs, lhs, rhs)
     @assert length(varidx) == length(coeffs)
     vars = [get_var(mscip, i) for i in varidx]
