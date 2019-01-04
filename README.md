@@ -45,8 +45,8 @@ you should set the environment variable `SCIPOPTDIR` to point the the
 available within the `SCIP` package. This includes the `scip_*.h` and `pub_*.h`
 headers that are collected in `scip.h`, as well as all default constraint
 handlers (`cons_*.h`.) But the wrapped functions do not transform any data
-structures and work on the *raw* points (e.g. `SCIP*`). Convenience wrapper
-functions based on Julia types are added as needed.
+structures and work on the *raw* pointers (e.g. `SCIP*` in C, `Ptr{SCIP_}` in
+Julia). Convenience wrapper functions based on Julia types are added as needed.
 
 **Memory Management**: Programming with SCIP requires dealing with variable and
 constraints objects that use [reference
