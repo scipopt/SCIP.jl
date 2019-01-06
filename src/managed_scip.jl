@@ -32,16 +32,28 @@ function free_scip(mscip::ManagedSCIP)
     @assert scip(mscip) == C_NULL
 end
 
+"Type-safe wrapper for `Int64`, references a variable."
+struct VarRef
+    val::Int64
+end
+
+"Type-safe wrapper for `Int64`, references a constraint."
+struct ConsRef
+    val::Int64
+end
+
+const REF = Union{VarRef,ConsRef}
+
 "Return pointer to SCIP instance."
 scip(mscip::ManagedSCIP) = mscip.scip[]
 
 "Return pointer to SCIP variable."
-var(mscip::ManagedSCIP, i::Int) = mscip.vars[i][]
+var(mscip::ManagedSCIP, vr::VarRef) = mscip.vars[vr.val][]
 
 "Return pointer to SCIP constraint."
-cons(mscip::ManagedSCIP, i::Int) = mscip.conss[i][]
+cons(mscip::ManagedSCIP, cr::ConsRef) = mscip.conss[cr.val][]
 
-"Add variable to problem (continuous, no bounds), return variable index."
+"Add variable to problem (continuous, no bounds), return var ref."
 function add_variable(mscip::ManagedSCIP)
     s = scip(mscip)
     var__ = Ref{Ptr{SCIP_VAR}}()
@@ -51,31 +63,31 @@ function add_variable(mscip::ManagedSCIP)
 
     push!(mscip.vars, var__)
     # can't delete variable, so we use the array position as index
-    return length(mscip.vars)
+    return VarRef(length(mscip.vars))
 end
 
 """
-Add (ranged) linear constraint to problem, return constraint index.
+Add (ranged) linear constraint to problem, return cons ref.
 
 # Arguments
-- `varidx::AbstractArray{Int}`: indices of variables for affine terms.
+- `varrefs::AbstractArray{VarRef}`: variable references for affine terms.
 - `coeffs::AbstractArray{Float64}`: coefficients for affine terms.
 - `lhs::Float64`: left-hand side for ranged constraint
 - `rhs::Float64`: right-hand side for ranged constraint
 
 Use `(-)SCIPinfinity(scip)` for one of the bounds if not applicable.
 """
-function add_linear_constraint(mscip::ManagedSCIP, varidx, coeffs, lhs, rhs)
-    @assert length(varidx) == length(coeffs)
-    vars = [var(mscip, i) for i in varidx]
-    cons = Ref{Ptr{SCIP_CONS}}()
+function add_linear_constraint(mscip::ManagedSCIP, varrefs, coeffs, lhs, rhs)
+    @assert length(varrefs) == length(coeffs)
+    vars = [var(mscip, vr) for vr in varrefs]
+    cons__ = Ref{Ptr{SCIP_CONS}}()
     @SC rc = SCIPcreateConsBasicLinear(
-        scip(mscip), cons, "", length(vars), vars, coeffs, lhs, rhs)
-    @SC rc = SCIPaddCons(scip(mscip), cons[])
+        scip(mscip), cons__, "", length(vars), vars, coeffs, lhs, rhs)
+    @SC rc = SCIPaddCons(scip(mscip), cons__[])
 
-    push!(mscip.conss, cons)
+    push!(mscip.conss, cons__)
     # can't delete constraint, so we use the array position as index
-    return length(mscip.conss)
+    return ConsRef(length(mscip.conss))
 end
 
 "Set generic parameter."

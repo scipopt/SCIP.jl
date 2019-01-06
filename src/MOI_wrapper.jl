@@ -22,12 +22,12 @@ const SCC = MOI.ScalarCoefficientChange{Float64}
 # other MOI types
 const SAT = MOI.ScalarAffineTerm{Float64}
 
-const PtrMap = Dict{Ptr{Cvoid}, Int}
-const ConsTypeMap = Dict{Tuple{DataType, DataType}, Vector{Int}}
+const PtrMap = Dict{Ptr{Cvoid}, REF}
+const ConsTypeMap = Dict{Tuple{DataType, DataType}, Vector{ConsRef}}
 
 mutable struct Optimizer <: MOI.AbstractOptimizer
     mscip::ManagedSCIP
-    index::PtrMap
+    reference::PtrMap
     constypes::ConsTypeMap
     params::Dict{String,Any}
 
@@ -41,13 +41,13 @@ end
 scip(o::Optimizer) = scip(o.mscip)
 
 "Return pointer to SCIP variable."
-var(o::Optimizer, v::VI) = var(o.mscip, v.value)
+var(o::Optimizer, v::VI) = var(o.mscip, VarRef(v.value))
 
-"Return index of SCIP variable/constraint."
-get_index(o::Optimizer, var::Ptr{Cvoid}) = o.index[var]
+"Return var/cons reference of SCIP variable/constraint."
+ref(o::Optimizer, ptr::Ptr{Cvoid}) = o.reference[ptr]
 
 "Return pointer to SCIP constraint."
-cons(o::Optimizer, c::CI{F,S}) where {F,S} = cons(o.mscip, c.value)
+cons(o::Optimizer, c::CI{F,S}) where {F,S} = cons(o.mscip, ConsRef(c.value))
 
 "Extract bounds from sets."
 bounds(set::EQS) = (set.value, set.value)
@@ -61,19 +61,20 @@ from_bounds(::Type{GTS}, lower, upper) = GTS(lower)
 from_bounds(::Type{LTS}, lower, upper) = LTS(upper)
 from_bounds(::Type{INS}, lower, upper) = INS(lower, upper)
 
-"Register variable in mapping, return variable index."
-function register!(o::Optimizer, var::Ptr{SCIP_VAR}, index::Int)
-    @assert !haskey(o.index, var)
-    o.index[var] = index
-    return index
+"Register pointer in mapping, return var/cons reference."
+function register!(o::Optimizer, ptr::Ptr{Cvoid}, ref::R) where R <: REF
+    @assert !haskey(o.reference, ptr)
+    o.reference[ptr] = ref
+    return ref
 end
 
-"Register constraint in mapping, return constraint index."
+"Register constraint in mapping, return constraint reference."
 function register!(o::Optimizer, c::CI{F,S}) where {F,S}
+    cr = ConsRef(c.value)
     if haskey(o.constypes, (F, S))
-        push!(o.constypes[F,S], c.value)
+        push!(o.constypes[F,S], cr)
     else
-        o.constypes[F,S] = [c.value]
+        o.constypes[F,S] = [cr]
     end
     return c
 end
@@ -123,7 +124,7 @@ function MOI.empty!(o::Optimizer)
     # create a new one
     o.mscip = ManagedSCIP()
     # clear auxiliary mapping structures
-    o.index = PtrMap()
+    o.reference = PtrMap()
     o.constypes = ConsTypeMap()
     # reapply parameters
     for pair in o.params
@@ -141,10 +142,10 @@ MOI.set(o::Optimizer, ::MOI.Name, name::String) = @SC SCIPsetProbName(scip(o), n
 
 function MOI.add_variable(o::Optimizer)
     allow_modification(o)
-    i::Int = add_variable(o.mscip)
-    var::Ptr{SCIP_VAR} = o.mscip.vars[i][] # i == end
-    register!(o, var, i)
-    return MOI.VariableIndex(i)
+    vr = add_variable(o.mscip)
+    var::Ptr{SCIP_VAR} = o.mscip.vars[vr.val][] # i == end
+    register!(o, var, vr)
+    return MOI.VariableIndex(vr.val)
 end
 
 MOI.add_variables(o::Optimizer, n) = [MOI.add_variable(o) for i=1:n]
@@ -206,17 +207,17 @@ function MOI.add_constraint(o::Optimizer, func::SAF, set::S) where {S <: BOUNDS}
 
     allow_modification(o)
 
-    varidx = [t.variable_index.value for t in func.terms]
+    varrefs = [VarRef(t.variable_index.value) for t in func.terms]
     coefs = [t.coefficient for t in func.terms]
 
     lhs, rhs = bounds(set)
     lhs = lhs == nothing ? -SCIPinfinity(scip(o)) : lhs
     rhs = rhs == nothing ?  SCIPinfinity(scip(o)) : rhs
 
-    i = add_linear_constraint(o.mscip, varidx, coefs, lhs, rhs)
-    ci = CI{SAF, S}(i)
+    cr = add_linear_constraint(o.mscip, varrefs, coefs, lhs, rhs)
+    ci = CI{SAF, S}(cr.val)
     register!(o, ci)
-    register!(o, cons(o, ci), i)
+    register!(o, cons(o, ci), cr)
     return ci
 end
 
@@ -257,8 +258,7 @@ function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{SAF, S}) where S
     vars = unsafe_wrap(Array{Ptr{SCIP_VAR}}, SCIPgetVarsLinear(s, cons), nvars)
     vals = unsafe_wrap(Array{Float64}, SCIPgetValsLinear(s, cons), nvars)
 
-    terms = [SAT(vals[i], VI(get_index(o, vars[i])))
-             for i=1:nvars]
+    terms = [SAT(vals[i], VI(ref(o, vars[i]).val)) for i=1:nvars]
     # can not identify constant anymore (is merged with lhs,rhs)
     return SAF(terms, 0.0)
 end
@@ -335,8 +335,7 @@ end
 
 function MOI.modify(o::Optimizer, ::MOI.ObjectiveFunction{SAF}, change::SCC)
     allow_modification(o)
-    @SC SCIPchgVarObj(scip(o), var(o, change.variable),
-                      change.new_coefficient)
+    @SC SCIPchgVarObj(scip(o), var(o, change.variable), change.new_coefficient)
     return nothing
 end
 
