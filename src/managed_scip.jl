@@ -42,8 +42,6 @@ struct ConsRef
     val::Int64
 end
 
-const REF = Union{VarRef,ConsRef}
-
 "Return pointer to SCIP instance."
 scip(mscip::ManagedSCIP) = mscip.scip[]
 
