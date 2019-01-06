@@ -156,13 +156,23 @@ scip_vartype(::Type{MOI.ZeroOne}) = SCIP_VARTYPE_BINARY
 scip_vartype(::Type{MOI.Integer}) = SCIP_VARTYPE_INTEGER
 function MOI.add_constraint(o::Optimizer, func::SVF, set::S) where {S <: VAR_TYPES}
     allow_modification(o)
-    v = var(o, func.variable)
+    vi = func.variable
+    v = var(o, vi)
     infeasible = Ref{Ptr{SCIP_Bool}}
     @SC SCIPchgVarType(scip(o), v, scip_vartype(S), infeasible[])
     if S <: MOI.ZeroOne
-        # need to adjust bounds for SCIP?!
-        @SC SCIPchgVarLb(scip(o), v, 0.0)
-        @SC SCIPchgVarUb(scip(o), v, 1.0)
+        # Need to adjust bounds for SCIP, which fails with an error otherwise.
+        # Check for conflicts with existing bounds first:
+        lb, ub = SCIPvarGetLbOriginal(v), SCIPvarGetUbOriginal(v)
+        if lb == 0.0 && up == 1.0
+            # nothing to be done
+        elseif lb == -SCIPinfinity(scip(o)) && ub == SCIPinfinity(scip(o))
+            @warn "Implicitly setting bounds [0,1] for binary variable at $(vi.value)!" maxlog=1
+            @SC SCIPchgVarLb(scip(o), v, 0.0)
+            @SC SCIPchgVarUb(scip(o), v, 1.0)
+        else
+            throw(InexactError("Existing bounds [$lb,$ub] conflict for binary variable at $(vi.value)!"))
+        end
     end
     # use var index for cons index of this type
     i = func.variable.value
