@@ -181,7 +181,17 @@ end
 
 function MOI.add_constraint(o::Optimizer, func::SVF, set::S) where S <: BOUNDS
     allow_modification(o)
-    v = var(o, func.variable)
+    s = scip(o)
+    vi = func.variable
+    v = var(o, vi)
+
+    # Check for existing bounds first.
+    if (SCIPvarGetLbOriginal(v) != -SCIPinfinity(s)
+        || SCIPvarGetUbOriginal(v) != SCIPinfinity(s))
+        throw(MOI.AddConstraintNotAllowed{SVF, S}(
+            "Already have bounds for variable at $(vi.value)!"))
+    end
+
     lb, ub = bounds(set)
     lb == nothing || @SC SCIPchgVarLb(scip(o), v, lb)
     ub == nothing || @SC SCIPchgVarUb(scip(o), v, ub)
