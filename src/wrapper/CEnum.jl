@@ -1,3 +1,5 @@
+# Copyright (c) 2018 Isaiah Norton and other [contributors](https://github.com/ihnorton/Clang.jl/graphs/contributors)
+
 module CEnum
 
 abstract type Cenum{T} end

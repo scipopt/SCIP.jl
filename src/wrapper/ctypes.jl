@@ -1,3 +1,5 @@
+# Copyright (c) 2018 Isaiah Norton and other [contributors](https://github.com/ihnorton/Clang.jl/graphs/contributors)
+#
 ## TODO: pending https://github.com/JuliaLang/julia/issues/29420
 # this one is suggested in the issue, but it looks like time_t and tm are two different things?
 # const Ctime_t = Base.Libc.TmStruct
