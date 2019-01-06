@@ -108,7 +108,7 @@ end
 ## model creation, query and modification
 
 function MOI.is_empty(o::Optimizer)
-    length(o.mscip.vars) == 0 && length(o.mscip.conss) == 0
+    return length(o.mscip.vars) == 0 && length(o.mscip.conss) == 0
 end
 
 function MOI.empty!(o::Optimizer)
@@ -127,7 +127,7 @@ function MOI.empty!(o::Optimizer)
 end
 
 function MOI.copy_to(dest::Optimizer, src::MOI.ModelLike; kws...)
-    MOIU.automatic_copy_to(dest, src; kws...)
+    return MOIU.automatic_copy_to(dest, src; kws...)
 end
 
 MOI.get(o::Optimizer, ::MOI.Name) = SCIPgetProbName(scip(o))
@@ -149,6 +149,7 @@ MOI.is_valid(o::Optimizer, vi::VI) = 1 <= vi.value <= length(o.mscip.vars)
 MOI.get(o::Optimizer, ::MOI.VariableName, vi::VI) = SCIPvarGetName(var(o, vi))
 function MOI.set(o::Optimizer, ::MOI.VariableName, vi::VI, name::String)
     @SC SCIPchgVarName(scip(o), var(o, vi), name)
+    return nothing
 end
 
 scip_vartype(::Type{MOI.ZeroOne}) = SCIP_VARTYPE_BINARY
@@ -189,7 +190,7 @@ function MOI.set(o::SCIP.Optimizer, ::MOI.ConstraintSet, ci::CI{SVF,S}, set::S) 
 end
 
 function MOI.is_valid(o::Optimizer, ci::CI{SVF,<:Bounds})
-    1 <= ci.value <= length(o.mscip.vars)
+    return 1 <= ci.value <= length(o.mscip.vars)
 end
 
 function MOI.add_constraint(o::Optimizer, func::SAF, set::S) where {S <: Bounds}
@@ -228,21 +229,21 @@ function MOI.set(o::SCIP.Optimizer, ::MOI.ConstraintSet, ci::CI{SAF,S}, set::S) 
 end
 
 function MOI.is_valid(o::Optimizer, ci::CI{SAF,<:Bounds})
-    1 <= ci.value <= length(o.mscip.cons)
+    return 1 <= ci.value <= length(o.mscip.cons)
 end
 
 function MOI.get(o::Optimizer, ::MOI.NumberOfConstraints{F,S}) where {F,S}
-    haskey(o.constypes, (F, S)) ? length(o.constypes[F, S]) : 0
+    return haskey(o.constypes, (F, S)) ? length(o.constypes[F, S]) : 0
 end
 
 function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{SVF, S}) where S <: Bounds
-    SVF(ci)
+    return SVF(ci)
 end
 
 function MOI.get(o::Optimizer, ::MOI.ConstraintSet, ci::CI{SVF, S}) where S <: Bounds
     v = var(o.mscip, ci.value)
     lb, ub = SCIPvarGetLbOriginal(v), SCIPvarGetUbOriginal(v)
-    from_bounds(S, lb, ub)
+    return from_bounds(S, lb, ub)
 end
 
 function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{SAF, S}) where S <: Bounds
@@ -259,15 +260,16 @@ end
 function MOI.get(o::Optimizer, ::MOI.ConstraintSet, ci::CI{SAF, S}) where S <: Bounds
     lhs = SCIPgetLhsLinear(scip(o), cons(o, ci))
     rhs = SCIPgetRhsLinear(scip(o), cons(o, ci))
-    from_bounds(S, lhs, rhs)
+    return from_bounds(S, lhs, rhs)
 end
 
 function MOI.get(o::Optimizer, ::MOI.ConstraintName, ci::CI{SAF,<:Bounds})
-    SCIPconsGetName(cons(o, ci))
+    return SCIPconsGetName(cons(o, ci))
 end
 
 function MOI.set(o::Optimizer, ::MOI.ConstraintName, ci::CI{SAF,<:Bounds}, name::String)
     @SC SCIPchgConsName(scip(o), cons(o, ci), name)
+    return nothing
 end
 
 function MOI.set(o::Optimizer, ::MOI.ObjectiveFunction{SAF}, obj::SAF)
@@ -314,9 +316,7 @@ function MOI.set(o::Optimizer, ::MOI.ObjectiveSense, sense::MOI.OptimizationSens
 end
 
 function MOI.get(o::Optimizer, ::MOI.ObjectiveSense)
-    SCIPgetObjsense(scip(o)) == SCIP_OBJSENSE_MAXIMIZE ?
-        MOI.MAX_SENSE :
-        MOI.MIN_SENSE
+    return SCIPgetObjsense(scip(o)) == SCIP_OBJSENSE_MAXIMIZE ? MOI.MAX_SENSE : MOI.MIN_SENSE
 end
 
 function MOI.modify(o::Optimizer, ci::CI{SAF, <:Bounds},
@@ -361,11 +361,11 @@ term_status_map = Dict(
 )
 
 function MOI.get(o::Optimizer, ::MOI.TerminationStatus)
-    term_status_map[SCIPgetStatus(scip(o))]
+    return term_status_map[SCIPgetStatus(scip(o))]
 end
 
 function MOI.get(o::Optimizer, ::MOI.PrimalStatus)
-    SCIPgetNSols(scip(o)) > 0 ? MOI.FEASIBLE_POINT : MOI.NO_SOLUTION
+    return SCIPgetNSols(scip(o)) > 0 ? MOI.FEASIBLE_POINT : MOI.NO_SOLUTION
 end
 
 function MOI.get(o::Optimizer, ::MOI.ResultCount)
