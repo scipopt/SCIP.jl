@@ -204,8 +204,8 @@ function MOI.set(o::SCIP.Optimizer, ::MOI.ConstraintSet, ci::CI{SVF,S}, set::S) 
     allow_modification(o)
     v = var(o, VI(ci.value)) # cons index is actually var index
     lb, ub = bounds(set)
-    lb == nothing || @SC SCIPchgVarLb(scip(o), v, lb)
-    ub == nothing || @SC SCIPchgVarUb(scip(o), v, ub)
+    @SC SCIPchgVarLb(scip(o), v, lb == nothing ? -SCIPinfinity(scip(o)) : lb)
+    @SC SCIPchgVarUb(scip(o), v, ub == nothing ?  SCIPinfinity(scip(o)) : ub)
     return nothing
 end
 
