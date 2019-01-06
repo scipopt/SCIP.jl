@@ -31,3 +31,26 @@ end
     end
     @test mscip.scip[] == C_NULL
 end
+
+@testset "create with vars and cons, (no solve), and free" begin
+    mscip = SCIP.ManagedSCIP()
+    @test mscip.scip[] != C_NULL
+
+    SCIP.set_parameter(mscip, "display/verblevel", 0)
+
+    x = SCIP.add_variable(mscip)
+    y = SCIP.add_variable(mscip)
+    c = SCIP.add_linear_constraint(mscip, [x, y], [2.0, 3.0], 1.0, 9.0)
+
+    # solve, but don't check results (this test is about memory mgmt)
+    SCIP.@SC SCIP.SCIPsolve(mscip.scip[])
+
+    finalize(mscip)
+    for var in mscip.vars
+        @test var[] == C_NULL
+    end
+    for cons in mscip.conss
+        @test cons[] == C_NULL
+    end
+    @test mscip.scip[] == C_NULL
+end
