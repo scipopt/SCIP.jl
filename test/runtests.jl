@@ -1,16 +1,14 @@
 using Test
 using SCIP
-using MathProgBase
-using JuMP
 
-@testset "MathProgBase tests" begin
-    include("mpb_tests.jl")
+@testset "direct library calls" begin
+    include("direct_library_calls.jl")
 end
 
-@testset "CSIP tests" begin
-    include("csip_tests.jl")
+@testset "managed memory" begin
+    include("managed_scip.jl")
 end
 
-@testset "Other tests" begin
-    include("more_tests.jl")
+@testset "MathOptInterface tests" begin
+    include("MOI_wrapper.jl")
 end

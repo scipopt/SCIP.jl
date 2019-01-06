@@ -1,39 +1,35 @@
 module SCIP
 
-if isfile(joinpath(dirname(@__FILE__),"..","deps","deps.jl"))
-    include("../deps/deps.jl")
-else
-    error("SCIP.jl not properly installed. Please run Pkg.build(\"SCIP\")")
+import Libdl
+const depsjl_path = joinpath(@__DIR__, "..", "deps", "deps.jl")
+if !isfile(depsjl_path)
+    error("SCIP was not built properly, please run Pkg.build(\"SCIP\")")
 end
-
-include("../deps/csip_version.jl")
-
-using SparseArrays: issparse, findnz
-
-import MathProgBase
-import MathProgBase.SolverInterface: AbstractLinearQuadraticModel,
-                                     AbstractNonlinearModel,
-                                     AbstractMathProgSolver,
-                                     MathProgCallbackData,
-                                     AbstractNLPEvaluator,
-                                     LinearQuadraticModel
-
-include("types.jl")
-include("csip_wrapper.jl")
-include("scip_wrapper.jl")
-include("mpb_interface.jl")
-include("params.jl")
-
-function CSIPversion()
-    VersionNumber("$(_majorVersion()).$(_minorVersion()).$(_patchVersion())")
-end
+include(depsjl_path)
 
 function __init__()
-    csip_installed = CSIPversion()
-    if csip_installed != csip_required
-        depsdir = realpath(joinpath(dirname(@__FILE__),"..","deps"))
-        error("Installed CSIP version is $(csip_installed), but we require $(csip_required). Run Pkg.build(\"SCIP\") to update.")
+    major = SCIPmajorVersion()
+    minor = SCIPminorVersion()
+    patch = SCIPtechVersion()
+    current = VersionNumber("$major.$minor.$patch")
+    required = VersionNumber("6.0.0")
+    upperbound = VersionNumber(required.major + 1)
+    if current < required || current >= upperbound
+        error("SCIP is installed at version $current, " *
+              "supported are $required up to $upperbound.")
     end
 end
+
+# wrapper of SCIP library
+include("wrapper.jl")
+
+# memory management
+include("managed_scip.jl")
+
+# implementation of MOI
+include("MOI_wrapper.jl")
+
+# warn about rewrite
+include("compat.jl")
 
 end

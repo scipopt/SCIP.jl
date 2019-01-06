@@ -1,23 +1,27 @@
-# Documentation: http://docs.travis-ci.com/user/languages/julia/
+## Documentation: http://docs.travis-ci.com/user/languages/julia/
 language: julia
-os:
-  - linux
+os: linux
+dist: xenial
+sudo: true
 julia:
-  - 0.7
   - 1.0
-dist: trusty
-sudo: required
-services:
-  - docker
-before_install:
-  - echo "**** pulling Docker image"
-  - docker pull leethargo/scip-julia
+  - nightly
 notifications:
   email: false
+git:
+  depth: 99999999
+matrix:
+  allow_failures:
+    - julia: nightly
+before_install:
+  - sudo apt-get install libblas-dev liblapack-dev gfortran
+  - export VERSION=6.0.0
+  - wget http://scip.zib.de/download/release/SCIPOptSuite-$VERSION-Linux.deb
+  - sudo dpkg -i SCIPOptSuite-$VERSION-Linux.deb
 script:
-  - echo "**** running Docker"
-  - docker run --env-file travis_docker_env.list -t -a STDOUT -a STDIN -a STDERR -v $PWD:/mnt leethargo/scip-julia /mnt/travis_docker_test_script.sh $TRAVIS_JULIA_VERSION
+  - julia -e 'using Pkg; Pkg.clone(pwd()); Pkg.build("SCIP"); Pkg.test("SCIP"; coverage=true)'
 after_success:
-  # push coverage results to Coveralls, .cov files were copied back by script above
-  - echo "**** submitting coverage information"
-  - julia -e 'using Pkg; Pkg.add("Coverage"); using Coverage; Coveralls.submit(process_folder()); Codecov.submit(Codecov.process_folder())'
+  # push coverage results to Coveralls
+  - julia -e 'using Pkg; cd(Pkg.dir("SCIP")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())'
+  # push coverage results to Codecov
+  - julia -e 'using Pkg; cd(Pkg.dir("SCIP")); Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder())'
