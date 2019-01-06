@@ -38,16 +38,16 @@ end
 ## convenience functions (not part of MOI)
 
 "Return pointer to SCIP instance."
-get_scip(o::Optimizer) = get_scip(o.mscip)
+scip(o::Optimizer) = scip(o.mscip)
 
 "Return pointer to SCIP variable."
-get_var(o::Optimizer, v::VI) = get_var(o.mscip, v.value)
+var(o::Optimizer, v::VI) = var(o.mscip, v.value)
 
 "Return index of SCIP variable/constraint."
 get_index(o::Optimizer, var::Ptr{Cvoid}) = o.index[var]
 
 "Return pointer to SCIP constraint."
-get_cons(o::Optimizer, c::CI{F,S}) where {F,S} = get_cons(o.mscip, c.value)
+cons(o::Optimizer, c::CI{F,S}) where {F,S} = cons(o.mscip, c.value)
 
 "Extract bounds from sets."
 bounds(set::EQS) = (set.value, set.value)
@@ -80,9 +80,8 @@ end
 
 "Go back from solved stage to problem modification stage, invalidating results."
 function allow_modification(o::Optimizer)
-    scip = get_scip(o)
-    if SCIPgetStage(scip) != SCIP_STAGE_PROBLEM
-        @SC SCIPfreeTransform(scip)
+    if SCIPgetStage(scip(o)) != SCIP_STAGE_PROBLEM
+        @SC SCIPfreeTransform(scip(o))
     end
     return nothing
 end
@@ -137,8 +136,8 @@ function MOI.copy_to(dest::Optimizer, src::MOI.ModelLike; kws...)
     MOIU.automatic_copy_to(dest, src; kws...)
 end
 
-MOI.get(o::Optimizer, ::MOI.Name) = SCIPgetProbName(get_scip(o))
-MOI.set(o::Optimizer, ::MOI.Name, name::String) = @SC SCIPsetProbName(get_scip(o), name)
+MOI.get(o::Optimizer, ::MOI.Name) = SCIPgetProbName(scip(o))
+MOI.set(o::Optimizer, ::MOI.Name, name::String) = @SC SCIPsetProbName(scip(o), name)
 
 function MOI.add_variable(o::Optimizer)
     allow_modification(o)
@@ -153,23 +152,22 @@ MOI.get(o::Optimizer, ::MOI.NumberOfVariables) = length(o.mscip.vars)
 MOI.get(o::Optimizer, ::MOI.ListOfVariableIndices) = VI.(1:length(o.mscip.vars))
 MOI.is_valid(o::Optimizer, vi::VI) = 1 <= vi.value <= length(o.mscip.vars)
 
-MOI.get(o::Optimizer, ::MOI.VariableName, vi::VI) = SCIPvarGetName(get_var(o, vi))
+MOI.get(o::Optimizer, ::MOI.VariableName, vi::VI) = SCIPvarGetName(var(o, vi))
 function MOI.set(o::Optimizer, ::MOI.VariableName, vi::VI, name::String)
-    @SC SCIPchgVarName(get_scip(o), get_var(o, vi), name)
+    @SC SCIPchgVarName(scip(o), var(o, vi), name)
 end
 
 scip_vartype(::Type{BINS}) = SCIP_VARTYPE_BINARY
 scip_vartype(::Type{INTS}) = SCIP_VARTYPE_INTEGER
 function MOI.add_constraint(o::Optimizer, func::SVF, set::S) where {S <: TYPES}
     allow_modification(o)
-    scip = get_scip(o)
-    var = get_var(o, func.variable)
+    v = var(o, func.variable)
     infeasible = Ref{Ptr{SCIP_Bool}}
-    @SC SCIPchgVarType(scip, var, scip_vartype(S), infeasible[])
+    @SC SCIPchgVarType(scip(o), v, scip_vartype(S), infeasible[])
     if S <: BINS
         # need to adjust bounds for SCIP?!
-        @SC SCIPchgVarLb(scip, var, 0.0)
-        @SC SCIPchgVarUb(scip, var, 1.0)
+        @SC SCIPchgVarLb(scip(o), v, 0.0)
+        @SC SCIPchgVarUb(scip(o), v, 1.0)
     end
     # use var index for cons index of this type
     i = func.variable.value
@@ -178,10 +176,10 @@ end
 
 function MOI.add_constraint(o::Optimizer, func::SVF, set::S) where S <: BOUNDS
     allow_modification(o)
-    var = get_var(o, func.variable)
+    v = var(o, func.variable)
     lb, ub = bounds(set)
-    lb == nothing || @SC SCIPchgVarLb(get_scip(o), var, lb)
-    ub == nothing || @SC SCIPchgVarUb(get_scip(o), var, ub)
+    lb == nothing || @SC SCIPchgVarLb(scip(o), v, lb)
+    ub == nothing || @SC SCIPchgVarUb(scip(o), v, ub)
     # use var index for cons index of this type
     i = func.variable.value
     return register!(o, CI{SVF, S}(i))
@@ -189,10 +187,10 @@ end
 
 function MOI.set(o::SCIP.Optimizer, ::MOI.ConstraintSet, ci::CI{SVF,S}, set::S) where {S <: BOUNDS}
     allow_modification(o)
-    var = get_var(o, VI(ci.value)) # cons index is actually var index
+    v = var(o, VI(ci.value)) # cons index is actually var index
     lb, ub = bounds(set)
-    lb == nothing || @SC SCIPchgVarLb(get_scip(o), var, lb)
-    ub == nothing || @SC SCIPchgVarUb(get_scip(o), var, ub)
+    lb == nothing || @SC SCIPchgVarLb(scip(o), v, lb)
+    ub == nothing || @SC SCIPchgVarUb(scip(o), v, ub)
     return nothing
 end
 
@@ -207,33 +205,30 @@ function MOI.add_constraint(o::Optimizer, func::SAF, set::S) where {S <: BOUNDS}
     end
 
     allow_modification(o)
-    scip = get_scip(o)
 
     varidx = [t.variable_index.value for t in func.terms]
     coefs = [t.coefficient for t in func.terms]
 
     lhs, rhs = bounds(set)
-    lhs = lhs == nothing ? -SCIPinfinity(scip) : lhs
-    rhs = rhs == nothing ?  SCIPinfinity(scip) : rhs
+    lhs = lhs == nothing ? -SCIPinfinity(scip(o)) : lhs
+    rhs = rhs == nothing ?  SCIPinfinity(scip(o)) : rhs
 
     i = add_linear_constraint(o.mscip, varidx, coefs, lhs, rhs)
     ci = CI{SAF, S}(i)
     register!(o, ci)
-    register!(o, get_cons(o, ci), i)
+    register!(o, cons(o, ci), i)
     return ci
 end
 
 function MOI.set(o::SCIP.Optimizer, ::MOI.ConstraintSet, ci::CI{SAF,S}, set::S) where {S <: BOUNDS}
     allow_modification(o)
-    scip = get_scip(o)
-    cons = get_cons(o, ci)
 
     lhs, rhs = bounds(set)
-    lhs = lhs == nothing ? -SCIPinfinity(scip) : lhs
-    rhs = rhs == nothing ?  SCIPinfinity(scip) : rhs
+    lhs = lhs == nothing ? -SCIPinfinity(scip(o)) : lhs
+    rhs = rhs == nothing ?  SCIPinfinity(scip(o)) : rhs
 
-    @SC SCIPchgLhsLinear(scip, cons, lhs)
-    @SC SCIPchgRhsLinear(scip, cons, rhs)
+    @SC SCIPchgLhsLinear(scip(o), cons(o, ci), lhs)
+    @SC SCIPchgRhsLinear(scip(o), cons(o, ci), rhs)
 
     return nothing
 end
@@ -251,16 +246,16 @@ function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{SVF, S}) where S
 end
 
 function MOI.get(o::Optimizer, ::MOI.ConstraintSet, ci::CI{SVF, S}) where S <: BOUNDS
-    var = get_var(o.mscip, ci.value)
-    lb, ub = SCIPvarGetLbOriginal(var), SCIPvarGetUbOriginal(var)
+    v = var(o.mscip, ci.value)
+    lb, ub = SCIPvarGetLbOriginal(v), SCIPvarGetUbOriginal(v)
     from_bounds(S, lb, ub)
 end
 
 function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{SAF, S}) where S <: BOUNDS
-    scip, cons = get_scip(o), get_cons(o, ci)
-    nvars::Int = SCIPgetNVarsLinear(scip, cons)
-    vars = unsafe_wrap(Array{Ptr{SCIP_VAR}}, SCIPgetVarsLinear(scip, cons), nvars)
-    vals = unsafe_wrap(Array{Float64}, SCIPgetValsLinear(scip, cons), nvars)
+    s, cons = scip(o), cons(o, ci)
+    nvars::Int = SCIPgetNVarsLinear(s, cons)
+    vars = unsafe_wrap(Array{Ptr{SCIP_VAR}}, SCIPgetVarsLinear(s, cons), nvars)
+    vals = unsafe_wrap(Array{Float64}, SCIPgetValsLinear(s, cons), nvars)
 
     terms = [SAT(vals[i], VI(get_index(o, vars[i])))
              for i=1:nvars]
@@ -269,37 +264,37 @@ function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{SAF, S}) where S
 end
 
 function MOI.get(o::Optimizer, ::MOI.ConstraintSet, ci::CI{SAF, S}) where S <: BOUNDS
-    scip, cons = get_scip(o), get_cons(o, ci)
-    lhs, rhs = SCIPgetLhsLinear(scip, cons), SCIPgetRhsLinear(scip, cons)
+    lhs = SCIPgetLhsLinear(scip(o), cons(o, ci))
+    rhs = SCIPgetRhsLinear(scip(o), cons(o, ci))
     from_bounds(S, lhs, rhs)
 end
 
 function MOI.get(o::Optimizer, ::MOI.ConstraintName, ci::CI{SAF,<:BOUNDS})
-    SCIPconsGetName(get_cons(o, ci))
+    SCIPconsGetName(cons(o, ci))
 end
 
 function MOI.set(o::Optimizer, ::MOI.ConstraintName, ci::CI{SAF,<:BOUNDS}, name::String)
-    @SC SCIPchgConsName(get_scip(o), get_cons(o, ci), name)
+    @SC SCIPchgConsName(scip(o), cons(o, ci), name)
 end
 
 function MOI.set(o::Optimizer, ::MOI.ObjectiveFunction{SAF}, obj::SAF)
     allow_modification(o)
-    scip = get_scip(o)
+    s = scip(o)
 
     # reset objective coefficient of all variables first
     for v in o.mscip.vars
-        @SC SCIPchgVarObj(scip, v[], 0.0)
+        @SC SCIPchgVarObj(s, v[], 0.0)
     end
 
     # set new objective coefficients, summing coefficients
     for t in obj.terms
-        var = get_var(o, t.variable_index)
-        oldcoef = SCIPvarGetObj(var)
+        v = var(o, t.variable_index)
+        oldcoef = SCIPvarGetObj(v)
         newcoef = oldcoef + t.coefficient
-        @SC SCIPchgVarObj(scip, var, newcoef)
+        @SC SCIPchgVarObj(s, v, newcoef)
     end
 
-    @SC SCIPaddOrigObjoffset(scip, obj.constant - SCIPgetOrigObjoffset(scip))
+    @SC SCIPaddOrigObjoffset(s, obj.constant - SCIPgetOrigObjoffset(s))
 
     return nothing
 end
@@ -308,39 +303,39 @@ function MOI.get(o::Optimizer, ::MOI.ObjectiveFunction{SAF})
     terms = SAT[]
     for i = 1:length(o.mscip.vars)
         vi = VI(i)
-        coef = SCIPvarGetObj(get_var(o, vi))
+        coef = SCIPvarGetObj(var(o, vi))
         coef == 0.0 || push!(terms, SAT(coef, vi))
     end
-    constant = SCIPgetOrigObjoffset(get_scip(o))
+    constant = SCIPgetOrigObjoffset(scip(o))
     return SAF(terms, constant)
 end
 
 function MOI.set(o::Optimizer, ::MOI.ObjectiveSense, sense::MOI.OptimizationSense)
     allow_modification(o)
     if sense == MOI.MIN_SENSE
-        @SC SCIPsetObjsense(get_scip(o), SCIP_OBJSENSE_MINIMIZE)
+        @SC SCIPsetObjsense(scip(o), SCIP_OBJSENSE_MINIMIZE)
     elseif sense == MOI.MAX_SENSE
-        @SC SCIPsetObjsense(get_scip(o), SCIP_OBJSENSE_MAXIMIZE)
+        @SC SCIPsetObjsense(scip(o), SCIP_OBJSENSE_MAXIMIZE)
     end
     return nothing
 end
 
 function MOI.get(o::Optimizer, ::MOI.ObjectiveSense)
-    SCIPgetObjsense(get_scip(o)) == SCIP_OBJSENSE_MAXIMIZE ?
+    SCIPgetObjsense(scip(o)) == SCIP_OBJSENSE_MAXIMIZE ?
         MOI.MAX_SENSE :
         MOI.MIN_SENSE
 end
 
 function MOI.modify(o::Optimizer, ci::CI{SAF, <:BOUNDS}, change::SCC)
     allow_modification(o)
-    @SC SCIPchgCoefLinear(get_scip(o), get_cons(o, ci),
-                          get_var(o, change.variable), change.new_coefficient)
+    @SC SCIPchgCoefLinear(scip(o), cons(o, ci),
+                          var(o, change.variable), change.new_coefficient)
     return nothing
 end
 
 function MOI.modify(o::Optimizer, ::MOI.ObjectiveFunction{SAF}, change::SCC)
     allow_modification(o)
-    @SC SCIPchgVarObj(get_scip(o), get_var(o, change.variable),
+    @SC SCIPchgVarObj(scip(o), var(o, change.variable),
                       change.new_coefficient)
     return nothing
 end
@@ -348,7 +343,7 @@ end
 ## optimization and results
 
 function MOI.optimize!(o::Optimizer)
-    @SC SCIPsolve(get_scip(o))
+    @SC SCIPsolve(scip(o))
     return nothing
 end
 
@@ -372,43 +367,39 @@ term_status_map = Dict(
 )
 
 function MOI.get(o::Optimizer, ::MOI.TerminationStatus)
-    term_status_map[SCIPgetStatus(get_scip(o))]
+    term_status_map[SCIPgetStatus(scip(o))]
 end
 
 function MOI.get(o::Optimizer, ::MOI.PrimalStatus)
-    SCIPgetNSols(get_scip(o)) > 0 ? MOI.FEASIBLE_POINT : MOI.NO_SOLUTION
+    SCIPgetNSols(scip(o)) > 0 ? MOI.FEASIBLE_POINT : MOI.NO_SOLUTION
 end
 
 function MOI.get(o::Optimizer, ::MOI.ResultCount)
-    status = SCIPgetStatus(get_scip(o))
+    status = SCIPgetStatus(scip(o))
     if status in [SCIP_STATUS_UNBOUNDED, SCIP_STATUS_INFORUNBD]
         return 0
     end
-    return SCIPgetNSols(get_scip(o))
+    return SCIPgetNSols(scip(o))
 end
 
 function MOI.get(o::Optimizer, ::MOI.ObjectiveValue)
-    scip = get_scip(o)
-    return SCIPgetSolOrigObj(scip, SCIPgetBestSol(scip))
+    return SCIPgetSolOrigObj(scip(o), SCIPgetBestSol(scip(o)))
 end
 
 function MOI.get(o::Optimizer, ::MOI.VariablePrimal, vi::VI)
-    scip = get_scip(o)
-    return SCIPgetSolVal(scip, SCIPgetBestSol(scip), get_var(o, vi))
+    return SCIPgetSolVal(scip(o), SCIPgetBestSol(scip(o)), var(o, vi))
 end
 
 function MOI.get(o::Optimizer, ::MOI.ConstraintPrimal, ci::CI{SVF,<:BOUNDS})
-    scip = get_scip(o)
-    return SCIPgetSolVal(scip, SCIPgetBestSol(scip), get_var(o, VI(ci.value)))
+    return SCIPgetSolVal(scip(o), SCIPgetBestSol(scip(o)), var(o, VI(ci.value)))
 end
 
 function MOI.get(o::Optimizer, ::MOI.ConstraintPrimal, ci::CI{SAF,<:BOUNDS})
-    scip = get_scip(o)
-    return SCIPgetActivityLinear(scip, get_cons(o, ci), SCIPgetBestSol(scip))
+    return SCIPgetActivityLinear(scip(o), cons(o, ci), SCIPgetBestSol(scip(o)))
 end
 
-MOI.get(o::Optimizer, ::MOI.ObjectiveBound) = SCIPgetDualbound(get_scip(o))
-MOI.get(o::Optimizer, ::MOI.RelativeGap) = SCIPgetGap(get_scip(o))
-MOI.get(o::Optimizer, ::MOI.SolveTime) = SCIPgetSolvingTime(get_scip(o))
-MOI.get(o::Optimizer, ::MOI.SimplexIterations) = SCIPgetNLPIterations(get_scip(o))
-MOI.get(o::Optimizer, ::MOI.NodeCount) = SCIPgetNNodes(get_scip(o))
+MOI.get(o::Optimizer, ::MOI.ObjectiveBound) = SCIPgetDualbound(scip(o))
+MOI.get(o::Optimizer, ::MOI.RelativeGap) = SCIPgetGap(scip(o))
+MOI.get(o::Optimizer, ::MOI.SolveTime) = SCIPgetSolvingTime(scip(o))
+MOI.get(o::Optimizer, ::MOI.SimplexIterations) = SCIPgetNLPIterations(scip(o))
+MOI.get(o::Optimizer, ::MOI.NodeCount) = SCIPgetNNodes(scip(o))
