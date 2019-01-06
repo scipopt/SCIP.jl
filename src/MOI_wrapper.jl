@@ -311,6 +311,8 @@ function MOI.set(o::Optimizer, ::MOI.ObjectiveSense, sense::MOI.OptimizationSens
         @SC SCIPsetObjsense(scip(o), SCIP_OBJSENSE_MINIMIZE)
     elseif sense == MOI.MAX_SENSE
         @SC SCIPsetObjsense(scip(o), SCIP_OBJSENSE_MAXIMIZE)
+    elseif sense == MOI.FEASIBLITY_SENSE
+        @warn "FEASIBLITY_SENSE not supported by SCIP.jl" maxlog=1
     end
     return nothing
 end
