@@ -348,7 +348,7 @@ end
 ## optimization and results
 
 function MOI.optimize!(o::Optimizer)
-    @SC SCIPsolve(o.mscip.scip[])
+    @SC SCIPsolve(get_scip(o))
     return nothing
 end
 

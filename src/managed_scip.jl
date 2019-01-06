@@ -19,16 +19,17 @@ end
 "Release references and free memory."
 function free_scip(mscip::ManagedSCIP)
     # Avoid double-free (SCIP will set the pointers to NULL).
-    if mscip.scip[] != C_NULL
+    scip = get_scip(mscip)
+    if scip != C_NULL
         for cons in mscip.conss
-            @SC SCIPreleaseCons(mscip.scip[], cons)
+            @SC SCIPreleaseCons(scip, cons)
         end
         for var in mscip.vars
-            @SC SCIPreleaseVar(mscip.scip[], var)
+            @SC SCIPreleaseVar(scip, var)
         end
         @SC SCIPfree(mscip.scip)
     end
-    @assert mscip.scip[] == C_NULL
+    @assert get_scip(mscip) == C_NULL
 end
 
 "Return pointer to SCIP instance."
@@ -42,11 +43,12 @@ get_cons(mscip::ManagedSCIP, i::Int) = mscip.conss[i][]
 
 "Add variable to problem (continuous, no bounds), return variable index."
 function add_variable(mscip::ManagedSCIP)
+    scip = get_scip(mscip)
     var = Ref{Ptr{SCIP_VAR}}()
     @SC rc = SCIPcreateVarBasic(
-        mscip.scip[], var, "", -SCIPinfinity(mscip.scip[]),
-        SCIPinfinity(mscip.scip[]), 0.0, SCIP_VARTYPE_CONTINUOUS)
-    @SC rc = SCIPaddVar(mscip.scip[], var[])
+        scip, var, "", -SCIPinfinity(scip),
+        SCIPinfinity(scip), 0.0, SCIP_VARTYPE_CONTINUOUS)
+    @SC rc = SCIPaddVar(scip, var[])
 
     push!(mscip.vars, var)
     # can't delete variable, so we use the array position as index
@@ -66,11 +68,12 @@ Use `(-)SCIPinfinity(scip)` for one of the bounds if not applicable.
 """
 function add_linear_constraint(mscip::ManagedSCIP, varidx, coeffs, lhs, rhs)
     @assert length(varidx) == length(coeffs)
+    scip = get_scip(mscip)
     vars = [get_var(mscip, i) for i in varidx]
     cons = Ref{Ptr{SCIP_CONS}}()
     @SC rc = SCIPcreateConsBasicLinear(
-        mscip.scip[], cons, "", length(vars), vars, coeffs, lhs, rhs)
-    @SC rc = SCIPaddCons(mscip.scip[], cons[])
+        scip, cons, "", length(vars), vars, coeffs, lhs, rhs)
+    @SC rc = SCIPaddCons(scip, cons[])
 
     push!(mscip.conss, cons)
     # can't delete constraint, so we use the array position as index
