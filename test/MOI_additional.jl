@@ -84,3 +84,51 @@ end
     t = MOI.add_constraint(optimizer, x, MOI.ZeroOne())
     @test_throws ErrorException b = MOI.add_constraint(optimizer, x, MOI.Interval(2.0, 3.0))
 end
+
+@testset "Bound constraints for a general variable." begin
+    optimizer = SCIP.Optimizer()
+    inf = SCIP.SCIPinfinity(SCIP.scip(optimizer))
+
+    # Should work: variable without explicit bounds
+    MOI.empty!(optimizer)
+    x = MOI.add_variable(optimizer)
+    @test var_bounds(optimizer, x) == MOI.Interval(-inf, inf)
+
+    # Should work: variable with range bounds, but only once!
+    MOI.empty!(optimizer)
+    x = MOI.add_variable(optimizer)
+    b = MOI.add_constraint(optimizer, x, MOI.Interval(2.0, 3.0))
+    @test var_bounds(optimizer, x) == MOI.Interval(2.0, 3.0)
+    @test b == MOI.add_constraint(optimizer, x, MOI.Interval(2.0, 3.0))
+    @test_throws ErrorException MOI.add_constraint(optimizer, x, MOI.Interval(3.0, 4.0))
+
+    # Should work: variable with lower bound, but only once!
+    MOI.empty!(optimizer)
+    x = MOI.add_variable(optimizer)
+    b = MOI.add_constraint(optimizer, x, MOI.GreaterThan(2.0))
+    @test var_bounds(optimizer, x) == MOI.Interval(2.0, inf)
+    @test b == MOI.add_constraint(optimizer, x, MOI.GreaterThan(2.0))
+    @test_throws ErrorException MOI.add_constraint(optimizer, x, MOI.GreaterThan(3.0))
+
+    # Should work: variable with lower bound, but only once!
+    MOI.empty!(optimizer)
+    x = MOI.add_variable(optimizer)
+    b = MOI.add_constraint(optimizer, x, MOI.LessThan(2.0))
+    @test var_bounds(optimizer, x) == MOI.Interval(-inf, 2.0)
+    @test b == MOI.add_constraint(optimizer, x, MOI.LessThan(2.0))
+    @test_throws ErrorException MOI.add_constraint(optimizer, x, MOI.LessThan(3.0))
+
+    # Should work: fixed variable, but only once!
+    MOI.empty!(optimizer)
+    x = MOI.add_variable(optimizer)
+    b = MOI.add_constraint(optimizer, x, MOI.EqualTo(2.0))
+    @test var_bounds(optimizer, x) == MOI.Interval(2.0, 2.0)
+    @test b == MOI.add_constraint(optimizer, x, MOI.EqualTo(2.0))
+    @test_throws ErrorException MOI.add_constraint(optimizer, x, MOI.EqualTo(3.0))
+
+    # Mixed constraint types will fail!
+    MOI.empty!(optimizer)
+    x = MOI.add_variable(optimizer)
+    lb = MOI.add_constraint(optimizer, x, MOI.GreaterThan(2.0))
+    @test_throws ErrorException ub = MOI.add_constraint(optimizer, x, MOI.LessThan(3.0))
+end

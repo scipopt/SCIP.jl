@@ -184,11 +184,14 @@ function MOI.add_constraint(o::Optimizer, func::SVF, set::S) where S <: BOUNDS
     s = scip(o)
     vi = func.variable
     v = var(o, vi)
+    inf = SCIPinfinity(s)
+
     newlb, newub = bounds(set)
+    newlb = newlb == nothing ? -inf : newlb
+    newub = newub == nothing ?  inf : newub
 
     # Check for existing bounds first.
     oldlb, oldub = SCIPvarGetLbOriginal(v), SCIPvarGetUbOriginal(v)
-    inf = SCIPinfinity(s)
     if (oldlb != -inf || oldub != inf)
         if oldlb == newlb && oldub == newub
             @debug "Variable at $(vi.value) already has these bounds, skipping new constraint!"
@@ -203,8 +206,8 @@ function MOI.add_constraint(o::Optimizer, func::SVF, set::S) where S <: BOUNDS
         end
     end
 
-    newlb == nothing || @SC SCIPchgVarLb(scip(o), v, newlb)
-    newub == nothing || @SC SCIPchgVarUb(scip(o), v, newub)
+    @SC SCIPchgVarLb(scip(o), v, newlb)
+    @SC SCIPchgVarUb(scip(o), v, newub)
     # use var index for cons index of this type
     i = func.variable.value
     return register!(o, CI{SVF, S}(i))
