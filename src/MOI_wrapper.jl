@@ -270,7 +270,7 @@ function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{SVF, S}) where S
 end
 
 function MOI.get(o::Optimizer, ::MOI.ConstraintSet, ci::CI{SVF, S}) where S <: BOUNDS
-    v = var(o.mscip, ci.value)
+    v = var(o, VI(ci.value))
     lb, ub = SCIPvarGetLbOriginal(v), SCIPvarGetUbOriginal(v)
     return from_bounds(S, lb, ub)
 end
