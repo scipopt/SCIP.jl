@@ -164,7 +164,7 @@ function MOI.add_constraint(o::Optimizer, func::SVF, set::S) where {S <: VAR_TYP
         # Need to adjust bounds for SCIP, which fails with an error otherwise.
         # Check for conflicts with existing bounds first:
         lb, ub = SCIPvarGetLbOriginal(v), SCIPvarGetUbOriginal(v)
-        if lb == 0.0 && up == 1.0
+        if lb == 0.0 && ub == 1.0
             # nothing to be done
         elseif lb == -SCIPinfinity(scip(o)) && ub == SCIPinfinity(scip(o))
             @warn "Implicitly setting bounds [0,1] for binary variable at $(vi.value)!" maxlog=1
