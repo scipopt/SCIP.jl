@@ -164,14 +164,14 @@ function MOI.add_constraint(o::Optimizer, func::SVF, set::S) where {S <: VAR_TYP
         # Need to adjust bounds for SCIP, which fails with an error otherwise.
         # Check for conflicts with existing bounds first:
         lb, ub = SCIPvarGetLbOriginal(v), SCIPvarGetUbOriginal(v)
-        if lb == 0.0 && ub == 1.0
+        if lb >= 0.0 && ub <= 1.0
             # nothing to be done
         elseif lb == -SCIPinfinity(scip(o)) && ub == SCIPinfinity(scip(o))
-            @warn "Implicitly setting bounds [0,1] for binary variable at $(vi.value)!" maxlog=1
+            @debug "Implicitly setting bounds [0,1] for binary variable at $(vi.value)!"
             @SC SCIPchgVarLb(scip(o), v, 0.0)
             @SC SCIPchgVarUb(scip(o), v, 1.0)
         else
-            throw(InexactError("Existing bounds [$lb,$ub] conflict for binary variable at $(vi.value)!"))
+            error("Existing bounds [$lb,$ub] conflict for binary variable at $(vi.value)!")
         end
     end
     # use var index for cons index of this type
@@ -190,12 +190,21 @@ function MOI.add_constraint(o::Optimizer, func::SVF, set::S) where S <: BOUNDS
     oldlb, oldub = SCIPvarGetLbOriginal(v), SCIPvarGetUbOriginal(v)
     inf = SCIPinfinity(s)
     if (oldlb != -inf || oldub != inf)
-        throw(MOI.AddConstraintNotAllowed{SVF, S}(
-            "Already have bounds for variable at $(vi.value)!"))
+        if oldlb == newlb && oldub == newub
+            @debug "Variable at $(vi.value) already has these bounds, skipping new constraint!"
+        elseif oldlb == 0.0 && oldub == 1.0 && SCIPvarGetType(v) == SCIP_VARTYPE_BINARY
+            if newlb >= 0.0 && newlb <= newub && newub <= 1.0
+                @debug "Overwriting existing bounds [0.0,1.0] with [$newlb,$newub] for binary variable at $(vi.value)!"
+            else
+                error("Invalid bounds [$newlb,$newub] for binary variable at $(vi.value)!")
+            end
+        else
+            error("Already have bounds [$oldlb,$oldub] for variable at $(vi.value)!")
+        end
     end
 
-    newlb == nothing || @SC SCIPchgVarLb(scip(o), v, lb)
-    newub == nothing || @SC SCIPchgVarUb(scip(o), v, ub)
+    newlb == nothing || @SC SCIPchgVarLb(scip(o), v, newlb)
+    newub == nothing || @SC SCIPchgVarUb(scip(o), v, newub)
     # use var index for cons index of this type
     i = func.variable.value
     return register!(o, CI{SVF, S}(i))
@@ -216,8 +225,7 @@ end
 
 function MOI.add_constraint(o::Optimizer, func::SAF, set::S) where {S <: BOUNDS}
     if func.constant != 0.0
-        msg = "SCIP does not support linear constraints with a constant offset."
-        throw(MOI.AddConstraintNotAllowed{SAF, S}(msg))
+        error("SCIP does not support linear constraints with a constant offset.")
     end
 
     allow_modification(o)
