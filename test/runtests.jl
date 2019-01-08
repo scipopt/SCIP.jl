@@ -12,3 +12,7 @@ end
 @testset "MathOptInterface tests" begin
     include("MOI_wrapper.jl")
 end
+
+@testset "MathOptInterface additional tests" begin
+    include("MOI_additional.jl")
+end
