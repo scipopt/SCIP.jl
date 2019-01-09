@@ -55,9 +55,9 @@ cons(mscip::ManagedSCIP, cr::ConsRef) = mscip.conss[cr.val][]
 function add_variable(mscip::ManagedSCIP)
     s = scip(mscip)
     var__ = Ref{Ptr{SCIP_VAR}}()
-    @SC rc = SCIPcreateVarBasic(s, var__, "", -SCIPinfinity(s), SCIPinfinity(s),
-                                0.0, SCIP_VARTYPE_CONTINUOUS)
-    @SC rc = SCIPaddVar(s, var__[])
+    @SC SCIPcreateVarBasic(s, var__, "", -SCIPinfinity(s), SCIPinfinity(s),
+                           0.0, SCIP_VARTYPE_CONTINUOUS)
+    @SC SCIPaddVar(s, var__[])
 
     push!(mscip.vars, var__)
     # can't delete variable, so we use the array position as index
@@ -79,9 +79,9 @@ function add_linear_constraint(mscip::ManagedSCIP, varrefs, coeffs, lhs, rhs)
     @assert length(varrefs) == length(coeffs)
     vars = [var(mscip, vr) for vr in varrefs]
     cons__ = Ref{Ptr{SCIP_CONS}}()
-    @SC rc = SCIPcreateConsBasicLinear(
+    @SC SCIPcreateConsBasicLinear(
         scip(mscip), cons__, "", length(vars), vars, coeffs, lhs, rhs)
-    @SC rc = SCIPaddCons(scip(mscip), cons__[])
+    @SC SCIPaddCons(scip(mscip), cons__[])
 
     push!(mscip.conss, cons__)
     # can't delete constraint, so we use the array position as index
