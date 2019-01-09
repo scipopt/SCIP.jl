@@ -85,3 +85,10 @@ function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{SQF, S}) where S
 
     return SQF(affterms, quadterms, 0.0)
 end
+
+function MOI.get(o::Optimizer, ::MOI.ConstraintPrimal, ci::CI{SQF, S}) where S <: BOUNDS
+    s = scip(o)
+    activity = Ref{Cdouble}()
+    @SC SCIPgetActivityQuadratic(s, cons(o, ci), SCIPgetBestSol(s), activity)
+    return activity[]
+end
