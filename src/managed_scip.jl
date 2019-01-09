@@ -69,18 +69,18 @@ Add (ranged) linear constraint to problem, return cons ref.
 
 # Arguments
 - `varrefs::AbstractArray{VarRef}`: variable references for affine terms.
-- `coeffs::AbstractArray{Float64}`: coefficients for affine terms.
+- `coefs::AbstractArray{Float64}`: coefficients for affine terms.
 - `lhs::Float64`: left-hand side for ranged constraint
 - `rhs::Float64`: right-hand side for ranged constraint
 
 Use `(-)SCIPinfinity(scip)` for one of the bounds if not applicable.
 """
-function add_linear_constraint(mscip::ManagedSCIP, varrefs, coeffs, lhs, rhs)
-    @assert length(varrefs) == length(coeffs)
+function add_linear_constraint(mscip::ManagedSCIP, varrefs, coefs, lhs, rhs)
+    @assert length(varrefs) == length(coefs)
     vars = [var(mscip, vr) for vr in varrefs]
     cons__ = Ref{Ptr{SCIP_CONS}}()
     @SC SCIPcreateConsBasicLinear(
-        scip(mscip), cons__, "", length(vars), vars, coeffs, lhs, rhs)
+        scip(mscip), cons__, "", length(vars), vars, coefs, lhs, rhs)
     @SC SCIPaddCons(scip(mscip), cons__[])
 
     push!(mscip.conss, cons__)
