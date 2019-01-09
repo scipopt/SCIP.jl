@@ -49,3 +49,36 @@ function MOI.get(o::Optimizer, ::MOI.ConstraintSet, ci::CI{SQF, S}) where S <: B
     rhs = SCIPgetRhsQuadratic(scip(o), cons(o, ci))
     return from_bounds(S, lhs, rhs)
 end
+
+function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{SQF, S}) where S <: BOUNDS
+    s, c = scip(o), cons(o, ci)
+
+    affterms = AFF_TERM[]
+    quadterms = QUAD_TERM[]
+
+    # variables that appear only linearly
+    nlin = SCIPgetNLinearVarsQuadratic(s, c)
+    linvars = unsafe_wrap(Vector{Ptr{SCIP_VAR}}, SCIPgetLinearVarsQuadratic(s, c), nlin)
+    lincoefs = unsafe_wrap(Vector{Float64}, SCIPgetCoefsLinearVarsQuadratic(s, c), nlin)
+    for i=1:nlin
+        push!(affterms, AFF_TERM(lincoefs[i], VI(ref(o, linvars[i]).val)))
+    end
+
+    # variables that appear squared, and linearly
+    nquadvarterms = SCIPgetNQuadVarTermsQuadratic(s, c)
+    quadvarterms = unsafe_wrap(Vector{SCIP_QUADVARTERM}, SCIPgetQuadVarTermsQuadratic(s, c), nquadvarterms)
+    for term in quadvarterms
+        vi = VI(ref(o, term.var).val)
+        push!(affterms, AFF_TERM(term.lincoef, vi))
+        push!(quadterms, QUAD_TERM(term.sqrcoef, vi, vi))
+    end
+
+    # bilinear terms (pair of different variables)
+    nbilinterms = SCIPgetNBilinTermsQuadratic(s, c)
+    bilinterms = unsafe_wrap(Vector{SCIP_BILINTERM}, SCIPgetBilinTermsQuadratic(s, c), nbilinterms)
+    for term in bilinterms
+        push!(quadterms, QUAD_TERM(term.coef, VI(ref(o, term.var1).val), VI(ref(o, term.var2).val)))
+    end
+
+    return SQF(affterms, quadterms, 0.0)
+end
