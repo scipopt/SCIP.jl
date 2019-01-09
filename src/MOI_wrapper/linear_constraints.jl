@@ -37,10 +37,10 @@ function MOI.set(o::SCIP.Optimizer, ::MOI.ConstraintSet, ci::CI{SAF,S}, set::S) 
 end
 
 function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{SAF, S}) where S <: BOUNDS
-    s, cons = scip(o), cons(o, ci)
-    nvars::Int = SCIPgetNVarsLinear(s, cons)
-    vars = unsafe_wrap(Array{Ptr{SCIP_VAR}}, SCIPgetVarsLinear(s, cons), nvars)
-    vals = unsafe_wrap(Array{Float64}, SCIPgetValsLinear(s, cons), nvars)
+    s, c = scip(o), cons(o, ci)
+    nvars::Int = SCIPgetNVarsLinear(s, c)
+    vars = unsafe_wrap(Array{Ptr{SCIP_VAR}}, SCIPgetVarsLinear(s, c), nvars)
+    vals = unsafe_wrap(Array{Float64}, SCIPgetValsLinear(s, c), nvars)
 
     terms = [AFF_TERM(vals[i], VI(ref(o, vars[i]).val)) for i=1:nvars]
     # can not identify constant anymore (is merged with lhs,rhs)
