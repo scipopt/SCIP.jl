@@ -16,7 +16,8 @@ function MOI.add_constraint(o::Optimizer, func::SQF, set::S) where {S <: BOUNDS}
     # quadratic terms
     quadrefs1 = [VarRef(t.variable_index_1.value) for t in func.quadratic_terms]
     quadrefs2 = [VarRef(t.variable_index_2.value) for t in func.quadratic_terms]
-    quadcoefs = [t.coefficient for t in func.quadratic_terms]
+    # divide coefficients by 2!
+    quadcoefs = [t.coefficient / 2.0 for t in func.quadratic_terms]
 
     # range
     lhs, rhs = bounds(set)
@@ -70,14 +71,16 @@ function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{SQF, S}) where S
     for term in quadvarterms
         vi = VI(ref(o, term.var).val)
         push!(affterms, AFF_TERM(term.lincoef, vi))
-        push!(quadterms, QUAD_TERM(term.sqrcoef, vi, vi))
+        # multiply quadratic coefficients by 2!
+        push!(quadterms, QUAD_TERM(2.0 * term.sqrcoef, vi, vi))
     end
 
     # bilinear terms (pair of different variables)
     nbilinterms = SCIPgetNBilinTermsQuadratic(s, c)
     bilinterms = unsafe_wrap(Vector{SCIP_BILINTERM}, SCIPgetBilinTermsQuadratic(s, c), nbilinterms)
     for term in bilinterms
-        push!(quadterms, QUAD_TERM(term.coef, VI(ref(o, term.var1).val), VI(ref(o, term.var2).val)))
+        # multiply quadratic coefficients by 2!
+        push!(quadterms, QUAD_TERM(2.0 * term.coef, VI(ref(o, term.var1).val), VI(ref(o, term.var2).val)))
     end
 
     return SQF(affterms, quadterms, 0.0)
