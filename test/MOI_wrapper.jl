@@ -26,3 +26,10 @@ end
     ]
     MOIT.intlineartest(optimizer, config, excluded)
 end
+
+@testset "MOI Quadratic Constraint" begin
+    excluded = [
+        "qcp1", # needs VectorAffineFunction
+    ]
+    MOIT.qcptest(optimizer, config, excluded)
+end

@@ -55,9 +55,9 @@ cons(mscip::ManagedSCIP, cr::ConsRef) = mscip.conss[cr.val][]
 function add_variable(mscip::ManagedSCIP)
     s = scip(mscip)
     var__ = Ref{Ptr{SCIP_VAR}}()
-    @SC rc = SCIPcreateVarBasic(s, var__, "", -SCIPinfinity(s), SCIPinfinity(s),
-                                0.0, SCIP_VARTYPE_CONTINUOUS)
-    @SC rc = SCIPaddVar(s, var__[])
+    @SC SCIPcreateVarBasic(s, var__, "", -SCIPinfinity(s), SCIPinfinity(s),
+                           0.0, SCIP_VARTYPE_CONTINUOUS)
+    @SC SCIPaddVar(s, var__[])
 
     push!(mscip.vars, var__)
     # can't delete variable, so we use the array position as index
@@ -69,24 +69,60 @@ Add (ranged) linear constraint to problem, return cons ref.
 
 # Arguments
 - `varrefs::AbstractArray{VarRef}`: variable references for affine terms.
-- `coeffs::AbstractArray{Float64}`: coefficients for affine terms.
+- `coefs::AbstractArray{Float64}`: coefficients for affine terms.
 - `lhs::Float64`: left-hand side for ranged constraint
 - `rhs::Float64`: right-hand side for ranged constraint
 
 Use `(-)SCIPinfinity(scip)` for one of the bounds if not applicable.
 """
-function add_linear_constraint(mscip::ManagedSCIP, varrefs, coeffs, lhs, rhs)
-    @assert length(varrefs) == length(coeffs)
+function add_linear_constraint(mscip::ManagedSCIP, varrefs, coefs, lhs, rhs)
+    @assert length(varrefs) == length(coefs)
     vars = [var(mscip, vr) for vr in varrefs]
     cons__ = Ref{Ptr{SCIP_CONS}}()
-    @SC rc = SCIPcreateConsBasicLinear(
-        scip(mscip), cons__, "", length(vars), vars, coeffs, lhs, rhs)
-    @SC rc = SCIPaddCons(scip(mscip), cons__[])
+    @SC SCIPcreateConsBasicLinear(
+        scip(mscip), cons__, "", length(vars), vars, coefs, lhs, rhs)
+    @SC SCIPaddCons(scip(mscip), cons__[])
 
     push!(mscip.conss, cons__)
     # can't delete constraint, so we use the array position as index
     return ConsRef(length(mscip.conss))
 end
+
+"""
+Add (ranged) quadratic constraint to problem, return cons ref.
+
+# Arguments
+- `linrefs::AbstractArray{VarRef}`: variable references for affine terms.
+- `lincoefs::AbstractArray{Float64}`: coefficients for affine terms.
+- `quadrefs1::AbstractArray{VarRef}`: first variable references for quadratic terms.
+- `quadrefs2::AbstractArray{VarRef}`: second variable references for quadratic terms.
+- `quadcoefs::AbstractArray{Float64}`: coefficients for quadratic terms.
+- `lhs::Float64`: left-hand side for ranged constraint
+- `rhs::Float64`: right-hand side for ranged constraint
+
+Use `(-)SCIPinfinity(scip)` for one of the bounds if not applicable.
+"""
+function add_quadratic_constraint(mscip::ManagedSCIP, linrefs, lincoefs,
+                                  quadrefs1, quadrefs2, quadcoefs, lhs, rhs)
+    @assert length(linrefs) == length(lincoefs)
+    @assert length(quadrefs1) == length(quadrefs2)
+    @assert length(quadrefs1) == length(quadcoefs)
+
+    linvars = [var(mscip, vr) for vr in linrefs]
+    quadvars1 = [var(mscip, vr) for vr in quadrefs1]
+    quadvars2 = [var(mscip, vr) for vr in quadrefs2]
+
+    cons__ = Ref{Ptr{SCIP_CONS}}()
+    @SC SCIPcreateConsBasicQuadratic(
+        scip(mscip), cons__, "", length(linvars), linvars, lincoefs,
+        length(quadvars1), quadvars1, quadvars2, quadcoefs, lhs, rhs)
+    @SC SCIPaddCons(scip(mscip), cons__[])
+
+    push!(mscip.conss, cons__)
+    # can't delete constraint, so we use the array position as index
+    return ConsRef(length(mscip.conss))
+end
+
 
 "Set generic parameter."
 function set_parameter(mscip::ManagedSCIP, name::String, value)
