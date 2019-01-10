@@ -123,6 +123,24 @@ function add_quadratic_constraint(mscip::ManagedSCIP, linrefs, lincoefs,
     return ConsRef(length(mscip.conss))
 end
 
+"""
+Add second-order-cone constraint to problem, return cons ref.
+
+Does not support the full generality of SCIP's constraint (offsets and
+coefficients). The first entry in `varrefs` is used for the special variable on
+the right-hand side.
+"""
+function add_second_order_cone_constraint(mscip::ManagedSCIP, varrefs)
+    vars = [var(mscip, vr) for vr in varrefs]
+    cons__ = Ref{Ptr{SCIP_CONS}}()
+    @SC SCIPcreateConsBasicSOC(scip(mscip), cons__, "", length(vars) - 1,
+                               vars[2:end], C_NULL, C_NULL, 0.0, vars[1], 1.0, 0.0)
+    @SC SCIPaddCons(scip(mscip), cons__[])
+
+    push!(mscip.conss, cons__)
+    # can't delete constraint, so we use the array position as index
+    return ConsRef(length(mscip.conss))
+end
 
 "Set generic parameter."
 function set_parameter(mscip::ManagedSCIP, name::String, value)
