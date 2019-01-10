@@ -215,3 +215,24 @@ end
     @test MOI.get(optimizer, MOI.VariablePrimal(), y) ≈ 1/√2 atol=atol rtol=rtol
     @test MOI.get(optimizer, MOI.VariablePrimal(), z) ≈ 1/√2 atol=atol rtol=rtol
 end
+
+@testset "Second Order Cone Constraint (infeasible)" begin
+    # Problem SOC3 - Infeasible
+    # min 0
+    # s.t. y ≥ 2
+    #      x ≤ 1
+    #      |y| ≤ x
+
+    optimizer = SCIP.Optimizer()
+    MOI.set(optimizer, SCIP.Param("display/verblevel"), 0)
+
+    x, y = MOI.add_variables(optimizer, 2)
+
+    MOI.add_constraint(optimizer, MOI.SingleVariable(x), MOI.LessThan(1.0))
+    MOI.add_constraint(optimizer, MOI.SingleVariable(y), MOI.GreaterThan(2.0))
+    MOI.add_constraint(optimizer, MOI.VectorOfVariables([x, y]), MOI.SecondOrderCone(2))
+
+    MOI.optimize!(optimizer)
+    @test MOI.get(optimizer, MOI.TerminationStatus()) == MOI.INFEASIBLE
+    @test MOI.get(optimizer, MOI.PrimalStatus()) == MOI.NO_SOLUTION
+end
