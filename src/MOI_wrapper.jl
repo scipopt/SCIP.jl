@@ -9,10 +9,12 @@ const CI = MOI.ConstraintIndex
 const SVF = MOI.SingleVariable
 const SAF = MOI.ScalarAffineFunction{Float64}
 const SQF = MOI.ScalarQuadraticFunction{Float64}
+const VECTOR = MOI.VectorOfVariables
 # supported sets
 const BOUNDS = Union{MOI.EqualTo{Float64}, MOI.GreaterThan{Float64},
                      MOI.LessThan{Float64}, MOI.Interval{Float64}}
 const VAR_TYPES = Union{MOI.ZeroOne, MOI.Integer}
+const SOC = MOI.SecondOrderCone
 # other MOI types
 const AFF_TERM = MOI.ScalarAffineTerm{Float64}
 const QUAD_TERM = MOI.ScalarQuadraticTerm{Float64}
@@ -137,5 +139,6 @@ end
 include(joinpath("MOI_wrapper", "variable.jl"))
 include(joinpath("MOI_wrapper", "linear_constraints.jl"))
 include(joinpath("MOI_wrapper", "quadratic_constraints.jl"))
+include(joinpath("MOI_wrapper", "soc_constraints.jl"))
 include(joinpath("MOI_wrapper", "objective.jl"))
 include(joinpath("MOI_wrapper", "results.jl"))
