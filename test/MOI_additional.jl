@@ -183,3 +183,35 @@ end
     chg_bounds(optimizer, x, MOI.LessThan(4.0))
     @test var_bounds(optimizer, x) == MOI.Interval(-inf, 4.0)
 end
+
+@testset "Second Order Cone Constraint" begin
+    # Derived from MOI's problem SOC1
+    # max 0x + 1y + 1z
+    #  st  x            == 1
+    #      x >= ||(y,z)||
+
+    optimizer = SCIP.Optimizer()
+    MOI.set(optimizer, SCIP.Param("display/verblevel"), 0)
+
+    @test MOI.supports_constraint(optimizer, MOI.VectorOfVariables, MOI.SecondOrderCone)
+
+    x, y, z = MOI.add_variables(optimizer, 3)
+
+    MOI.set(optimizer, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(),
+            MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0,1.0], [y,z]), 0.0))
+    MOI.set(optimizer, MOI.ObjectiveSense(), MOI.MAX_SENSE)
+
+    ceq = MOI.add_constraint(optimizer, MOI.SingleVariable(x), MOI.EqualTo(1.0))
+    csoc = MOI.add_constraint(optimizer, MOI.VectorOfVariables([x, y, z]),
+                              MOI.SecondOrderCone(3))
+
+    MOI.optimize!(optimizer)
+    @test MOI.get(optimizer, MOI.TerminationStatus()) == MOI.OPTIMAL
+    @test MOI.get(optimizer, MOI.PrimalStatus()) == MOI.FEASIBLE_POINT
+
+    atol, rtol = 1e-6, 1e-6
+    @test MOI.get(optimizer, MOI.ObjectiveValue()) ≈ √2 atol=atol rtol=rtol
+    @test MOI.get(optimizer, MOI.VariablePrimal(), x) ≈ 1 atol=atol rtol=rtol
+    @test MOI.get(optimizer, MOI.VariablePrimal(), y) ≈ 1/√2 atol=atol rtol=rtol
+    @test MOI.get(optimizer, MOI.VariablePrimal(), z) ≈ 1/√2 atol=atol rtol=rtol
+end
