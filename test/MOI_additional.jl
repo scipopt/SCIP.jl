@@ -286,3 +286,37 @@ end
     @test MOI.get(optimizer, MOI.VariablePrimal(), y) ≈ 1.0 atol=atol rtol=rtol
     @test MOI.get(optimizer, MOI.VariablePrimal(), z) ≈ 1.0 atol=atol rtol=rtol
 end
+
+@testset "abspower" begin
+    # max.  x1 - x2
+    # s.t.  z1 = sign(x1)*abs(x1)^2
+    #       z2 = sign(x2)*abs(x2)^3
+    #       z1 ≤ 4, z2 ≥ -8
+
+    optimizer = SCIP.Optimizer()
+    MOI.set(optimizer, SCIP.Param("display/verblevel"), 0)
+
+    x1, x2, z1, z2 = MOI.add_variables(optimizer, 4)
+    MOI.add_constraint(optimizer, MOI.SingleVariable(z1), MOI.LessThan(4.0))
+    MOI.add_constraint(optimizer, MOI.SingleVariable(z2), MOI.GreaterThan(-8.0))
+
+    MOI.add_constraint(optimizer, MOI.VectorOfVariables([x1, z1]),
+                       SCIP.AbsolutePowerSet(2.0))
+    MOI.add_constraint(optimizer, MOI.VectorOfVariables([x2, z2]),
+                       SCIP.AbsolutePowerSet(3.0))
+
+    MOI.set(optimizer, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(),
+            MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0, -1.0], [x1, x2]), 0.0))
+    MOI.set(optimizer, MOI.ObjectiveSense(), MOI.MAX_SENSE)
+
+    MOI.optimize!(optimizer)
+    @test MOI.get(optimizer, MOI.TerminationStatus()) == MOI.OPTIMAL
+    @test MOI.get(optimizer, MOI.PrimalStatus()) == MOI.FEASIBLE_POINT
+
+    atol, rtol = 1e-6, 1e-6
+    @test MOI.get(optimizer, MOI.ObjectiveValue()) ≈ 4.0 atol=atol rtol=rtol
+    @test MOI.get(optimizer, MOI.VariablePrimal(), x1) ≈ 2.0 atol=atol rtol=rtol
+    @test MOI.get(optimizer, MOI.VariablePrimal(), z1) ≈ 4.0 atol=atol rtol=rtol
+    @test MOI.get(optimizer, MOI.VariablePrimal(), x2) ≈ -2.0 atol=atol rtol=rtol
+    @test MOI.get(optimizer, MOI.VariablePrimal(), z2) ≈ -8.0 atol=atol rtol=rtol
+end
