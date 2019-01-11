@@ -142,6 +142,46 @@ function add_second_order_cone_constraint(mscip::ManagedSCIP, varrefs)
     return ConsRef(length(mscip.conss))
 end
 
+"""
+Add special-ordered-set of type 1 to problem, return cons ref.
+
+# Arguments
+- `varrefs::AbstractArray{VarRef}`: variable references
+- `weights::AbstractArray{Float64}`: numeric weights
+"""
+function add_special_ordered_set_type1(mscip::ManagedSCIP, varrefs, weights)
+    @assert length(varrefs) == length(weights)
+    vars = [var(mscip, vr) for vr in varrefs]
+    cons__ = Ref{Ptr{SCIP_CONS}}()
+    @SC SCIPcreateConsBasicSOS1(
+        scip(mscip), cons__, "", length(vars), vars, weights)
+    @SC SCIPaddCons(scip(mscip), cons__[])
+
+    push!(mscip.conss, cons__)
+    # can't delete constraint, so we use the array position as index
+    return ConsRef(length(mscip.conss))
+end
+
+"""
+Add special-ordered-set of type 2 to problem, return cons ref.
+
+# Arguments
+- `varrefs::AbstractArray{VarRef}`: variable references
+- `weights::AbstractArray{Float64}`: numeric weights
+"""
+function add_special_ordered_set_type2(mscip::ManagedSCIP, varrefs, weights)
+    @assert length(varrefs) == length(weights)
+    vars = [var(mscip, vr) for vr in varrefs]
+    cons__ = Ref{Ptr{SCIP_CONS}}()
+    @SC SCIPcreateConsBasicSOS2(
+        scip(mscip), cons__, "", length(vars), vars, weights)
+    @SC SCIPaddCons(scip(mscip), cons__[])
+
+    push!(mscip.conss, cons__)
+    # can't delete constraint, so we use the array position as index
+    return ConsRef(length(mscip.conss))
+end
+
 "Set generic parameter."
 function set_parameter(mscip::ManagedSCIP, name::String, value)
     @SC SCIPsetParam(scip(mscip), name, Ptr{Cvoid}(value))

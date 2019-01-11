@@ -26,6 +26,8 @@ end
         c = SCIP.add_linear_constraint(mscip, [x, y], [2.0, 3.0], 1.0, 9.0)
         q = SCIP.add_quadratic_constraint(mscip, [x], [2.0], [x, x], [x, y], [4.0, 5.0], 1.0, 9.0)
         s = SCIP.add_second_order_cone_constraint(mscip, [t, x, y])
+        s1 = SCIP.add_special_ordered_set_type1(mscip, [t, x], [1.0, 2.0])
+        s2 = SCIP.add_special_ordered_set_type2(mscip, [x, y], [1.0, 2.0])
 
         if i==2
             # solve, but don't check results (this test is about memory mgmt)
