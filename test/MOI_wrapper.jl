@@ -22,7 +22,7 @@ end
 
 @testset "MOI Integer Linear" begin
     excluded = [
-        "int2", # TODO: implement SOS1, SOS2
+        "int2", # needs MOI.delete
     ]
     MOIT.intlineartest(optimizer, config, excluded)
 end
