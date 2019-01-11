@@ -182,6 +182,33 @@ function add_special_ordered_set_type2(mscip::ManagedSCIP, varrefs, weights)
     return ConsRef(length(mscip.conss))
 end
 
+"""
+Add special-ordered-set of type 2 to problem, return cons ref.
+
+    lhs ≤ sign(x + a) * abs(x + a)^n + c*z ≤ rhs
+
+# Arguments
+- `x::VarRef`: reference for power variable
+- `a::Float64`: offset for power variable
+- `n::Float64`: exponent for power variable, n >= 1
+- `z::VarRef`: reference for linear variable
+- `c::Float64`: coefficient for linear variable
+- `lhs::Float64`: left-hand side for ranged constraint
+- `rhs::Float64`: right-hand side for ranged constraint
+
+Use `(-)SCIPinfinity(scip)` for one of the bounds if not applicable.
+"""
+function add_abspower_constraint(mscip::ManagedSCIP, x, a, n, z, c, lhs, rhs)
+    cons__ = Ref{Ptr{SCIP_CONS}}()
+    @SC SCIPcreateConsBasicAbspower(
+        scip(mscip), cons__, "", var(mscip, x), var(mscip, z), n, a, c, lhs, rhs)
+    @SC SCIPaddCons(scip(mscip), cons__[])
+
+    push!(mscip.conss, cons__)
+    # can't delete constraint, so we use the array position as index
+    return ConsRef(length(mscip.conss))
+end
+
 "Set generic parameter."
 function set_parameter(mscip::ManagedSCIP, name::String, value)
     @SC SCIPsetParam(scip(mscip), name, Ptr{Cvoid}(value))
