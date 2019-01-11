@@ -13,6 +13,19 @@ function MOI.add_constraint(o::Optimizer, func::VECTOR, set::SOS1)
     return ci
 end
 
+function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{VECTOR, SOS1})
+    s, c = scip(o), cons(o, ci)
+    nvars::Int = SCIPgetNVarsSOS1(s, c)
+    vars = unsafe_wrap(Array{Ptr{SCIP_VAR}}, SCIPgetVarsSOS1(s, c), nvars)
+    return VECTOR([VI(ref(o, v).val) for v in vars])
+end
+
+function MOI.get(o::Optimizer, ::MOI.ConstraintSet, ci::CI{VECTOR, SOS1})
+    s, c = scip(o), cons(o, ci)
+    nvars::Int = SCIPgetNVarsSOS1(s, c)
+    weights = unsafe_wrap(Array{Float64}, SCIPgetWeightsSOS1(s, c), nvars)
+    return SOS1(weights)
+end
 
 # Special-Ordered-Set type 2
 
@@ -27,4 +40,18 @@ function MOI.add_constraint(o::Optimizer, func::VECTOR, set::SOS2)
     register!(o, ci)
     register!(o, cons(o, ci), cr)
     return ci
+end
+
+function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{VECTOR, SOS2})
+    s, c = scip(o), cons(o, ci)
+    nvars::Int = SCIPgetNVarsSOS2(s, c)
+    vars = unsafe_wrap(Array{Ptr{SCIP_VAR}}, SCIPgetVarsSOS2(s, c), nvars)
+    return VECTOR([VI(ref(o, v).val) for v in vars])
+end
+
+function MOI.get(o::Optimizer, ::MOI.ConstraintSet, ci::CI{VECTOR, SOS2})
+    s, c = scip(o), cons(o, ci)
+    nvars::Int = SCIPgetNVarsSOS2(s, c)
+    weights = unsafe_wrap(Array{Float64}, SCIPgetWeightsSOS2(s, c), nvars)
+    return SOS2(weights)
 end
