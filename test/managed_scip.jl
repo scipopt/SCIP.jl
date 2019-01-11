@@ -28,6 +28,8 @@ end
         s = SCIP.add_second_order_cone_constraint(mscip, [t, x, y])
         s1 = SCIP.add_special_ordered_set_type1(mscip, [t, x], [1.0, 2.0])
         s2 = SCIP.add_special_ordered_set_type2(mscip, [x, y], [1.0, 2.0])
+        # abspower:  y == sign(x) * |x|^2 ( == x * |x| )
+        a = SCIP.add_abspower_constraint(mscip, x, 0.0, 2.0, y, -1.0, 0.0, 0.0)
 
         if i==2
             # solve, but don't check results (this test is about memory mgmt)
