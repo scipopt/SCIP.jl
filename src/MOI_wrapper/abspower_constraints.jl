@@ -11,7 +11,7 @@ Set of (x,z) that satisfy the absolute power constraint:
 
 The exponent `n` should be greater than 1.
 """
-struct AbsolutePowerSet{T <: Real} <: MOI.AbstractSet
+struct AbsolutePowerSet{T <: Real} <: MOI.AbstractVectorSet
     n::T
     a::T
     c::T
