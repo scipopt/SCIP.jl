@@ -236,3 +236,53 @@ end
     @test MOI.get(optimizer, MOI.TerminationStatus()) == MOI.INFEASIBLE
     @test MOI.get(optimizer, MOI.PrimalStatus()) == MOI.NO_SOLUTION
 end
+
+@testset "SOS1" begin
+    optimizer = SCIP.Optimizer()
+    MOI.set(optimizer, SCIP.Param("display/verblevel"), 0)
+    x, y, z = MOI.add_variables(optimizer, 3)
+    MOI.add_constraint(optimizer, MOI.SingleVariable(x), MOI.LessThan(1.0))
+    MOI.add_constraint(optimizer, MOI.SingleVariable(y), MOI.LessThan(1.0))
+    MOI.add_constraint(optimizer, MOI.SingleVariable(z), MOI.LessThan(1.0))
+
+    MOI.add_constraint(optimizer, MOI.VectorOfVariables([x,y,z]), MOI.SOS1([1.0,2.0,3.0]))
+
+    MOI.set(optimizer, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(),
+            MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0,2.0,3.0], [x,y,z]), 0.0))
+    MOI.set(optimizer, MOI.ObjectiveSense(), MOI.MAX_SENSE)
+
+    MOI.optimize!(optimizer)
+    @test MOI.get(optimizer, MOI.TerminationStatus()) == MOI.OPTIMAL
+    @test MOI.get(optimizer, MOI.PrimalStatus()) == MOI.FEASIBLE_POINT
+
+    atol, rtol = 1e-6, 1e-6
+    @test MOI.get(optimizer, MOI.ObjectiveValue()) ≈ 3.0 atol=atol rtol=rtol
+    @test MOI.get(optimizer, MOI.VariablePrimal(), x) ≈ 0.0 atol=atol rtol=rtol
+    @test MOI.get(optimizer, MOI.VariablePrimal(), y) ≈ 0.0 atol=atol rtol=rtol
+    @test MOI.get(optimizer, MOI.VariablePrimal(), z) ≈ 1.0 atol=atol rtol=rtol
+end
+
+@testset "SOS2" begin
+    optimizer = SCIP.Optimizer()
+    MOI.set(optimizer, SCIP.Param("display/verblevel"), 0)
+    x, y, z = MOI.add_variables(optimizer, 3)
+    MOI.add_constraint(optimizer, MOI.SingleVariable(x), MOI.LessThan(1.0))
+    MOI.add_constraint(optimizer, MOI.SingleVariable(y), MOI.LessThan(1.0))
+    MOI.add_constraint(optimizer, MOI.SingleVariable(z), MOI.LessThan(1.0))
+
+    MOI.add_constraint(optimizer, MOI.VectorOfVariables([x,y,z]), MOI.SOS2([1.0,2.0,3.0]))
+
+    MOI.set(optimizer, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(),
+            MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0,2.0,3.0], [x,y,z]), 0.0))
+    MOI.set(optimizer, MOI.ObjectiveSense(), MOI.MAX_SENSE)
+
+    MOI.optimize!(optimizer)
+    @test MOI.get(optimizer, MOI.TerminationStatus()) == MOI.OPTIMAL
+    @test MOI.get(optimizer, MOI.PrimalStatus()) == MOI.FEASIBLE_POINT
+
+    atol, rtol = 1e-6, 1e-6
+    @test MOI.get(optimizer, MOI.ObjectiveValue()) ≈ 5.0 atol=atol rtol=rtol
+    @test MOI.get(optimizer, MOI.VariablePrimal(), x) ≈ 0.0 atol=atol rtol=rtol
+    @test MOI.get(optimizer, MOI.VariablePrimal(), y) ≈ 1.0 atol=atol rtol=rtol
+    @test MOI.get(optimizer, MOI.VariablePrimal(), z) ≈ 1.0 atol=atol rtol=rtol
+end
