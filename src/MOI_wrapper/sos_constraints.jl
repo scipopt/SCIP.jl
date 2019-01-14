@@ -15,6 +15,8 @@ end
 
 function MOI.delete(o::Optimizer, ci::CI{VECTOR, SOS1})
     allow_modification(o)
+    delete!(o.constypes[VECTOR, SOS1], ConsRef(ci.value))
+    delete!(o.reference, cons(o, ci))
     delete(o.mscip, ConsRef(ci.value))
     return nothing
 end
@@ -50,6 +52,8 @@ end
 
 function MOI.delete(o::Optimizer, ci::CI{VECTOR, SOS2})
     allow_modification(o)
+    delete!(o.constypes[VECTOR, SOS2], ConsRef(ci.value))
+    delete!(o.reference, cons(o, ci))
     delete(o.mscip, ConsRef(ci.value))
     return nothing
 end

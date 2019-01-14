@@ -34,6 +34,8 @@ end
 
 function MOI.delete(o::Optimizer, ci::CI{SQF, S}) where {S <: BOUNDS}
     allow_modification(o)
+    delete!(o.constypes[SQF, S], ConsRef(ci.value))
+    delete!(o.reference, cons(o, ci))
     delete(o.mscip, ConsRef(ci.value))
     return nothing
 end

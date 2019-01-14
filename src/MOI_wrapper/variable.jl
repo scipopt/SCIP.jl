@@ -21,6 +21,7 @@ end
 
 function MOI.delete(o::Optimizer, vi::VI)
     allow_modification(o)
+    delete!(o.reference, var(o, vi))
     delete(o.mscip, VarRef(vi.value))
     return nothing
 end
@@ -60,12 +61,17 @@ end
 
 function MOI.delete(o::Optimizer, ci::CI{SVF,S}) where {S <: VAR_TYPES}
     allow_modification(o)
+
     # don't actually delete any SCIP constraint, just reset type
     vi = VI(ci.value)
     infeasible = Ref{SCIP_Bool}()
     @SC SCIPchgVarType(scip(o), v = var(o, vi), SCIP_VARTYPE_CONTINUOUS, infeasible)
     # TODO: warn if infeasible[] == TRUE?
     # TODO: also reset implicit bounds [0, 1] for binaries?
+
+    # but do delete the constraint reference
+    delete!(o.constypes[SVF, S], ConsRef(ci.value))
+
     return nothing
 end
 
@@ -109,12 +115,17 @@ end
 
 function MOI.delete(o::Optimizer, ci::CI{SVF,S}) where S <: BOUNDS
     allow_modification(o)
+
     # don't actually delete any SCIP constraint, just reset type
     s = scip(o)
     v = var(o, VI(ci.value))
     inf = SCIPinfinity(s)
     @SC SCIPchgVarLb(s, v, -inf)
     @SC SCIPchgVarUb(s, v,  inf)
+
+    # but do delete the constraint reference
+    delete!(o.constypes[SVF, S], ConsRef(ci.value))
+
     return nothing
 end
 
