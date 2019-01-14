@@ -12,3 +12,9 @@ function MOI.add_constraint(o::Optimizer, func::VECTOR, set::SOC)
     register!(o, cons(o, ci), cr)
     return ci
 end
+
+function MOI.delete(o::Optimizer, ci::CI{VECTOR, SOC})
+    allow_modification(o)
+    delete(o.mscip, ConsRef(ci.value))
+    return nothing
+end

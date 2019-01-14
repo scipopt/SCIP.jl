@@ -19,6 +19,11 @@ function MOI.set(o::Optimizer, ::MOI.VariableName, vi::VI, name::String)
     return nothing
 end
 
+function MOI.delete(o::Optimizer, vi::VI)
+    allow_modification(o)
+    delete(o.mscip, VarRef(vi.value))
+    return nothing
+end
 
 ## variable types (binary, integer)
 
@@ -31,8 +36,9 @@ function MOI.add_constraint(o::Optimizer, func::SVF, set::S) where {S <: VAR_TYP
     allow_modification(o)
     vi = func.variable
     v = var(o, vi)
-    infeasible = Ref{Ptr{SCIP_Bool}}
-    @SC SCIPchgVarType(scip(o), v, scip_vartype(S), infeasible[])
+    infeasible = Ref{SCIP_Bool}()
+    @SC SCIPchgVarType(scip(o), v, scip_vartype(S), infeasible)
+    # TODO: warn if infeasible[] == TRUE?
     if S <: MOI.ZeroOne
         # Need to adjust bounds for SCIP, which fails with an error otherwise.
         # Check for conflicts with existing bounds first:
@@ -52,6 +58,16 @@ function MOI.add_constraint(o::Optimizer, func::SVF, set::S) where {S <: VAR_TYP
     return register!(o, CI{SVF, S}(i))
 end
 
+function MOI.delete(o::Optimizer, ci::CI{SVF,S}) where {S <: VAR_TYPES}
+    allow_modification(o)
+    # don't actually delete any SCIP constraint, just reset type
+    vi = VI(ci.value)
+    infeasible = Ref{SCIP_Bool}()
+    @SC SCIPchgVarType(scip(o), v = var(o, vi), SCIP_VARTYPE_CONTINUOUS, infeasible)
+    # TODO: warn if infeasible[] == TRUE?
+    # TODO: also reset implicit bounds [0, 1] for binaries?
+    return nothing
+end
 
 ## variable bounds
 
@@ -89,6 +105,17 @@ function MOI.add_constraint(o::Optimizer, func::SVF, set::S) where S <: BOUNDS
     # use var index for cons index of this type
     i = func.variable.value
     return register!(o, CI{SVF, S}(i))
+end
+
+function MOI.delete(o::Optimizer, ci::CI{SVF,S}) where S <: BOUNDS
+    allow_modification(o)
+    # don't actually delete any SCIP constraint, just reset type
+    s = scip(o)
+    v = var(o, VI(ci.value))
+    inf = SCIPinfinity(s)
+    @SC SCIPchgVarLb(s, v, -inf)
+    @SC SCIPchgVarUb(s, v,  inf)
+    return nothing
 end
 
 function MOI.set(o::SCIP.Optimizer, ::MOI.ConstraintSet, ci::CI{SVF,S}, set::S) where {S <: BOUNDS}

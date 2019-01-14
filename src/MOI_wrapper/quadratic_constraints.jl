@@ -32,6 +32,12 @@ function MOI.add_constraint(o::Optimizer, func::SQF, set::S) where {S <: BOUNDS}
     return ci
 end
 
+function MOI.delete(o::Optimizer, ci::CI{SQF, S}) where {S <: BOUNDS}
+    allow_modification(o)
+    delete(o.mscip, ConsRef(ci.value))
+    return nothing
+end
+
 function MOI.set(o::SCIP.Optimizer, ::MOI.ConstraintSet, ci::CI{SQF,S}, set::S) where {S <: BOUNDS}
     allow_modification(o)
 
