@@ -46,3 +46,34 @@ end
         @test mscip.scip[] == C_NULL
     end
 end
+
+@testset "create vars and cons, delete some, and free" begin
+    for i=1:2 # run twice, with(out) solving
+        mscip = SCIP.ManagedSCIP()
+        @test mscip.scip[] != C_NULL
+        SCIP.set_parameter(mscip, "display/verblevel", 0)
+
+        x = SCIP.add_variable(mscip)
+        y = SCIP.add_variable(mscip)
+        z = SCIP.add_variable(mscip)
+        c = SCIP.add_linear_constraint(mscip, [x, y], [2.0, 3.0], 1.0, 9.0)
+        d = SCIP.add_linear_constraint(mscip, [x, z], [2.0, 1.0], 2.0, 8.0)
+
+        SCIP.delete(mscip, d)
+        SCIP.delete(mscip, z) # only occured in constraint 'd'
+
+        if i==2
+            # solve, but don't check results (this test is about memory mgmt)
+            SCIP.@SC SCIP.SCIPsolve(mscip.scip[])
+        end
+
+        finalize(mscip)
+        for var in values(mscip.vars)
+            @test var[] == C_NULL
+        end
+        for cons in values(mscip.conss)
+            @test cons[] == C_NULL
+        end
+        @test mscip.scip[] == C_NULL
+    end
+end
