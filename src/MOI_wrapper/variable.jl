@@ -3,15 +3,15 @@
 function MOI.add_variable(o::Optimizer)
     allow_modification(o)
     vr = add_variable(o.mscip)
-    var::Ptr{SCIP_VAR} = o.mscip.vars[vr.val][] # i == end
+    var::Ptr{SCIP_VAR} = o.mscip.vars[vr][]
     register!(o, var, vr)
     return MOI.VariableIndex(vr.val)
 end
 
 MOI.add_variables(o::Optimizer, n) = [MOI.add_variable(o) for i=1:n]
 MOI.get(o::Optimizer, ::MOI.NumberOfVariables) = length(o.mscip.vars)
-MOI.get(o::Optimizer, ::MOI.ListOfVariableIndices) = VI.(1:length(o.mscip.vars))
-MOI.is_valid(o::Optimizer, vi::VI) = 1 <= vi.value <= length(o.mscip.vars)
+MOI.get(o::Optimizer, ::MOI.ListOfVariableIndices) = [VI(k.val) for k in keys(o.mscip.vars)]
+MOI.is_valid(o::Optimizer, vi::VI) = haskey(o.mscip.vars, VarRef(vi.value))
 
 MOI.get(o::Optimizer, ::MOI.VariableName, vi::VI) = SCIPvarGetName(var(o, vi))
 function MOI.set(o::Optimizer, ::MOI.VariableName, vi::VI, name::String)
@@ -100,8 +100,9 @@ function MOI.set(o::SCIP.Optimizer, ::MOI.ConstraintSet, ci::CI{SVF,S}, set::S) 
     return nothing
 end
 
+# TODO: is actually wrong for unbounded variables?
 function MOI.is_valid(o::Optimizer, ci::CI{SVF,<:BOUNDS})
-    return 1 <= ci.value <= length(o.mscip.vars)
+    return haskey(o.mscip.vars, VarRef(vi.value))
 end
 
 function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{SVF, S}) where S <: BOUNDS
