@@ -1,37 +1,3 @@
-"ManagedSCIP holds pointers to SCIP data and takes care of memory management."
-mutable struct ManagedSCIP
-    scip::Ref{Ptr{SCIP_}}
-    vars::Vector{Ref{Ptr{SCIP_VAR}}}
-    conss::Vector{Ref{Ptr{SCIP_CONS}}}
-
-    function ManagedSCIP()
-        scip = Ref{Ptr{SCIP_}}()
-        @SC SCIPcreate(scip)
-        @assert scip[] != C_NULL
-        @SC SCIPincludeDefaultPlugins(scip[])
-        @SC SCIP.SCIPcreateProbBasic(scip[], "")
-
-        mscip = new(scip, [], [])
-        finalizer(free_scip, mscip)
-    end
-end
-
-"Release references and free memory."
-function free_scip(mscip::ManagedSCIP)
-    # Avoid double-free (SCIP will set the pointers to NULL).
-    s = scip(mscip)
-    if s != C_NULL
-        for c in mscip.conss
-            @SC SCIPreleaseCons(s, c)
-        end
-        for v in mscip.vars
-            @SC SCIPreleaseVar(s, v)
-        end
-        @SC SCIPfree(mscip.scip)
-    end
-    @assert scip(mscip) == C_NULL
-end
-
 "Type-safe wrapper for `Int64`, references a variable."
 struct VarRef
     val::Int64
@@ -42,14 +8,66 @@ struct ConsRef
     val::Int64
 end
 
+"ManagedSCIP holds pointers to SCIP data and takes care of memory management."
+mutable struct ManagedSCIP
+    scip::Ref{Ptr{SCIP_}}
+    vars::Dict{VarRef, Ref{Ptr{SCIP_VAR}}}
+    conss::Dict{ConsRef, Ref{Ptr{SCIP_CONS}}}
+    var_count::Int64
+    cons_count::Int64
+
+    function ManagedSCIP()
+        scip = Ref{Ptr{SCIP_}}()
+        @SC SCIPcreate(scip)
+        @assert scip[] != C_NULL
+        @SC SCIPincludeDefaultPlugins(scip[])
+        @SC SCIP.SCIPcreateProbBasic(scip[], "")
+
+        mscip = new(scip, Dict(), Dict(), 0, 0)
+        finalizer(free_scip, mscip)
+    end
+end
+
+"Release references and free memory."
+function free_scip(mscip::ManagedSCIP)
+    # Avoid double-free (SCIP will set the pointers to NULL).
+    s = scip(mscip)
+    if s != C_NULL
+        for c in values(mscip.conss)
+            @SC SCIPreleaseCons(s, c)
+        end
+        for v in values(mscip.vars)
+            @SC SCIPreleaseVar(s, v)
+        end
+        @SC SCIPfree(mscip.scip)
+    end
+    @assert scip(mscip) == C_NULL
+end
+
 "Return pointer to SCIP instance."
 scip(mscip::ManagedSCIP) = mscip.scip[]
 
 "Return pointer to SCIP variable."
-var(mscip::ManagedSCIP, vr::VarRef) = mscip.vars[vr.val][]
+var(mscip::ManagedSCIP, vr::VarRef) = mscip.vars[vr][]
 
 "Return pointer to SCIP constraint."
-cons(mscip::ManagedSCIP, cr::ConsRef) = mscip.conss[cr.val][]
+cons(mscip::ManagedSCIP, cr::ConsRef) = mscip.conss[cr][]
+
+"Store reference to variable, return VarRef"
+function store_var!(mscip::ManagedSCIP, var__::Ref{Ptr{SCIP_VAR}})
+    mscip.var_count += 1
+    vr = VarRef(mscip.var_count)
+    mscip.vars[vr] = var__
+    return vr
+end
+
+"Store reference to constraint, return ConsRef"
+function store_cons!(mscip::ManagedSCIP, cons__::Ref{Ptr{SCIP_CONS}})
+    mscip.cons_count += 1
+    cr = ConsRef(mscip.cons_count)
+    mscip.conss[cr] = cons__
+    return cr
+end
 
 "Add variable to problem (continuous, no bounds), return var ref."
 function add_variable(mscip::ManagedSCIP)
@@ -58,10 +76,7 @@ function add_variable(mscip::ManagedSCIP)
     @SC SCIPcreateVarBasic(s, var__, "", -SCIPinfinity(s), SCIPinfinity(s),
                            0.0, SCIP_VARTYPE_CONTINUOUS)
     @SC SCIPaddVar(s, var__[])
-
-    push!(mscip.vars, var__)
-    # can't delete variable, so we use the array position as index
-    return VarRef(length(mscip.vars))
+    return store_var!(mscip, var__)
 end
 
 """
@@ -82,10 +97,7 @@ function add_linear_constraint(mscip::ManagedSCIP, varrefs, coefs, lhs, rhs)
     @SC SCIPcreateConsBasicLinear(
         scip(mscip), cons__, "", length(vars), vars, coefs, lhs, rhs)
     @SC SCIPaddCons(scip(mscip), cons__[])
-
-    push!(mscip.conss, cons__)
-    # can't delete constraint, so we use the array position as index
-    return ConsRef(length(mscip.conss))
+    return store_cons!(mscip, cons__)
 end
 
 """
@@ -117,10 +129,7 @@ function add_quadratic_constraint(mscip::ManagedSCIP, linrefs, lincoefs,
         scip(mscip), cons__, "", length(linvars), linvars, lincoefs,
         length(quadvars1), quadvars1, quadvars2, quadcoefs, lhs, rhs)
     @SC SCIPaddCons(scip(mscip), cons__[])
-
-    push!(mscip.conss, cons__)
-    # can't delete constraint, so we use the array position as index
-    return ConsRef(length(mscip.conss))
+    return store_cons!(mscip, cons__)
 end
 
 """
@@ -136,10 +145,7 @@ function add_second_order_cone_constraint(mscip::ManagedSCIP, varrefs)
     @SC SCIPcreateConsBasicSOC(scip(mscip), cons__, "", length(vars) - 1,
                                vars[2:end], C_NULL, C_NULL, 0.0, vars[1], 1.0, 0.0)
     @SC SCIPaddCons(scip(mscip), cons__[])
-
-    push!(mscip.conss, cons__)
-    # can't delete constraint, so we use the array position as index
-    return ConsRef(length(mscip.conss))
+    return store_cons!(mscip, cons__)
 end
 
 """
@@ -156,10 +162,7 @@ function add_special_ordered_set_type1(mscip::ManagedSCIP, varrefs, weights)
     @SC SCIPcreateConsBasicSOS1(
         scip(mscip), cons__, "", length(vars), vars, weights)
     @SC SCIPaddCons(scip(mscip), cons__[])
-
-    push!(mscip.conss, cons__)
-    # can't delete constraint, so we use the array position as index
-    return ConsRef(length(mscip.conss))
+    return store_cons!(mscip, cons__)
 end
 
 """
@@ -176,10 +179,7 @@ function add_special_ordered_set_type2(mscip::ManagedSCIP, varrefs, weights)
     @SC SCIPcreateConsBasicSOS2(
         scip(mscip), cons__, "", length(vars), vars, weights)
     @SC SCIPaddCons(scip(mscip), cons__[])
-
-    push!(mscip.conss, cons__)
-    # can't delete constraint, so we use the array position as index
-    return ConsRef(length(mscip.conss))
+    return store_cons!(mscip, cons__)
 end
 
 """
@@ -203,10 +203,7 @@ function add_abspower_constraint(mscip::ManagedSCIP, x, a, n, z, c, lhs, rhs)
     @SC SCIPcreateConsBasicAbspower(
         scip(mscip), cons__, "", var(mscip, x), var(mscip, z), n, a, c, lhs, rhs)
     @SC SCIPaddCons(scip(mscip), cons__[])
-
-    push!(mscip.conss, cons__)
-    # can't delete constraint, so we use the array position as index
-    return ConsRef(length(mscip.conss))
+    return store_cons!(mscip, cons__)
 end
 
 "Set generic parameter."

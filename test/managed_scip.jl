@@ -37,10 +37,10 @@ end
         end
 
         finalize(mscip)
-        for var in mscip.vars
+        for var in values(mscip.vars)
             @test var[] == C_NULL
         end
-        for cons in mscip.conss
+        for cons in values(mscip.conss)
             @test cons[] == C_NULL
         end
         @test mscip.scip[] == C_NULL
