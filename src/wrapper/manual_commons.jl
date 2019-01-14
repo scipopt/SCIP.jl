@@ -43,4 +43,7 @@ const BMS_BLKMEM = Cvoid
 const BMS_BUFMEM = Cvoid
 
 const SCIP_Bool = Cuint
+const TRUE = SCIP_Bool(1)
+const FALSE = SCIP_Bool(0)
+
 const SCIP_Real = Cdouble
