@@ -21,6 +21,8 @@ end
         SCIP.set_parameter(mscip, "display/verblevel", 0)
 
         t = SCIP.add_variable(mscip)
+        # set lower bound for assertion in cons_soc.c
+        SCIP.@SC SCIP.SCIPchgVarLb(SCIP.scip(mscip), SCIP.var(mscip, t), 0.0)
         x = SCIP.add_variable(mscip)
         y = SCIP.add_variable(mscip)
         c = SCIP.add_linear_constraint(mscip, [x, y], [2.0, 3.0], 1.0, 9.0)
