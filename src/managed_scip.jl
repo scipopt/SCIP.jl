@@ -79,6 +79,29 @@ function add_variable(mscip::ManagedSCIP)
     return store_var!(mscip, var__)
 end
 
+"Delete variable from problem."
+function delete(mscip::ManagedSCIP, vr::VarRef)
+    # delete variable from SCIP problem
+    deleted = Ref{SCIP_Bool}()
+    @SC SCIPdelVar(scip(mscip), var(mscip, vr), deleted)
+    deleted[] == TRUE || error("Variable at $(vr.val) could not be deleted!")
+
+    # release memory and remove reference
+    @SC SCIPreleaseVar(scip(mscip), mscip.vars[vr])
+    delete!(mscip.vars, vr)
+    return nothing
+end
+
+"Delete constraint from problem."
+function delete(mscip::ManagedSCIP, cr::ConsRef)
+    @SC SCIPdelCons(scip(mscip), cons(mscip, cr))
+
+    # release memory and remove reference
+    @SC SCIPreleaseCons(scip(mscip), mscip.conss[cr])
+    delete!(mscip.conss, cr)
+    return nothing
+end
+
 """
 Add (ranged) linear constraint to problem, return cons ref.
 
