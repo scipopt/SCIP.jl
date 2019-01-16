@@ -28,9 +28,10 @@ mutable struct Optimizer <: MOI.AbstractOptimizer
     mscip::ManagedSCIP
     reference::PtrMap
     constypes::ConsTypeMap
+    binbounds::Dict{VI,BOUNDS} # only for binary variables
     params::Dict{String,Any}
 
-    Optimizer() = new(ManagedSCIP(), PtrMap(), ConsTypeMap(), Dict())
+    Optimizer() = new(ManagedSCIP(), PtrMap(), ConsTypeMap(), Dict(), Dict())
 end
 
 
@@ -115,6 +116,7 @@ function MOI.empty!(o::Optimizer)
     # clear auxiliary mapping structures
     o.reference = PtrMap()
     o.constypes = ConsTypeMap()
+    o.binbounds = Dict()
     # reapply parameters
     for pair in o.params
         set_parameter(o.mscip, pair.first, pair.second)
