@@ -320,3 +320,25 @@ end
     @test MOI.get(optimizer, MOI.VariablePrimal(), x2) ≈ -2.0 atol=atol rtol=rtol
     @test MOI.get(optimizer, MOI.VariablePrimal(), z2) ≈ -8.0 atol=atol rtol=rtol
 end
+
+@testset "deleting variables" begin
+    optimizer = SCIP.Optimizer()
+
+    # add variable and constraint
+    x = MOI.add_variable(optimizer)
+    c = MOI.add_constraint(optimizer, MOI.ScalarAffineFunction([MOI.ScalarAffineTerm(1.0, x)], 0.0), MOI.EqualTo(0.0))
+    @test !MOI.is_empty(optimizer)
+
+    # delete them (constraint first!)
+    MOI.delete(optimizer, c)
+    MOI.delete(optimizer, x)
+    @test MOI.is_empty(optimizer)
+
+    # add variable and constraint (again)
+    x = MOI.add_variable(optimizer)
+    c = MOI.add_constraint(optimizer, MOI.ScalarAffineFunction([MOI.ScalarAffineTerm(1.0, x)], 0.0), MOI.EqualTo(0.0))
+    @test !MOI.is_empty(optimizer)
+
+    # fail to delete them in wrong order
+    @test_throws ErrorException MOI.delete(optimizer, x)
+end
