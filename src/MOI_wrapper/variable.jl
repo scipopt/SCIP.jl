@@ -116,6 +116,9 @@ function MOI.add_constraint(o::Optimizer, func::SVF, set::S) where S <: BOUNDS
         elseif oldlb == 0.0 && oldub == 1.0 && SCIPvarGetType(v) == SCIP_VARTYPE_BINARY
             if newlb >= 0.0 && newlb <= newub && newub <= 1.0
                 @debug "Overwriting existing bounds [0.0,1.0] with [$newlb,$newub] for binary variable at $(vi.value)!"
+            elseif newlb <= oldlb && newub >= oldub
+                @warn "Ignoring wider bounds [$newlb,$newub] for binary variable at $(vi.value)!"
+                newlb, newub = oldlb, oldub
             else
                 error("Invalid bounds [$newlb,$newub] for binary variable at $(vi.value)!")
             end

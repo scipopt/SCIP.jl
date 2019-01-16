@@ -66,17 +66,19 @@ end
     t = MOI.add_constraint(optimizer, x, MOI.ZeroOne())
     @test var_bounds(optimizer, x) == MOI.Interval(1.0, 1.0)
 
-    # Is an error: binary variable with too wide bounds.
+    # Tightened bounds for binary variable
     MOI.empty!(optimizer)
     x = MOI.add_variable(optimizer)
     b = MOI.add_constraint(optimizer, x, MOI.Interval(-1.0, 2.0))
-    @test_throws ErrorException t = MOI.add_constraint(optimizer, x, MOI.ZeroOne())
+    t = MOI.add_constraint(optimizer, x, MOI.ZeroOne())
+    @test var_bounds(optimizer, x) == MOI.Interval(0.0, 1.0)
 
-    # Is an error: binary variable with too wide bounds (different order).
+    # Tightened bounds for binary variable (different order).
     MOI.empty!(optimizer)
     x = MOI.add_variable(optimizer)
     t = MOI.add_constraint(optimizer, x, MOI.ZeroOne())
-    @test_throws ErrorException b = MOI.add_constraint(optimizer, x, MOI.Interval(-1.0, 2.0))
+    b = MOI.add_constraint(optimizer, x, MOI.Interval(-1.0, 2.0))
+    @test var_bounds(optimizer, x) == MOI.Interval(0.0, 1.0)
 
     # Is an error: binary variable with conflicting bounds (infeasible).
     MOI.empty!(optimizer)
