@@ -21,10 +21,7 @@ const config = MOIT.TestConfig(duals=false, infeas_certificates=false)
 end
 
 @testset "MOI Integer Linear" begin
-    excluded = [
-        "int2", # TODO: fix bounds handling for binary variables
-    ]
-    MOIT.intlineartest(optimizer, config, excluded)
+    MOIT.intlineartest(optimizer, config)
 end
 
 @testset "MOI Quadratic Constraint" begin
