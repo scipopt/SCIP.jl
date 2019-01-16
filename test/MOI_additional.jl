@@ -66,17 +66,19 @@ end
     t = MOI.add_constraint(optimizer, x, MOI.ZeroOne())
     @test var_bounds(optimizer, x) == MOI.Interval(1.0, 1.0)
 
-    # Is an error: binary variable with too wide bounds.
+    # Tightened bounds for binary variable
     MOI.empty!(optimizer)
     x = MOI.add_variable(optimizer)
     b = MOI.add_constraint(optimizer, x, MOI.Interval(-1.0, 2.0))
-    @test_throws ErrorException t = MOI.add_constraint(optimizer, x, MOI.ZeroOne())
+    t = MOI.add_constraint(optimizer, x, MOI.ZeroOne())
+    @test var_bounds(optimizer, x) == MOI.Interval(0.0, 1.0)
 
-    # Is an error: binary variable with too wide bounds (different order).
+    # Tightened bounds for binary variable (different order).
     MOI.empty!(optimizer)
     x = MOI.add_variable(optimizer)
     t = MOI.add_constraint(optimizer, x, MOI.ZeroOne())
-    @test_throws ErrorException b = MOI.add_constraint(optimizer, x, MOI.Interval(-1.0, 2.0))
+    b = MOI.add_constraint(optimizer, x, MOI.Interval(-1.0, 2.0))
+    @test var_bounds(optimizer, x) == MOI.Interval(0.0, 1.0)
 
     # Is an error: binary variable with conflicting bounds (infeasible).
     MOI.empty!(optimizer)
@@ -209,7 +211,7 @@ end
     @test MOI.get(optimizer, MOI.TerminationStatus()) == MOI.OPTIMAL
     @test MOI.get(optimizer, MOI.PrimalStatus()) == MOI.FEASIBLE_POINT
 
-    atol, rtol = 1e-6, 1e-6
+    atol, rtol = 1e-3, 1e-3
     @test MOI.get(optimizer, MOI.ObjectiveValue()) ≈ √2 atol=atol rtol=rtol
     @test MOI.get(optimizer, MOI.VariablePrimal(), x) ≈ 1 atol=atol rtol=rtol
     @test MOI.get(optimizer, MOI.VariablePrimal(), y) ≈ 1/√2 atol=atol rtol=rtol
@@ -228,7 +230,7 @@ end
 
     x, y = MOI.add_variables(optimizer, 2)
 
-    MOI.add_constraint(optimizer, MOI.SingleVariable(x), MOI.LessThan(1.0))
+    MOI.add_constraint(optimizer, MOI.SingleVariable(x), MOI.Interval(0.0, 1.0))
     MOI.add_constraint(optimizer, MOI.SingleVariable(y), MOI.GreaterThan(2.0))
     MOI.add_constraint(optimizer, MOI.VectorOfVariables([x, y]), MOI.SecondOrderCone(2))
 
@@ -319,4 +321,26 @@ end
     @test MOI.get(optimizer, MOI.VariablePrimal(), z1) ≈ 4.0 atol=atol rtol=rtol
     @test MOI.get(optimizer, MOI.VariablePrimal(), x2) ≈ -2.0 atol=atol rtol=rtol
     @test MOI.get(optimizer, MOI.VariablePrimal(), z2) ≈ -8.0 atol=atol rtol=rtol
+end
+
+@testset "deleting variables" begin
+    optimizer = SCIP.Optimizer()
+
+    # add variable and constraint
+    x = MOI.add_variable(optimizer)
+    c = MOI.add_constraint(optimizer, MOI.ScalarAffineFunction([MOI.ScalarAffineTerm(1.0, x)], 0.0), MOI.EqualTo(0.0))
+    @test !MOI.is_empty(optimizer)
+
+    # delete them (constraint first!)
+    MOI.delete(optimizer, c)
+    MOI.delete(optimizer, x)
+    @test MOI.is_empty(optimizer)
+
+    # add variable and constraint (again)
+    x = MOI.add_variable(optimizer)
+    c = MOI.add_constraint(optimizer, MOI.ScalarAffineFunction([MOI.ScalarAffineTerm(1.0, x)], 0.0), MOI.EqualTo(0.0))
+    @test !MOI.is_empty(optimizer)
+
+    # fail to delete them in wrong order
+    @test_throws ErrorException MOI.delete(optimizer, x)
 end

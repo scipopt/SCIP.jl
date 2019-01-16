@@ -13,6 +13,14 @@ function MOI.add_constraint(o::Optimizer, func::VECTOR, set::SOS1)
     return ci
 end
 
+function MOI.delete(o::Optimizer, ci::CI{VECTOR, SOS1})
+    allow_modification(o)
+    delete!(o.constypes[VECTOR, SOS1], ConsRef(ci.value))
+    delete!(o.reference, cons(o, ci))
+    delete(o.mscip, ConsRef(ci.value))
+    return nothing
+end
+
 function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{VECTOR, SOS1})
     s, c = scip(o), cons(o, ci)
     nvars::Int = SCIPgetNVarsSOS1(s, c)
@@ -40,6 +48,14 @@ function MOI.add_constraint(o::Optimizer, func::VECTOR, set::SOS2)
     register!(o, ci)
     register!(o, cons(o, ci), cr)
     return ci
+end
+
+function MOI.delete(o::Optimizer, ci::CI{VECTOR, SOS2})
+    allow_modification(o)
+    delete!(o.constypes[VECTOR, SOS2], ConsRef(ci.value))
+    delete!(o.reference, cons(o, ci))
+    delete(o.mscip, ConsRef(ci.value))
+    return nothing
 end
 
 function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{VECTOR, SOS2})

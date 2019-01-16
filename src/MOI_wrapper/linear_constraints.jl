@@ -23,6 +23,14 @@ function MOI.add_constraint(o::Optimizer, func::SAF, set::S) where {S <: BOUNDS}
     return ci
 end
 
+function MOI.delete(o::Optimizer, ci::CI{SAF, S}) where {S <: BOUNDS}
+    allow_modification(o)
+    delete!(o.constypes[SAF, S], ConsRef(ci.value))
+    delete!(o.reference, cons(o, ci))
+    delete(o.mscip, ConsRef(ci.value))
+    return nothing
+end
+
 function MOI.set(o::SCIP.Optimizer, ::MOI.ConstraintSet, ci::CI{SAF,S}, set::S) where {S <: BOUNDS}
     allow_modification(o)
 

@@ -8,7 +8,7 @@ function MOI.set(o::Optimizer, ::MOI.ObjectiveFunction{SAF}, obj::SAF)
     s = scip(o)
 
     # reset objective coefficient of all variables first
-    for v in o.mscip.vars
+    for v in values(o.mscip.vars)
         @SC SCIPchgVarObj(s, v[], 0.0)
     end
 
@@ -27,8 +27,8 @@ end
 
 function MOI.get(o::Optimizer, ::MOI.ObjectiveFunction{SAF})
     terms = AFF_TERM[]
-    for i = 1:length(o.mscip.vars)
-        vi = VI(i)
+    for vr = keys(o.mscip.vars)
+        vi = VI(vr.val)
         coef = SCIPvarGetObj(var(o, vi))
         coef == 0.0 || push!(terms, AFF_TERM(coef, vi))
     end

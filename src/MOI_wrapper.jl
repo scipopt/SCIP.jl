@@ -22,7 +22,7 @@ const AFF_TERM = MOI.ScalarAffineTerm{Float64}
 const QUAD_TERM = MOI.ScalarQuadraticTerm{Float64}
 
 const PtrMap = Dict{Ptr{Cvoid}, Union{VarRef, ConsRef}}
-const ConsTypeMap = Dict{Tuple{DataType, DataType}, Vector{ConsRef}}
+const ConsTypeMap = Dict{Tuple{DataType, DataType}, Set{ConsRef}}
 
 mutable struct Optimizer <: MOI.AbstractOptimizer
     mscip::ManagedSCIP
@@ -73,7 +73,7 @@ function register!(o::Optimizer, c::CI{F,S}) where {F,S}
     if haskey(o.constypes, (F, S))
         push!(o.constypes[F,S], cr)
     else
-        o.constypes[F,S] = [cr]
+        o.constypes[F,S] = Set([cr])
     end
     return c
 end
