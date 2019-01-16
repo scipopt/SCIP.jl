@@ -58,6 +58,10 @@ function MOI.add_constraint(o::Optimizer, func::SVF, set::S) where {S <: VAR_TYP
             @debug "Implicitly setting bounds [0,1] for binary variable at $(vi.value)!"
             @SC SCIPchgVarLb(scip(o), v, 0.0)
             @SC SCIPchgVarUb(scip(o), v, 1.0)
+        elseif lb <= 0.0 && ub >= 1.0
+            @warn "Tightening bounds [$lb,$ub] to [0,1] for binary variable at $(vi.value)!"
+            @SC SCIPchgVarLb(scip(o), v, 0.0)
+            @SC SCIPchgVarUb(scip(o), v, 1.0)
         else
             error("Existing bounds [$lb,$ub] conflict for binary variable at $(vi.value)!")
         end
@@ -70,12 +74,18 @@ end
 function MOI.delete(o::Optimizer, ci::CI{SVF,S}) where {S <: VAR_TYPES}
     allow_modification(o)
 
-    # don't actually delete any SCIP constraint, just reset type
     vi = VI(ci.value)
+    v = var(o, vi)
+
+    if SCIPvarGetType(v) == SCIP_VARTYPE_BINARY
+        # TODO: also reset implicit bounds [0, 1] for binaries?
+        @warn "Keeping (possibly implicit) bounds [0, 1] for ex-binary variable at $(vi.value)!"
+    end
+
+    # don't actually delete any SCIP constraint, just reset type
     infeasible = Ref{SCIP_Bool}()
-    @SC SCIPchgVarType(scip(o), v = var(o, vi), SCIP_VARTYPE_CONTINUOUS, infeasible)
+    @SC SCIPchgVarType(scip(o), var(o, vi), SCIP_VARTYPE_CONTINUOUS, infeasible)
     # TODO: warn if infeasible[] == TRUE?
-    # TODO: also reset implicit bounds [0, 1] for binaries?
 
     # but do delete the constraint reference
     delete!(o.constypes[SVF, S], ConsRef(ci.value))
