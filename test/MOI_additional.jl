@@ -239,6 +239,18 @@ end
     @test MOI.get(optimizer, MOI.PrimalStatus()) == MOI.NO_SOLUTION
 end
 
+@testset "Second Order Cone Constraint (error with unbounded variable)" begin
+    optimizer = SCIP.Optimizer()
+    x, y = MOI.add_variables(optimizer, 2)
+    @test_throws ErrorException MOI.add_constraint(
+        optimizer, MOI.VectorOfVariables([x, y]), MOI.SecondOrderCone(2))
+
+    MOI.add_constraint(optimizer, MOI.SingleVariable(x), MOI.GreaterThan(0.0))
+    MOI.add_constraint(optimizer, MOI.VectorOfVariables([x, y]),
+                       MOI.SecondOrderCone(2))
+    # no error
+end
+
 @testset "SOS1" begin
     optimizer = SCIP.Optimizer()
     MOI.set(optimizer, SCIP.Param("display/verblevel"), 0)
