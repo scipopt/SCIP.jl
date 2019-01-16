@@ -30,12 +30,16 @@ end
     b = MOI.add_constraint(optimizer, x, MOI.Interval(0.0, 1.0))
     t = MOI.add_constraint(optimizer, x, MOI.ZeroOne())
     @test var_bounds(optimizer, x) == MOI.Interval(0.0, 1.0)
+    MOI.delete(optimizer, t)
+    @test var_bounds(optimizer, x) == MOI.Interval(0.0, 1.0)
 
     # Binary variable with [0, 1] bounds (order should not matter).
     MOI.empty!(optimizer)
     x = MOI.add_variable(optimizer)
     t = MOI.add_constraint(optimizer, x, MOI.ZeroOne())
     b = MOI.add_constraint(optimizer, x, MOI.Interval(0.0, 1.0))
+    @test var_bounds(optimizer, x) == MOI.Interval(0.0, 1.0)
+    MOI.delete(optimizer, t)
     @test var_bounds(optimizer, x) == MOI.Interval(0.0, 1.0)
 
     # Binary variable fixed to 0.
@@ -44,12 +48,16 @@ end
     t = MOI.add_constraint(optimizer, x, MOI.ZeroOne())
     b = MOI.add_constraint(optimizer, x, MOI.EqualTo(0.0))
     @test var_bounds(optimizer, x) == MOI.Interval(0.0, 0.0)
+    MOI.delete(optimizer, t)
+    @test var_bounds(optimizer, x) == MOI.Interval(0.0, 0.0)
 
     # Binary variable fixed to 0 (different order).
     MOI.empty!(optimizer)
     x = MOI.add_variable(optimizer)
     b = MOI.add_constraint(optimizer, x, MOI.EqualTo(0.0))
     t = MOI.add_constraint(optimizer, x, MOI.ZeroOne())
+    @test var_bounds(optimizer, x) == MOI.Interval(0.0, 0.0)
+    MOI.delete(optimizer, t)
     @test var_bounds(optimizer, x) == MOI.Interval(0.0, 0.0)
 
     # Binary variable fixed to 1.
@@ -58,12 +66,16 @@ end
     t = MOI.add_constraint(optimizer, x, MOI.ZeroOne())
     b = MOI.add_constraint(optimizer, x, MOI.EqualTo(1.0))
     @test var_bounds(optimizer, x) == MOI.Interval(1.0, 1.0)
+    MOI.delete(optimizer, t)
+    @test var_bounds(optimizer, x) == MOI.Interval(1.0, 1.0)
 
     # Binary variable fixed to 1 (different order).
     MOI.empty!(optimizer)
     x = MOI.add_variable(optimizer)
     b = MOI.add_constraint(optimizer, x, MOI.EqualTo(1.0))
     t = MOI.add_constraint(optimizer, x, MOI.ZeroOne())
+    @test var_bounds(optimizer, x) == MOI.Interval(1.0, 1.0)
+    MOI.delete(optimizer, t)
     @test var_bounds(optimizer, x) == MOI.Interval(1.0, 1.0)
 
     # Tightened bounds for binary variable
@@ -72,12 +84,16 @@ end
     b = MOI.add_constraint(optimizer, x, MOI.Interval(-1.0, 2.0))
     t = MOI.add_constraint(optimizer, x, MOI.ZeroOne())
     @test var_bounds(optimizer, x) == MOI.Interval(-1.0, 2.0)
+    MOI.delete(optimizer, t)
+    @test var_bounds(optimizer, x) == MOI.Interval(-1.0, 2.0)
 
     # Tightened bounds for binary variable (different order).
     MOI.empty!(optimizer)
     x = MOI.add_variable(optimizer)
     t = MOI.add_constraint(optimizer, x, MOI.ZeroOne())
     b = MOI.add_constraint(optimizer, x, MOI.Interval(-1.0, 2.0))
+    @test var_bounds(optimizer, x) == MOI.Interval(-1.0, 2.0)
+    MOI.delete(optimizer, t)
     @test var_bounds(optimizer, x) == MOI.Interval(-1.0, 2.0)
 
     # Is an error: binary variable with conflicting bounds (infeasible).
