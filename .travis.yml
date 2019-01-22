@@ -5,6 +5,7 @@ dist: xenial
 sudo: true
 julia:
   - 1.0
+  - 1.1
   - nightly
 notifications:
   email: false
