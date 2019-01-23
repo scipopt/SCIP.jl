@@ -204,8 +204,7 @@ end
     #  st  x            == 1
     #      x >= ||(y,z)||
 
-    optimizer = SCIP.Optimizer()
-    MOI.set(optimizer, SCIP.Param("display/verblevel"), 0)
+    optimizer = SCIP.Optimizer(display_verblevel=0)
 
     @test MOI.supports_constraint(optimizer, MOI.VectorOfVariables, MOI.SecondOrderCone)
 
@@ -237,8 +236,7 @@ end
     #      x ≤ 1
     #      |y| ≤ x
 
-    optimizer = SCIP.Optimizer()
-    MOI.set(optimizer, SCIP.Param("display/verblevel"), 0)
+    optimizer = SCIP.Optimizer(display_verblevel=0)
 
     x, y = MOI.add_variables(optimizer, 2)
 
@@ -264,8 +262,8 @@ end
 end
 
 @testset "SOS1" begin
-    optimizer = SCIP.Optimizer()
-    MOI.set(optimizer, SCIP.Param("display/verblevel"), 0)
+    optimizer = SCIP.Optimizer(display_verblevel=0)
+
     x, y, z = MOI.add_variables(optimizer, 3)
     MOI.add_constraint(optimizer, MOI.SingleVariable(x), MOI.LessThan(1.0))
     MOI.add_constraint(optimizer, MOI.SingleVariable(y), MOI.LessThan(1.0))
@@ -289,8 +287,8 @@ end
 end
 
 @testset "SOS2" begin
-    optimizer = SCIP.Optimizer()
-    MOI.set(optimizer, SCIP.Param("display/verblevel"), 0)
+    optimizer = SCIP.Optimizer(display_verblevel=0)
+
     x, y, z = MOI.add_variables(optimizer, 3)
     MOI.add_constraint(optimizer, MOI.SingleVariable(x), MOI.LessThan(1.0))
     MOI.add_constraint(optimizer, MOI.SingleVariable(y), MOI.LessThan(1.0))
@@ -319,8 +317,7 @@ end
     #       z2 = sign(x2)*abs(x2)^3
     #       z1 ≤ 4, z2 ≥ -8
 
-    optimizer = SCIP.Optimizer()
-    MOI.set(optimizer, SCIP.Param("display/verblevel"), 0)
+    optimizer = SCIP.Optimizer(display_verblevel=0)
 
     x1, x2, z1, z2 = MOI.add_variables(optimizer, 4)
     MOI.add_constraint(optimizer, MOI.SingleVariable(z1), MOI.LessThan(4.0))
