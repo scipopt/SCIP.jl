@@ -39,6 +39,32 @@ If you [build SCIP from source](https://scip.zib.de/doc-6.0.0/html/CMAKE.php)
 you should set the environment variable `SCIPOPTDIR` to point the the
 **installation path**. That is, `$SCIPOPTDIR/lib/libscip.so` should exist.
 
+## Setting Parameters
+
+There are two ways of setting the parameters
+([all](https://scip.zib.de/doc-6.0.1/html/PARAMETERS.php) are supported). First,
+using `MOI.set`:
+
+    using MOI
+    using SCIP
+
+    optimizer = SCIP.Optimizer()
+    MOI.set(optimizer, SCIP.Param("display/verblevel"), 0)
+    MOI.set(optimizer, SCIP.Param("limits/gap"), 0.05)
+
+Second, as keyword arguments to the constructor. But here, the slashes (`/`)
+need to be replaced by underscores (`_`) in order to end up with a valid Julia
+identifier. This should not lead to ambiguities as none of the official SCIP
+parameters contain any underscores (yet).
+
+    using MOI
+    using SCIP
+
+    optimizer = SCIP.Optimizer(display_verblevel=0, limits_gap=0.05)
+
+Note that in both cases, the correct value type must be used (here, `Int64` and
+`Float64`).
+
 ## Design Considerations
 
 **Wrapper of Public API**: All of SCIP's public API methods are wrapped and
