@@ -31,7 +31,18 @@ mutable struct Optimizer <: MOI.AbstractOptimizer
     binbounds::Dict{VI,BOUNDS} # only for binary variables
     params::Dict{String,Any}
 
-    Optimizer() = new(ManagedSCIP(), PtrMap(), ConsTypeMap(), Dict(), Dict())
+    function Optimizer(; kwargs...)
+        o = new(ManagedSCIP(), PtrMap(), ConsTypeMap(), Dict(), Dict())
+
+        # Set all parameters given as keyword arguments, replacing the
+        # delimiter, since "/" is used by all SCIP parameters, but is not
+        # allowed in Julia identifiers.
+        for (key, value) in kwargs
+            name = replace(String(key),"_" => "/")
+            MOI.set(o, Param(name), value)
+        end
+        return o
+    end
 end
 
 
