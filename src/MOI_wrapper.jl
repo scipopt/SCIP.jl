@@ -45,11 +45,10 @@ mutable struct Optimizer <: MOI.AbstractOptimizer
     end
 end
 
+# Protect Optimizer from GC for ccall with Ptr{SCIP_} argument.
+Base.unsafe_convert(::Type{Ptr{SCIP_}}, o::Optimizer) = o.mscip.scip[]
 
 ## convenience functions (not part of MOI)
-
-"Return pointer to SCIP instance."
-scip(o::Optimizer) = scip(o.mscip)
 
 "Return pointer to SCIP variable."
 var(o::Optimizer, v::VI) = var(o.mscip, VarRef(v.value))
@@ -92,8 +91,8 @@ end
 
 "Go back from solved stage to problem modification stage, invalidating results."
 function allow_modification(o::Optimizer)
-    if SCIPgetStage(scip(o)) != SCIP_STAGE_PROBLEM
-        @SC SCIPfreeTransform(scip(o))
+    if SCIPgetStage(o) != SCIP_STAGE_PROBLEM
+        @SC SCIPfreeTransform(o)
     end
     return nothing
 end
@@ -139,15 +138,15 @@ function MOI.copy_to(dest::Optimizer, src::MOI.ModelLike; kws...)
     return MOIU.automatic_copy_to(dest, src; kws...)
 end
 
-MOI.get(o::Optimizer, ::MOI.Name) = SCIPgetProbName(scip(o))
-MOI.set(o::Optimizer, ::MOI.Name, name::String) = @SC SCIPsetProbName(scip(o), name)
+MOI.get(o::Optimizer, ::MOI.Name) = SCIPgetProbName(o)
+MOI.set(o::Optimizer, ::MOI.Name, name::String) = @SC SCIPsetProbName(o, name)
 
 function MOI.get(o::Optimizer, ::MOI.NumberOfConstraints{F,S}) where {F,S}
     return haskey(o.constypes, (F, S)) ? length(o.constypes[F, S]) : 0
 end
 
 function MOI.optimize!(o::Optimizer)
-    @SC SCIPsolve(scip(o))
+    @SC SCIPsolve(o)
     return nothing
 end
 

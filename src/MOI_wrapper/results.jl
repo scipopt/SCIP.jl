@@ -20,39 +20,39 @@ term_status_map = Dict(
 )
 
 function MOI.get(o::Optimizer, ::MOI.TerminationStatus)
-    return term_status_map[SCIPgetStatus(scip(o))]
+    return term_status_map[SCIPgetStatus(o)]
 end
 
 function MOI.get(o::Optimizer, ::MOI.PrimalStatus)
-    return SCIPgetNSols(scip(o)) > 0 ? MOI.FEASIBLE_POINT : MOI.NO_SOLUTION
+    return SCIPgetNSols(o) > 0 ? MOI.FEASIBLE_POINT : MOI.NO_SOLUTION
 end
 
 function MOI.get(o::Optimizer, ::MOI.ResultCount)
-    status = SCIPgetStatus(scip(o))
+    status = SCIPgetStatus(o)
     if status in [SCIP_STATUS_UNBOUNDED, SCIP_STATUS_INFORUNBD]
         return 0
     end
-    return SCIPgetNSols(scip(o))
+    return SCIPgetNSols(o)
 end
 
 function MOI.get(o::Optimizer, ::MOI.ObjectiveValue)
-    return SCIPgetSolOrigObj(scip(o), SCIPgetBestSol(scip(o)))
+    return SCIPgetSolOrigObj(o, SCIPgetBestSol(o))
 end
 
 function MOI.get(o::Optimizer, ::MOI.VariablePrimal, vi::VI)
-    return SCIPgetSolVal(scip(o), SCIPgetBestSol(scip(o)), var(o, vi))
+    return SCIPgetSolVal(o, SCIPgetBestSol(o), var(o, vi))
 end
 
 function MOI.get(o::Optimizer, ::MOI.ConstraintPrimal, ci::CI{SVF,<:BOUNDS})
-    return SCIPgetSolVal(scip(o), SCIPgetBestSol(scip(o)), var(o, VI(ci.value)))
+    return SCIPgetSolVal(o, SCIPgetBestSol(o), var(o, VI(ci.value)))
 end
 
 function MOI.get(o::Optimizer, ::MOI.ConstraintPrimal, ci::CI{SAF,<:BOUNDS})
-    return SCIPgetActivityLinear(scip(o), cons(o, ci), SCIPgetBestSol(scip(o)))
+    return SCIPgetActivityLinear(o, cons(o, ci), SCIPgetBestSol(o))
 end
 
-MOI.get(o::Optimizer, ::MOI.ObjectiveBound) = SCIPgetDualbound(scip(o))
-MOI.get(o::Optimizer, ::MOI.RelativeGap) = SCIPgetGap(scip(o))
-MOI.get(o::Optimizer, ::MOI.SolveTime) = SCIPgetSolvingTime(scip(o))
-MOI.get(o::Optimizer, ::MOI.SimplexIterations) = SCIPgetNLPIterations(scip(o))
-MOI.get(o::Optimizer, ::MOI.NodeCount) = SCIPgetNNodes(scip(o))
+MOI.get(o::Optimizer, ::MOI.ObjectiveBound) = SCIPgetDualbound(o)
+MOI.get(o::Optimizer, ::MOI.RelativeGap) = SCIPgetGap(o)
+MOI.get(o::Optimizer, ::MOI.SolveTime) = SCIPgetSolvingTime(o)
+MOI.get(o::Optimizer, ::MOI.SimplexIterations) = SCIPgetNLPIterations(o)
+MOI.get(o::Optimizer, ::MOI.NodeCount) = SCIPgetNNodes(o)

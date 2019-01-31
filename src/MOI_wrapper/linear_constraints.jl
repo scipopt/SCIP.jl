@@ -13,8 +13,8 @@ function MOI.add_constraint(o::Optimizer, func::SAF, set::S) where {S <: BOUNDS}
     coefs = [t.coefficient for t in func.terms]
 
     lhs, rhs = bounds(set)
-    lhs = lhs == nothing ? -SCIPinfinity(scip(o)) : lhs
-    rhs = rhs == nothing ?  SCIPinfinity(scip(o)) : rhs
+    lhs = lhs == nothing ? -SCIPinfinity(o) : lhs
+    rhs = rhs == nothing ?  SCIPinfinity(o) : rhs
 
     cr = add_linear_constraint(o.mscip, varrefs, coefs, lhs, rhs)
     ci = CI{SAF, S}(cr.val)
@@ -35,20 +35,20 @@ function MOI.set(o::SCIP.Optimizer, ::MOI.ConstraintSet, ci::CI{SAF,S}, set::S) 
     allow_modification(o)
 
     lhs, rhs = bounds(set)
-    lhs = lhs == nothing ? -SCIPinfinity(scip(o)) : lhs
-    rhs = rhs == nothing ?  SCIPinfinity(scip(o)) : rhs
+    lhs = lhs == nothing ? -SCIPinfinity(o) : lhs
+    rhs = rhs == nothing ?  SCIPinfinity(o) : rhs
 
-    @SC SCIPchgLhsLinear(scip(o), cons(o, ci), lhs)
-    @SC SCIPchgRhsLinear(scip(o), cons(o, ci), rhs)
+    @SC SCIPchgLhsLinear(o, cons(o, ci), lhs)
+    @SC SCIPchgRhsLinear(o, cons(o, ci), rhs)
 
     return nothing
 end
 
 function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{SAF, S}) where S <: BOUNDS
-    s, c = scip(o), cons(o, ci)
-    nvars::Int = SCIPgetNVarsLinear(s, c)
-    vars = unsafe_wrap(Array{Ptr{SCIP_VAR}}, SCIPgetVarsLinear(s, c), nvars)
-    vals = unsafe_wrap(Array{Float64}, SCIPgetValsLinear(s, c), nvars)
+    c = cons(o, ci)
+    nvars::Int = SCIPgetNVarsLinear(o, c)
+    vars = unsafe_wrap(Array{Ptr{SCIP_VAR}}, SCIPgetVarsLinear(o, c), nvars)
+    vals = unsafe_wrap(Array{Float64}, SCIPgetValsLinear(o, c), nvars)
 
     terms = [AFF_TERM(vals[i], VI(ref(o, vars[i]).val)) for i=1:nvars]
     # can not identify constant anymore (is merged with lhs,rhs)
@@ -56,8 +56,8 @@ function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{SAF, S}) where S
 end
 
 function MOI.get(o::Optimizer, ::MOI.ConstraintSet, ci::CI{SAF, S}) where S <: BOUNDS
-    lhs = SCIPgetLhsLinear(scip(o), cons(o, ci))
-    rhs = SCIPgetRhsLinear(scip(o), cons(o, ci))
+    lhs = SCIPgetLhsLinear(o, cons(o, ci))
+    rhs = SCIPgetRhsLinear(o, cons(o, ci))
     return from_bounds(S, lhs, rhs)
 end
 
@@ -66,14 +66,13 @@ function MOI.get(o::Optimizer, ::MOI.ConstraintName, ci::CI{SAF,<:BOUNDS})
 end
 
 function MOI.set(o::Optimizer, ::MOI.ConstraintName, ci::CI{SAF,<:BOUNDS}, name::String)
-    @SC SCIPchgConsName(scip(o), cons(o, ci), name)
+    @SC SCIPchgConsName(o, cons(o, ci), name)
     return nothing
 end
 
 function MOI.modify(o::Optimizer, ci::CI{SAF, <:BOUNDS},
                     change::MOI.ScalarCoefficientChange{Float64})
     allow_modification(o)
-    @SC SCIPchgCoefLinear(scip(o), cons(o, ci),
-                          var(o, change.variable), change.new_coefficient)
+    @SC SCIPchgCoefLinear(o, cons(o, ci), var(o, change.variable), change.new_coefficient)
     return nothing
 end
