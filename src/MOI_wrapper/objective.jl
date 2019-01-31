@@ -5,11 +5,10 @@ MOI.supports(::Optimizer, ::MOI.ObjectiveFunction{SAF}) = true
 
 function MOI.set(o::Optimizer, ::MOI.ObjectiveFunction{SAF}, obj::SAF)
     allow_modification(o)
-    s = scip(o)
 
     # reset objective coefficient of all variables first
     for v in values(o.mscip.vars)
-        @SC SCIPchgVarObj(s, v[], 0.0)
+        @SC SCIPchgVarObj(o, v[], 0.0)
     end
 
     # set new objective coefficients, summing coefficients
@@ -17,10 +16,10 @@ function MOI.set(o::Optimizer, ::MOI.ObjectiveFunction{SAF}, obj::SAF)
         v = var(o, t.variable_index)
         oldcoef = SCIPvarGetObj(v)
         newcoef = oldcoef + t.coefficient
-        @SC SCIPchgVarObj(s, v, newcoef)
+        @SC SCIPchgVarObj(o, v, newcoef)
     end
 
-    @SC SCIPaddOrigObjoffset(s, obj.constant - SCIPgetOrigObjoffset(s))
+    @SC SCIPaddOrigObjoffset(o, obj.constant - SCIPgetOrigObjoffset(o))
 
     return nothing
 end
@@ -32,16 +31,16 @@ function MOI.get(o::Optimizer, ::MOI.ObjectiveFunction{SAF})
         coef = SCIPvarGetObj(var(o, vi))
         coef == 0.0 || push!(terms, AFF_TERM(coef, vi))
     end
-    constant = SCIPgetOrigObjoffset(scip(o))
+    constant = SCIPgetOrigObjoffset(o)
     return SAF(terms, constant)
 end
 
 function MOI.set(o::Optimizer, ::MOI.ObjectiveSense, sense::MOI.OptimizationSense)
     allow_modification(o)
     if sense == MOI.MIN_SENSE
-        @SC SCIPsetObjsense(scip(o), SCIP_OBJSENSE_MINIMIZE)
+        @SC SCIPsetObjsense(o, SCIP_OBJSENSE_MINIMIZE)
     elseif sense == MOI.MAX_SENSE
-        @SC SCIPsetObjsense(scip(o), SCIP_OBJSENSE_MAXIMIZE)
+        @SC SCIPsetObjsense(o, SCIP_OBJSENSE_MAXIMIZE)
     elseif sense == MOI.FEASIBLITY_SENSE
         @warn "FEASIBLITY_SENSE not supported by SCIP.jl" maxlog=1
     end
@@ -49,12 +48,12 @@ function MOI.set(o::Optimizer, ::MOI.ObjectiveSense, sense::MOI.OptimizationSens
 end
 
 function MOI.get(o::Optimizer, ::MOI.ObjectiveSense)
-    return SCIPgetObjsense(scip(o)) == SCIP_OBJSENSE_MAXIMIZE ? MOI.MAX_SENSE : MOI.MIN_SENSE
+    return SCIPgetObjsense(o) == SCIP_OBJSENSE_MAXIMIZE ? MOI.MAX_SENSE : MOI.MIN_SENSE
 end
 
 function MOI.modify(o::Optimizer, ::MOI.ObjectiveFunction{SAF},
                     change::MOI.ScalarCoefficientChange{Float64})
     allow_modification(o)
-    @SC SCIPchgVarObj(scip(o), var(o, change.variable), change.new_coefficient)
+    @SC SCIPchgVarObj(o, var(o, change.variable), change.new_coefficient)
     return nothing
 end

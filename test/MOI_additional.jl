@@ -111,7 +111,7 @@ end
 
 @testset "Bound constraints for a general variable." begin
     optimizer = SCIP.Optimizer()
-    inf = SCIP.SCIPinfinity(SCIP.scip(optimizer))
+    inf = SCIP.SCIPinfinity(optimizer)
 
     # Should work: variable without explicit bounds
     MOI.empty!(optimizer)
@@ -155,7 +155,7 @@ end
 
 @testset "Changing bounds for variable." begin
     optimizer = SCIP.Optimizer()
-    inf = SCIP.SCIPinfinity(SCIP.scip(optimizer))
+    inf = SCIP.SCIPinfinity(optimizer)
 
     # change interval bounds
     MOI.empty!(optimizer)
