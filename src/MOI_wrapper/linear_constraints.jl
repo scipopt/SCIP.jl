@@ -62,7 +62,7 @@ function MOI.get(o::Optimizer, ::MOI.ConstraintSet, ci::CI{SAF, S}) where S <: B
 end
 
 function MOI.get(o::Optimizer, ::MOI.ConstraintName, ci::CI{SAF,<:BOUNDS})
-    return SCIPconsGetName(cons(o, ci))
+    return GC.@preserve o SCIPconsGetName(cons(o, ci))
 end
 
 function MOI.set(o::Optimizer, ::MOI.ConstraintName, ci::CI{SAF,<:BOUNDS}, name::String)
