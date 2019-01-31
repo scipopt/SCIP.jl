@@ -28,6 +28,9 @@ mutable struct ManagedSCIP
     end
 end
 
+# Protect ManagedSCIP from GC for ccall with Ptr{SCIP_} argument.
+Base.unsafe_convert(::Type{Ptr{SCIP_}}, mscip::ManagedSCIP) = mscip.scip[]
+
 "Release references and free memory."
 function free_scip(mscip::ManagedSCIP)
     # Avoid double-free (SCIP will set the pointers to NULL).
