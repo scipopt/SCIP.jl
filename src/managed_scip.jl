@@ -34,21 +34,20 @@ Base.unsafe_convert(::Type{Ptr{SCIP_}}, mscip::ManagedSCIP) = mscip.scip[]
 "Release references and free memory."
 function free_scip(mscip::ManagedSCIP)
     # Avoid double-free (SCIP will set the pointers to NULL).
-    s = scip(mscip)
-    if s != C_NULL
+    if mscip.scip[] != C_NULL
         for c in values(mscip.conss)
-            @SC SCIPreleaseCons(s, c)
+            @SC SCIPreleaseCons(mscip, c)
         end
         for v in values(mscip.vars)
-            @SC SCIPreleaseVar(s, v)
+            @SC SCIPreleaseVar(mscip, v)
         end
-        @SC SCIPfree(mscip.scip)
+        # only mscip.scip is GC-protected during ccall!
+        GC.@preserve mscip begin
+            @SC SCIPfree(mscip.scip)
+        end
     end
-    @assert scip(mscip) == C_NULL
+    @assert mscip.scip[] == C_NULL
 end
-
-"Return pointer to SCIP instance."
-scip(mscip::ManagedSCIP) = mscip.scip[]
 
 "Return pointer to SCIP variable."
 var(mscip::ManagedSCIP, vr::VarRef) = mscip.vars[vr][]
@@ -74,11 +73,10 @@ end
 
 "Add variable to problem (continuous, no bounds), return var ref."
 function add_variable(mscip::ManagedSCIP)
-    s = scip(mscip)
     var__ = Ref{Ptr{SCIP_VAR}}()
-    @SC SCIPcreateVarBasic(s, var__, "", -SCIPinfinity(s), SCIPinfinity(s),
+    @SC SCIPcreateVarBasic(mscip, var__, "", -SCIPinfinity(mscip), SCIPinfinity(mscip),
                            0.0, SCIP_VARTYPE_CONTINUOUS)
-    @SC SCIPaddVar(s, var__[])
+    @SC SCIPaddVar(mscip, var__[])
     return store_var!(mscip, var__)
 end
 
@@ -86,21 +84,21 @@ end
 function delete(mscip::ManagedSCIP, vr::VarRef)
     # delete variable from SCIP problem
     deleted = Ref{SCIP_Bool}()
-    @SC SCIPdelVar(scip(mscip), var(mscip, vr), deleted)
+    @SC SCIPdelVar(mscip, var(mscip, vr), deleted)
     deleted[] == TRUE || error("Variable at $(vr.val) could not be deleted!")
 
     # release memory and remove reference
-    @SC SCIPreleaseVar(scip(mscip), mscip.vars[vr])
+    @SC SCIPreleaseVar(mscip, mscip.vars[vr])
     delete!(mscip.vars, vr)
     return nothing
 end
 
 "Delete constraint from problem."
 function delete(mscip::ManagedSCIP, cr::ConsRef)
-    @SC SCIPdelCons(scip(mscip), cons(mscip, cr))
+    @SC SCIPdelCons(mscip, cons(mscip, cr))
 
     # release memory and remove reference
-    @SC SCIPreleaseCons(scip(mscip), mscip.conss[cr])
+    @SC SCIPreleaseCons(mscip, mscip.conss[cr])
     delete!(mscip.conss, cr)
     return nothing
 end
@@ -121,8 +119,8 @@ function add_linear_constraint(mscip::ManagedSCIP, varrefs, coefs, lhs, rhs)
     vars = [var(mscip, vr) for vr in varrefs]
     cons__ = Ref{Ptr{SCIP_CONS}}()
     @SC SCIPcreateConsBasicLinear(
-        scip(mscip), cons__, "", length(vars), vars, coefs, lhs, rhs)
-    @SC SCIPaddCons(scip(mscip), cons__[])
+        mscip, cons__, "", length(vars), vars, coefs, lhs, rhs)
+    @SC SCIPaddCons(mscip, cons__[])
     return store_cons!(mscip, cons__)
 end
 
@@ -152,9 +150,9 @@ function add_quadratic_constraint(mscip::ManagedSCIP, linrefs, lincoefs,
 
     cons__ = Ref{Ptr{SCIP_CONS}}()
     @SC SCIPcreateConsBasicQuadratic(
-        scip(mscip), cons__, "", length(linvars), linvars, lincoefs,
+        mscip, cons__, "", length(linvars), linvars, lincoefs,
         length(quadvars1), quadvars1, quadvars2, quadcoefs, lhs, rhs)
-    @SC SCIPaddCons(scip(mscip), cons__[])
+    @SC SCIPaddCons(mscip, cons__[])
     return store_cons!(mscip, cons__)
 end
 
@@ -168,9 +166,9 @@ the right-hand side.
 function add_second_order_cone_constraint(mscip::ManagedSCIP, varrefs)
     vars = [var(mscip, vr) for vr in varrefs]
     cons__ = Ref{Ptr{SCIP_CONS}}()
-    @SC SCIPcreateConsBasicSOC(scip(mscip), cons__, "", length(vars) - 1,
+    @SC SCIPcreateConsBasicSOC(mscip, cons__, "", length(vars) - 1,
                                vars[2:end], C_NULL, C_NULL, 0.0, vars[1], 1.0, 0.0)
-    @SC SCIPaddCons(scip(mscip), cons__[])
+    @SC SCIPaddCons(mscip, cons__[])
     return store_cons!(mscip, cons__)
 end
 
@@ -185,9 +183,8 @@ function add_special_ordered_set_type1(mscip::ManagedSCIP, varrefs, weights)
     @assert length(varrefs) == length(weights)
     vars = [var(mscip, vr) for vr in varrefs]
     cons__ = Ref{Ptr{SCIP_CONS}}()
-    @SC SCIPcreateConsBasicSOS1(
-        scip(mscip), cons__, "", length(vars), vars, weights)
-    @SC SCIPaddCons(scip(mscip), cons__[])
+    @SC SCIPcreateConsBasicSOS1(mscip, cons__, "", length(vars), vars, weights)
+    @SC SCIPaddCons(mscip, cons__[])
     return store_cons!(mscip, cons__)
 end
 
@@ -202,9 +199,8 @@ function add_special_ordered_set_type2(mscip::ManagedSCIP, varrefs, weights)
     @assert length(varrefs) == length(weights)
     vars = [var(mscip, vr) for vr in varrefs]
     cons__ = Ref{Ptr{SCIP_CONS}}()
-    @SC SCIPcreateConsBasicSOS2(
-        scip(mscip), cons__, "", length(vars), vars, weights)
-    @SC SCIPaddCons(scip(mscip), cons__[])
+    @SC SCIPcreateConsBasicSOS2(mscip, cons__, "", length(vars), vars, weights)
+    @SC SCIPaddCons(mscip, cons__[])
     return store_cons!(mscip, cons__)
 end
 
@@ -227,13 +223,13 @@ Use `(-)SCIPinfinity(scip)` for one of the bounds if not applicable.
 function add_abspower_constraint(mscip::ManagedSCIP, x, a, n, z, c, lhs, rhs)
     cons__ = Ref{Ptr{SCIP_CONS}}()
     @SC SCIPcreateConsBasicAbspower(
-        scip(mscip), cons__, "", var(mscip, x), var(mscip, z), n, a, c, lhs, rhs)
-    @SC SCIPaddCons(scip(mscip), cons__[])
+        mscip, cons__, "", var(mscip, x), var(mscip, z), n, a, c, lhs, rhs)
+    @SC SCIPaddCons(mscip, cons__[])
     return store_cons!(mscip, cons__)
 end
 
 "Set generic parameter."
 function set_parameter(mscip::ManagedSCIP, name::String, value)
-    @SC SCIPsetParam(scip(mscip), name, Ptr{Cvoid}(value))
+    @SC SCIPsetParam(mscip, name, Ptr{Cvoid}(value))
     return nothing
 end

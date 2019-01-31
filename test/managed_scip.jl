@@ -22,7 +22,7 @@ end
 
         t = SCIP.add_variable(mscip)
         # set lower bound for assertion in cons_soc.c
-        SCIP.@SC SCIP.SCIPchgVarLb(SCIP.scip(mscip), SCIP.var(mscip, t), 0.0)
+        SCIP.@SC SCIP.SCIPchgVarLb(mscip, SCIP.var(mscip, t), 0.0)
         x = SCIP.add_variable(mscip)
         y = SCIP.add_variable(mscip)
         c = SCIP.add_linear_constraint(mscip, [x, y], [2.0, 3.0], 1.0, 9.0)
@@ -66,7 +66,7 @@ end
 
         if i==2
             # solve, but don't check results (this test is about memory mgmt)
-            SCIP.@SC SCIP.SCIPsolve(mscip.scip[])
+            SCIP.@SC SCIP.SCIPsolve(mscip)
         end
 
         finalize(mscip)
