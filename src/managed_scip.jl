@@ -205,7 +205,7 @@ function add_special_ordered_set_type2(mscip::ManagedSCIP, varrefs, weights)
 end
 
 """
-Add special-ordered-set of type 2 to problem, return cons ref.
+Add abspower constraint to problem, return cons ref.
 
     lhs ≤ sign(x + a) * abs(x + a)^n + c*z ≤ rhs
 
