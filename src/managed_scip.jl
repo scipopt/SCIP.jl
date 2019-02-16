@@ -49,6 +49,12 @@ function free_scip(mscip::ManagedSCIP)
     @assert mscip.scip[] == C_NULL
 end
 
+"Set generic parameter."
+function set_parameter(mscip::ManagedSCIP, name::String, value)
+    @SC SCIPsetParam(mscip, name, Ptr{Cvoid}(value))
+    return nothing
+end
+
 "Return pointer to SCIP variable."
 var(mscip::ManagedSCIP, vr::VarRef) = mscip.vars[vr][]
 
@@ -226,10 +232,4 @@ function add_abspower_constraint(mscip::ManagedSCIP, x, a, n, z, c, lhs, rhs)
         mscip, cons__, "", var(mscip, x), var(mscip, z), n, a, c, lhs, rhs)
     @SC SCIPaddCons(mscip, cons__[])
     return store_cons!(mscip, cons__)
-end
-
-"Set generic parameter."
-function set_parameter(mscip::ManagedSCIP, name::String, value)
-    @SC SCIPsetParam(mscip, name, Ptr{Cvoid}(value))
-    return nothing
 end
