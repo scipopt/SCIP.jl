@@ -233,3 +233,90 @@ function add_abspower_constraint(mscip::ManagedSCIP, x, a, n, z, c, lhs, rhs)
     @SC SCIPaddCons(mscip, cons__[])
     return store_cons!(mscip, cons__)
 end
+
+"""
+Add nonlinear constraint to problem, return cons ref.
+
+    lhs ≤ expression ≤ rhs
+
+The expression is given as a graph of operators, including variable references
+and constant values. The last operator gives the root of the expression graph.
+Indexing is 1-based for arguments, but 0-based for what is passed to SCIP.
+
+# Arguments
+- `operators::Vector{SCIP_ExprOp}`: operator types for nodes
+- `offsets::Vector{Int}`: node `k` has children indexed from offsets[k] up to
+  offsets[k+1] (exclusive)
+- `children::Vector{Int}`: indices into operators, variables or values
+  (depending on operator type)
+- `values::Vector{Float64}`: Constant values (as children of operators)
+- `lhs::Float64`: left-hand side for ranged constraint
+- `rhs::Float64`: right-hand side for ranged constraint
+
+"""
+function add_nonlinear_constraint(mscip::ManagedSCIP, operators::Vector{SCIP_ExprOp},
+                                  offsets::Vector{Int}, children::Vector{Int},
+                                  values::Vector{Float64}, lhs::Float64, rhs::Float64)
+    # create expression graph object
+    tree__ = Ref{Ptr{SCIP_EXPRTREE}}()
+    blkmem = SCIPblkmem(mscip)
+    exprs = Ptr{SCIP_EXPR}[]
+    vars = Ptr{SCIP_VAR}[]
+
+    for i in 1:length(operators)
+        op = operators[i]
+        nchildren = offsets[i + 1] - offsets[i]
+        expr__ = Ref{Ptr{SCIP_EXPR}}()
+        if op == SCIP_EXPR_VARIDX
+            nchildren == 1 || error("Need one child for op. $(op)!")
+            @SC SCIPexprCreate(blkmem, expr__, op, Cint(length(vars)))
+            push!(vars, var(mscip, VarRef(children[offsets[i]])))
+        elseif op == SCIP_EXPR_CONST
+            nchildren == 1 || error("Need one child for op. $(op)!")
+            @SC SCIPexprCreate(blkmem, expr__, op, values[children[offsets[i]]])
+        elseif op == SCIP_EXPR_MINUS
+            if nchildren == 2      # binary op.
+                @SC SCIPexprCreate(blkmem, expr__, op, exprs[children[offsets[i]]], exprs[children[offsets[i] + 1]])
+            elseif nchildren == 1  # unary op. (0 - expr)
+                zeroexpr = Ref{Ptr{SCIP_EXPR}}()
+                @SC SCIPexprCreate(blkmem, zeroexpr__, op, 0.0)
+                @SC SCIPexprCreate(blkmem, expr__, op, zeroexpr__[], exprs[children[offsets[i]]])
+            else
+                error("Only unary or binary op. $(op) supported!")
+            end
+        elseif op == SCIP_EXPR_REALPOWER
+            nchildren == 2 || error("Need two children for op. $(op)!")
+            base = exprs[children[offsets[i]]]
+            exponent_expr = children[offsets[i] + 1] # is SCIP_EXPR_CONST,
+            exponent = values[children[offsets[exponent_expr]]] # directly get value
+            @SC SCIPexprCreate(blkmem, expr__, op, base, exponent)
+        elseif op == SCIP_EXPR_DIV
+            nchildren == 2 || error("Need two children for op. $(op)!")
+            @SC SCIPexprCreate(blkmem, expr__, op, exprs[children[offsets[i]]], exprs[children[offsets[i] + 1]])
+        elseif op in [SCIP_EXPR_SQRT, SCIP_EXPR_EXP, SCIP_EXPR_LOG]
+            nchildren == 1 || error("Need one child for op. $(op)!")
+            @SC SCIPexprCreate(blkmem, expr__, op, exprs[children[offsets[i]]])
+        elseif op in [SCIP_EXPR_SUM, SCIP_EXPR_PRODUCT]
+            childexprs = [exprs[children[offsets[i]:offsets[i + 1]]]]
+            @SC SCIPexprCreate(blkmem, expr__, op, Cint(nchildren), childexprs)
+        else
+            error("Operator $(op) not supported in nonlinear expressions!")
+        end
+        push!(exprs, expr__[])
+    end
+
+    @SC SCIPexprtreeCreate(SCIPblkmem(mscip), tree__, exprs[end], length(vars), 0, C_NULL)
+    @SC SCIPexprtreeSetVars(tree__[], length(vars), vars)
+
+    # create and add cons_nonlinear
+    cons__ = Ref{Ptr{SCIP_CONS}}()
+    @SC SCIPcreateConsBasicNonlinear(mscip, cons__, "", 0, C_NULL, C_NULL,
+                                     1, tree__, C_NULL, lhs, rhs)
+    @SC SCIPaddCons(mscip, cons__[])
+
+    # free memory
+    @SC SCIPexprtreeFree(tree__)
+
+    # register and return cons ref
+    return store_cons!(mscip, cons__)
+end
