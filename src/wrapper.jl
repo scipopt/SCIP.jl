@@ -134,6 +134,7 @@ include(wrap("cons_xor"))
 
 # nonlinear expressions
 include(wrap("pub_expr"))
+include(wrap("expr_manual"))
 
 # SCIP_CALL: macro to check return codes, inspired by @assert
 macro SC(ex)
