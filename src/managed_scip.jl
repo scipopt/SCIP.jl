@@ -286,8 +286,7 @@ function add_nonlinear_constraint(mscip::ManagedSCIP, operators::Vector{SCIP_Exp
         elseif op == SCIP_EXPR_REALPOWER
             nchildren == 2 || error("Need two children for op. $(op)!")
             base = exprs[children[offsets[i]]]
-            exponent_expr = children[offsets[i] + 1] # is SCIP_EXPR_CONST,
-            exponent = values[children[offsets[exponent_expr]]] # directly get value
+            exponent = values[children[offsets[i] + 1]]
             @SC SCIPexprCreate(SCIPblkmem(mscip), expr__, op, base, exponent)
         elseif op == SCIP_EXPR_DIV
             nchildren == 2 || error("Need two children for op. $(op)!")

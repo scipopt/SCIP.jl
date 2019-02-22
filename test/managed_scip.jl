@@ -33,10 +33,10 @@ end
         # abspower:  y == sign(x) * |x|^2 ( == x * |x| )
         a = SCIP.add_abspower_constraint(mscip, x, 0.0, 2.0, y, -1.0, 0.0, 0.0)
         # nonlinear: x^0.2 == 1
-        _operators = [SCIP.SCIP_EXPR_VARIDX, SCIP.SCIP_EXPR_CONST, SCIP.SCIP_EXPR_REALPOWER]
-        _offsets   = [1,     2,   3,    5]
-        _children  = [x.val, 1,   1, 2] # extract integer from VarRef!
-        _values    = [       0.2]
+        _operators = [SCIP.SCIP_EXPR_VARIDX, SCIP.SCIP_EXPR_REALPOWER]
+        _offsets   = [1, 2, 4]
+        _children  = [x.val, 1, 1] # extract integer from VarRef!
+        _values    = [0.2]
         n = SCIP.add_nonlinear_constraint(mscip, _operators, _offsets,
                                           _children, _values, 1.0, 1.0)
 
