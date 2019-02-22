@@ -259,7 +259,6 @@ function add_nonlinear_constraint(mscip::ManagedSCIP, operators::Vector{SCIP_Exp
                                   values::Vector{Float64}, lhs::Float64, rhs::Float64)
     # create expression graph object
     tree__ = Ref{Ptr{SCIP_EXPRTREE}}()
-    blkmem = SCIPblkmem(mscip)
     exprs = Ptr{SCIP_EXPR}[]
     vars = Ptr{SCIP_VAR}[]
 
@@ -269,18 +268,18 @@ function add_nonlinear_constraint(mscip::ManagedSCIP, operators::Vector{SCIP_Exp
         expr__ = Ref{Ptr{SCIP_EXPR}}()
         if op == SCIP_EXPR_VARIDX
             nchildren == 1 || error("Need one child for op. $(op)!")
-            @SC SCIPexprCreate(blkmem, expr__, op, Cint(length(vars)))
+            @SC SCIPexprCreate(SCIPblkmem(mscip), expr__, op, Cint(length(vars)))
             push!(vars, var(mscip, VarRef(children[offsets[i]])))
         elseif op == SCIP_EXPR_CONST
             nchildren == 1 || error("Need one child for op. $(op)!")
-            @SC SCIPexprCreate(blkmem, expr__, op, values[children[offsets[i]]])
+            @SC SCIPexprCreate(SCIPblkmem(mscip), expr__, op, values[children[offsets[i]]])
         elseif op == SCIP_EXPR_MINUS
             if nchildren == 2      # binary op.
-                @SC SCIPexprCreate(blkmem, expr__, op, exprs[children[offsets[i]]], exprs[children[offsets[i] + 1]])
+                @SC SCIPexprCreate(SCIPblkmem(mscip), expr__, op, exprs[children[offsets[i]]], exprs[children[offsets[i] + 1]])
             elseif nchildren == 1  # unary op. (0 - expr)
                 zeroexpr__ = Ref{Ptr{SCIP_EXPR}}()
-                @SC SCIPexprCreate(blkmem, zeroexpr__, op, 0.0)
-                @SC SCIPexprCreate(blkmem, expr__, op, zeroexpr__[], exprs[children[offsets[i]]])
+                @SC SCIPexprCreate(SCIPblkmem(mscip), zeroexpr__, op, 0.0)
+                @SC SCIPexprCreate(SCIPblkmem(mscip), expr__, op, zeroexpr__[], exprs[children[offsets[i]]])
             else
                 error("Only unary or binary op. $(op) supported!")
             end
@@ -289,16 +288,16 @@ function add_nonlinear_constraint(mscip::ManagedSCIP, operators::Vector{SCIP_Exp
             base = exprs[children[offsets[i]]]
             exponent_expr = children[offsets[i] + 1] # is SCIP_EXPR_CONST,
             exponent = values[children[offsets[exponent_expr]]] # directly get value
-            @SC SCIPexprCreate(blkmem, expr__, op, base, exponent)
+            @SC SCIPexprCreate(SCIPblkmem(mscip), expr__, op, base, exponent)
         elseif op == SCIP_EXPR_DIV
             nchildren == 2 || error("Need two children for op. $(op)!")
-            @SC SCIPexprCreate(blkmem, expr__, op, exprs[children[offsets[i]]], exprs[children[offsets[i] + 1]])
+            @SC SCIPexprCreate(SCIPblkmem(mscip), expr__, op, exprs[children[offsets[i]]], exprs[children[offsets[i] + 1]])
         elseif op in [SCIP_EXPR_SQRT, SCIP_EXPR_EXP, SCIP_EXPR_LOG]
             nchildren == 1 || error("Need one child for op. $(op)!")
-            @SC SCIPexprCreate(blkmem, expr__, op, exprs[children[offsets[i]]])
+            @SC SCIPexprCreate(SCIPblkmem(mscip), expr__, op, exprs[children[offsets[i]]])
         elseif op in [SCIP_EXPR_SUM, SCIP_EXPR_PRODUCT]
             childexprs = exprs[children[range(offsets[i], length=nchildren)]]
-            @SC SCIPexprCreate(blkmem, expr__, op, Cint(nchildren), childexprs)
+            @SC SCIPexprCreate(SCIPblkmem(mscip), expr__, op, Cint(nchildren), childexprs)
         else
             error("Operator $(op) not supported in nonlinear expressions!")
         end
