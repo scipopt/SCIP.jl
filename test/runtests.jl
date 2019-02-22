@@ -16,3 +16,7 @@ end
 @testset "MathOptInterface additional tests" begin
     include("MOI_additional.jl")
 end
+
+@testset "MathOptInterface nonlinear expressions" begin
+    include("MOI_nonlinear_exprs.jl")
+end
