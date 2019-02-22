@@ -297,7 +297,7 @@ function add_nonlinear_constraint(mscip::ManagedSCIP, operators::Vector{SCIP_Exp
             nchildren == 1 || error("Need one child for op. $(op)!")
             @SC SCIPexprCreate(blkmem, expr__, op, exprs[children[offsets[i]]])
         elseif op in [SCIP_EXPR_SUM, SCIP_EXPR_PRODUCT]
-            childexprs = [exprs[children[offsets[i]:offsets[i + 1]]]]
+            childexprs = exprs[children[range(offsets[i], length=nchildren)]]
             @SC SCIPexprCreate(blkmem, expr__, op, Cint(nchildren), childexprs)
         else
             error("Operator $(op) not supported in nonlinear expressions!")
