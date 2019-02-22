@@ -70,7 +70,7 @@ end
     expressions = Expr[
         :(x[1] + 0.5),          # VARIDX / CONSTANT
         :(x[2] - x[3]),         # MINUS (binary)
-      # :(-x[4]),               # MINUS (unary)
+        :(-x[4] + 4.0),         # MINUS (unary)
         :(x[5] + x[6] + x[7]),  # SUM
         :(x[8] * x[9] * x[10]), # PRODUCT
         :((x[11] + x[12])^0.8), # REALPOWER

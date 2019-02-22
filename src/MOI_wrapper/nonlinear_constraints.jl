@@ -50,7 +50,8 @@ function push_expr!(nonlin::NonlinExpr, expr::Expr)
         num_children = length(expr.args) - 1
         children = []
 
-        if op == :^  # Special case: power with constant exponent.
+        if op == :^
+            # Special case: power with constant exponent.
             # The Julia expression considers the base and exponent to be
             # subexpressions. SCIP does in principle support constant
             # expressions, but in the case of SCIP_EXPR_REALPOWER, the exponent
@@ -64,7 +65,22 @@ function push_expr!(nonlin::NonlinExpr, expr::Expr)
             # Exponent is stored as value.
             push!(nonlin.values, Float64(expr.args[3]))
             push!(children, length(nonlin.values))
-        else  # General case: handle all children recursively.
+        elseif op == :- && num_children == 1
+            # Special case: unary version of minus. SCIP only supports binary
+            # minus, so we will represent it as :(0 - child).
+
+            # Insert constant 0 subexpression:
+            index = push_expr!(nonlin, 0.0)
+            push!(children, index)
+
+            # Insert the actual subexpression:
+            index = push_expr!(nonlin, expr.args[2])
+            push!(children, index)
+
+            # Adjust number of children:
+            num_children = 2
+        else
+            # General case: handle all children recursively.
             for child in expr.args[2:end]
                 index = push_expr!(nonlin, child)
                 push!(children, index)
