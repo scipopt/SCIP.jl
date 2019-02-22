@@ -84,17 +84,20 @@ function MOI.delete(o::Optimizer, ci::CI{SVF,S}) where {S <: VAR_TYPES}
     vi = VI(ci.value)
     v = var(o, vi)
 
-    if SCIPvarGetType(v) == SCIP_VARTYPE_BINARY
-        # Reset bounds from constraint.
-        bounds = o.binbounds[vi]
-        @SC SCIPchgVarLb(o, v, bounds.lower)
-        @SC SCIPchgVarUb(o, v, bounds.upper)
-    end
+    # Reset bounds from constraint if this was a binary, see below.
+    reset_bounds = SCIPvarGetType(v) == SCIP_VARTYPE_BINARY
 
     # don't actually delete any SCIP constraint, just reset type
     infeasible = Ref{SCIP_Bool}()
     @SC SCIPchgVarType(o, var(o, vi), SCIP_VARTYPE_CONTINUOUS, infeasible)
     # TODO: warn if infeasible[] == TRUE?
+
+    # Can only change bounds after chaging the var type.
+    if reset_bounds
+        bounds = o.binbounds[vi]
+        @SC SCIPchgVarLb(o, v, bounds.lower)
+        @SC SCIPchgVarUb(o, v, bounds.upper)
+    end
 
     # but do delete the constraint reference
     delete!(o.constypes[SVF, S], ConsRef(ci.value))
