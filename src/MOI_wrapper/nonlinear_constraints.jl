@@ -46,16 +46,33 @@ NonlinExpr() = NonlinExpr([], [1], [], [])
 "Recursively extract operators from Julia expr and store in NonlinExpr."
 function push_expr!(nonlin::NonlinExpr, expr::Expr)
     if Meta.isexpr(expr, :call) # operator
-        # first handle all children recursively
+        op = expr.args[1]
+        num_children = length(expr.args) - 1
         children = []
-        for child in expr.args[2:end]
-            index = push_expr!(nonlin, child)
+
+        if op == :^  # Special case: power with constant exponent.
+            # The Julia expression considers the base and exponent to be
+            # subexpressions. SCIP does in principle support constant
+            # expressions, but in the case of SCIP_EXPR_REALPOWER, the exponent
+            # value is stored directly, as the second child.
+            @assert num_children == 2
+
+            # Base is proper sub-expression.
+            index = push_expr!(nonlin, expr.args[2])
             push!(children, index)
+
+            # Exponent is stored as value.
+            push!(nonlin.values, Float64(expr.args[3]))
+            push!(children, length(nonlin.values))
+        else  # General case: handle all children recursively.
+            for child in expr.args[2:end]
+                index = push_expr!(nonlin, child)
+                push!(children, index)
+            end
         end
 
-        # then push this operator (head of expr) on top
-        push!(nonlin.operators, OPMAP[expr.args[1]])
-        num_children = length(expr.args) - 1
+        # Push this operator (head of expr) on top
+        push!(nonlin.operators, OPMAP[op])
         append!(nonlin.children, children)
         push!(nonlin.offsets, nonlin.offsets[end] + num_children)
     elseif Meta.isexpr(expr, :ref) # variable
