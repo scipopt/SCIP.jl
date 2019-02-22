@@ -278,7 +278,7 @@ function add_nonlinear_constraint(mscip::ManagedSCIP, operators::Vector{SCIP_Exp
             if nchildren == 2      # binary op.
                 @SC SCIPexprCreate(blkmem, expr__, op, exprs[children[offsets[i]]], exprs[children[offsets[i] + 1]])
             elseif nchildren == 1  # unary op. (0 - expr)
-                zeroexpr = Ref{Ptr{SCIP_EXPR}}()
+                zeroexpr__ = Ref{Ptr{SCIP_EXPR}}()
                 @SC SCIPexprCreate(blkmem, zeroexpr__, op, 0.0)
                 @SC SCIPexprCreate(blkmem, expr__, op, zeroexpr__[], exprs[children[offsets[i]]])
             else
