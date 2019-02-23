@@ -258,14 +258,14 @@ function add_nonlinear_constraint(mscip::ManagedSCIP, operators::Vector{SCIP_Exp
                                   offsets::Vector{Int}, children::Vector{Int},
                                   values::Vector{Float64}, lhs::Float64, rhs::Float64)
     # create expression graph object
-    tree__ = Ref{Ptr{SCIP_EXPRTREE}}()
+    tree__ = Ref{Ptr{SCIP_EXPRTREE}}(C_NULL)
     exprs = Ptr{SCIP_EXPR}[]
     vars = Ptr{SCIP_VAR}[]
 
     for i in 1:length(operators)
         op = operators[i]
         nchildren = offsets[i + 1] - offsets[i]
-        expr__ = Ref{Ptr{SCIP_EXPR}}()
+        expr__ = Ref{Ptr{SCIP_EXPR}}(C_NULL)
         if op == SCIP_EXPR_VARIDX
             nchildren == 1 || error("Need one child for op. $(op)!")
             @SC SCIPexprCreate(SCIPblkmem(mscip), expr__, op, Cint(length(vars)))
@@ -300,7 +300,7 @@ function add_nonlinear_constraint(mscip::ManagedSCIP, operators::Vector{SCIP_Exp
     @SC SCIPexprtreeSetVars(tree__[], length(vars), vars)
 
     # create and add cons_nonlinear
-    cons__ = Ref{Ptr{SCIP_CONS}}()
+    cons__ = Ref{Ptr{SCIP_CONS}}(C_NULL)
     @SC SCIPcreateConsBasicNonlinear(mscip, cons__, "", 0, C_NULL, C_NULL,
                                      1, tree__, C_NULL, lhs, rhs)
     @SC SCIPaddCons(mscip, cons__[])
