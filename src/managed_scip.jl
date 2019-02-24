@@ -272,7 +272,8 @@ function add_nonlinear_constraint(mscip::ManagedSCIP, operators::Vector{SCIP_Exp
             push!(vars, var(mscip, VarRef(children[offsets[i]])))
         elseif op == SCIP_EXPR_CONST
             nchildren == 1 || error("Need one child for op. $(op)!")
-            @SC SCIPexprCreate(SCIPblkmem(mscip), expr__, op, values[children[offsets[i]]])
+            constant = values[children[offsets[i]]]
+            @SC SCIPexprCreate(SCIPblkmem(mscip), expr__, op, Cdouble(constant))
         elseif op == SCIP_EXPR_MINUS
             nchildren == 2 || error("Only binary op. $(op) supported!")
             @SC SCIPexprCreate(SCIPblkmem(mscip), expr__, op, exprs[children[offsets[i]]], exprs[children[offsets[i] + 1]])

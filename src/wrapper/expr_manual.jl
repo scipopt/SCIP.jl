@@ -19,7 +19,7 @@ function SCIPexprCreate(blkmem, expr, op, varpos::Cint)
           blkmem, expr, op, varpos)
 end
 
-# SCIP_EXPR_VARIDX
+# SCIP_EXPR_CONST
 function SCIPexprCreate(blkmem, expr, op, value::Cdouble)
     ccall((:SCIPexprCreate, libscip), SCIP_RETCODE,
           (Ptr{BMS_BLKMEM}, Ptr{Ptr{SCIP_EXPR}}, SCIP_EXPROP, Cdouble),
@@ -42,9 +42,12 @@ end
 
 # SCIP_EXPR_SUM, SCIP_EXPR_PRODUCT (n-ary op)
 function SCIPexprCreate(blkmem, expr, op, nchildren::Cint, children::Vector{Ptr{SCIP_EXPR}})
-    ccall((:SCIPexprCreate, libscip), SCIP_RETCODE,
-          (Ptr{BMS_BLKMEM}, Ptr{Ptr{SCIP_EXPR}}, SCIP_EXPROP, Cint, Ptr{Ptr{SCIP_EXPR}}),
-          blkmem, expr, op, nchildren, children)
+    @assert nchildren == length(children)
+    GC.@preserve children begin
+        ccall((:SCIPexprCreate, libscip), SCIP_RETCODE,
+              (Ptr{BMS_BLKMEM}, Ptr{Ptr{SCIP_EXPR}}, SCIP_EXPROP, Cint, Ptr{Ptr{SCIP_EXPR}}),
+              blkmem, expr, op, nchildren, pointer(children))
+    end
 end
 
 # SCIP_EXPR_REALPOWER (mixed binary op)
