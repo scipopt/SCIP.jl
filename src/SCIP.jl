@@ -9,6 +9,9 @@ include("wrapper.jl")
 # memory management
 include("managed_scip.jl")
 
+# constraints from nonlinear expressions
+include("nonlinear.jl")
+
 # implementation of MOI
 include("MOI_wrapper.jl")
 
