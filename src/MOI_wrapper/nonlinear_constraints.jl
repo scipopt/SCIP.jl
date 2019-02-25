@@ -7,7 +7,7 @@ function MOI.set(o::Optimizer, ::MOI.NLPBlock, data::MOI.NLPBlockData)
     # process). Instead, we extract the expression graphs and add the
     # corresponding constraints to the model directly.
     if data.has_objective
-        @warn "Nonlinear objective not supported by SCIP.jl!" maxlog=1
+        error("Nonlinear objective not supported by SCIP.jl!")
     end
 
     MOI.initialize(data.evaluator, [:ExprGraph])
