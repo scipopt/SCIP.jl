@@ -124,6 +124,15 @@ function push_expr!(nonlin::NonlinExpr, mscip::ManagedSCIP, expr::Number)
 
     @SC SCIPexprCreate(SCIPblkmem(mscip), expr__, op, value)
 
+    # double check whether value was saved correctly
+    value_stored = SCIPexprGetOpReal(expr__[])
+    if value != value_stored
+        error("Failed to create SCIP_EXPR / $(op):\n" *
+              "passed in constant value $(value),\n" *
+              "retrieved $(value_stored) instead,\n" *
+              "in expression stored at $(expr__[]).")
+    end
+
     return expr__[]
 end
 
