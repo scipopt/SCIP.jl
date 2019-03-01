@@ -34,7 +34,7 @@ MOI.constraint_expr(evaluator::ExprEvaluator, i) = evaluator.constraints[i]
     # "nonlinear" constraints (x => x[1], y => x[2])
     data = MOI.NLPBlockData(
         [MOI.NLPBoundsPair(-Inf, 1.5)],
-        ExprEvaluator([:(2 * x[VI(1)] + x[VI(2)] <= 1.5)]),
+        ExprEvaluator([:(2 * x[$x] + x[$y] <= 1.5)]),
         false # no objective
     )
     MOI.set(optimizer, MOI.NLPBlock(), data)
@@ -61,24 +61,24 @@ end
     @test MOI.supports(optimizer, MOI.NLPBlock()) == true
 
     num_vars = 17
-    vars = MOI.add_variables(optimizer, num_vars)
+    x = MOI.add_variables(optimizer, num_vars)
     for i in 1:num_vars
-        MOI.add_constraint(optimizer, vars[i], MOI.Interval(0.1, 10.0))
+        MOI.add_constraint(optimizer, x[i], MOI.Interval(0.1, 10.0))
     end
 
     # Nonlinear equations.
     rhs = 2.0
     expressions = Expr[
-        :(x[VI(1)] + 0.5                  == rhs), # VARIDX / CONSTANT
-        :(x[VI(2)] - x[VI(3)]             == rhs), # MINUS (binary)
-        :(-x[VI(4)] + 4.0                 == rhs), # MINUS (unary)
-        :(x[VI(5)] + x[VI(6)] + x[VI(7)]  == rhs), # SUM
-        :(x[VI(8)] * x[VI(9)] * x[VI(10)] == rhs), # PRODUCT
-        :((x[VI(11)] + x[VI(12)])^0.8     == rhs), # REALPOWER
-        :(x[VI(13)] / x[VI(14)]           == rhs), # DIV
-        :(sqrt(x[VI(15)])                 == rhs), # SQRT
-        :(exp(x[VI(16)])                  == rhs), # EXP
-        :(log(x[VI(17)])                  == rhs), # LOG
+        :(x[$(x[1])] + 0.5                      == rhs), # VARIDX / CONSTANT
+        :(x[$(x[2])] - x[$(x[3])]               == rhs), # MINUS (binary)
+        :(-x[$(x[4])] + 4.0                     == rhs), # MINUS (unary)
+        :(x[$(x[5])] + x[$(x[6])] + x[$(x[7])]  == rhs), # SUM
+        :(x[$(x[8])] * x[$(x[9])] * x[$(x[10])] == rhs), # PRODUCT
+        :((x[$(x[11])] + x[$(x[12])])^0.8       == rhs), # REALPOWER
+        :(x[$(x[13])] / x[$(x[14])]             == rhs), # DIV
+        :(sqrt(x[$(x[15])])                     == rhs), # SQRT
+        :(exp(x[$(x[16])])                      == rhs), # EXP
+        :(log(x[$(x[17])])                      == rhs), # LOG
     ]
 
     data = MOI.NLPBlockData(
@@ -92,7 +92,7 @@ end
     MOI.optimize!(optimizer)
     @test MOI.get(optimizer, MOI.TerminationStatus()) == MOI.OPTIMAL
     @test MOI.get(optimizer, MOI.PrimalStatus()) == MOI.FEASIBLE_POINT
-    sol = MOI.get(optimizer, MOI.VariablePrimal(), vars)
+    sol = MOI.get(optimizer, MOI.VariablePrimal(), x)
 
     # Evaluate lhs of all the expressions with solution values.
     atol, rtol = 1e-6, 1e-6
