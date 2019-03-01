@@ -1,0 +1,4 @@
+[deps]
+JuMP = "4076af6c-e467-56ae-b986-b466b2749572"
+MINLPTests = "c91edd20-2690-11e9-21e6-495b70d5f171"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
