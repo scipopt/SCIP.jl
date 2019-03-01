@@ -113,14 +113,20 @@ function push_expr!(nonlin::NonlinExpr, mscip::ManagedSCIP, expr::Expr)
         end
 
     elseif Meta.isexpr(expr, :ref) # variable
+        # It should look like this:
+        # :(x[MathOptInterface.VariableIndex(1)])
         @assert expr.args[1] == :x
         @assert num_children == 1
-        op = SCIP_EXPR_VARIDX
-        v = var(mscip, VarRef(expr.args[2]))
+
+        sub = expr.args[2]
+        @assert Meta.isexpr(sub, :call)
+        @assert length(sub.args) == 2
+        i::Int64 = sub.args[2]
 
         # 0-based indexing for SCIP
+        op = SCIP_EXPR_VARIDX
         @SC SCIPexprCreate(SCIPblkmem(mscip), expr__, op, Cint(length(nonlin.vars)))
-        push!(nonlin.vars, v)
+        push!(nonlin.vars, var(mscip, VarRef(i)))
 
     else
         error("Expression $expr not supported by SCIP.jl!")
