@@ -26,9 +26,24 @@ function push_expr!(nonlin::NonlinExpr, mscip::ManagedSCIP, expr::Expr)
     expr__ = Ref{Ptr{SCIP_EXPR}}(C_NULL)
     num_children = length(expr.args) - 1
 
-    if Meta.isexpr(expr, :call) # operator
+    if Meta.isexpr(expr, :comparison) # range constraint
+        # args: [lhs, <=, mid, <=, rhs], lhs and rhs constant
+        @assert length(expr.args) == 5
+        @assert expr.args[2][1] == expr.args[4][1] == :<=
+
+        # just call on middle expression, bounds are handled outside
+        return push_expr!(nonlin, mscip, expr.args[3])
+
+    elseif Meta.isexpr(expr, :call) # operator
         op = expr.args[1]
-        if op == :^
+        if op in [:(==), :<=, :>=]
+            # args: [op, lhs, rhs], rhs constant
+            @assert length(expr.args) == 3
+
+            # just call on lhs expression, bounds are handled outside
+            return push_expr!(nonlin, mscip, expr.args[2])
+
+        elseif op == :^
             # Special case: power with constant exponent.
             # The Julia expression considers the base and exponent to be
             # subexpressions. SCIP does in principle support constant
