@@ -34,7 +34,7 @@ MOI.constraint_expr(evaluator::ExprEvaluator, i) = evaluator.constraints[i]
     # "nonlinear" constraints (x => x[1], y => x[2])
     data = MOI.NLPBlockData(
         [MOI.NLPBoundsPair(-Inf, 1.5)],
-        ExprEvaluator([:(2 * x[1] + x[2])]),
+        ExprEvaluator([:(2 * x[VI(1)] + x[VI(2)] <= 1.5)]),
         false # no objective
     )
     MOI.set(optimizer, MOI.NLPBlock(), data)
@@ -67,19 +67,19 @@ end
     end
 
     # Nonlinear equations.
-    expressions = Expr[
-        :(x[1] + 0.5),          # VARIDX / CONSTANT
-        :(x[2] - x[3]),         # MINUS (binary)
-        :(-x[4] + 4.0),         # MINUS (unary)
-        :(x[5] + x[6] + x[7]),  # SUM
-        :(x[8] * x[9] * x[10]), # PRODUCT
-        :((x[11] + x[12])^0.8), # REALPOWER
-        :(x[13] / x[14]),       # DIV
-        :(sqrt(x[15])),         # SQRT
-        :(exp(x[16])),          # EXP
-        :(log(x[17])),          # LOG
-    ]
     rhs = 2.0
+    expressions = Expr[
+        :(x[VI(1)] + 0.5                  == rhs), # VARIDX / CONSTANT
+        :(x[VI(2)] - x[VI(3)]             == rhs), # MINUS (binary)
+        :(-x[VI(4)] + 4.0                 == rhs), # MINUS (unary)
+        :(x[VI(5)] + x[VI(6)] + x[VI(7)]  == rhs), # SUM
+        :(x[VI(8)] * x[VI(9)] * x[VI(10)] == rhs), # PRODUCT
+        :((x[VI(11)] + x[VI(12)])^0.8     == rhs), # REALPOWER
+        :(x[VI(13)] / x[VI(14)]           == rhs), # DIV
+        :(sqrt(x[VI(15)])                 == rhs), # SQRT
+        :(exp(x[VI(16)])                  == rhs), # EXP
+        :(log(x[VI(17)])                  == rhs), # LOG
+    ]
 
     data = MOI.NLPBlockData(
         [MOI.NLPBoundsPair(rhs, rhs) for i in 1:length(expressions)],
@@ -95,13 +95,15 @@ end
     sol = MOI.get(optimizer, MOI.VariablePrimal(), vars)
 
     # Evaluate lhs of all the expressions with solution values.
-    values = Float64[]
-    for expr in expressions
-        @eval lhs(x) = $expr
-        push!(values, lhs(sol))
-    end
-    references = [rhs  for i in 1:length(expressions)]
-
     atol, rtol = 1e-6, 1e-6
-    @test values ≈ references atol=atol rtol=rtol
+    @test sol[1] + 0.5              ≈ rhs  atol=atol rtol=rtol
+    @test sol[2] - sol[3]           ≈ rhs  atol=atol rtol=rtol
+    @test -sol[4] + 4.0             ≈ rhs  atol=atol rtol=rtol
+    @test sol[5] + sol[6] + sol[7]  ≈ rhs  atol=atol rtol=rtol
+    @test sol[8] * sol[9] * sol[10] ≈ rhs  atol=atol rtol=rtol
+    @test (sol[11] + sol[12])^0.8   ≈ rhs  atol=atol rtol=rtol
+    @test sol[13] / sol[14]         ≈ rhs  atol=atol rtol=rtol
+    @test sqrt(sol[15])             ≈ rhs  atol=atol rtol=rtol
+    @test exp(sol[16])              ≈ rhs  atol=atol rtol=rtol
+    @test log(sol[17])              ≈ rhs  atol=atol rtol=rtol
 end
