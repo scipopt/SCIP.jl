@@ -94,7 +94,7 @@ function push_expr!(nonlin::NonlinExpr, mscip::ManagedSCIP, expr::Expr)
             @SC SCIPexprCreate(SCIPblkmem(mscip), expr__, OPMAP[op], Cint(num_children), children)
 
         else
-            error("Operator $op not supported by SCIP.jl!")
+            error("Operator $op (in $expr) not supported by SCIP.jl!")
         end
 
     elseif Meta.isexpr(expr, :ref) # variable
