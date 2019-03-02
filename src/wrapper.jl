@@ -132,6 +132,10 @@ include(wrap("cons_symresack"))
 include(wrap("cons_varbound"))
 include(wrap("cons_xor"))
 
+# nonlinear expressions
+include(wrap("pub_expr"))
+include(wrap("expr_manual"))
+
 # SCIP_CALL: macro to check return codes, inspired by @assert
 macro SC(ex)
     return :(@assert $(esc(ex)) == SCIP_OKAY)

@@ -21,6 +21,14 @@ before_install:
   - sudo dpkg -i SCIPOptSuite-$VERSION-Linux.deb
 script:
   - julia -e 'using Pkg; Pkg.clone(pwd()); Pkg.build("SCIP"); Pkg.test("SCIP"; coverage=true)'
+jobs:
+  include:
+    - stage: "MINLPTests"
+      julia: 1.0
+      os: linux
+      script:
+        - julia --project=test/MINLPTests -e 'using Pkg; Pkg.instantiate(); Pkg.add(PackageSpec(path=pwd()))'
+        - julia --project=test/MINLPTests --color=yes test/MINLPTests/run_minlptests.jl
 after_success:
   # push coverage results to Codecov, Coveralls
   - julia -e 'using Pkg; cd(Pkg.dir("SCIP")); Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder()); Coveralls.submit(Coveralls.process_folder())'

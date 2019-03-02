@@ -84,17 +84,20 @@ function MOI.delete(o::Optimizer, ci::CI{SVF,S}) where {S <: VAR_TYPES}
     vi = VI(ci.value)
     v = var(o, vi)
 
-    if SCIPvarGetType(v) == SCIP_VARTYPE_BINARY
-        # Reset bounds from constraint.
-        bounds = o.binbounds[vi]
-        @SC SCIPchgVarLb(o, v, bounds.lower)
-        @SC SCIPchgVarUb(o, v, bounds.upper)
-    end
+    # Reset bounds from constraint if this was a binary, see below.
+    reset_bounds = SCIPvarGetType(v) == SCIP_VARTYPE_BINARY
 
     # don't actually delete any SCIP constraint, just reset type
     infeasible = Ref{SCIP_Bool}()
     @SC SCIPchgVarType(o, var(o, vi), SCIP_VARTYPE_CONTINUOUS, infeasible)
     # TODO: warn if infeasible[] == TRUE?
+
+    # Can only change bounds after chaging the var type.
+    if reset_bounds
+        bounds = o.binbounds[vi]
+        @SC SCIPchgVarLb(o, v, bounds.lower)
+        @SC SCIPchgVarUb(o, v, bounds.upper)
+    end
 
     # but do delete the constraint reference
     delete!(o.constypes[SVF, S], ConsRef(ci.value))
@@ -118,7 +121,8 @@ function MOI.add_constraint(o::Optimizer, func::SVF, set::S) where S <: BOUNDS
 
     # Check for existing bounds first.
     oldlb, oldub = SCIPvarGetLbOriginal(v), SCIPvarGetUbOriginal(v)
-    if (oldlb != -inf || oldub != inf)
+    if (oldlb != -inf && newlb != -inf || oldub != inf && newub != inf)
+        # special case: implicit bounds for binaries
         if SCIPvarGetType(v) == SCIP_VARTYPE_BINARY
             # Store new bounds
             o.binbounds[vi] = MOI.Interval(newlb, newub)
@@ -130,17 +134,37 @@ function MOI.add_constraint(o::Optimizer, func::SVF, set::S) where S <: BOUNDS
             else
                 error("Invalid bounds [$newlb,$newub] for binary variable at $(vi.value)!")
             end
-        else
+        else # general case (non-binary variable)
             error("Already have bounds [$oldlb,$oldub] for variable at $(vi.value)!")
         end
     end
 
-    @SC SCIPchgVarLb(o, v, newlb)
-    @SC SCIPchgVarUb(o, v, newub)
+    if newlb != -inf
+        @SC SCIPchgVarLb(o, v, newlb)
+    end
+
+    if newub != inf
+        @SC SCIPchgVarUb(o, v, newub)
+    end
+
     # use var index for cons index of this type
     i = func.variable.value
     return register!(o, CI{SVF, S}(i))
 end
+
+function reset_bounds(o::Optimizer, v, lb, ub, ci::CI{SVF, S}) where S <: Union{MOI.Interval{Float64}, MOI.EqualTo{Float64}}
+    @SC SCIPchgVarLb(o, v, lb)
+    @SC SCIPchgVarUb(o, v, ub)
+end
+
+function reset_bounds(o::Optimizer, v, lb, ub, ci::CI{SVF, MOI.GreaterThan{Float64}})
+    @SC SCIPchgVarLb(o, v, lb)
+end
+
+function reset_bounds(o::Optimizer, v, lb, ub, ci::CI{SVF, MOI.LessThan{Float64}})
+    @SC SCIPchgVarUb(o, v, ub)
+end
+
 
 function MOI.delete(o::Optimizer, ci::CI{SVF,S}) where S <: BOUNDS
     allow_modification(o)
@@ -149,12 +173,10 @@ function MOI.delete(o::Optimizer, ci::CI{SVF,S}) where S <: BOUNDS
     vi = VI(ci.value)
     v = var(o, vi)
     if SCIPvarGetType(v) == SCIP_VARTYPE_BINARY
-        @SC SCIPchgVarLb(o, v, 0.0)
-        @SC SCIPchgVarUb(o, v, 1.0)
+        reset_bounds(o, v, 0.0, 1.0, ci)
     else
         inf = SCIPinfinity(s)
-        @SC SCIPchgVarLb(o, v, -inf)
-        @SC SCIPchgVarUb(o, v,  inf)
+        reset_bounds(o, v, -inf, inf, ci)
     end
 
     # but do delete the constraint reference

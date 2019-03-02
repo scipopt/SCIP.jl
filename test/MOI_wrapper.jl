@@ -14,6 +14,7 @@ const config = MOIT.TestConfig(duals=false, infeas_certificates=false)
         "linear13", # TODO: support MOI.FEASIBILITY_SENSE
         "linear14", # needs MOI.delete (of variables in constraints)
         "linear15", # needs MOI.VectorAffineFunction
+        "partial_start", # TODO: supportVariablePrimalStart
     ]
     MOIT.contlineartest(optimizer, config, excluded)
 end

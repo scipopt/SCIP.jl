@@ -1,5 +1,7 @@
 # Test memory management
 
+using MathOptInterface
+
 @testset "create and manual free" begin
     mscip = SCIP.ManagedSCIP()
     @test mscip.scip[] != C_NULL
@@ -32,6 +34,9 @@ end
         s2 = SCIP.add_special_ordered_set_type2(mscip, [x, y], [1.0, 2.0])
         # abspower:  y == sign(x) * |x|^2 ( == x * |x| )
         a = SCIP.add_abspower_constraint(mscip, x, 0.0, 2.0, y, -1.0, 0.0, 0.0)
+        # nonlinear: x^0.2 == 1
+        vi = MathOptInterface.VariableIndex(x.val)
+        n = SCIP.add_nonlinear_constraint(mscip, :(x[$vi]^0.2 == 1.0), 1.0, 1.0)
 
         if i==2
             # solve, but don't check results (this test is about memory mgmt)

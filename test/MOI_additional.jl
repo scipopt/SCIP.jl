@@ -146,11 +146,12 @@ end
     @test var_bounds(optimizer, x) == MOI.Interval(2.0, 2.0)
     @test_throws ErrorException MOI.add_constraint(optimizer, x, MOI.EqualTo(3.0))
 
-    # Mixed constraint types will fail!
+    # Mixed constraint types now allowed (when disjoint)!
     MOI.empty!(optimizer)
     x = MOI.add_variable(optimizer)
     lb = MOI.add_constraint(optimizer, x, MOI.GreaterThan(2.0))
-    @test_throws ErrorException ub = MOI.add_constraint(optimizer, x, MOI.LessThan(3.0))
+    ub = MOI.add_constraint(optimizer, x, MOI.LessThan(3.0))
+    @test var_bounds(optimizer, x) == MOI.Interval(2.0, 3.0)
 end
 
 @testset "Changing bounds for variable." begin

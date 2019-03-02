@@ -17,7 +17,7 @@ mutable struct ManagedSCIP
     cons_count::Int64
 
     function ManagedSCIP()
-        scip = Ref{Ptr{SCIP_}}()
+        scip = Ref{Ptr{SCIP_}}(C_NULL)
         @SC SCIPcreate(scip)
         @assert scip[] != C_NULL
         @SC SCIPincludeDefaultPlugins(scip[])
@@ -49,6 +49,12 @@ function free_scip(mscip::ManagedSCIP)
     @assert mscip.scip[] == C_NULL
 end
 
+"Set generic parameter."
+function set_parameter(mscip::ManagedSCIP, name::String, value)
+    @SC SCIPsetParam(mscip, name, Ptr{Cvoid}(value))
+    return nothing
+end
+
 "Return pointer to SCIP variable."
 var(mscip::ManagedSCIP, vr::VarRef) = mscip.vars[vr][]
 
@@ -73,7 +79,7 @@ end
 
 "Add variable to problem (continuous, no bounds), return var ref."
 function add_variable(mscip::ManagedSCIP)
-    var__ = Ref{Ptr{SCIP_VAR}}()
+    var__ = Ref{Ptr{SCIP_VAR}}(C_NULL)
     @SC SCIPcreateVarBasic(mscip, var__, "", -SCIPinfinity(mscip), SCIPinfinity(mscip),
                            0.0, SCIP_VARTYPE_CONTINUOUS)
     @SC SCIPaddVar(mscip, var__[])
@@ -117,7 +123,7 @@ Use `(-)SCIPinfinity(scip)` for one of the bounds if not applicable.
 function add_linear_constraint(mscip::ManagedSCIP, varrefs, coefs, lhs, rhs)
     @assert length(varrefs) == length(coefs)
     vars = [var(mscip, vr) for vr in varrefs]
-    cons__ = Ref{Ptr{SCIP_CONS}}()
+    cons__ = Ref{Ptr{SCIP_CONS}}(C_NULL)
     @SC SCIPcreateConsBasicLinear(
         mscip, cons__, "", length(vars), vars, coefs, lhs, rhs)
     @SC SCIPaddCons(mscip, cons__[])
@@ -148,7 +154,7 @@ function add_quadratic_constraint(mscip::ManagedSCIP, linrefs, lincoefs,
     quadvars1 = [var(mscip, vr) for vr in quadrefs1]
     quadvars2 = [var(mscip, vr) for vr in quadrefs2]
 
-    cons__ = Ref{Ptr{SCIP_CONS}}()
+    cons__ = Ref{Ptr{SCIP_CONS}}(C_NULL)
     @SC SCIPcreateConsBasicQuadratic(
         mscip, cons__, "", length(linvars), linvars, lincoefs,
         length(quadvars1), quadvars1, quadvars2, quadcoefs, lhs, rhs)
@@ -165,7 +171,7 @@ the right-hand side.
 """
 function add_second_order_cone_constraint(mscip::ManagedSCIP, varrefs)
     vars = [var(mscip, vr) for vr in varrefs]
-    cons__ = Ref{Ptr{SCIP_CONS}}()
+    cons__ = Ref{Ptr{SCIP_CONS}}(C_NULL)
     @SC SCIPcreateConsBasicSOC(mscip, cons__, "", length(vars) - 1,
                                vars[2:end], C_NULL, C_NULL, 0.0, vars[1], 1.0, 0.0)
     @SC SCIPaddCons(mscip, cons__[])
@@ -182,7 +188,7 @@ Add special-ordered-set of type 1 to problem, return cons ref.
 function add_special_ordered_set_type1(mscip::ManagedSCIP, varrefs, weights)
     @assert length(varrefs) == length(weights)
     vars = [var(mscip, vr) for vr in varrefs]
-    cons__ = Ref{Ptr{SCIP_CONS}}()
+    cons__ = Ref{Ptr{SCIP_CONS}}(C_NULL)
     @SC SCIPcreateConsBasicSOS1(mscip, cons__, "", length(vars), vars, weights)
     @SC SCIPaddCons(mscip, cons__[])
     return store_cons!(mscip, cons__)
@@ -198,14 +204,14 @@ Add special-ordered-set of type 2 to problem, return cons ref.
 function add_special_ordered_set_type2(mscip::ManagedSCIP, varrefs, weights)
     @assert length(varrefs) == length(weights)
     vars = [var(mscip, vr) for vr in varrefs]
-    cons__ = Ref{Ptr{SCIP_CONS}}()
+    cons__ = Ref{Ptr{SCIP_CONS}}(C_NULL)
     @SC SCIPcreateConsBasicSOS2(mscip, cons__, "", length(vars), vars, weights)
     @SC SCIPaddCons(mscip, cons__[])
     return store_cons!(mscip, cons__)
 end
 
 """
-Add special-ordered-set of type 2 to problem, return cons ref.
+Add abspower constraint to problem, return cons ref.
 
     lhs ≤ sign(x + a) * abs(x + a)^n + c*z ≤ rhs
 
@@ -221,15 +227,9 @@ Add special-ordered-set of type 2 to problem, return cons ref.
 Use `(-)SCIPinfinity(scip)` for one of the bounds if not applicable.
 """
 function add_abspower_constraint(mscip::ManagedSCIP, x, a, n, z, c, lhs, rhs)
-    cons__ = Ref{Ptr{SCIP_CONS}}()
+    cons__ = Ref{Ptr{SCIP_CONS}}(C_NULL)
     @SC SCIPcreateConsBasicAbspower(
         mscip, cons__, "", var(mscip, x), var(mscip, z), n, a, c, lhs, rhs)
     @SC SCIPaddCons(mscip, cons__[])
     return store_cons!(mscip, cons__)
-end
-
-"Set generic parameter."
-function set_parameter(mscip::ManagedSCIP, name::String, value)
-    @SC SCIPsetParam(mscip, name, Ptr{Cvoid}(value))
-    return nothing
 end
