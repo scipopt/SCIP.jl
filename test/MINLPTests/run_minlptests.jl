@@ -120,3 +120,22 @@ end
                                    termination_target = MOI.OPTIMAL)
     end
 end
+
+@testset "MINLPTests - nlp mi" begin
+    @testset "nlp_mi_005_010" begin
+        MINLPTests.nlp_mi_005_010(OPTIMIZER, OBJTOL, PRIMALTOL, DUALTOL;
+                                  termination_target = MOI.OPTIMAL)
+    end
+
+    @testset "nlp_mi_007_010" begin
+        MINLPTests.nlp_mi_007_010(OPTIMIZER, OBJTOL, PRIMALTOL, DUALTOL;
+                                  termination_target = MOI.INFEASIBLE,
+                                  primal_target = MOI.NO_SOLUTION)
+    end
+
+    @testset "nlp_mi_007_020" begin
+        MINLPTests.nlp_mi_007_020(OPTIMIZER, OBJTOL, PRIMALTOL, DUALTOL;
+                                  termination_target = MOI.INFEASIBLE,
+                                  primal_target = MOI.NO_SOLUTION)
+    end
+end
