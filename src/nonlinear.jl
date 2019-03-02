@@ -96,7 +96,7 @@ function push_expr!(nonlin::NonlinExpr, mscip::ManagedSCIP, expr::Expr)
 
         elseif op in [:+, :*]
             # N-ary operators
-            @assert num_children >= 2
+            @assert num_children >= 1
 
             # Create all children
             children = Ptr{SCIP_EXPR}[]
