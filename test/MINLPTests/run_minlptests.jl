@@ -115,7 +115,7 @@ end
                                    termination_target = MOI.OPTIMAL)
     end
 
-    @testset "nlp_cvx_502_011" begin
+    @testset "nlp_cvx_501_011" begin
         MINLPTests.nlp_cvx_501_011(OPTIMIZER, OBJTOL, PRIMALTOL, DUALTOL;
                                    termination_target = MOI.OPTIMAL)
     end
