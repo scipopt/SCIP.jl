@@ -60,7 +60,7 @@ end
 
     @test MOI.supports(optimizer, MOI.NLPBlock()) == true
 
-    num_vars = 17
+    num_vars = 20
     x = MOI.add_variables(optimizer, num_vars)
     for i in 1:num_vars
         MOI.add_constraint(optimizer, x[i], MOI.Interval(0.1, 10.0))
@@ -74,11 +74,15 @@ end
         :(-x[$(x[4])] + 4.0                     == rhs), # MINUS (unary)
         :(x[$(x[5])] + x[$(x[6])] + x[$(x[7])]  == rhs), # SUM
         :(x[$(x[8])] * x[$(x[9])] * x[$(x[10])] == rhs), # PRODUCT
-        :((x[$(x[11])] + x[$(x[12])])^0.8       == rhs), # REALPOWER
+        :((x[$(x[11])])^3                       == rhs), # INTPOWER
+        :((x[$(x[12])])^0.8                     == rhs), # REALPOWER
         :(x[$(x[13])] / x[$(x[14])]             == rhs), # DIV
         :(sqrt(x[$(x[15])])                     == rhs), # SQRT
         :(exp(x[$(x[16])])                      == rhs), # EXP
         :(log(x[$(x[17])])                      == rhs), # LOG
+        :(abs(x[$(x[18])] - 11)                 == rhs), # ABS
+        :(min(x[$(x[19])], x[$(x[20])]) + 1     == rhs), # MIN
+        :(max(x[$(x[19])], x[$(x[20])]) - 1     == rhs), # MAX
     ]
 
     data = MOI.NLPBlockData(
@@ -101,9 +105,13 @@ end
     @test -sol[4] + 4.0             ≈ rhs  atol=atol rtol=rtol
     @test sol[5] + sol[6] + sol[7]  ≈ rhs  atol=atol rtol=rtol
     @test sol[8] * sol[9] * sol[10] ≈ rhs  atol=atol rtol=rtol
-    @test (sol[11] + sol[12])^0.8   ≈ rhs  atol=atol rtol=rtol
+    @test (sol[11])^3               ≈ rhs  atol=atol rtol=rtol
+    @test (sol[12])^0.8             ≈ rhs  atol=atol rtol=rtol
     @test sol[13] / sol[14]         ≈ rhs  atol=atol rtol=rtol
     @test sqrt(sol[15])             ≈ rhs  atol=atol rtol=rtol
     @test exp(sol[16])              ≈ rhs  atol=atol rtol=rtol
     @test log(sol[17])              ≈ rhs  atol=atol rtol=rtol
+    @test abs(sol[18] - 11)         ≈ rhs  atol=atol rtol=rtol
+    @test min(sol[19], sol[20])     ≈ 1.0  atol=atol rtol=rtol
+    @test max(sol[19], sol[20])     ≈ 3.0  atol=atol rtol=rtol
 end
