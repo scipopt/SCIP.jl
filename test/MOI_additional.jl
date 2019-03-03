@@ -366,3 +366,25 @@ end
     # fail to delete them in wrong order
     @test_throws ErrorException MOI.delete(optimizer, x)
 end
+
+@testset "single variable objective" begin
+    optimizer = SCIP.Optimizer()
+
+    # Happy Path: add objective and retrieve it.
+    x = MOI.add_variable(optimizer)
+    obj = MOI.SingleVariable(x)
+    MOI.set(optimizer, MOI.ObjectiveFunction{MOI.SingleVariable}(), obj)
+    MOI.set(optimizer, MOI.ObjectiveSense(), MOI.MAX_SENSE)
+    @test MOI.get(optimizer, MOI.ObjectiveFunction{MOI.SingleVariable}()) == obj
+    @test MOI.get(optimizer, MOI.ObjectiveSense()) == MOI.MAX_SENSE
+
+    MOI.empty!(optimizer)
+
+    # Error with type mismatch
+    x = MOI.add_variable(optimizer)
+    y = MOI.add_variable(optimizer)
+    aff_obj = MOI.ScalarAffineFunction([MOI.ScalarAffineTerm(1.0, x)], 3.0)
+    MOI.set(optimizer, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(), aff_obj)
+    MOI.set(optimizer, MOI.ObjectiveSense(), MOI.MAX_SENSE)
+    @test_throws ErrorException MOI.get(optimizer, MOI.ObjectiveFunction{MOI.SingleVariable}())
+end
