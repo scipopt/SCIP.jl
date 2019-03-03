@@ -1,7 +1,12 @@
-# objective function & sense
+# Objective function & sense.
+#
+# SCIP only supports affine objectives. For quadratic or nonlinear objectives,
+# the solver will depend on bridges with auxiliary variables. Single variable
+# objectives are also accepted, but the type is not correctly remembered.
 
 MOI.supports(::Optimizer, ::MOI.ObjectiveSense) = true
 MOI.supports(::Optimizer, ::MOI.ObjectiveFunction{SAF}) = true
+MOI.supports(::Optimizer, ::MOI.ObjectiveFunction{SVF}) = true
 
 function MOI.set(o::Optimizer, ::MOI.ObjectiveFunction{SAF}, obj::SAF)
     allow_modification(o)
@@ -24,6 +29,11 @@ function MOI.set(o::Optimizer, ::MOI.ObjectiveFunction{SAF}, obj::SAF)
     return nothing
 end
 
+function MOI.set(o::Optimizer, ::MOI.ObjectiveFunction{SVF}, obj::SVF)
+    aff_obj = SAF([AFF_TERM(1.0, obj.variable)], 0.0)
+    return MOI.set(o, MOI.ObjectiveFunction{SAF}(), aff_obj)
+end
+
 function MOI.get(o::Optimizer, ::MOI.ObjectiveFunction{SAF})
     terms = AFF_TERM[]
     for vr = keys(o.mscip.vars)
@@ -33,6 +43,16 @@ function MOI.get(o::Optimizer, ::MOI.ObjectiveFunction{SAF})
     end
     constant = SCIPgetOrigObjoffset(o)
     return SAF(terms, constant)
+end
+
+function MOI.get(o::Optimizer, ::MOI.ObjectiveFunction{SVF})
+    aff_obj = MOI.get(o, MOI.ObjectiveFunction{SAF}())
+    if (length(aff_obj.terms) != 1
+        || aff_obj.terms[1].coefficient != 1.0
+        || aff_obj.constant != 0.0)
+        error("Objective is not single variable: $aff_obj !")
+    end
+    return SVF(aff_obj.terms[1].variable_index)
 end
 
 function MOI.set(o::Optimizer, ::MOI.ObjectiveSense, sense::MOI.OptimizationSense)
