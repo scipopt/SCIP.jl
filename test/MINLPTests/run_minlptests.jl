@@ -19,6 +19,11 @@ const DUALTOL = NaN  # to disable the query
 end
 
 @testset "MINLPTests - nlp cvx" begin
+    @testset "nlp_cvx_001_010" begin
+        MINLPTests.nlp_cvx_001_010(OPTIMIZER, OBJTOL, PRIMALTOL, DUALTOL;
+                                   termination_target = MOI.OPTIMAL)
+    end
+
     @testset "nlp_cvx_002_010" begin
         MINLPTests.nlp_cvx_002_010(OPTIMIZER, OBJTOL, PRIMALTOL, DUALTOL;
                                    termination_target = MOI.OPTIMAL)
@@ -26,6 +31,16 @@ end
 
     @testset "nlp_cvx_101_010" begin
         MINLPTests.nlp_cvx_101_010(OPTIMIZER, OBJTOL, PRIMALTOL, DUALTOL;
+                                   termination_target = MOI.OPTIMAL)
+    end
+
+    @testset "nlp_cvx_101_012" begin
+        MINLPTests.nlp_cvx_101_012(OPTIMIZER, OBJTOL, PRIMALTOL, DUALTOL;
+                                   termination_target = MOI.OPTIMAL)
+    end
+
+    @testset "nlp_cvx_102_010" begin
+        MINLPTests.nlp_cvx_102_010(OPTIMIZER, OBJTOL, PRIMALTOL, DUALTOL;
                                    termination_target = MOI.OPTIMAL)
     end
 
@@ -39,6 +54,16 @@ end
                                    termination_target = MOI.OPTIMAL)
     end
 
+    @testset "nlp_cvx_103_010" begin
+        MINLPTests.nlp_cvx_103_010(OPTIMIZER, OBJTOL, PRIMALTOL, DUALTOL;
+                                   termination_target = MOI.OPTIMAL)
+    end
+
+    @testset "nlp_cvx_103_011" begin
+        MINLPTests.nlp_cvx_103_011(OPTIMIZER, OBJTOL, PRIMALTOL, DUALTOL;
+                                   termination_target = MOI.OPTIMAL)
+    end
+
     @testset "nlp_cvx_103_012" begin
         MINLPTests.nlp_cvx_103_012(OPTIMIZER, OBJTOL, PRIMALTOL, DUALTOL;
                                    termination_target = MOI.OPTIMAL)
@@ -46,6 +71,16 @@ end
 
     @testset "nlp_cvx_103_013" begin
         MINLPTests.nlp_cvx_103_013(OPTIMIZER, OBJTOL, PRIMALTOL, DUALTOL;
+                                   termination_target = MOI.OPTIMAL)
+    end
+
+    @testset "nlp_cvx_103_014" begin
+        MINLPTests.nlp_cvx_103_014(OPTIMIZER, OBJTOL, PRIMALTOL, DUALTOL;
+                                   termination_target = MOI.OPTIMAL)
+    end
+
+    @testset "nlp_cvx_104_010" begin
+        MINLPTests.nlp_cvx_104_010(OPTIMIZER, OBJTOL, PRIMALTOL, DUALTOL;
                                    termination_target = MOI.OPTIMAL)
     end
 
@@ -79,6 +114,16 @@ end
                                    termination_target = MOI.OPTIMAL)
     end
 
+    @testset "nlp_cvx_202_010" begin
+        MINLPTests.nlp_cvx_202_010(OPTIMIZER, OBJTOL, PRIMALTOL, DUALTOL;
+                                   termination_target = MOI.OPTIMAL)
+    end
+
+    @testset "nlp_cvx_202_011" begin
+        MINLPTests.nlp_cvx_202_011(OPTIMIZER, OBJTOL, PRIMALTOL, DUALTOL;
+                                   termination_target = MOI.OPTIMAL)
+    end
+
     @testset "nlp_cvx_202_012" begin
         MINLPTests.nlp_cvx_202_012(OPTIMIZER, OBJTOL, PRIMALTOL, DUALTOL;
                                    termination_target = MOI.OPTIMAL)
@@ -101,6 +146,11 @@ end
 
     @testset "nlp_cvx_204_010" begin
         MINLPTests.nlp_cvx_204_010(OPTIMIZER, OBJTOL, PRIMALTOL, DUALTOL;
+                                   termination_target = MOI.OPTIMAL)
+    end
+
+    @testset "nlp_cvx_205_010" begin
+        MINLPTests.nlp_cvx_205_010(OPTIMIZER, OBJTOL, PRIMALTOL, DUALTOL;
                                    termination_target = MOI.OPTIMAL)
     end
 
