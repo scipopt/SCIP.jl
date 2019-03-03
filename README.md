@@ -30,12 +30,12 @@ Only Linux is tested and officially supported. Contributions to supporting other
 operating systems are welcome.
 
 We recommend using one of the provided installers, e.g.,
-`SCIPOptSuite-6.0.0-Linux.deb` for systems based on Debian. Adding the SCIP.jl
+`SCIPOptSuite-6.0.1-Linux.deb` for systems based on Debian. Adding the SCIP.jl
 package should then work out of the box:
 
     pkg> add SCIP
 
-If you [build SCIP from source](https://scip.zib.de/doc-6.0.0/html/CMAKE.php)
+If you [build SCIP from source](https://scip.zib.de/doc-6.0.1/html/CMAKE.php)
 you should set the environment variable `SCIPOPTDIR` to point the the
 **installation path**. That is, `$SCIPOPTDIR/lib/libscip.so` should exist.
 
@@ -95,9 +95,17 @@ constraints by name (`SingleVariable`-set constraints are not stored as SCIP
 constraints explicitly).
 
 Support for more constraint types (quadratic/SOC, SOS1/2, nonlinear expression)
-is planned, but SCIP itself only supports affine objective functions, so we will
-stick with that. More general objective functions could be implented via a
+is implemented, but SCIP itself only supports affine objective functions, so we
+will stick with that. More general objective functions could be implented via a
 [bridge](https://github.com/JuliaOpt/MathOptInterface.jl/issues/529).
+
+Supported operators in nonlinear expressions are as follows:
+
+- unary: `-`, `sqrt`, `exp`, `log`, `abs`
+- binary: `-`, `/`, `^`, `min`, `max`
+- n-ary: `+`, `*`
+
+In particular, trigonometric functions are not supported.
 
 ## Old Interface Implementation
 

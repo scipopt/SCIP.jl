@@ -1,14 +1,17 @@
 
 # Mapping from Julia (as given by MOI) to SCIP operators
 const OPMAP = Dict{Symbol, SCIP_ExprOp}(
-    :+ => SCIP_EXPR_SUM,
-    :* => SCIP_EXPR_PRODUCT,
-    :- => SCIP_EXPR_MINUS,
-    :/ => SCIP_EXPR_DIV,
-    :^ => SCIP_EXPR_REALPOWER,
-    :sqrt => SCIP_EXPR_SQRT,
-    :exp => SCIP_EXPR_EXP,
-    :log => SCIP_EXPR_LOG,
+    :+ => SCIP_EXPR_SUM,       # n-ary
+    :* => SCIP_EXPR_PRODUCT,   # n-ary
+    :- => SCIP_EXPR_MINUS,     # unary, binary
+    :/ => SCIP_EXPR_DIV,       # unary
+    :^ => SCIP_EXPR_REALPOWER, # binary (or INTPOWER)
+    :sqrt => SCIP_EXPR_SQRT,   # unary
+    :exp => SCIP_EXPR_EXP,     # unary
+    :log => SCIP_EXPR_LOG,     # unary
+    :abs => SCIP_EXPR_ABS,     # unary
+    :min => SCIP_EXPR_MIN,     # binary
+    :max => SCIP_EXPR_MAX,     # binary
 )
 
 """Subexpressions and variables referenced in an expression tree.
@@ -56,10 +59,13 @@ function push_expr!(nonlin::NonlinExpr, mscip::ManagedSCIP, expr::Expr)
 
             # Exponent (second child) is stored as value.
             @assert isa(expr.args[3], Number)
-            exponent = Cdouble(expr.args[3])
-
-            # Create SCIP expression
-            @SC SCIPexprCreate(SCIPblkmem(mscip), expr__, OPMAP[op], base, exponent)
+            if isa(expr.args[3], Integer)
+                exponent = Cint(expr.args[3])
+                @SC SCIPexprCreate(SCIPblkmem(mscip), expr__, SCIP_EXPR_INTPOWER, base, exponent)
+            else
+                exponent = Cdouble(expr.args[3])
+                @SC SCIPexprCreate(SCIPblkmem(mscip), expr__, SCIP_EXPR_REALPOWER, base, exponent)
+            end
 
         elseif op == :- && num_children == 1
             # Special case: unary version of minus. SCIP only supports binary
@@ -74,7 +80,7 @@ function push_expr!(nonlin::NonlinExpr, mscip::ManagedSCIP, expr::Expr)
             # Finally, add the (binary) minus:
             @SC SCIPexprCreate(SCIPblkmem(mscip), expr__, OPMAP[op], left, right)
 
-        elseif op in [:sqrt, :exp, :log]
+        elseif op in [:sqrt, :exp, :log, :abs]
             # Unary operators
             @assert num_children == 1
 
@@ -84,7 +90,7 @@ function push_expr!(nonlin::NonlinExpr, mscip::ManagedSCIP, expr::Expr)
             # Add this operator on top
             @SC SCIPexprCreate(SCIPblkmem(mscip), expr__, OPMAP[op], child)
 
-        elseif op in [:-, :/]
+        elseif op in [:-, :/, :min, :max]
             # Binary operators
             @assert num_children == 2
 
