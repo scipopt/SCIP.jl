@@ -61,9 +61,20 @@ end
 function SCIPexprCreate(blkmem, expr, op, base::Ptr{SCIP_EXPR}, exponent::Cdouble)
     # WARNING: In the actual C function, the last two arguments given here are
     # part of the variadic arguments. But since Julia only supports variadic
-    # arguments of the same type, we specify the first one (nchildren::Cint)
+    # arguments of the same type, we specify the first one (base::Ptr{SCIP_EXPR})
     # directly, and pretend that only the last one is variadic.
     ccall((:SCIPexprCreate, libscip), SCIP_RETCODE,
           (Ptr{BMS_BLKMEM}, Ptr{Ptr{SCIP_EXPR}}, SCIP_EXPROP, Ptr{SCIP_EXPR}, Cdouble...),
+          blkmem, expr, op, base, exponent)
+end
+
+# SCIP_EXPR_INTPOWER (mixed binary op)
+function SCIPexprCreate(blkmem, expr, op, base::Ptr{SCIP_EXPR}, exponent::Cint)
+    # WARNING: In the actual C function, the last two arguments given here are
+    # part of the variadic arguments. But since Julia only supports variadic
+    # arguments of the same type, we specify the first one (base::Ptr{SCIP_EXPR})
+    # directly, and pretend that only the last one is variadic.
+    ccall((:SCIPexprCreate, libscip), SCIP_RETCODE,
+          (Ptr{BMS_BLKMEM}, Ptr{Ptr{SCIP_EXPR}}, SCIP_EXPROP, Ptr{SCIP_EXPR}, Cint...),
           blkmem, expr, op, base, exponent)
 end
