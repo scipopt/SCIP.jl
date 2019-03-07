@@ -34,6 +34,11 @@ end
     MOIT.contlineartest(SCALARIZED, CONFIG, excluded)
 end
 
+# @testset "MOI Continuous Conic - ScalarizeBridge" begin
+#     excluded = String[
+#     ]
+#     MOIT.contconictest(SCALARIZED, CONFIG, excluded)
+# end
 
 @testset "MOI Quadratic Constraint" begin
     excluded = [
@@ -49,4 +54,10 @@ end
 @testset "MOI Integer Linear" begin
     MOIT.intlineartest(OPTIMIZER, CONFIG)
 end
+
+# @testset "MOI Integer Conic - ScalarizeBridge" begin
+#     excluded = String[
+#     ]
+#     MOIT.intconictest(SCALARIZED, CONFIG, excluded)
+# end
 
