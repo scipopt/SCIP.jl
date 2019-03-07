@@ -1,9 +1,11 @@
 using MathOptInterface
 const MOI = MathOptInterface
+const MOIB = MOI.Bridges
 const MOIT = MOI.Test
 
-const optimizer = SCIP.Optimizer(display_verblevel=0)
-const config = MOIT.TestConfig(duals=false, infeas_certificates=false)
+const OPTIMIZER = SCIP.Optimizer(display_verblevel=0)
+const CONFIG = MOIT.TestConfig(duals=false, infeas_certificates=false)
+const SCALARIZED = MOIB.Scalarize{Float64}(SCIP.Optimizer(display_verblevel=0))
 
 @testset "MOI Continuous Linear" begin
     excluded = [
@@ -16,16 +18,28 @@ const config = MOIT.TestConfig(duals=false, infeas_certificates=false)
         "linear15", # needs MOI.VectorAffineFunction
         "partial_start", # TODO: supportVariablePrimalStart
     ]
-    MOIT.contlineartest(optimizer, config, excluded)
+    MOIT.contlineartest(OPTIMIZER, CONFIG, excluded)
+end
+
+@testset "MOI Continuous Linear - ScalarizeBridge" begin
+    excluded = [
+        "linear1",  # needs MOI.delete (of variables in constraints)
+        "linear5",  # needs MOI.delete (of variables in constraints)
+        "linear11", # broken in SCIP (#2556)
+        "linear13", # TODO: support MOI.FEASIBILITY_SENSE
+        "linear14", # needs MOI.delete (of variables in constraints)
+        "partial_start", # TODO: supportVariablePrimalStart
+    ]
+    MOIT.contlineartest(SCALARIZED, CONFIG, excluded)
 end
 
 @testset "MOI Integer Linear" begin
-    MOIT.intlineartest(optimizer, config)
+    MOIT.intlineartest(OPTIMIZER, CONFIG)
 end
 
 @testset "MOI Quadratic Constraint" begin
     excluded = [
         "qcp1", # needs VectorAffineFunction
     ]
-    MOIT.qcptest(optimizer, config, excluded)
+    MOIT.qcptest(OPTIMIZER, CONFIG, excluded)
 end
