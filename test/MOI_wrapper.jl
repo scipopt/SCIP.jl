@@ -4,8 +4,9 @@ const MOIB = MOI.Bridges
 const MOIT = MOI.Test
 
 const OPTIMIZER = SCIP.Optimizer(display_verblevel=0)
-const CONFIG = MOIT.TestConfig(duals=false, infeas_certificates=false)
 const SCALARIZED = MOIB.Scalarize{Float64}(SCIP.Optimizer(display_verblevel=0))
+const CONFIG = MOIT.TestConfig(atol=1e-5, rtol=1e-5, duals=false,
+                               infeas_certificates=false)
 
 @testset "MOI Continuous Linear" begin
     excluded = [
@@ -33,9 +34,6 @@ end
     MOIT.contlineartest(SCALARIZED, CONFIG, excluded)
 end
 
-@testset "MOI Integer Linear" begin
-    MOIT.intlineartest(OPTIMIZER, CONFIG)
-end
 
 @testset "MOI Quadratic Constraint" begin
     excluded = [
@@ -43,3 +41,12 @@ end
     ]
     MOIT.qcptest(OPTIMIZER, CONFIG, excluded)
 end
+
+@testset "MOI Quadratic Constraint - ScalarizeBridge" begin
+    MOIT.qcptest(SCALARIZED, CONFIG)
+end
+
+@testset "MOI Integer Linear" begin
+    MOIT.intlineartest(OPTIMIZER, CONFIG)
+end
+
