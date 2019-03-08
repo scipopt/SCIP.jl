@@ -145,6 +145,10 @@ function MOI.get(o::Optimizer, ::MOI.NumberOfConstraints{F,S}) where {F,S}
     return haskey(o.constypes, (F, S)) ? length(o.constypes[F, S]) : 0
 end
 
+function MOI.get(o::Optimizer, ::MOI.ListOfConstraints)
+    return collect(keys(o.constypes))
+end
+
 function MOI.optimize!(o::Optimizer)
     @SC SCIPsolve(o)
     return nothing
