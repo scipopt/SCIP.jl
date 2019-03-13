@@ -16,8 +16,10 @@ function MOI.add_constraint(o::Optimizer, func::SQF, set::S) where {S <: BOUNDS}
     # quadratic terms
     quadrefs1 = [VarRef(t.variable_index_1.value) for t in func.quadratic_terms]
     quadrefs2 = [VarRef(t.variable_index_2.value) for t in func.quadratic_terms]
-    # divide coefficients by 2!
-    quadcoefs = [t.coefficient / 2.0 for t in func.quadratic_terms]
+    # Divide coefficients by 2 iff they come from the diagonal:
+    # Take coef * x * y as-is, but turn coef * x^2 into coef/2 * x^2.
+    factor = 1.0 .- 0.5 * (quadrefs1 .== quadrefs2)
+    quadcoefs = factor .* [t.coefficient for t in func.quadratic_terms]
 
     # range
     lhs, rhs = bounds(set)
@@ -87,8 +89,8 @@ function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{SQF, S}) where S
     nbilinterms = SCIPgetNBilinTermsQuadratic(o, c)
     bilinterms = unsafe_wrap(Vector{SCIP_BILINTERM}, SCIPgetBilinTermsQuadratic(o, c), nbilinterms)
     for term in bilinterms
-        # multiply quadratic coefficients by 2!
-        push!(quadterms, QUAD_TERM(2.0 * term.coef, VI(ref(o, term.var1).val), VI(ref(o, term.var2).val)))
+        # keep coefficients as they are!
+        push!(quadterms, QUAD_TERM(term.coef, VI(ref(o, term.var1).val), VI(ref(o, term.var2).val)))
     end
 
     return SQF(affterms, quadterms, 0.0)
