@@ -6,7 +6,7 @@ Julia interface to [SCIP](http://scip.zib.de) solver.
 [![Coverage Status](https://coveralls.io/repos/github/SCIP-Interfaces/SCIP.jl/badge.svg?branch=master)](https://coveralls.io/github/SCIP-Interfaces/SCIP.jl?branch=master)
 [![codecov](https://codecov.io/gh/SCIP-Interfaces/SCIP.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/SCIP-Interfaces/SCIP.jl)
 
-## Update (December 2018)
+## Update (March 2019)
 
 We have completely rewritten the interface from scratch, using
 [Clang.jl](https://github.com/ihnorton/Clang.jl) to generate wrappers based on
@@ -15,9 +15,10 @@ The goal is to support [JuMP](https://github.com/JuliaOpt/JuMP.jl) (from version
 0.19 on) through
 [MathOptInterface](https://github.com/JuliaOpt/MathOptInterface.jl).
 
-Currently, we support LP and MIP problems only.
-This means we still have a feature loss in the areas as nonlinear constraints as
-well as supported callbacks compared to previous versions (see below).
+Currently, we support LP, MIP and QCP problems, as well as some nonlinear constraints, both through `MOI` sets
+(e.g., for second-order cones) as well as for expression graphs (see below).
+
+We still have feature loss in the area of callbacks compared to previous versions.
 
 ## Getting Started
 
