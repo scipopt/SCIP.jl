@@ -49,9 +49,28 @@ function free_scip(mscip::ManagedSCIP)
     @assert mscip.scip[] == C_NULL
 end
 
-"Set generic parameter."
-function set_parameter(mscip::ManagedSCIP, name::String, value)
-    @SC SCIPsetParam(mscip, name, Ptr{Cvoid}(value))
+"Set a parameter."
+function set_parameter(mscip::ManagedSCIP, name::AbstractString, value)
+    param = SCIPgetParam(mscip, name)
+    if param == C_NULL
+        error("Unrecognized parameter: $name")
+    end
+    paramtype = SCIPparamGetType(param)
+    if paramtype === SCIP_PARAMTYPE_BOOL
+        @SC SCIPsetBoolParam(mscip, name, value)
+    elseif paramtype === SCIP_PARAMTYPE_INT
+        @SC SCIPsetIntParam(mscip, name, value)
+    elseif paramtype === SCIP_PARAMTYPE_LONGINT
+        @SC SCIPsetLongintParam(mscip, name, value)
+    elseif paramtype === SCIP_PARAMTYPE_REAL
+        @SC SCIPsetRealParam(mscip, name, value)
+    elseif paramtype === SCIP_PARAMTYPE_CHAR
+        @SC SCIPsetCharParam(mscip, name, value)
+    elseif paramtype === SCIP_PARAMTYPE_STRING
+        @SC SCIPsetStringParam(mscip, name, value)
+    else
+        error("Unexpected parameter type: $paramtype")
+    end
     return nothing
 end
 
