@@ -388,3 +388,27 @@ end
     MOI.set(optimizer, MOI.ObjectiveSense(), MOI.MAX_SENSE)
     @test_throws ErrorException MOI.get(optimizer, MOI.ObjectiveFunction{MOI.SingleVariable}())
 end
+
+@testset "set_parameter" begin
+    # TODO: verify that the parameter was actually set (implement a get_parameter function)
+    # bool
+    optimizer = SCIP.Optimizer(branching_preferbinary=true)
+
+    # int
+    optimizer = SCIP.Optimizer(conflict_minmaxvars=1)
+
+    # long int
+    optimizer = SCIP.Optimizer(heuristics_alns_maxnodes=2)
+
+    # real
+    optimizer = SCIP.Optimizer(branching_scorefac=0.15)
+
+    # char
+    optimizer = SCIP.Optimizer(branching_scorefunc='s')
+
+    # string
+    optimizer = SCIP.Optimizer(heuristics_alns_rewardfilename="abc.txt")
+
+    # invalid
+    @test_throws ErrorException SCIP.Optimizer(some_invalid_param_name=true)
+end
