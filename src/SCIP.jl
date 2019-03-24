@@ -15,6 +15,9 @@ include("managed_scip.jl")
 # constraints from nonlinear expressions
 include("nonlinear.jl")
 
+# constraint handlers
+include("conshdlr.jl")
+
 # implementation of MOI
 include("MOI_wrapper.jl")
 
