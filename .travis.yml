@@ -1,6 +1,8 @@
 ## Documentation: http://docs.travis-ci.com/user/languages/julia/
 language: julia
-os: linux
+os:
+  - linux
+  - osx
 dist: xenial
 sudo: true
 julia:
@@ -14,13 +16,30 @@ git:
 matrix:
   allow_failures:
     - julia: nightly
+addons:
+  apt:
+    packages:
+    - libblas3
+    - libc6
+    - libgcc1
+    - libgfortran3
+    - libgmp10
+    - libgsl2
+    - liblapack3
+    - libstdc++6
+    - zlib1g
 before_install:
-  - sudo apt-get install libblas3 libc6 libgcc1 libgfortran3 libgmp10 libgsl2 liblapack3 libstdc++6 zlib1g
   - export VERSION=6.0.1
-  - wget http://scip.zib.de/download/release/SCIPOptSuite-$VERSION-Linux.deb
-  - sudo dpkg -i SCIPOptSuite-$VERSION-Linux.deb
-script:
-  - julia -e 'using Pkg; Pkg.clone(pwd()); Pkg.build("SCIP"); Pkg.test("SCIP"; coverage=true)'
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then wget http://scip.zib.de/download/release/SCIPOptSuite-$VERSION-Linux.deb; fi
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo dpkg -i SCIPOptSuite-$VERSION-Linux.deb; fi
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then wget http://scip.zib.de/download/release/scipoptsuite-$VERSION.tgz; fi
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then tar -xf scipoptsuite-$VERSION.tgz && cd scipoptsuite-$VERSION; fi
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then mkdir build && cd build && cmake -D CMAKE_BUILD_TYPE=Release -D ZIMPL=OFF -D GCG=OFF -D BUILD_TESTING=OFF -D CMAKE_INSTALL_PREFIX=../install ..; fi
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then make -j 4 && make install; fi
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then cd .. && export SCIPOPTDIR=$(pwd)/install && cd ..; fi
+# Use default build script.
+# script:
+#   - julia -e 'using Pkg; Pkg.clone(pwd()); Pkg.build("SCIP"); Pkg.test("SCIP"; coverage=true)'
 jobs:
   include:
     - stage: "MINLPTests"

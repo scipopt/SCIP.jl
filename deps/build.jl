@@ -11,14 +11,19 @@ function write_depsfile(path)
     close(f)
 end
 
-libname = "libscip.so"
+libname = if Sys.islinux()
+    "libscip.so"
+elseif Sys.isapple()
+    "libscip.dylib"
+else
+    error("SCIP is currently not supported on \"$(Sys.KERNEL)\"")
+end
+
 paths_to_try = []
 
 # prefer environment variable
 if haskey(ENV, "SCIPOPTDIR")
-    if Sys.islinux()
-        push!(paths_to_try, joinpath(ENV["SCIPOPTDIR"], "lib", libname))
-    end
+    push!(paths_to_try, joinpath(ENV["SCIPOPTDIR"], "lib", libname))
 end
 
 # but also try library path
@@ -35,7 +40,10 @@ for l in paths_to_try
 end
 
 if !found && !haskey(ENV, "SCIP_JL_SKIP_LIB_CHECK")
-    error("Unable to locate SCIP installation. " *
-          "Note that this must be downloaded separately from scip.zib.de. " *
-          "Please set the environment variable SCIPOPTDIR to SCIP's installation path.")
+    error("""
+Unable to locate SCIP installation.
+Tried:\n\t$(join(paths_to_try, "\n\t"))
+Note that this must be downloaded separately from scip.zib.de.
+Please set the environment variable SCIPOPTDIR to SCIP's installation path.
+""")
 end
