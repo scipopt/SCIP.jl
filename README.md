@@ -29,8 +29,8 @@ system. [SCIP's license](https://scip.zib.de/index.php#license) does not allow
 (automatic) redistribution, so please
 [download](https://scip.zib.de/index.php#download) and install it yourself.
 
-Only Linux is tested and officially supported. Contributions to supporting other
-operating systems are welcome.
+Currently, Linux and OS X are tested and supported. Contributions to supporting
+Windows are welcome.
 
 We recommend using one of the provided installers, e.g.,
 `SCIPOptSuite-6.0.1-Linux.deb` for systems based on Debian. Adding the SCIP.jl
