@@ -5,6 +5,7 @@ const MOIT = MOI.Test
 
 const BRIDGED = MOIB.full_bridge_optimizer(SCIP.Optimizer(display_verblevel=0), Float64)
 const CONFIG = MOIT.TestConfig(atol=1e-5, rtol=1e-5, duals=false, infeas_certificates=false)
+const CONFIG3 = MOIT.TestConfig(atol=1e-3, rtol=1e-3, duals=false, infeas_certificates=false)
 
 @testset "MOI Continuous Linear" begin
     excluded = [
@@ -38,7 +39,7 @@ end
     # MOIT.qptest(BRIDGED, CONFIG)
 
     MOIT.qcptest(BRIDGED, CONFIG)
-    MOIT.socptest(BRIDGED, CONFIG)
+    MOIT.socptest(BRIDGED, CONFIG3)
 end
 
 @testset "MOI Integer Linear" begin
