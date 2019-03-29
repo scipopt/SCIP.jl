@@ -11,14 +11,19 @@ function write_depsfile(path)
     close(f)
 end
 
-libname = "libscip.so"
+libname = if Sys.islinux()
+    "libscip.so"
+elseif Sys.isapple()
+    "libscip.dylib"
+else
+    error("SCIP is currently not supported on \"$(Sys.KERNEL)\"")
+end
+
 paths_to_try = []
 
 # prefer environment variable
 if haskey(ENV, "SCIPOPTDIR")
-    if Sys.islinux()
-        push!(paths_to_try, joinpath(ENV["SCIPOPTDIR"], "lib", libname))
-    end
+    push!(paths_to_try, joinpath(ENV["SCIPOPTDIR"], "lib", libname))
 end
 
 # but also try library path
