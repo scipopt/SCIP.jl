@@ -175,7 +175,7 @@ function MOI.delete(o::Optimizer, ci::CI{SVF,S}) where S <: BOUNDS
     if SCIPvarGetType(v) == SCIP_VARTYPE_BINARY
         reset_bounds(o, v, 0.0, 1.0, ci)
     else
-        inf = SCIPinfinity(s)
+        inf = SCIPinfinity(o)
         reset_bounds(o, v, -inf, inf, ci)
     end
 
