@@ -34,7 +34,11 @@ end
 end
 
 @testset "MOI Quadratic Constraint" begin
+    # needs objective bridge (MOI/#529)
+    # MOIT.qptest(BRIDGED, CONFIG)
+
     MOIT.qcptest(BRIDGED, CONFIG)
+    MOIT.socptest(BRIDGED, CONFIG)
 end
 
 @testset "MOI Integer Linear" begin
