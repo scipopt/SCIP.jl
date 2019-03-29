@@ -1,5 +1,9 @@
 # News
 
+## v0.7.3
+
+- Support OS X: [#110](https://github.com/SCIP-Interfaces/SCIP.jl/issues/110).
+
 ## v0.7.2
 
 - Fix handling of value types when setting parameters:
