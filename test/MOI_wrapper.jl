@@ -32,6 +32,10 @@ end
     MOIT.qcptest(SCALARIZED, CONFIG)
 end
 
+@testset "MOI Integer Linear" begin
+    MOIT.intlineartest(SCALARIZED, CONFIG)
+end
+
 @testset "MOI Integer Conic - ScalarizeBridge" begin
     # needs VectorAffineFunction
     # MOIT.intconictest(SCALARIZED, CONFIG)
