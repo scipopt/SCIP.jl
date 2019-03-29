@@ -1,6 +1,8 @@
 ## Documentation: http://docs.travis-ci.com/user/languages/julia/
 language: julia
-os: linux
+os:
+  - linux
+  - osx
 dist: xenial
 sudo: true
 julia:
@@ -14,13 +16,32 @@ git:
 matrix:
   allow_failures:
     - julia: nightly
+addons:
+  homebrew:
+    packages:
+      - gcc@6
+  apt:
+    packages:
+    - libblas3
+    - libc6
+    - libgcc1
+    - libgfortran3
+    - libgmp10
+    - libgsl2
+    - liblapack3
+    - libstdc++6
+    - zlib1g
 before_install:
-  - sudo apt-get install libblas3 libc6 libgcc1 libgfortran3 libgmp10 libgsl2 liblapack3 libstdc++6 zlib1g
   - export VERSION=6.0.1
-  - wget http://scip.zib.de/download/release/SCIPOptSuite-$VERSION-Linux.deb
-  - sudo dpkg -i SCIPOptSuite-$VERSION-Linux.deb
-script:
-  - julia -e 'using Pkg; Pkg.clone(pwd()); Pkg.build("SCIP"); Pkg.test("SCIP"; coverage=true)'
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then export SCIP_BINARY=SCIPOptSuite-$VERSION-Linux.deb; fi
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then export SCIP_BINARY=SCIPOptSuite-$VERSION-Darwin-no-Ipopt.sh; fi
+  - wget http://scip.zib.de/download/release/$SCIP_BINARY
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo dpkg -i SCIPOptSuite-$VERSION-Linux.deb; fi
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then chmod +x $SCIP_BINARY && mkdir scip && ./$SCIP_BINARY --skip-license --prefix=$(pwd)/scip; fi
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then export SCIPOPTDIR=$(pwd)/scip; fi
+# Use default build script.
+# script:
+#   - julia -e 'using Pkg; Pkg.clone(pwd()); Pkg.build("SCIP"); Pkg.test("SCIP"; coverage=true)'
 jobs:
   include:
     - stage: "MINLPTests"
