@@ -23,8 +23,14 @@ end
 
     # SOC tests fail because of lower bound requirement of RHS var.
     # MOIT.soctest(BRIDGED, CONFIG)
+    # MOIT.rsoctest(BRIDGED, CONFIG)
 
     # other cones not supported
+    # MOIT.geomeantest(BRIDGED, CONFIG)
+    # MOIT.exptest(BRIDGED, CONFIG)
+    # MOIT.sdptest(BRIDGED, CONFIG)
+    # MOIT.logdettest(BRIDGED, CONFIG)
+    # MOIT.rootdettest(BRIDGED, CONFIG)
 end
 
 @testset "MOI Quadratic Constraint" begin
