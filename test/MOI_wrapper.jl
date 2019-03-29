@@ -21,7 +21,7 @@ end
 @testset "MOI Continuous Conic" begin
     MOIT.lintest(BRIDGED, CONFIG)
 
-    # needs VectorAffineFunction
+    # SOC tests fail because of lower bound requirement of RHS var.
     # MOIT.soctest(BRIDGED, CONFIG)
 
     # other cones not supported
@@ -36,6 +36,6 @@ end
 end
 
 @testset "MOI Integer Conic" begin
-    # needs VectorAffineFunction
+    # SOC tests fail because of lower bound requirement of RHS var.
     # MOIT.intconictest(BRIDGED, CONFIG)
 end
