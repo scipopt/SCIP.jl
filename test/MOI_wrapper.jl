@@ -49,3 +49,13 @@ end
     # SOC tests fail because of lower bound requirement of RHS var.
     # MOIT.intconictest(BRIDGED, CONFIG)
 end
+
+@testset "MOI NLP" begin
+    # None of tests provide expression graphs in the evaluator.
+    # MOIT.nlptest(BRIDGED, CONFIG)
+end
+
+@testset "MOI Unit tests" begin
+    # TODO: most tests need get-variable-by-name etc.
+    # MOIT.unittest(BRIDGED, CONFIG)
+end
