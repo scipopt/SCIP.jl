@@ -9,8 +9,12 @@ end
     include("managed_scip.jl")
 end
 
-@testset "MathOptInterface tests" begin
+@testset "MathOptInterface tests (bridged)" begin
     include("MOI_wrapper.jl")
+end
+
+@testset "MathOptInterface tests (direct)" begin
+    include("MOI_wrapper_direct.jl")
 end
 
 @testset "MathOptInterface additional tests" begin

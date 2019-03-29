@@ -3,62 +3,60 @@ const MOI = MathOptInterface
 const MOIB = MOI.Bridges
 const MOIT = MOI.Test
 
-const OPTIMIZER = SCIP.Optimizer(display_verblevel=0)
-const SCALARIZED = MOIB.Scalarize{Float64}(SCIP.Optimizer(display_verblevel=0))
-const CONFIG = MOIT.TestConfig(atol=1e-5, rtol=1e-5, duals=false,
-                               infeas_certificates=false)
+const BRIDGED = MOIB.full_bridge_optimizer(SCIP.Optimizer(display_verblevel=0), Float64)
+const CONFIG = MOIT.TestConfig(atol=1e-5, rtol=1e-5, duals=false, infeas_certificates=false)
+const CONFIG3 = MOIT.TestConfig(atol=1e-3, rtol=1e-2, duals=false, infeas_certificates=false)
 
 @testset "MOI Continuous Linear" begin
     excluded = [
         "linear1",  # needs MOI.delete (of variables in constraints)
         "linear5",  # needs MOI.delete (of variables in constraints)
-        "linear7",  # needs MOI.VectorAffineFunction
-        "linear11", # broken in SCIP (#2556)
-        "linear13", # TODO: support MOI.FEASIBILITY_SENSE
-        "linear14", # needs MOI.delete (of variables in constraints)
-        "linear15", # needs MOI.VectorAffineFunction
-        "partial_start", # TODO: supportVariablePrimalStart
-    ]
-    MOIT.contlineartest(OPTIMIZER, CONFIG, excluded)
-end
-
-@testset "MOI Continuous Linear - ScalarizeBridge" begin
-    excluded = [
-        "linear1",  # needs MOI.delete (of variables in constraints)
-        "linear5",  # needs MOI.delete (of variables in constraints)
         "linear11", # broken in SCIP (#2556)
         "linear13", # TODO: support MOI.FEASIBILITY_SENSE
         "linear14", # needs MOI.delete (of variables in constraints)
         "partial_start", # TODO: supportVariablePrimalStart
     ]
-    MOIT.contlineartest(SCALARIZED, CONFIG, excluded)
+    MOIT.contlineartest(BRIDGED, CONFIG, excluded)
 end
 
-@testset "MOI Continuous Conic - ScalarizeBridge" begin
-    MOIT.lintest(SCALARIZED, CONFIG)
+@testset "MOI Continuous Conic" begin
+    MOIT.lintest(BRIDGED, CONFIG)
 
-    # needs VectorAffineFunction
-    # MOIT.soctest(SCALARIZED, CONFIG)
+    # SOC tests fail because of lower bound requirement of RHS var.
+    # MOIT.soctest(BRIDGED, CONFIG)
+    # MOIT.rsoctest(BRIDGED, CONFIG)
 
     # other cones not supported
+    # MOIT.geomeantest(BRIDGED, CONFIG)
+    # MOIT.exptest(BRIDGED, CONFIG)
+    # MOIT.sdptest(BRIDGED, CONFIG)
+    # MOIT.logdettest(BRIDGED, CONFIG)
+    # MOIT.rootdettest(BRIDGED, CONFIG)
 end
 
 @testset "MOI Quadratic Constraint" begin
-    excluded = [
-        "qcp1", # needs VectorAffineFunction
-    ]
-    MOIT.qcptest(OPTIMIZER, CONFIG, excluded)
-end
+    # needs objective bridge (MOI/#529)
+    # MOIT.qptest(BRIDGED, CONFIG)
 
-@testset "MOI Quadratic Constraint - ScalarizeBridge" begin
-    MOIT.qcptest(SCALARIZED, CONFIG)
+    MOIT.qcptest(BRIDGED, CONFIG)
+    MOIT.socptest(BRIDGED, CONFIG3)
 end
 
 @testset "MOI Integer Linear" begin
-    MOIT.intlineartest(OPTIMIZER, CONFIG)
+    MOIT.intlineartest(BRIDGED, CONFIG)
 end
 
-@testset "MOI Integer Conic - ScalarizeBridge" begin
-    # needs VectorAffineFunction
-    # MOIT.intconictest(SCALARIZED, CONFIG)
+@testset "MOI Integer Conic" begin
+    # SOC tests fail because of lower bound requirement of RHS var.
+    # MOIT.intconictest(BRIDGED, CONFIG)
+end
+
+@testset "MOI NLP" begin
+    # None of tests provide expression graphs in the evaluator.
+    # MOIT.nlptest(BRIDGED, CONFIG)
+end
+
+@testset "MOI Unit tests" begin
+    # TODO: most tests need get-variable-by-name etc.
+    # MOIT.unittest(BRIDGED, CONFIG)
 end
