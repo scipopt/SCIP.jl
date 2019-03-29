@@ -17,9 +17,6 @@ matrix:
   allow_failures:
     - julia: nightly
 addons:
-  homebrew:
-    packages:
-      - gcc@6
   apt:
     packages:
     - libblas3
@@ -33,12 +30,13 @@ addons:
     - zlib1g
 before_install:
   - export VERSION=6.0.1
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then export SCIP_BINARY=SCIPOptSuite-$VERSION-Linux.deb; fi
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then export SCIP_BINARY=SCIPOptSuite-$VERSION-Darwin-no-Ipopt.sh; fi
-  - wget http://scip.zib.de/download/release/$SCIP_BINARY
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then wget http://scip.zib.de/download/release/SCIPOptSuite-$VERSION-Linux.deb; fi
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo dpkg -i SCIPOptSuite-$VERSION-Linux.deb; fi
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then chmod +x $SCIP_BINARY && mkdir scip && ./$SCIP_BINARY --skip-license --prefix=$(pwd)/scip; fi
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then export SCIPOPTDIR=$(pwd)/scip; fi
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then wget http://scip.zib.de/download/release/scipoptsuite-$VERSION.tgz; fi
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then tar -xf scipoptsuite-$VERSION.tgz && cd scipoptsuite-$VERSION; fi
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then mkdir build && cd build && cmake -D CMAKE_BUILD_TYPE=Release -D ZIMPL=OFF -D GCG=OFF -D BUILD_TESTING=OFF -D CMAKE_INSTALL_PREFIX=../install ..; fi
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then make -j 4 && make install; fi
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then cd .. && export SCIPOPTDIR=$(pwd)/install && cd ..; fi
 # Use default build script.
 # script:
 #   - julia -e 'using Pkg; Pkg.clone(pwd()); Pkg.build("SCIP"); Pkg.test("SCIP"; coverage=true)'
