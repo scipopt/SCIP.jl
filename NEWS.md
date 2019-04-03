@@ -1,5 +1,10 @@
 # News
 
+## v0.7.4
+
+- support indicator constraints: [#113](https://github.com/SCIP-Interfaces/SCIP.jl/pull/113)
+- fix segfaults when accessing solution before solving: [#115](https://github.com/SCIP-Interfaces/SCIP.jl/pull/115)
+
 ## v0.7.3
 
 - Support OS X: [#110](https://github.com/SCIP-Interfaces/SCIP.jl/issues/110).
