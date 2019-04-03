@@ -252,3 +252,27 @@ function add_abspower_constraint(mscip::ManagedSCIP, x, a, n, z, c, lhs, rhs)
     @SC SCIPaddCons(mscip, cons__[])
     return store_cons!(mscip, cons__)
 end
+
+"""
+Add indicator constraint to problem, return cons ref.
+
+    y = 1 ==> a^T x ≤ rhs
+
+y has to be a binary variable, or SCIP will error.
+
+# Arguments
+- `y::VarRef`: reference for binary variable
+- `x::Vector{VarRef}`: reference vector for variables
+- `a::Float64`: coefficients for x variable
+- `rhs::Float64`: right-hand side for linear constraint
+"""
+function add_indicator_constraint(mscip::ManagedSCIP, y, x, a, rhs)
+    SCIPvarIsBinary(var(mscip, y)) > 0 || error("y variable must be binary for indicator constraint")
+    cons__ = Ref{Ptr{SCIP_CONS}}(C_NULL)
+    xref = [var(mscip, x[i]) for i in eachindex(x)]
+    @SC SCIPcreateConsBasicIndicator(
+        mscip, cons__, "", var(mscip, y), length(x), xref, a, rhs
+    )
+    @SC SCIPaddCons(mscip, cons__[])
+    return store_cons!(mscip, cons__)
+end

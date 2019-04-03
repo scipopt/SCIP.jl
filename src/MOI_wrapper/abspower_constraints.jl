@@ -33,7 +33,7 @@ MOI.dimension(set::AbsolutePowerSet{<:Real}) = 2
 
 const ABSPOWER = AbsolutePowerSet{Float64}
 
-MOI.supports_constraint(o::Optimizer, ::Type{VECTOR}, ::Type{ABSPOWER}) = true
+MOI.supports_constraint(::Optimizer, ::Type{VECTOR}, ::Type{ABSPOWER}) = true
 
 function MOI.add_constraint(o::Optimizer, func::VECTOR, set::ABSPOWER)
     allow_modification(o)
