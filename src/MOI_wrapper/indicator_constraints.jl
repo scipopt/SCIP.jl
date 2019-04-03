@@ -11,7 +11,7 @@ struct IndicatorSet{T <: Real} <: MOI.AbstractVectorSet
     rhs::T
 end
 
-MOI.supports_constraint(::Optimizer, ::Type{VECTOR}, ::IndicatorSet{<:AbstractFloat}) = true
+MOI.supports_constraint(::Optimizer, ::Type{VECTOR}, ::Type{IS}) where {IS <: IndicatorSet{<:AbstractFloat}} = true
 
 function MOI.add_constraint(o::Optimizer, func::VECTOR, set::IndicatorSet{Float64})
     length(func.variables) == length(set.a) + 1 || throw(DimensionMismatch("Indicator set and VectorOfVariables length mismatch"))

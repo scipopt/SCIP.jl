@@ -367,6 +367,87 @@ end
     @test MOI.get(optimizer, MOI.VariablePrimal(), z2) ≈ -8.0 atol=atol rtol=rtol
 end
 
+@testset "indicator constraints" begin
+    # max  2x1 + 3x2
+    # s.t. x1 + x2 <= 10
+    #      z1 ==> x2 <= 8
+    #      z2 ==> x2 + x1/5 <= 9
+    # z1 + z2 >= 1
+    optimizer = SCIP.Optimizer(display_verblevel=0)
+
+    @test MOI.supports_constraint(optimizer, MOI.VectorOfVariables, SCIP.IndicatorSet{Float64})
+
+    x1, x2, z1, z2 = MOI.add_variables(optimizer, 4)
+
+    MOI.set(optimizer, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(),
+            MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([2., 3.], [x1, x2]), 0.)
+    )
+    MOI.set(optimizer, MOI.ObjectiveSense(), MOI.MAX_SENSE)
+
+    MOI.add_constraint(optimizer, MOI.SingleVariable(z1), MOI.ZeroOne())
+    MOI.add_constraint(optimizer, MOI.SingleVariable(z2), MOI.ZeroOne())
+
+    MOI.add_constraint(optimizer,
+        MOI.ScalarAffineFunction([MOI.ScalarAffineTerm(1.0, x1), MOI.ScalarAffineTerm(1.0, x2)], 0.0),
+        MOI.LessThan(10.0),
+    )
+
+    MOI.add_constraint(optimizer,
+        MOI.ScalarAffineFunction([MOI.ScalarAffineTerm(1.0, z1), MOI.ScalarAffineTerm(1.0, z2)], 0.0),
+        MOI.GreaterThan(1.),
+    )
+
+    MOI.add_constraint(optimizer, MOI.VectorOfVariables([z1, x2]), SCIP.IndicatorSet{Float64}([1.], 8.))
+    MOI.add_constraint(optimizer, MOI.VectorOfVariables([z2, x1, x2]), SCIP.IndicatorSet{Float64}([0.2, 1.], 9.))
+
+    MOI.optimize!(optimizer)
+
+    @test MOI.get(optimizer, MOI.TerminationStatus()) == MOI.OPTIMAL
+    @test MOI.get(optimizer, MOI.PrimalStatus()) == MOI.FEASIBLE_POINT
+
+    atol, rtol = 1e-6, 1e-6
+    @test MOI.get(optimizer, MOI.ObjectiveValue()) ≈ 28.75 atol=atol rtol=rtol
+    @test MOI.get(optimizer, MOI.VariablePrimal(), x1) ≈ 1.25 atol=atol rtol=rtol
+    @test MOI.get(optimizer, MOI.VariablePrimal(), x2) ≈ 8.75 atol=atol rtol=rtol
+    @test MOI.get(optimizer, MOI.VariablePrimal(), z1) ≈ 0.0 atol=atol rtol=rtol
+    @test MOI.get(optimizer, MOI.VariablePrimal(), z2) ≈ 1.0 atol=atol rtol=rtol
+
+    # penalty on z2 must switch active constraint on z1
+    optimizer2 = SCIP.Optimizer(display_verblevel=0)
+
+    x1, x2, z1, z2 = MOI.add_variables(optimizer2, 4)
+
+    MOI.set(optimizer2, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(),
+            MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([2., 3., -30.], [x1, x2, z2]), 0.)
+    )
+    MOI.set(optimizer2, MOI.ObjectiveSense(), MOI.MAX_SENSE)
+
+    MOI.add_constraint(optimizer2, MOI.SingleVariable(z1), MOI.ZeroOne())
+    MOI.add_constraint(optimizer2, MOI.SingleVariable(z2), MOI.ZeroOne())
+
+    MOI.add_constraint(optimizer2,
+        MOI.ScalarAffineFunction([MOI.ScalarAffineTerm(1.0, x1), MOI.ScalarAffineTerm(1.0, x2)], 0.0),
+        MOI.LessThan(10.0),
+    )
+
+    MOI.add_constraint(optimizer2,
+        MOI.ScalarAffineFunction([MOI.ScalarAffineTerm(1.0, z1), MOI.ScalarAffineTerm(1.0, z2)], 0.0),
+        MOI.GreaterThan(1.),
+    )
+
+    MOI.add_constraint(optimizer2, MOI.VectorOfVariables([z1, x2]), SCIP.IndicatorSet{Float64}([1.], 8.))
+    MOI.add_constraint(optimizer2, MOI.VectorOfVariables([z2, x1, x2]), SCIP.IndicatorSet{Float64}([0.2, 1.], 9.))
+    MOI.optimize!(optimizer2)
+
+    atol, rtol = 1e-6, 1e-6
+    @test MOI.get(optimizer2, MOI.ObjectiveValue()) ≈ 28.0 atol=atol rtol=rtol
+    @test MOI.get(optimizer2, MOI.VariablePrimal(), x1) ≈ 2.0 atol=atol rtol=rtol
+    @test MOI.get(optimizer2, MOI.VariablePrimal(), x2) ≈ 8.0 atol=atol rtol=rtol
+    @test MOI.get(optimizer2, MOI.VariablePrimal(), z1) ≈ 1.0 atol=atol rtol=rtol
+    @test MOI.get(optimizer2, MOI.VariablePrimal(), z2) ≈ 0.0 atol=atol rtol=rtol
+
+end
+
 @testset "deleting variables" begin
     optimizer = SCIP.Optimizer()
 
