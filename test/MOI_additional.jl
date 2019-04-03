@@ -526,3 +526,49 @@ end
     # invalid
     @test_throws ErrorException SCIP.Optimizer(some_invalid_param_name=true)
 end
+
+@testset "Query results (before/after solve)" begin
+    optimizer = SCIP.Optimizer(display_verblevel=0)
+    atol, rtol = 1e-6, 1e-6
+
+    x, y = MOI.add_variables(optimizer, 2)
+    MOI.add_constraint(optimizer, MOI.SingleVariable(x), MOI.GreaterThan(0.0))
+    MOI.add_constraint(optimizer, MOI.SingleVariable(y), MOI.GreaterThan(0.0))
+
+    c = MOI.add_constraint(
+        optimizer,
+        MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0, 1.0], [x, y]), 0.0),
+        MOI.LessThan(1.0))
+
+    MOI.set(optimizer, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(),
+            MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0, 2.0], [x, y]), 0.0))
+    MOI.set(optimizer, MOI.ObjectiveSense(), MOI.MAX_SENSE)
+
+    # before optimize: can not query most results
+    @test MOI.get(optimizer, MOI.TerminationStatus()) == MOI.OPTIMIZE_NOT_CALLED
+    @test MOI.get(optimizer, MOI.PrimalStatus()) == MOI.NO_SOLUTION
+
+    @test_throws ErrorException MOI.get(optimizer, MOI.ObjectiveValue())
+    @test_throws ErrorException MOI.get(optimizer, MOI.VariablePrimal(), x)
+    @test_throws ErrorException MOI.get(optimizer, MOI.ConstraintPrimal(), c)
+    @test_throws ErrorException MOI.get(optimizer, MOI.ObjectiveBound())
+    @test_throws ErrorException MOI.get(optimizer, MOI.RelativeGap())
+    @test MOI.get(optimizer, MOI.SolveTime()) ≈ 0.0 atol=atol rtol=rtol
+    @test_throws ErrorException MOI.get(optimizer, MOI.SimplexIterations())
+    @test MOI.get(optimizer, MOI.NodeCount()) == 0
+
+    # after optimize
+    MOI.optimize!(optimizer)
+    @test MOI.get(optimizer, MOI.TerminationStatus()) == MOI.OPTIMAL
+    @test MOI.get(optimizer, MOI.PrimalStatus()) == MOI.FEASIBLE_POINT
+
+    @test MOI.get(optimizer, MOI.ObjectiveValue()) ≈ 2.0 atol=atol rtol=rtol
+    @test MOI.get(optimizer, MOI.VariablePrimal(), x) ≈ 0.0 atol=atol rtol=rtol
+    @test MOI.get(optimizer, MOI.VariablePrimal(), y) ≈ 1.0 atol=atol rtol=rtol
+    @test MOI.get(optimizer, MOI.ConstraintPrimal(), c) ≈ 1.0 atol=atol rtol=rtol
+    @test MOI.get(optimizer, MOI.ObjectiveBound()) ≈ 2.0 atol=atol rtol=rtol
+    @test MOI.get(optimizer, MOI.RelativeGap()) ≈ 0.0 atol=atol rtol=rtol
+    @test MOI.get(optimizer, MOI.SolveTime()) < 1.0
+    @test MOI.get(optimizer, MOI.SimplexIterations()) <= 3  # conservative
+    @test MOI.get(optimizer, MOI.NodeCount()) <= 1          # conservative
+end
