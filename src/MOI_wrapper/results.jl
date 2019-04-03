@@ -35,24 +35,54 @@ function MOI.get(o::Optimizer, ::MOI.ResultCount)
     return SCIPgetNSols(o)
 end
 
+"Make sure that the problem was solved (SCIP is in SOLVED stage)."
+function assert_optimized(o::Optimizer)
+    if SCIPgetStage(o) != SCIP_STAGE_SOLVED
+        error("SCIP is not in `SOLVED` stage: can not query results!")
+    end
+end
+
 function MOI.get(o::Optimizer, ::MOI.ObjectiveValue)
+    assert_optimized(o)
     return SCIPgetSolOrigObj(o, SCIPgetBestSol(o))
 end
 
 function MOI.get(o::Optimizer, ::MOI.VariablePrimal, vi::VI)
+    assert_optimized(o)
     return SCIPgetSolVal(o, SCIPgetBestSol(o), var(o, vi))
 end
 
 function MOI.get(o::Optimizer, ::MOI.ConstraintPrimal, ci::CI{SVF,<:BOUNDS})
+    assert_optimized(o)
     return SCIPgetSolVal(o, SCIPgetBestSol(o), var(o, VI(ci.value)))
 end
 
 function MOI.get(o::Optimizer, ::MOI.ConstraintPrimal, ci::CI{SAF,<:BOUNDS})
+    assert_optimized(o)
     return SCIPgetActivityLinear(o, cons(o, ci), SCIPgetBestSol(o))
 end
 
-MOI.get(o::Optimizer, ::MOI.ObjectiveBound) = SCIPgetDualbound(o)
-MOI.get(o::Optimizer, ::MOI.RelativeGap) = SCIPgetGap(o)
-MOI.get(o::Optimizer, ::MOI.SolveTime) = SCIPgetSolvingTime(o)
-MOI.get(o::Optimizer, ::MOI.SimplexIterations) = SCIPgetNLPIterations(o)
-MOI.get(o::Optimizer, ::MOI.NodeCount) = SCIPgetNNodes(o)
+function MOI.get(o::Optimizer, ::MOI.ObjectiveBound)
+    assert_optimized(o)
+    return SCIPgetDualbound(o)
+end
+
+function MOI.get(o::Optimizer, ::MOI.RelativeGap)
+    assert_optimized(o)
+    return SCIPgetGap(o)
+end
+
+function MOI.get(o::Optimizer, ::MOI.SolveTime)
+    assert_optimized(o)
+    return SCIPgetSolvingTime(o)
+end
+
+function MOI.get(o::Optimizer, ::MOI.SimplexIterations)
+    assert_optimized(o)
+    return SCIPgetNLPIterations(o)
+end
+
+function MOI.get(o::Optimizer, ::MOI.NodeCount)
+    assert_optimized(o)
+    return SCIPgetNNodes(o)
+end
