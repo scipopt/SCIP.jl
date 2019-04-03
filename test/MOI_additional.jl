@@ -439,9 +439,9 @@ end
     @test_throws ErrorException MOI.get(optimizer, MOI.ConstraintPrimal(), c)
     @test_throws ErrorException MOI.get(optimizer, MOI.ObjectiveBound())
     @test_throws ErrorException MOI.get(optimizer, MOI.RelativeGap())
-    @test_throws ErrorException MOI.get(optimizer, MOI.SolveTime())
+    @test MOI.get(optimizer, MOI.SolveTime()) ≈ 0.0 atol=atol rtol=rtol
     @test_throws ErrorException MOI.get(optimizer, MOI.SimplexIterations())
-    @test_throws ErrorException MOI.get(optimizer, MOI.NodeCount())
+    @test MOI.get(optimizer, MOI.NodeCount()) == 0
 
     # after optimize
     MOI.optimize!(optimizer)
