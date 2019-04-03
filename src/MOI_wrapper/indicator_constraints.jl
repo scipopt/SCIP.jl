@@ -11,6 +11,8 @@ struct IndicatorSet{T <: Real} <: MOI.AbstractVectorSet
     rhs::T
 end
 
+MOI.dimension(idset::IndicatorSet) = length(idset.a) + 1
+
 MOI.supports_constraint(::Optimizer, ::Type{VECTOR}, ::Type{IS}) where {IS <: IndicatorSet{<:AbstractFloat}} = true
 
 function MOI.add_constraint(o::Optimizer, func::VECTOR, set::IndicatorSet{Float64})
