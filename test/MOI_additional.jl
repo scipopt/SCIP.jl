@@ -107,6 +107,28 @@ end
     x = MOI.add_variable(optimizer)
     t = MOI.add_constraint(optimizer, x, MOI.ZeroOne())
     @test_throws ErrorException b = MOI.add_constraint(optimizer, x, MOI.Interval(2.0, 3.0))
+
+    MOI.empty!(optimizer)
+    x1 = MOI.add_variable(optimizer)
+    x2 = MOI.add_variable(optimizer)
+    x3 = MOI.add_variable(optimizer)
+    y  = MOI.add_variable(optimizer)
+    t = MOI.add_constraint(optimizer, y, MOI.ZeroOne())
+    iset = SCIP.IndicatorSet{Float64}(ones(3), 1.0)
+    c = MOI.add_constraint(optimizer,
+        MOI.VectorOfVariables([y, x1, x2, x3]), iset
+    )
+
+    MOI.empty!(optimizer)
+    x1 = MOI.add_variable(optimizer)
+    x2 = MOI.add_variable(optimizer)
+    x3 = MOI.add_variable(optimizer)
+    y  = MOI.add_variable(optimizer)
+    t = MOI.add_constraint(optimizer, y, MOI.ZeroOne())
+    iset = SCIP.IndicatorSet{Float64}(ones(3), 1.0)
+    @test_throws DimensionMismatch MOI.add_constraint(optimizer,
+        MOI.VectorOfVariables([y, x1, x2]), iset
+    )
 end
 
 @testset "Bound constraints for a general variable." begin

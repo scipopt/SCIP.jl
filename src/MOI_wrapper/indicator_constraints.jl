@@ -7,17 +7,17 @@ Set of (x,y) that satisfy the indicator constraint:
 
 """
 struct IndicatorSet{T <: Real} <: MOI.AbstractVectorSet
-    a::T
+    a::Vector{T}
     rhs::T
 end
 
-MOI.supports_constraint(::Optimizer, ::Type{IndicatorFunction}, ::IndicatorSet{<:AbstractFloat}) = true
+MOI.supports_constraint(::Optimizer, ::Type{VECTOR}, ::IndicatorSet{<:AbstractFloat}) = true
 
 function MOI.add_constraint(o::Optimizer, func::VECTOR, set::IndicatorSet{Float64})
+    length(func.variables) == length(set.a) + 1 || throw(DimensionMismatch("Indicator set and VectorOfVariables length mismatch"))
     allow_modification(o)
-    y = VarRef(func.variables[1])
-    s = VarRef(func.variables[2])
-    x = VarRef.(func.variables[3:end])
+    y = VarRef(func.variables[1].value)
+    x = [VarRef(vi.value) for vi in func.variables[2:end]]
 
     cr = add_indicator_constraint(o.mscip, y, x, set.a, set.rhs)
     ci = CI{VECTOR, IndicatorSet{Float64}}(cr.val)

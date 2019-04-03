@@ -258,6 +258,8 @@ Add indicator constraint to problem, return cons ref.
 
     y = 1 ==> a^T x ≤ rhs
 
+y has to be a binary variable, or SCIP will error.
+
 # Arguments
 - `y::VarRef`: reference for binary variable
 - `x::Vector{VarRef}`: reference vector for variables

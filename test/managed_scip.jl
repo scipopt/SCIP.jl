@@ -38,6 +38,14 @@ end
         vi = MathOptInterface.VariableIndex(x.val)
         n = SCIP.add_nonlinear_constraint(mscip, :(x[$vi]^0.2 == 1.0), 1.0, 1.0)
 
+        # indicator constraint: z = 1 ==> 𝟙^T [x, y] <= 1.
+        z = SCIP.add_variable(mscip)
+        SCIP.@SC SCIP.SCIPchgVarType(mscip, SCIP.var(mscip, z), SCIP.SCIP_VARTYPE_BINARY, Ref{SCIP.SCIP_Bool}())
+        SCIP.@SC SCIP.SCIPchgVarLb(mscip, SCIP.var(mscip, z), 0.0)
+        SCIP.@SC SCIP.SCIPchgVarUb(mscip, SCIP.var(mscip, z), 1.0)
+
+        ic = SCIP.add_indicator_constraint(mscip, z, [x, y], ones(2), 1.)
+
         if i==2
             # solve, but don't check results (this test is about memory mgmt)
             SCIP.@SC SCIP.SCIPsolve(mscip.scip[])
