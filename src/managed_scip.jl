@@ -267,6 +267,7 @@ y has to be a binary variable, or SCIP will error.
 - `rhs::Float64`: right-hand side for linear constraint
 """
 function add_indicator_constraint(mscip::ManagedSCIP, y, x, a, rhs)
+    SCIPvarIsBinary(var(mscip, y)) > 0 || error("y variable must be binary for indicator constraint")
     cons__ = Ref{Ptr{SCIP_CONS}}(C_NULL)
     xref = [var(mscip, x[i]) for i in eachindex(x)]
     @SC SCIPcreateConsBasicIndicator(

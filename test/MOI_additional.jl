@@ -119,16 +119,6 @@ end
         MOI.VectorOfVariables([y, x1, x2, x3]), iset
     )
 
-    MOI.empty!(optimizer)
-    x1 = MOI.add_variable(optimizer)
-    x2 = MOI.add_variable(optimizer)
-    x3 = MOI.add_variable(optimizer)
-    y  = MOI.add_variable(optimizer)
-    t = MOI.add_constraint(optimizer, y, MOI.ZeroOne())
-    iset = SCIP.IndicatorSet{Float64}(ones(3), 1.0)
-    @test_throws DimensionMismatch MOI.add_constraint(optimizer,
-        MOI.VectorOfVariables([y, x1, x2]), iset
-    )
 end
 
 @testset "Bound constraints for a general variable." begin
@@ -373,9 +363,30 @@ end
     #      z1 ==> x2 <= 8
     #      z2 ==> x2 + x1/5 <= 9
     # z1 + z2 >= 1
+
     optimizer = SCIP.Optimizer(display_verblevel=0)
 
     @test MOI.supports_constraint(optimizer, MOI.VectorOfVariables, SCIP.IndicatorSet{Float64})
+
+    x1 = MOI.add_variable(optimizer)
+    x2 = MOI.add_variable(optimizer)
+    x3 = MOI.add_variable(optimizer)
+    y  = MOI.add_variable(optimizer)
+    t = MOI.add_constraint(optimizer, y, MOI.ZeroOne())
+    iset = SCIP.IndicatorSet{Float64}(ones(3), 1.0)
+    @test_throws DimensionMismatch MOI.add_constraint(optimizer,
+        MOI.VectorOfVariables([y, x1, x2]), iset
+    )
+    MOI.empty!(optimizer)
+
+    # non-binary y throws error
+    x1 = MOI.add_variable(optimizer)
+    x2 = MOI.add_variable(optimizer)
+    y  = MOI.add_variable(optimizer)
+    iset = SCIP.IndicatorSet{Float64}(ones(2), 1.0)
+    @test_throws ErrorException MOI.add_constraint(optimizer,
+        MOI.VectorOfVariables([y, x1, x2]), iset
+    )
 
     x1, x2, z1, z2 = MOI.add_variables(optimizer, 4)
 
