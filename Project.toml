@@ -1,0 +1,13 @@
+name = "SCIP"
+uuid = "82193955-e24f-5292-bf16-6f2c5261a85f"
+
+[deps]
+CEnum = "fa961155-64e5-5f13-b03f-caf6b980ea82"
+Libdl = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
+MathOptInterface = "b8f27783-ece8-5eb3-8dc8-9495eed66fee"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[compat]
+CEnum = "≥ 0.1.0"
+MathOptInterface = "≥ 0.8.4"
+julia = "≥ 1.0.0"
