@@ -44,8 +44,10 @@ end
     # call individual tests
     MOIT.qcp2test(OPTIMIZER, CONFIG)
     MOIT.qcp3test(OPTIMIZER, CONFIG)
-    # MOIT.qcp4test(OPTIMIZER, CONFIG)  # not yet merged
-    # MOIT.qcp5test(OPTIMIZER, CONFIG)  # not yet merged
+    MOIT.qcp4test(OPTIMIZER, CONFIG)
+
+    MOIT.ncqcp1test(OPTIMIZER, CONFIG)
+    MOIT.ncqcp2test(OPTIMIZER, CONFIG)
 end
 
 @testset "MOI Integer Linear" begin
