@@ -1,5 +1,9 @@
 # News
 
+## v0.8.0
+
+- SCIP-specific MOI indicator constraint replaced by the new MOI definition
+
 ## v0.7.4
 
 - support indicator constraints: [#113](https://github.com/SCIP-Interfaces/SCIP.jl/pull/113)
