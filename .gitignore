@@ -4,3 +4,4 @@
 *.jl.mem
 deps/deps.jl
 deps/build.log
+Manifest.toml
