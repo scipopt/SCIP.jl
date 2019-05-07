@@ -43,7 +43,8 @@ end
 end
 
 @testset "MOI Integer Linear" begin
-    MOIT.intlineartest(BRIDGED, CONFIG)
+    excluded = ["indicator3"]
+    MOIT.intlineartest(BRIDGED, CONFIG, excluded)
 end
 
 @testset "MOI Integer Conic" begin
