@@ -1,5 +1,9 @@
 # News
 
+## v0.8.0
+
+- Project.toml added, REQUIRE file removed
+
 ## v0.7.4
 
 - support indicator constraints: [#113](https://github.com/SCIP-Interfaces/SCIP.jl/pull/113)
