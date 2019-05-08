@@ -29,8 +29,7 @@ system. [SCIP's license](https://scip.zib.de/index.php#license) does not allow
 (automatic) redistribution, so please
 [download](https://scip.zib.de/index.php#download) and install it yourself.
 
-Currently, Linux and OS X are tested and supported. Contributions to supporting
-Windows are welcome.
+Currently, Linux, OS X and Windows are tested and supported.
 
 We recommend using one of the provided installers, e.g.,
 `SCIPOptSuite-6.0.1-Linux.deb` for systems based on Debian. Adding the SCIP.jl
@@ -40,7 +39,8 @@ package should then work out of the box:
 
 If you [build SCIP from source](https://scip.zib.de/doc-6.0.1/html/CMAKE.php)
 you should set the environment variable `SCIPOPTDIR` to point the the
-**installation path**. That is, `$SCIPOPTDIR/lib/libscip.so` should exist.
+**installation path**. That is, either `$SCIPOPTDIR/lib/libscip.so` or
+`$SCIPOPTDIR/bin/scip.dll` should exist.
 
 ## Setting Parameters
 
