@@ -39,8 +39,9 @@ package should then work out of the box:
 
 If you [build SCIP from source](https://scip.zib.de/doc-6.0.1/html/CMAKE.php)
 you should set the environment variable `SCIPOPTDIR` to point the the
-**installation path**. That is, either `$SCIPOPTDIR/lib/libscip.so` or
-`$SCIPOPTDIR/bin/scip.dll` should exist.
+**installation path**. That is, either `$SCIPOPTDIR/lib/libscip.so`,
+`$SCIPOPTDIR/lib/libscip.dylib` or `$SCIPOPTDIR/bin/scip.dll` should exist,
+depending on your operating system.
 
 ## Setting Parameters
 
