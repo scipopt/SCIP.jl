@@ -6,15 +6,19 @@ if isfile(depsfile)
 end
 
 function write_depsfile(path)
-    f = open(depsfile, "w")
-    println(f, "const libscip = \"$path\"")
-    close(f)
+    open(depsfile, "w") do f
+        print(f, "const libscip = ")
+        show(f, path)
+        println(f)
+    end
 end
 
 libname = if Sys.islinux()
     "libscip.so"
 elseif Sys.isapple()
     "libscip.dylib"
+elseif Sys.iswindows()
+    "scip.dll"
 else
     error("SCIP is currently not supported on \"$(Sys.KERNEL)\"")
 end
@@ -23,6 +27,7 @@ paths_to_try = []
 
 # prefer environment variable
 if haskey(ENV, "SCIPOPTDIR")
+    push!(paths_to_try, joinpath(ENV["SCIPOPTDIR"], "bin", libname))
     push!(paths_to_try, joinpath(ENV["SCIPOPTDIR"], "lib", libname))
 end
 
