@@ -92,3 +92,23 @@ end
         @test mscip.scip[] == C_NULL
     end
 end
+
+@testset "print statistics" begin
+    mscip = SCIP.ManagedSCIP()
+    SCIP.set_parameter(mscip, "display/verblevel", 0)
+
+    x = SCIP.add_variable(mscip)
+    y = SCIP.add_variable(mscip)
+    z = SCIP.add_variable(mscip)
+    c = SCIP.add_linear_constraint(mscip, [x, y], [2.0, 3.0], 1.0, 9.0)
+    SCIP.@SC SCIP.SCIPsolve(mscip)
+
+    @testset "$statistics_func" for statistics_func in map(x -> eval(:(SCIP.$x)), SCIP.STATISTICS_FUNCS)
+        mktempdir() do dir
+            filename = joinpath(dir, "statistics.txt")
+            @test !isfile(filename)
+            statistics_func(mscip, filename)
+            @test isfile(filename)
+        end
+    end
+end

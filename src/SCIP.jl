@@ -1,5 +1,8 @@
 module SCIP
 
+# assorted utility functions
+include("util.jl")
+
 # load deps, version check
 include("init.jl")
 
