@@ -37,7 +37,7 @@ const SCIP_EVENTTYPE_SYNC = UInt64(0x100000000)
 
 const PRIx64 = "llx"
 
-const FILE = Cvoid
+using Base.Libc: FILE
 
 const BMS_BLKMEM = Cvoid
 const BMS_BUFMEM = Cvoid
