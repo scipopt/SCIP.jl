@@ -107,8 +107,17 @@ end
         mktempdir() do dir
             filename = joinpath(dir, "statistics.txt")
             @test !isfile(filename)
-            statistics_func(mscip, filename)
+            open(filename, write=true) do io
+                redirect_stdout(io) do
+                    statistics_func(mscip)
+                end
+            end
             @test isfile(filename)
+            if statistics_func == SCIP.print_statistics
+                # Ensure that at least `print_statistics` produces output
+                # (Not all statistics functions do for this simple model.)
+                @test filesize(filename) > 0
+            end
         end
     end
 end

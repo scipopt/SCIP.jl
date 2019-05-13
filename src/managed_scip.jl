@@ -287,44 +287,14 @@ for (scip_statistics_func, statistics_func) in zip(SCIP_STATISTICS_FUNCS, STATIS
     @eval begin
         """
             $($statistics_func)(mscip::ManagedSCIP)
-            $($statistics_func)(mscip::ManagedSCIP, file_descriptor::RawFD)
-            $($statistics_func)(mscip::ManagedSCIP, stream::Union{Base.Filesystem.File, IOStream})
-            $($statistics_func)(mscip::ManagedSCIP, filename::AbstractString)
 
-        Print statistics (calls `$($scip_statistics_func)`).
-
-        The one-argument version prints to standard output.
-
-        Note that the method that takes a stream only applies to synchronous
-        `File`s and `IOStream`s. In particular, it doesn't apply to `stdout`.
+        Print statistics (calls `$($scip_statistics_func)`) to standard output.
         """
         function $statistics_func end
 
         function $statistics_func(mscip::ManagedSCIP)
             ret = $scip_statistics_func(mscip, C_NULL)
             ret !== nothing && @assert ret == SCIP_OKAY
-            return nothing
-        end
-
-        function $statistics_func(mscip::ManagedSCIP, file_descriptor::RawFD)
-            file = Libc.FILE(file_descriptor, "w")
-            try
-                ret = $scip_statistics_func(mscip, file)
-                ret !== nothing && @assert ret == SCIP_OKAY
-            finally
-                close(file)
-            end
-            return nothing
-        end
-
-        function $statistics_func(mscip::ManagedSCIP, stream::Union{Base.Filesystem.File, IOStream})
-            return $statistics_func(mscip, fd(stream))
-        end
-
-        function $statistics_func(mscip::ManagedSCIP, filename::AbstractString)
-            open(filename, write=true) do io
-                $statistics_func(mscip, RawFD(fd(io)))
-            end
             return nothing
         end
     end
