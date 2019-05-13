@@ -276,3 +276,26 @@ function add_indicator_constraint(mscip::ManagedSCIP, y, x, a, rhs)
     @SC SCIPaddCons(mscip, cons__[])
     return store_cons!(mscip, cons__)
 end
+
+# Transform SCIP C function name as follows:
+# 1. Remove leading "SCIP" part (drop the first four characters).
+# 2. Convert camel case to snake case.
+# For example, `SCIPprintStatusStatistics` becomes `print_status_statistics`.
+const STATISTICS_FUNCS = map(x -> Symbol(camel_case_to_snake_case(string(x)[5 : end])), SCIP_STATISTICS_FUNCS)
+
+for (scip_statistics_func, statistics_func) in zip(SCIP_STATISTICS_FUNCS, STATISTICS_FUNCS)
+    @eval begin
+        """
+            $($statistics_func)(mscip::ManagedSCIP)
+
+        Print statistics (calls `$($scip_statistics_func)`) to standard output.
+        """
+        function $statistics_func end
+
+        function $statistics_func(mscip::ManagedSCIP)
+            ret = $scip_statistics_func(mscip, C_NULL)
+            ret !== nothing && @assert ret == SCIP_OKAY
+            return nothing
+        end
+    end
+end
