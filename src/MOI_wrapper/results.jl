@@ -35,6 +35,10 @@ function MOI.get(o::Optimizer, ::MOI.ResultCount)
     return SCIPgetNSols(o)
 end
 
+function MOI.get(o::Optimizer, ::MOI.RawStatusString)
+    return String(CEnum.enum_name(SCIPgetStatus(o)))
+end
+
 "Make sure that SCIP is currently in one of the allowed stages."
 function assert_stage(o::Optimizer, stages)
     if !(SCIPgetStage(o) in stages)
