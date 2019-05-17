@@ -56,21 +56,23 @@ function MOI.add_constraint(o::Optimizer, func::SVF, set::S) where {S <: VAR_TYP
         # Need to adjust bounds for SCIP, which fails with an error otherwise.
         # Check for conflicts with existing bounds first:
         lb, ub = SCIPvarGetLbOriginal(v), SCIPvarGetUbOriginal(v)
-        if lb >= 0.0 && ub <= 1.0
-            # Store old bounds for later recovery.
-            o.binbounds[vi] = MOI.Interval(lb, ub)
-        elseif lb == -SCIPinfinity(o) && ub == SCIPinfinity(o)
+        if lb == -SCIPinfinity(o) && ub == SCIPinfinity(o)
             @debug "Implicitly setting bounds [0,1] for binary variable at $(vi.value)!"
             @SC SCIPchgVarLb(o, v, 0.0)
             @SC SCIPchgVarUb(o, v, 1.0)
-        elseif lb <= 0.0 && ub >= 1.0
-            @debug "Tightening bounds [$lb,$ub] to [0,1] for binary variable at $(vi.value)!"
-            @SC SCIPchgVarLb(o, v, 0.0)
-            @SC SCIPchgVarUb(o, v, 1.0)
+        elseif lb > 1.0 || ub < 0.0
+                error("Existing bounds [$lb,$ub] conflict for binary variable at $(vi.value)!")
+        else
             # Store old bounds for later recovery.
             o.binbounds[vi] = MOI.Interval(lb, ub)
-        else
-            error("Existing bounds [$lb,$ub] conflict for binary variable at $(vi.value)!")
+            if ub > 1.0
+                @debug "Tightening upper bound $ub to 1 for binary variable at $(vi.value)!"
+                @SC SCIPchgVarUb(o, v, 1.0)
+            end
+            if lb < 0.0
+                @debug "Tightening lower bound $lb to 0 for binary variable at $(vi.value)!"
+                @SC SCIPchgVarLb(o, v, 0.0)
+            end
         end
     end
     # use var index for cons index of this type
