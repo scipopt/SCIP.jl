@@ -43,7 +43,12 @@ end
 end
 
 @testset "MOI Integer Linear" begin
-    MOIT.intlineartest(BRIDGED, CONFIG)
+    excluded = [
+        "indicator1", # bridge is missing and
+        "indicator2", # our native implementation is not merged.
+        "indicator3",
+    ]
+    MOIT.intlineartest(BRIDGED, CONFIG, excluded)
 end
 
 @testset "MOI Integer Conic" begin
