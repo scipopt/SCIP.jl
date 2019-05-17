@@ -13,6 +13,10 @@ end
     include("MOI_wrapper_bridged.jl")
 end
 
+@testset "MathOptInterface tests (bridged & cached)" begin
+    include("MOI_wrapper_cached.jl")
+end
+
 @testset "MathOptInterface tests (direct)" begin
     include("MOI_wrapper_direct.jl")
 end
