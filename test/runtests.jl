@@ -10,7 +10,7 @@ end
 end
 
 @testset "MathOptInterface tests (bridged)" begin
-    include("MOI_wrapper.jl")
+    include("MOI_wrapper_bridged.jl")
 end
 
 @testset "MathOptInterface tests (direct)" begin
