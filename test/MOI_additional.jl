@@ -527,6 +527,32 @@ end
     @test_throws ErrorException SCIP.Optimizer(some_invalid_param_name=true)
 end
 
+@testset "use RawParameter" begin
+    # TODO: verify that the parameter was actually set
+    optimizer = SCIP.Optimizer()
+
+    # bool
+    MOI.set(optimizer, MOI.RawParameter("branching/preferbinary"), true)
+
+    # int
+    MOI.set(optimizer, MOI.RawParameter("conflict/minmaxvars"), 1)
+
+    # long int
+    MOI.set(optimizer, MOI.RawParameter("heuristics/alns/maxnodes"), 2)
+
+    # real
+    MOI.set(optimizer, MOI.RawParameter("branching/scorefac"), 0.15)
+
+    # char
+    MOI.set(optimizer, MOI.RawParameter("branching/scorefunc"), 's')
+
+    # string
+    MOI.set(optimizer, MOI.RawParameter("heuristics/alns/rewardfilename"), "abc.txt")
+
+    # invalid
+    @test_throws ErrorException MOI.set(optimizer, MOI.RawParameter("some/invalid/param/name"), true)
+end
+
 @testset "Query results (before/after solve)" begin
     optimizer = SCIP.Optimizer(display_verblevel=0)
     atol, rtol = 1e-6, 1e-6
