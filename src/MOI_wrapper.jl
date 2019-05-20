@@ -115,6 +115,19 @@ function MOI.set(o::Optimizer, param::MOI.RawParameter, value)
     return nothing
 end
 
+function MOI.get(o::Optimizer, ::MOI.Silent)
+    return MOI.get(o, MOI.RawParameter("display/verblevel")) == 0
+end
+
+function MOI.set(o::Optimizer, ::MOI.Silent, value)
+    param = MOI.RawParameter("display/verblevel")
+    if value
+        MOI.set(o, param, 0) # no output at all
+    else
+        MOI.set(o, param, 4) # default level
+    end
+end
+
 ## model creation, query and modification
 
 function MOI.is_empty(o::Optimizer)

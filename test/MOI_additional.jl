@@ -563,6 +563,24 @@ end
     @test_throws ErrorException MOI.set(optimizer, MOI.RawParameter("some/invalid/param/name"), true)
 end
 
+@testset "Silent" begin
+    optimizer = SCIP.Optimizer()
+
+    # "loud" by default
+    @test MOI.get(optimizer, MOI.Silent()) == false
+    @test MOI.get(optimizer, MOI.RawParameter("display/verblevel")) == 4
+
+    # make it silent
+    MOI.set(optimizer, MOI.Silent(), true)
+    @test MOI.get(optimizer, MOI.Silent()) == true
+    @test MOI.get(optimizer, MOI.RawParameter("display/verblevel")) == 0
+
+    # but a user can override it
+    MOI.set(optimizer, MOI.RawParameter("display/verblevel"), 1)
+    @test MOI.get(optimizer, MOI.Silent()) == false
+    @test MOI.get(optimizer, MOI.RawParameter("display/verblevel")) == 1
+end
+
 @testset "Query results (before/after solve)" begin
     optimizer = SCIP.Optimizer(display_verblevel=0)
     atol, rtol = 1e-6, 1e-6
