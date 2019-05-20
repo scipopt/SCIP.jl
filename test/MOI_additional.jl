@@ -504,50 +504,60 @@ end
 end
 
 @testset "set_parameter" begin
-    # TODO: verify that the parameter was actually set (implement a get_parameter function)
     # bool
     optimizer = SCIP.Optimizer(branching_preferbinary=true)
+    @test MOI.get(optimizer, MOI.RawParameter("branching/preferbinary")) == true
 
     # int
     optimizer = SCIP.Optimizer(conflict_minmaxvars=1)
+    @test MOI.get(optimizer, MOI.RawParameter("conflict/minmaxvars")) == 1
 
     # long int
     optimizer = SCIP.Optimizer(heuristics_alns_maxnodes=2)
+    @test MOI.get(optimizer, MOI.RawParameter("heuristics/alns/maxnodes")) == 2
 
     # real
     optimizer = SCIP.Optimizer(branching_scorefac=0.15)
+    @test MOI.get(optimizer, MOI.RawParameter("branching/scorefac")) == 0.15
 
     # char
     optimizer = SCIP.Optimizer(branching_scorefunc='s')
+    @test MOI.get(optimizer, MOI.RawParameter("branching/scorefunc")) == 's'
 
     # string
     optimizer = SCIP.Optimizer(heuristics_alns_rewardfilename="abc.txt")
+    @test MOI.get(optimizer, MOI.RawParameter("heuristics/alns/rewardfilename")) == "abc.txt"
 
     # invalid
     @test_throws ErrorException SCIP.Optimizer(some_invalid_param_name=true)
 end
 
 @testset "use RawParameter" begin
-    # TODO: verify that the parameter was actually set
     optimizer = SCIP.Optimizer()
 
     # bool
     MOI.set(optimizer, MOI.RawParameter("branching/preferbinary"), true)
+    @test MOI.get(optimizer, MOI.RawParameter("branching/preferbinary")) == true
 
     # int
     MOI.set(optimizer, MOI.RawParameter("conflict/minmaxvars"), 1)
+    @test MOI.get(optimizer, MOI.RawParameter("conflict/minmaxvars")) == 1
 
     # long int
     MOI.set(optimizer, MOI.RawParameter("heuristics/alns/maxnodes"), 2)
+    @test MOI.get(optimizer, MOI.RawParameter("heuristics/alns/maxnodes")) == 2
 
     # real
     MOI.set(optimizer, MOI.RawParameter("branching/scorefac"), 0.15)
+    @test MOI.get(optimizer, MOI.RawParameter("branching/scorefac")) == 0.15
 
     # char
     MOI.set(optimizer, MOI.RawParameter("branching/scorefunc"), 's')
+    @test MOI.get(optimizer, MOI.RawParameter("branching/scorefunc")) == 's'
 
     # string
     MOI.set(optimizer, MOI.RawParameter("heuristics/alns/rewardfilename"), "abc.txt")
+    @test MOI.get(optimizer, MOI.RawParameter("heuristics/alns/rewardfilename")) == "abc.txt"
 
     # invalid
     @test_throws ErrorException MOI.set(optimizer, MOI.RawParameter("some/invalid/param/name"), true)

@@ -104,6 +104,11 @@ MOI.get(::Optimizer, ::MOI.SolverName) = "SCIP"
 MOIU.supports_default_copy_to(model::Optimizer, copy_names::Bool) = !copy_names
 
 const Param = MOI.RawParameter # for backwards-compatibility
+
+function MOI.get(o::Optimizer, param::MOI.RawParameter)
+    return get_parameter(o.mscip, param.name)
+end
+
 function MOI.set(o::Optimizer, param::MOI.RawParameter, value)
     o.params[param.name] = value
     set_parameter(o.mscip, param.name, value)
