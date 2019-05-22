@@ -115,6 +115,8 @@ function MOI.set(o::Optimizer, param::MOI.RawParameter, value)
     return nothing
 end
 
+MOI.supports(o::Optimizer, ::MOI.Silent) = true
+
 function MOI.get(o::Optimizer, ::MOI.Silent)
     return MOI.get(o, MOI.RawParameter("display/verblevel")) == 0
 end

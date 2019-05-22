@@ -566,6 +566,8 @@ end
 @testset "Silent" begin
     optimizer = SCIP.Optimizer()
 
+    @test MOI.supports(optimizer, MOI.Silent())
+
     # "loud" by default
     @test MOI.get(optimizer, MOI.Silent()) == false
     @test MOI.get(optimizer, MOI.RawParameter("display/verblevel")) == 4
