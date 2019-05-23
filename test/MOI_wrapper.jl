@@ -43,7 +43,7 @@ end
 end
 
 @testset "MOI Integer Linear" begin
-    excluded = ["indicator3"]
+    excluded = String[]
     MOIT.intlineartest(BRIDGED, CONFIG, excluded)
 end
 
