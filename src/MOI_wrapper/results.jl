@@ -52,24 +52,28 @@ assert_solved(o::Optimizer) = assert_stage(o, [SCIP_STAGE_SOLVED])
 "Make sure that: TRANSFORMED ≤ stage ≤ SOLVED."
 assert_after_prob(o::Optimizer) = assert_stage(o, SCIP_Stage.(3:10))
 
-function MOI.get(o::Optimizer, ::MOI.ObjectiveValue)
+function MOI.get(o::Optimizer, attr::MOI.ObjectiveValue)
     assert_solved(o)
-    return SCIPgetSolOrigObj(o, SCIPgetBestSol(o))
+    sols = unsafe_wrap(Array{Ptr{SCIP_SOL}}, SCIPgetSols(o), SCIPgetNSols(o))
+    return SCIPgetSolOrigObj(o, sols[attr.result_index])
 end
 
-function MOI.get(o::Optimizer, ::MOI.VariablePrimal, vi::VI)
+function MOI.get(o::Optimizer, attr::MOI.VariablePrimal, vi::VI)
     assert_solved(o)
-    return SCIPgetSolVal(o, SCIPgetBestSol(o), var(o, vi))
+    sols = unsafe_wrap(Array{Ptr{SCIP_SOL}}, SCIPgetSols(o), SCIPgetNSols(o))
+    return SCIPgetSolVal(o, sols[attr.N], var(o, vi))
 end
 
-function MOI.get(o::Optimizer, ::MOI.ConstraintPrimal, ci::CI{SVF,<:BOUNDS})
+function MOI.get(o::Optimizer, attr::MOI.ConstraintPrimal, ci::CI{SVF,<:BOUNDS})
     assert_solved(o)
-    return SCIPgetSolVal(o, SCIPgetBestSol(o), var(o, VI(ci.value)))
+    sols = unsafe_wrap(Array{Ptr{SCIP_SOL}}, SCIPgetSols(o), SCIPgetNSols(o))
+    return SCIPgetSolVal(o, sols[attr.N], var(o, VI(ci.value)))
 end
 
-function MOI.get(o::Optimizer, ::MOI.ConstraintPrimal, ci::CI{SAF,<:BOUNDS})
+function MOI.get(o::Optimizer, attr::MOI.ConstraintPrimal, ci::CI{SAF,<:BOUNDS})
     assert_solved(o)
-    return SCIPgetActivityLinear(o, cons(o, ci), SCIPgetBestSol(o))
+    sols = unsafe_wrap(Array{Ptr{SCIP_SOL}}, SCIPgetSols(o), SCIPgetNSols(o))
+    return SCIPgetActivityLinear(o, cons(o, ci), sols[attr.N])
 end
 
 function MOI.get(o::Optimizer, ::MOI.ObjectiveBound)
