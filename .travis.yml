@@ -3,7 +3,7 @@ language: julia
 os:
   - linux
   - osx
-dist: bionic
+dist: xenial
 sudo: true
 julia:
   - 1.0
