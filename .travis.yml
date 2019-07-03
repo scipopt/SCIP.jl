@@ -22,7 +22,7 @@ addons:
     - libblas3
     - libc6
     - libgcc1
-    - libgfortran4
+    - libgfortran3
     - libgmp10
     - libgsl2
     - liblapack3
@@ -30,8 +30,9 @@ addons:
     - zlib1g
 before_install:
   - export VERSION=6.0.2
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then wget http://scip.zib.de/download/release/SCIPOptSuite-$VERSION-Linux.deb; fi
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo dpkg -i SCIPOptSuite-$VERSION-Linux.deb; fi
+  - export DEBFILE=SCIPOptSuite-$VERSION-Linux-Ub1604.deb
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then wget http://scip.zib.de/download/release/$DEBFILE; fi
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo dpkg -i $DEBFILE ; fi
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then wget http://scip.zib.de/download/release/scipoptsuite-$VERSION.tgz; fi
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then tar -xf scipoptsuite-$VERSION.tgz && cd scipoptsuite-$VERSION; fi
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then mkdir build && cd build && cmake -D CMAKE_BUILD_TYPE=Release -D ZIMPL=OFF -D GCG=OFF -D BUILD_TESTING=OFF -D CMAKE_INSTALL_PREFIX=../install ..; fi
