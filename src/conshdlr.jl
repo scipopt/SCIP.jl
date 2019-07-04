@@ -10,7 +10,7 @@
 #   - PROP_TIMING = SCIP_PROPTIMING_BEFORELP
 #   - PRESOLTIMING = SCIP_PRESOLTIMING_MEDIUM
 #   - MAXPREROUNDS = -1
-# - don't support optional methods: CONSHLDRCOPY, CONSFREE, CONSINIT, CONSEXIT,
+# - don't support optional methods: CONSHDLRCOPY, CONSFREE, CONSINIT, CONSEXIT,
 #   CONSINITPRE, CONSEXITPRE, CONSINITSOL, CONSEXITSOL, CONSDELETE, CONSTRANS,
 #   CONSINITLP, CONSSEPALP, CONSSEPASOL, CONSENFORELAX, CONSPROP, CONSPRESOL,
 #   CONSRESPROP, CONSACTIVE, CONSDEACTIVE, CONSENABLE, CONSDISABLE, CONSDELVARS,
@@ -36,12 +36,12 @@ struct CheckPriority <: AbstractConstraintHandlerParameter end
 # Interface methods
 
 # Parameters have default values
-get(ch::AbstractConstraintHandler, ::Name) = ""
-get(ch::AbstractConstraintHandler, ::Description) = ""
+get(::AbstractConstraintHandler, ::Name) = ""
+get(::AbstractConstraintHandler, ::Description) = ""
 # enfoprio: integral has 0, nonlinear: -30 or less
-get(ch::AbstractConstraintHandler, ::EnforcePriority) = -15
+get(::AbstractConstraintHandler, ::EnforcePriority) = -15
 # checkprio: integral has 0, SCIP's plugins have -6000000 or more
-get(ch::AbstractConstraintHandler, ::CheckPriority) = -7000000
+get(::AbstractConstraintHandler, ::CheckPriority) = -7000000
 
 # For semantics of callback methods, see SCIP documentation at:
 # https://scip.zib.de/doc-6.0.1/html/CONS.php#CONS_FUNDAMENTALCALLBACKS
@@ -184,16 +184,19 @@ function include_conshdlr(mscip::ManagedSCIP, ch::CH) where CH <: AbstractConstr
     conshdlr__ = Ref{Ptr{SCIP_CONSHDLR}}(C_NULL)
 
     # Fixed values for some properties:
+    # TODO: allow to set them as optional parameters?
     EAGERFREQ = 100
     NEEDSCONS = TRUE
 
     # Get other values from methods:
     name = get(ch, Name())
+    name != "" || error("Constraint handler may not have empty name!")
     desc = get(ch, Description())
     enfopriority = get(ch, EnforcePriority())
     chckpriority = get(ch, CheckPriority())
 
     # Hand over Julia object as constraint handler data:
+    # TODO: make sure that `ch` is not garbage collected?
     conshdlrdata_ = pointer_from_objref(ch)
 
     # Register constraint handler with SCIP instance.
@@ -213,3 +216,35 @@ end
 # - add custom arguments as needed
 # - store in consdata (== Julia object)
 # - could be the same as the constructor to AbstractConstraint?
+
+"""
+Add constraint of user-defined type, returns cons ref.
+
+# Arguments
+- `ch`: Julia-side constraint handler (== SCIP-side conshdlrdata)
+- `c`: Julia-side constraint (== SCIP-side consdata)
+"""
+function add_constraint(mscip::ManagedSCIP, ch::CH, c::C) where {CH <:AbstractConstraintHandler, C <: AbstractConstraint{CH}}
+    # Find matching SCIP constraint handler plugin.
+    # TODO: store mapping in Julia data, not depending on unique name?
+    name = get(ch, Name())
+    conshdlr_::Ptr{SCIP_CONSHDLR} = SCIPfindConshdlr(mscip, name)
+    conshdlr_ != C_NULL || error("Constraint handler $name not found!")
+
+    # Hand over Julia object as constraint data:
+    # TODO: make sure that `c` is not garbage collected?
+    consdata_ = pointer_from_objref(c)
+
+    # Create SCIP constraint (and attach constraint data).
+    # TODO: allow to set last 10 arguments as optional?
+    cons__ = Ref{Ptr{SCIP_CONS}}(C_NULL)
+    @SC SCIPcreateCons(mscip, cons__, "", conshdlr_, consdata_,
+                       TRUE, TRUE, TRUE, TRUE, TRUE,
+                       FALSE, FALSE, FALSE, FALSE, FALSE)
+
+    # Add constraint to problem.
+    @SC SCIPaddCons(mscip, cons__[])
+
+    # Register constraint and return reference.
+    return SCIP.store_cons!(mscip, cons__)
+end
