@@ -9,6 +9,10 @@ end
     include("managed_scip.jl")
 end
 
+@testset "constraint handlers" begin
+    include("conshdlr.jl")
+end
+
 @testset "MathOptInterface tests (bridged)" begin
     include("MOI_wrapper.jl")
 end
