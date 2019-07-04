@@ -46,9 +46,13 @@ get(ch::AbstractConstraintHandler, ::CheckPriority) = -7000000
 # For semantics of callback methods, see SCIP documentation at:
 # https://scip.zib.de/doc-6.0.1/html/CONS.php#CONS_FUNDAMENTALCALLBACKS
 
+# possible return values:
+# SCIP_FEASIBLE: given solution is satisfies the constraint
+# SCIP_INFEASIBLE: given solution is violates the constraint
 function check end
 
 # possible return values:
+# SCIP_FEASIBLE: given solution is satisfies the constraint
 # SCIP_CUTOFF: stating that the current subproblem is infeasible
 # SCIP_CONSADDED: adding constraint that resolves the infeasibility
 # SCIP_REDUCEDDOM: reducing the domain of a variable
@@ -57,6 +61,7 @@ function check end
 function enforce_lp_sol end
 
 # possible return values:
+# SCIP_FEASIBLE: given solution is satisfies the constraint
 # SCIP_CUTOFF: stating that the current subproblem is infeasible
 # SCIP_CONSADDED: adding constraint that resolves the infeasibility
 # SCIP_REDUCEDDOM: reducing the domain of a variable
@@ -78,17 +83,18 @@ function _conscheck(scip::Ptr{SCIP_}, conshdlr::Ptr{SCIP_CONSHDLR},
                     checklprows::SCIP_Bool, printreason::SCIP_Bool,
                     completely::SCIP_Bool, result::Ptr{SCIP_RESULT})
     # get Julia object out of constraint handler data
-    conshdlrdata = SCIPconshdlrGetData(conshdlr)
-    constraint_handler = unsafe_objref_from_pointer(conshdlrdata)
+    conshdlrdata::Ptr{SCIP_CONSHDLRDATA} = SCIPconshdlrGetData(conshdlr)
+    constraint_handler = unsafe_pointer_to_objref(conshdlrdata)
 
     # get Julia array from C pointer
-    constraint_pointers = unsafe_wrap(Array{Ptr{SCIP_CONS}}, conss, nconss)
+    constraints = unsafe_wrap(Array{Ptr{SCIP_CONS}}, conss, nconss)
 
     # TODO: fetch solution values
     # TODO: document meaning of all parameters
 
     # call user method via dispatch
-    result[] = check(constraint_handler, constraints)
+    res = check(constraint_handler, constraints)
+    unsafe_store!(result, res)
 
     return SCIP_OKAY
 end
@@ -102,17 +108,18 @@ function _consenfolp(scip::Ptr{SCIP_}, conshdlr::Ptr{SCIP_CONSHDLR},
                      nusefulconss::Cint, solinfeasible::SCIP_Bool,
                      result::Ptr{SCIP_RESULT})
     # get Julia object out of constraint handler data
-    conshdlrdata = SCIPconshdlrGetData(conshdlr)
-    constraint_handler = unsafe_objref_from_pointer(conshdlrdata)
+    conshdlrdata::Ptr{SCIP_CONSHDLRDATA} = SCIPconshdlrGetData(conshdlr)
+    constraint_handler = unsafe_pointer_to_objref(conshdlrdata)
 
     # get Julia array from C pointer
-    constraint_pointers = unsafe_wrap(Array{Ptr{SCIP_CONS}}, conss, nconss)
+    constraints = unsafe_wrap(Array{Ptr{SCIP_CONS}}, conss, nconss)
 
     # TODO: fetch solution values?
     # TODO: document meaning of all parameters
 
     # call user method via dispatch
-    result[] = enforce_lp_sol(constraint_handler, constraints, solinfeasible)
+    res = enforce_lp_sol(constraint_handler, constraints, solinfeasible)
+    unsafe_store!(result, res)
 
     return SCIP_OKAY
 end
@@ -126,18 +133,18 @@ function _consenfops(scip::Ptr{SCIP_}, conshdlr::Ptr{SCIP_CONSHDLR},
                      nusefulconss::Cint, solinfeasible::SCIP_Bool,
                      objinfeasible::SCIP_Bool, result::Ptr{SCIP_RESULT})
     # get Julia object out of constraint handler data
-    conshdlrdata = SCIPconshdlrGetData(conshdlr)
-    constraint_handler = unsafe_objref_from_pointer(conshdlrdata)
+    conshdlrdata::Ptr{SCIP_CONSHDLRDATA} = SCIPconshdlrGetData(conshdlr)
+    constraint_handler = unsafe_pointer_to_objref(conshdlrdata)
 
     # get Julia array from C pointer
-    constraint_pointers = unsafe_wrap(Array{Ptr{SCIP_CONS}}, conss, nconss)
+    constraints = unsafe_wrap(Array{Ptr{SCIP_CONS}}, conss, nconss)
 
     # TODO: fetch solution values?
     # TODO: document meaning of all parameters
 
     # call user method via dispatch
-    result[] = enforce_pseudo_sol(constraint_handler, constraints,
-                                  solinfeasible, objinfeasible)
+    res = enforce_pseudo_sol(constraint_handler, constraints, solinfeasible, objinfeasible)
+    unsafe_store!(result, res)
 
     return SCIP_OKAY
 end
@@ -149,13 +156,13 @@ function _conslock(scip::Ptr{SCIP_}, conshdlr::Ptr{SCIP_CONSHDLR},
                    cons::Ptr{SCIP_CONS}, locktype::Ptr{SCIP_LOCKTYPE},
                    nlockspos::Cint, nlocksneg::Cint)
     # get Julia object out of constraint handler data
-    conshdlrdata = SCIPconshdlrGetData(conshdlr)
-    constraint_handler = unsafe_objref_from_pointer(conshdlrdata)
+    conshdlrdata::Ptr{SCIP_CONSHDLRDATA} = SCIPconshdlrGetData(conshdlr)
+    constraint_handler = unsafe_pointer_to_objref(conshdlrdata)
 
     # TODO: document meaning of all parameters
 
     # call user method via dispatch
-    result[] = lock(constraint_handler, cons, locktype, nlockspos, nlocksneg)
+    lock(constraint_handler, cons, locktype, nlockspos, nlocksneg)
 
     return SCIP_OKAY
 end
@@ -174,8 +181,7 @@ function include_conshdlr(mscip::ManagedSCIP, ch::CH) where CH <: AbstractConstr
     _lock = @cfunction(_conslock, SCIP_RETCODE, (Ptr{SCIP_}, Ptr{SCIP_CONSHDLR}, Ptr{SCIP_CONS}, Ptr{SCIP_LOCKTYPE}, Cint, Cint))
 
     # We don't need to store this, I guess.
-    conshdlr__ = Ref{Ptr{SCIP_CONSHDLR}}
-    conshdlr__[] = C_NULL
+    conshdlr__ = Ref{Ptr{SCIP_CONSHDLR}}(C_NULL)
 
     # Fixed values for some properties:
     EAGERFREQ = 100
@@ -184,14 +190,18 @@ function include_conshdlr(mscip::ManagedSCIP, ch::CH) where CH <: AbstractConstr
     # Get other values from methods:
     name = get(ch, Name())
     desc = get(ch, Description())
-    enfoprio = get(ch, EnforcePriority())
-    checkprio = get(ch, CheckPriority())
+    enfopriority = get(ch, EnforcePriority())
+    chckpriority = get(ch, CheckPriority())
+
+    # Hand over Julia object as constraint handler data:
+    conshdlrdata_ = pointer_from_objref(ch)
 
     # Register constraint handler with SCIP instance.
-    @SC SCIPincludeConshdlrBasic(mscip, conshdlr__, name, desc, enfopriority,
-                                 chckpriority, EAGERFREQ, NEEDSCONS,
+    @SC SCIPincludeConshdlrBasic(mscip, conshdlr__,
+                                 name, desc, enfopriority, chckpriority,
+                                 EAGERFREQ, NEEDSCONS,
                                  _enfolp, _enfops, _check, _lock,
-                                 ch)
+                                 conshdlrdata_)
 
     # Sanity checks
     @assert conshdlr__[] != C_NULL
