@@ -72,7 +72,7 @@ function lock end
 # (SCIP* scip, SCIP_CONSHDLR* conshdlr, SCIP_CONS** conss, int nconss,
 #  SCIP_SOL* sol, SCIP_Bool checkintegrality, SCIP_Bool checklprows,
 #  SCIP_Bool printreason, SCIP_Bool completely, SCIP_RESULT* result
-function _conscheck(scip::Ptr{SCIP_}, conshdlr::{SCIP_CONSHDLR},
+function _conscheck(scip::Ptr{SCIP_}, conshdlr::Ptr{SCIP_CONSHDLR},
                     conss::Ptr{Ptr{SCIP_CONS}}, nconss::Cint,
                     sol::Ptr{SCIP_SOL}, checkintegrality::SCIP_Bool,
                     checklprows::SCIP_Bool, printreason::SCIP_Bool,
