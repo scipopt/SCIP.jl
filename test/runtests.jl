@@ -9,6 +9,9 @@ end
     include("managed_scip.jl")
 end
 
+# new type definitions in module (needs top level)
+include("conshdlr_support.jl")
+
 @testset "constraint handlers" begin
     include("conshdlr.jl")
 end
