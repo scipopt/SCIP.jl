@@ -25,23 +25,7 @@ abstract type AbstractConstraintHandler end
 # (also: CONSDATA)
 abstract type AbstractConstraint{Handler} end
 
-# Parameters:
-
-abstract type AbstractConstraintHandlerParameter end
-struct Name <: AbstractConstraintHandlerParameter end
-struct Description <: AbstractConstraintHandlerParameter end
-struct EnforcePriority <: AbstractConstraintHandlerParameter end
-struct CheckPriority <: AbstractConstraintHandlerParameter end
-
 # Interface methods
-
-# Parameters have default values
-get(::AbstractConstraintHandler, ::Name) = ""
-get(::AbstractConstraintHandler, ::Description) = ""
-# enfoprio: integral has 0, nonlinear: -30 or less
-get(::AbstractConstraintHandler, ::EnforcePriority) = -15
-# checkprio: integral has 0, SCIP's plugins have -6000000 or more
-get(::AbstractConstraintHandler, ::CheckPriority) = -7000000
 
 # For semantics of callback methods, see SCIP documentation at:
 # https://scip.zib.de/doc-6.0.1/html/CONS.php#CONS_FUNDAMENTALCALLBACKS
@@ -173,7 +157,12 @@ end
 # - set properties (NAME, DESC, ENFOPRIORITY, CHECKPRIORITY).
 # - initialize conshdlrdata (== Julia object)
 # - could be called from the constructor to constraint handler?
-function include_conshdlr(mscip::ManagedSCIP, ch::CH) where CH <: AbstractConstraintHandler
+function include_conshdlr(mscip::ManagedSCIP, ch::CH, name;
+                          description="", enforce_priority=-15,
+                          check_priority=-7000000, eager_frequency=100,
+                          needs_constraints=false) where CH <: AbstractConstraintHandler
+    name != "" || error("Constraint handler may not have empty name!")
+
     # get C function pointers from Julia functions
     _enfolp = @cfunction(_consenfolp, SCIP_RETCODE, (Ptr{SCIP_}, Ptr{SCIP_CONSHDLR}, Ptr{Ptr{SCIP_CONS}}, Cint, Cint, SCIP_Bool, SCIP_Bool, Ptr{SCIP_RESULT}))
     _enfops = @cfunction(_consenfops, SCIP_RETCODE, (Ptr{SCIP_}, Ptr{SCIP_CONSHDLR}, Ptr{Ptr{SCIP_CONS}}, Cint, Cint, SCIP_Bool, SCIP_Bool, SCIP_Bool, Ptr{SCIP_RESULT}))
@@ -183,26 +172,14 @@ function include_conshdlr(mscip::ManagedSCIP, ch::CH) where CH <: AbstractConstr
     # We don't need to store this, I guess.
     conshdlr__ = Ref{Ptr{SCIP_CONSHDLR}}(C_NULL)
 
-    # Fixed values for some properties:
-    # TODO: allow to set them as optional parameters?
-    EAGERFREQ = 100
-    NEEDSCONS = TRUE
-
-    # Get other values from methods:
-    name = get(ch, Name())
-    name != "" || error("Constraint handler may not have empty name!")
-    desc = get(ch, Description())
-    enfopriority = get(ch, EnforcePriority())
-    chckpriority = get(ch, CheckPriority())
-
     # Hand over Julia object as constraint handler data:
     # TODO: make sure that `ch` is not garbage collected?
     conshdlrdata_ = pointer_from_objref(ch)
 
     # Register constraint handler with SCIP instance.
-    @SC SCIPincludeConshdlrBasic(mscip, conshdlr__,
-                                 name, desc, enfopriority, chckpriority,
-                                 EAGERFREQ, NEEDSCONS,
+    @SC SCIPincludeConshdlrBasic(mscip, conshdlr__, name, description,
+                                 enforce_priority, check_priority,
+                                 eager_frequency, needs_constraints,
                                  _enfolp, _enfops, _check, _lock,
                                  conshdlrdata_)
 
@@ -224,10 +201,9 @@ Add constraint of user-defined type, returns cons ref.
 - `ch`: Julia-side constraint handler (== SCIP-side conshdlrdata)
 - `c`: Julia-side constraint (== SCIP-side consdata)
 """
-function add_constraint(mscip::ManagedSCIP, ch::CH, c::C) where {CH <:AbstractConstraintHandler, C <: AbstractConstraint{CH}}
+function add_constraint(mscip::ManagedSCIP, name::String, c::C) where {CH <:AbstractConstraintHandler, C <: AbstractConstraint{CH}}
     # Find matching SCIP constraint handler plugin.
     # TODO: store mapping in Julia data, not depending on unique name?
-    name = get(ch, Name())
     conshdlr_::Ptr{SCIP_CONSHDLR} = SCIPfindConshdlr(mscip, name)
     conshdlr_ != C_NULL || error("Constraint handler $name not found!")
 

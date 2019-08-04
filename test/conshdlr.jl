@@ -5,15 +5,14 @@
 
     # add the constraint handler
     ch = Dummy.DummyConsHdlr()
-    SCIP.include_conshdlr(mscip, ch)
+    SCIP.include_conshdlr(mscip, ch, "Dummy")
 
     # add dummy constraint
-    cr = SCIP.add_constraint(mscip, ch, Dummy.DummyCons())
+    cr = SCIP.add_constraint(mscip, "Dummy", Dummy.DummyCons())
 
     # solve the problem
     SCIP.@SC SCIP.SCIPsolve(mscip.scip[])
 
-    @test ch.name_called >= 1
     @test ch.check_called >= 1
     @test ch.enfo_called >= 0
     @test ch.lock_called >= 1
