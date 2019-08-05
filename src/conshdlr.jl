@@ -207,7 +207,6 @@ function add_constraint(mscip::ManagedSCIP, ch::CH, c::C) where {CH <:AbstractCo
     conshdlr_ != C_NULL || error("No matching constraint handler registered!")
 
     # Hand over Julia object as constraint data:
-    # TODO: make sure that `c` is not garbage collected?
     consdata_ = pointer_from_objref(c)
 
     # Create SCIP constraint (and attach constraint data).
@@ -216,6 +215,12 @@ function add_constraint(mscip::ManagedSCIP, ch::CH, c::C) where {CH <:AbstractCo
     @SC SCIPcreateCons(mscip, cons__, "", conshdlr_, consdata_,
                        TRUE, TRUE, TRUE, TRUE, TRUE,
                        FALSE, FALSE, FALSE, FALSE, FALSE)
+
+    # Sanity check.
+    @assert cons__[] != C_NULL
+
+    # Register constraint data (for GC-protection).
+    mscip.conshdlrconss[c] = cons__[]
 
     # Add constraint to problem.
     @SC SCIPaddCons(mscip, cons__[])

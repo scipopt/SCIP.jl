@@ -16,6 +16,7 @@ mutable struct ManagedSCIP
     var_count::Int64
     cons_count::Int64
     conshdlrs::Dict{Any, Ptr{SCIP_CONSHDLR}}
+    conshdlrconss::Dict{Any, Ptr{SCIP_CONS}}
 
     function ManagedSCIP()
         scip = Ref{Ptr{SCIP_}}(C_NULL)
@@ -24,7 +25,7 @@ mutable struct ManagedSCIP
         @SC SCIPincludeDefaultPlugins(scip[])
         @SC SCIP.SCIPcreateProbBasic(scip[], "")
 
-        mscip = new(scip, Dict(), Dict(), 0, 0, Dict())
+        mscip = new(scip, Dict(), Dict(), 0, 0, Dict(), Dict())
         finalizer(free_scip, mscip)
     end
 end
