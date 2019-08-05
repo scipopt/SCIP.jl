@@ -1,7 +1,5 @@
 # Current limitations:
 # - use fixed values for some properties
-#   - EAGERFREQ = 100
-#   - NEEDSCONS = TRUE
 #   - SEPAPRIORITY = 0
 #   - SEPAFREQ = -1
 #   - DELAYSEPA = FALSE
@@ -201,7 +199,10 @@ Add constraint of user-defined type, returns cons ref.
 - `ch`: Julia-side constraint handler (== SCIP-side conshdlrdata)
 - `c`: Julia-side constraint (== SCIP-side consdata)
 """
-function add_constraint(mscip::ManagedSCIP, ch::CH, c::C) where {CH <:AbstractConstraintHandler, C <: AbstractConstraint{CH}}
+function add_constraint(mscip::ManagedSCIP, ch::CH, c::C;
+                        initial=true, separate=true, enforce=true, check=true,
+                        propagate=true, _local=false, modifiable=false,
+                        dynamic=false, removable=false, stickingatnode=false) where {CH <:AbstractConstraintHandler, C <: AbstractConstraint{CH}}
     # Find matching SCIP constraint handler plugin.
     conshdlr_::Ptr{SCIP_CONSHDLR} = get(mscip.conshdlrs, ch, C_NULL)
     conshdlr_ != C_NULL || error("No matching constraint handler registered!")
@@ -213,8 +214,8 @@ function add_constraint(mscip::ManagedSCIP, ch::CH, c::C) where {CH <:AbstractCo
     # TODO: allow to set last 10 arguments as optional?
     cons__ = Ref{Ptr{SCIP_CONS}}(C_NULL)
     @SC SCIPcreateCons(mscip, cons__, "", conshdlr_, consdata_,
-                       TRUE, TRUE, TRUE, TRUE, TRUE,
-                       FALSE, FALSE, FALSE, FALSE, FALSE)
+                       initial, separate, enforce, check, propagate,
+                       _local, modifiable, dynamic, removable, stickingatnode)
 
     # Sanity check.
     @assert cons__[] != C_NULL
