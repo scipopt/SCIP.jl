@@ -157,23 +157,20 @@ end
 # - set properties (NAME, DESC, ENFOPRIORITY, CHECKPRIORITY).
 # - initialize conshdlrdata (== Julia object)
 # - could be called from the constructor to constraint handler?
-function include_conshdlr(mscip::ManagedSCIP, ch::CH, name;
-                          description="", enforce_priority=-15,
+function include_conshdlr(mscip::ManagedSCIP, ch::CH;
+                          name="", description="", enforce_priority=-15,
                           check_priority=-7000000, eager_frequency=100,
                           needs_constraints=false) where CH <: AbstractConstraintHandler
-    name != "" || error("Constraint handler may not have empty name!")
-
     # get C function pointers from Julia functions
     _enfolp = @cfunction(_consenfolp, SCIP_RETCODE, (Ptr{SCIP_}, Ptr{SCIP_CONSHDLR}, Ptr{Ptr{SCIP_CONS}}, Cint, Cint, SCIP_Bool, SCIP_Bool, Ptr{SCIP_RESULT}))
     _enfops = @cfunction(_consenfops, SCIP_RETCODE, (Ptr{SCIP_}, Ptr{SCIP_CONSHDLR}, Ptr{Ptr{SCIP_CONS}}, Cint, Cint, SCIP_Bool, SCIP_Bool, SCIP_Bool, Ptr{SCIP_RESULT}))
     _check = @cfunction(_conscheck, SCIP_RETCODE, (Ptr{SCIP_}, Ptr{SCIP_CONSHDLR}, Ptr{Ptr{SCIP_CONS}}, Cint, Ptr{SCIP_SOL}, SCIP_Bool, SCIP_Bool, SCIP_Bool, SCIP_Bool, Ptr{SCIP_RESULT}))
     _lock = @cfunction(_conslock, SCIP_RETCODE, (Ptr{SCIP_}, Ptr{SCIP_CONSHDLR}, Ptr{SCIP_CONS}, Ptr{SCIP_LOCKTYPE}, Cint, Cint))
 
-    # We don't need to store this, I guess.
+    # Store pointer to SCIP structure (for future C API calls)
     conshdlr__ = Ref{Ptr{SCIP_CONSHDLR}}(C_NULL)
 
     # Hand over Julia object as constraint handler data:
-    # TODO: make sure that `ch` is not garbage collected?
     conshdlrdata_ = pointer_from_objref(ch)
 
     # Register constraint handler with SCIP instance.
@@ -185,6 +182,9 @@ function include_conshdlr(mscip::ManagedSCIP, ch::CH, name;
 
     # Sanity checks
     @assert conshdlr__[] != C_NULL
+
+    # Register constraint handler (for GC-protection and mapping)
+    mscip.conshdlrs[ch] = conshdlr__[]
 end
 
 # SCIPcreateConsBasicXyz(SCIP* scip, SCIP_CONS** cons, char* name, ...)
@@ -201,11 +201,10 @@ Add constraint of user-defined type, returns cons ref.
 - `ch`: Julia-side constraint handler (== SCIP-side conshdlrdata)
 - `c`: Julia-side constraint (== SCIP-side consdata)
 """
-function add_constraint(mscip::ManagedSCIP, name::String, c::C) where {CH <:AbstractConstraintHandler, C <: AbstractConstraint{CH}}
+function add_constraint(mscip::ManagedSCIP, ch::CH, c::C) where {CH <:AbstractConstraintHandler, C <: AbstractConstraint{CH}}
     # Find matching SCIP constraint handler plugin.
-    # TODO: store mapping in Julia data, not depending on unique name?
-    conshdlr_::Ptr{SCIP_CONSHDLR} = SCIPfindConshdlr(mscip, name)
-    conshdlr_ != C_NULL || error("Constraint handler $name not found!")
+    conshdlr_::Ptr{SCIP_CONSHDLR} = get(mscip.conshdlrs, ch, C_NULL)
+    conshdlr_ != C_NULL || error("No matching constraint handler registered!")
 
     # Hand over Julia object as constraint data:
     # TODO: make sure that `c` is not garbage collected?

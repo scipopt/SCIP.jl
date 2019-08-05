@@ -5,10 +5,10 @@
 
     # add the constraint handler
     ch = Dummy.DummyConsHdlr()
-    SCIP.include_conshdlr(mscip, ch, "Dummy")
+    SCIP.include_conshdlr(mscip, ch)
 
     # add dummy constraint
-    cr = SCIP.add_constraint(mscip, "Dummy", Dummy.DummyCons())
+    cr = SCIP.add_constraint(mscip, ch, Dummy.DummyCons())
 
     # solve the problem
     SCIP.@SC SCIP.SCIPsolve(mscip.scip[])
