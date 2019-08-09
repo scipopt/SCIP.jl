@@ -154,6 +154,33 @@ function _conslock(scip::Ptr{SCIP_}, conshdlr::Ptr{SCIP_CONSHDLR},
     return SCIP_OKAY
 end
 
+# additional methods for memory management
+
+# CONSFREE
+# (SCIP* scip, SCIP_CONSHDLR* conshdlr)
+function _consfree(scip::Ptr{SCIP_}, conshdlr::Ptr{SCIP_CONSHDLR})
+    # Here, we should free the constraint handler data. But because this is an
+    # object created and owned by Julia, we will let GC do it.
+    # Instead, we will just set the pointer to NULL, so that SCIP will think
+    # that it is taken care of.
+    SCIPconshdlrSetData(conshdlr, C_NULL)
+
+    return SCIP_OKAY
+end
+
+# CONSDELETE
+# (SCIP* scip, SCIP_CONSHDLR* conshdlr, SCIP_CONS* cons, SCIP_CONSDATA** consdata)
+function _consdelete(scip::Ptr{SCIP_}, conshdlr::Ptr{SCIP_CONSHDLR},
+                     cons::Ptr{SCIP_CONS}, consdata::Ptr{Ptr{SCIP_CONSDATA}})
+    # Here, we should free the constraint data. But because this is an object
+    # created and owned by Julia, we will let GC do it.
+    # Instead, we will just set the pointer to NULL, so that SCIP will think
+    # that it is taken care of.
+    unsafe_store!(consdata, C_NULL)
+
+    return SCIP_OKAY
+end
+
 # SCIPincludeConsXyz(SCIP* scip)
 #
 # - is called by users, not SCIP: no need to make it signature conformant.
@@ -185,6 +212,15 @@ function include_conshdlr(mscip::ManagedSCIP, ch::CH;
 
     # Sanity checks
     @assert conshdlr__[] != C_NULL
+
+    # Set additional callbacks
+    @SC SCIPsetConshdlrFree(
+        mscip, conshdlr__[],
+        @cfunction(_consfree, SCIP_RETCODE, (Ptr{SCIP_}, Ptr{SCIP_CONSHDLR})))
+
+    @SC SCIPsetConshdlrDelete(
+        mscip, conshdlr__[],
+        @cfunction(_consdelete, SCIP_RETCODE, (Ptr{SCIP_}, Ptr{SCIP_CONSHDLR}, Ptr{SCIP_CONS}, Ptr{Ptr{SCIP_CONSDATA}})))
 
     # Register constraint handler (for GC-protection and mapping)
     mscip.conshdlrs[ch] = conshdlr__[]
