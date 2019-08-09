@@ -21,6 +21,9 @@ include("conshdlr.jl")
 # implementation of MOI
 include("MOI_wrapper.jl")
 
+# convenience functions
+include("convenience.jl")
+
 # warn about rewrite
 include("compat.jl")
 

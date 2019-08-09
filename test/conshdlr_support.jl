@@ -99,16 +99,12 @@ mutable struct NADCons <: SCIP.AbstractConstraint{NADCH}
 end
 
 # Helper function used in several callbacks
-function anyviolated(ch, constraints, sol)
+function anyviolated(ch, constraints, sol=C_NULL)
     for cons_::Ptr{SCIP.SCIP_CONS} in constraints
-        # extract corresponding Julia object
-        @assert cons_ != C_NULL
-        consdata_::Ptr{SCIP.SCIP_CONSDATA} = SCIP.SCIPconsGetData(cons_)
-        cons::NADCons = unsafe_pointer_to_objref(consdata_)
+        cons::NADCons = SCIP.user_constraint(cons_)
 
         # extract solution values
-        values = [SCIP.SCIPgetSolVal(ch.scip, sol, SCIP.var(ch.scip, vi))
-                  for vi in cons.variables]
+        values = SCIP.sol_values(ch.scip, cons.variables, sol)
 
         # check for constraint violation
         if !allunique(values)
@@ -145,10 +141,7 @@ function SCIP.enforce_pseudo_sol(ch::NADCH, constraints, nusefulconss,
 end
 
 function SCIP.lock(ch::NADCH, constraint, locktype, nlockspos, nlocksneg)
-    # extract corresponding Julia object
-    consdata_::Ptr{SCIP.SCIP_CONSDATA} = SCIP.SCIPconsGetData(constraint)
-    @assert consdata_ != C_NULL
-    cons::NADCons = unsafe_pointer_to_objref(consdata_)
+    cons::NADCons = SCIP.user_constraint(constraint)
 
     # look all variables in both directions
     for vi in cons.variables
