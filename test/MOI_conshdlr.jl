@@ -161,3 +161,31 @@ end
     @test MOI.get(optimizer, MOI.VariablePrimal(), y) ≈ 1.0 atol=atol rtol=rtol
     @test MOI.get(optimizer, MOI.VariablePrimal(), z) ≈ 0.0 atol=atol rtol=rtol
 end
+
+@testset "NoGoodCounter (2 binary vars)" begin
+    optimizer = SCIP.Optimizer(display_verblevel=0,
+                               misc_allowdualreds=SCIP.FALSE)
+    atol, rtol = 1e-6, 1e-6
+
+    # add binary variables
+    x, y = MOI.add_variables(optimizer, 2)
+    MOI.add_constraint(optimizer, MOI.SingleVariable(x), MOI.ZeroOne())
+    MOI.add_constraint(optimizer, MOI.SingleVariable(y), MOI.ZeroOne())
+
+    # maximize 2x + y
+    MOI.set(optimizer, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(),
+            MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([2.0, 1.0],
+                                                           [x, y]), 0.0))
+    MOI.set(optimizer, MOI.ObjectiveSense(), MOI.MAX_SENSE)
+
+    # add constraint handler with constraints
+    counter = NoGoodCounter.Counter(optimizer, [x, y])
+    SCIP.include_conshdlr(optimizer.mscip, counter; needs_constraints=false)
+
+    # solve problem and query result
+    MOI.optimize!(optimizer)
+    @test MOI.get(optimizer, MOI.TerminationStatus()) == MOI.INFEASIBLE
+    @test MOI.get(optimizer, MOI.PrimalStatus()) == MOI.NO_SOLUTION
+
+    @test length(counter.solutions) == 4
+end
