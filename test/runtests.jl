@@ -31,3 +31,7 @@ end
 @testset "MathOptInterface nonlinear expressions" begin
     include("MOI_nonlinear_exprs.jl")
 end
+
+@testset "constraint handlers (with MOI)" begin
+    include("MOI_conshdlr.jl")
+end

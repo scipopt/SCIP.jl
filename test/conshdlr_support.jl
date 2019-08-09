@@ -79,3 +79,88 @@ end
 mutable struct Cons <: SCIP.AbstractConstraint{NSCH} end
 
 end # module AlwaysSatisfied
+
+
+
+module NaiveAllDiff
+
+using MathOptInterface
+using SCIP
+
+const MOI = MathOptInterface
+
+mutable struct NADCH <: SCIP.AbstractConstraintHandler
+    scip::SCIP.Optimizer # for SCIP* and var maps
+end
+
+# Constraint data, referencing variables of a single constraint.
+mutable struct NADCons <: SCIP.AbstractConstraint{NADCH}
+    variables::Array{MOI.VariableIndex}
+end
+
+# Helper function used in several callbacks
+function anyviolated(ch, constraints, sol)
+    for cons_::Ptr{SCIP.SCIP_CONS} in constraints
+        # extract corresponding Julia object
+        @assert cons_ != C_NULL
+        consdata_::Ptr{SCIP.SCIP_CONSDATA} = SCIP.SCIPconsGetData(cons_)
+        cons::NADCons = unsafe_pointer_to_objref(consdata_)
+
+        # extract solution values
+        values = [SCIP.SCIPgetSolVal(ch.scip, sol, SCIP.var(ch.scip, vi))
+                  for vi in cons.variables]
+
+        # check for constraint violation
+        if !allunique(values)
+            return true
+        end
+    end
+    return false
+end
+
+function SCIP.check(ch::NADCH, constraints, sol, checkintegrality,
+                    checklprows, printreason, completely)
+    if anyviolated(ch, constraints, sol)
+        return SCIP.SCIP_INFEASIBLE
+    else
+        return SCIP.SCIP_FEASIBLE
+    end
+end
+
+function SCIP.enforce_lp_sol(ch::NADCH, constraints, nusefulconss, solinfeasible)
+    if anyviolated(ch, constraints, C_NULL)
+        return SCIP.SCIP_INFEASIBLE
+    else
+        return SCIP.SCIP_FEASIBLE
+    end
+end
+
+function SCIP.enforce_pseudo_sol(ch::NADCH, constraints, nusefulconss,
+                                 solinfeasible, objinfeasible)
+    if anyviolated(ch, constraints, C_NULL)
+        return SCIP.SCIP_INFEASIBLE
+    else
+        return SCIP.SCIP_FEASIBLE
+    end
+end
+
+function SCIP.lock(ch::NADCH, constraint, locktype, nlockspos, nlocksneg)
+    # extract corresponding Julia object
+    consdata_::Ptr{SCIP.SCIP_CONSDATA} = SCIP.SCIPconsGetData(constraint)
+    @assert consdata_ != C_NULL
+    cons::NADCons = unsafe_pointer_to_objref(consdata_)
+
+    # look all variables in both directions
+    for vi in cons.variables
+        # TODO: understand why lock is called during SCIPfree, after the
+        # constraint should have been deleted already. Does it mean we should
+        # implement CONSTRANS?
+        var_::Ptr{SCIP.SCIP_VAR} = SCIP.var(ch.scip, vi)
+        var_ != C_NULL || continue  # avoid segfault!
+
+        SCIP.@SC SCIP.SCIPaddVarLocksType(
+            ch.scip, var_, locktype, nlockspos + nlocksneg, nlockspos + nlocksneg)
+    end
+end
+
+end # module NaiveAllDiff
