@@ -140,7 +140,7 @@ end
 # (SCIP* scip, SCIP_CONSHDLR* conshdlr, SCIP_CONS* cons,
 #  SCIP_LOCKTYPE locktype, int nlockspos, int nlocksneg)
 function _conslock(scip::Ptr{SCIP_}, conshdlr::Ptr{SCIP_CONSHDLR},
-                   cons::Ptr{SCIP_CONS}, locktype::Ptr{SCIP_LOCKTYPE},
+                   cons::Ptr{SCIP_CONS}, locktype::SCIP_LOCKTYPE,
                    nlockspos::Cint, nlocksneg::Cint)
     # get Julia object out of constraint handler data
     conshdlrdata::Ptr{SCIP_CONSHDLRDATA} = SCIPconshdlrGetData(conshdlr)
@@ -168,7 +168,7 @@ function include_conshdlr(mscip::ManagedSCIP, ch::CH;
     _enfolp = @cfunction(_consenfolp, SCIP_RETCODE, (Ptr{SCIP_}, Ptr{SCIP_CONSHDLR}, Ptr{Ptr{SCIP_CONS}}, Cint, Cint, SCIP_Bool, Ptr{SCIP_RESULT}))
     _enfops = @cfunction(_consenfops, SCIP_RETCODE, (Ptr{SCIP_}, Ptr{SCIP_CONSHDLR}, Ptr{Ptr{SCIP_CONS}}, Cint, Cint, SCIP_Bool, SCIP_Bool, Ptr{SCIP_RESULT}))
     _check = @cfunction(_conscheck, SCIP_RETCODE, (Ptr{SCIP_}, Ptr{SCIP_CONSHDLR}, Ptr{Ptr{SCIP_CONS}}, Cint, Ptr{SCIP_SOL}, SCIP_Bool, SCIP_Bool, SCIP_Bool, SCIP_Bool, Ptr{SCIP_RESULT}))
-    _lock = @cfunction(_conslock, SCIP_RETCODE, (Ptr{SCIP_}, Ptr{SCIP_CONSHDLR}, Ptr{SCIP_CONS}, Ptr{SCIP_LOCKTYPE}, Cint, Cint))
+    _lock = @cfunction(_conslock, SCIP_RETCODE, (Ptr{SCIP_}, Ptr{SCIP_CONSHDLR}, Ptr{SCIP_CONS}, SCIP_LOCKTYPE, Cint, Cint))
 
     # Store pointer to SCIP structure (for future C API calls)
     conshdlr__ = Ref{Ptr{SCIP_CONSHDLR}}(C_NULL)
