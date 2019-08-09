@@ -29,26 +29,28 @@ abstract type AbstractConstraint{Handler} end
 # https://scip.zib.de/doc-6.0.1/html/CONS.php#CONS_FUNDAMENTALCALLBACKS
 
 # possible return values:
-# SCIP_FEASIBLE: given solution is satisfies the constraint
-# SCIP_INFEASIBLE: given solution is violates the constraint
+# SCIP_FEASIBLE: given solution satisfies the constraint
+# SCIP_INFEASIBLE: given solution violates the constraint
 function check end
 
 # possible return values:
-# SCIP_FEASIBLE: given solution is satisfies the constraint
+# SCIP_FEASIBLE: given solution satisfies the constraint
 # SCIP_CUTOFF: stating that the current subproblem is infeasible
 # SCIP_CONSADDED: adding constraint that resolves the infeasibility
 # SCIP_REDUCEDDOM: reducing the domain of a variable
 # SCIP_SEPARATED: adding a cutting plane
 # SCIP_BRANCHED: performing a branching
+# SCIP_INFEASIBLE: given solution violates the constraint (don't know what to do about it)
 function enforce_lp_sol end
 
 # possible return values:
-# SCIP_FEASIBLE: given solution is satisfies the constraint
+# SCIP_FEASIBLE: given solution satisfies the constraint
 # SCIP_CUTOFF: stating that the current subproblem is infeasible
 # SCIP_CONSADDED: adding constraint that resolves the infeasibility
 # SCIP_REDUCEDDOM: reducing the domain of a variable
 # SCIP_BRANCHED: performing a branching
 # SCIP_SOLVELP: force solving of LP
+# SCIP_INFEASIBLE: given solution violates the constraint (don't know what to do about it)
 function enforce_pseudo_sol end
 
 function lock end
