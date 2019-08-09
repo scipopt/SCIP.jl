@@ -77,7 +77,8 @@ function _conscheck(scip::Ptr{SCIP_}, conshdlr::Ptr{SCIP_CONSHDLR},
     # TODO: document meaning of all parameters
 
     # call user method via dispatch
-    res = check(constraint_handler, constraints)
+    res = check(constraint_handler, constraints, sol, checkintegrality,
+                checklprows, printreason, completely)
     unsafe_store!(result, res)
 
     return SCIP_OKAY
@@ -102,7 +103,8 @@ function _consenfolp(scip::Ptr{SCIP_}, conshdlr::Ptr{SCIP_CONSHDLR},
     # TODO: document meaning of all parameters
 
     # call user method via dispatch
-    res = enforce_lp_sol(constraint_handler, constraints, solinfeasible)
+    res = enforce_lp_sol(constraint_handler, constraints, nusefulconss,
+                         solinfeasible)
     unsafe_store!(result, res)
 
     return SCIP_OKAY
@@ -127,7 +129,8 @@ function _consenfops(scip::Ptr{SCIP_}, conshdlr::Ptr{SCIP_CONSHDLR},
     # TODO: document meaning of all parameters
 
     # call user method via dispatch
-    res = enforce_pseudo_sol(constraint_handler, constraints, solinfeasible, objinfeasible)
+    res = enforce_pseudo_sol(constraint_handler, constraints, nusefulconss,
+                             solinfeasible, objinfeasible)
     unsafe_store!(result, res)
 
     return SCIP_OKAY

@@ -13,17 +13,20 @@ mutable struct DummyConsHdlr <: SCIP.AbstractConstraintHandler
 end
 
 # Implement only the fundamental callbacks:
-function SCIP.check(ch::DummyConsHdlr, constraints)
+function SCIP.check(ch::DummyConsHdlr, constraint, sol, checkintegrality,
+                    checklprows, printreason, completely)
     ch.check_called += 1
     return SCIP.SCIP_FEASIBLE
 end
 
-function SCIP.enforce_lp_sol(ch::DummyConsHdlr, constraints, solinfeasible)
+function SCIP.enforce_lp_sol(ch::DummyConsHdlr, constraints, nusefulconss,
+                             solinfeasible)
     ch.enfo_called += 1
     return SCIP.SCIP_FEASIBLE
 end
 
-function SCIP.enforce_pseudo_sol(ch::DummyConsHdlr, constraints, solinfeasible, objinfeasible)
+function SCIP.enforce_pseudo_sol(ch::DummyConsHdlr, constraints, nusefulconss,
+                                 solinfeasible, objinfeasible)
     ch.enfo_called += 1
     return SCIP.SCIP_FEASIBLE
 end
@@ -51,17 +54,19 @@ mutable struct NSCH <: SCIP.AbstractConstraintHandler
     NSCH() = new(0, 0, 0)
 end
 
-function SCIP.check(ch::NSCH, constraints)
+function SCIP.check(ch::NSCH, constraints, sol, checkintegrality,
+                    checklprows, printreason, completely)
     ch.check_called += 1
     return SCIP.SCIP_INFEASIBLE
 end
 
-function SCIP.enforce_lp_sol(ch::NSCH, constraints, solinfeasible)
+function SCIP.enforce_lp_sol(ch::NSCH, constraints, nusefulconss, solinfeasible)
     ch.enfo_called += 1
     return SCIP.SCIP_INFEASIBLE
 end
 
-function SCIP.enforce_pseudo_sol(ch::NSCH, constraints, solinfeasible, objinfeasible)
+function SCIP.enforce_pseudo_sol(ch::NSCH, constraints, nusefulconss,
+                                 solinfeasible, objinfeasible)
     ch.enfo_called += 1
     return SCIP.SCIP_INFEASIBLE
 end
