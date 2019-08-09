@@ -91,7 +91,7 @@ end
 
 "Go back from solved stage to problem modification stage, invalidating results."
 function allow_modification(o::Optimizer)
-    if SCIPgetStage(o) != SCIP_STAGE_PROBLEM
+    if !(SCIPgetStage(o) in [SCIP_STAGE_PROBLEM, SCIP_STAGE_SOLVING])
         @SC SCIPfreeTransform(o)
     end
     return nothing
