@@ -36,3 +36,41 @@ end
 mutable struct DummyCons <: SCIP.AbstractConstraint{DummyConsHdlr} end
 
 end # module Dummy
+
+
+
+module NeverSatisfied
+
+using SCIP
+
+mutable struct NSCH <: SCIP.AbstractConstraintHandler
+    check_called::Int64
+    enfo_called::Int64
+    lock_called::Int64
+
+    NSCH() = new(0, 0, 0)
+end
+
+function SCIP.check(ch::NSCH, constraints)
+    ch.check_called += 1
+    return SCIP.SCIP_INFEASIBLE
+end
+
+function SCIP.enforce_lp_sol(ch::NSCH, constraints, solinfeasible)
+    ch.enfo_called += 1
+    return SCIP.SCIP_INFEASIBLE
+end
+
+function SCIP.enforce_pseudo_sol(ch::NSCH, constraints, solinfeasible, objinfeasible)
+    ch.enfo_called += 1
+    return SCIP.SCIP_INFEASIBLE
+end
+
+function SCIP.lock(ch::NSCH, constraint, locktype, nlockspos, nlocksneg)
+    ch.lock_called += 1
+end
+
+# Corresponding, empty constraint (data) object
+mutable struct Cons <: SCIP.AbstractConstraint{NSCH} end
+
+end # module AlwaysSatisfied
