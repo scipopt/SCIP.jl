@@ -1,5 +1,20 @@
+#
+# Wrappers for implementing SCIP constraint handlers in Julia.
+#
+# Please study the corresponding SCIP documentation first, to become familiar
+# with basic concepts and terms: https://scip.zib.de/doc-6.0.2/html/CONS.php
+#
+# The basic idea is that you create a new subtype of `AbstractConstraintHandler`
+# to store the constraint handler data and implement the fundamental callbacks
+# by adding methods to the functions `check`, `enforce_lp_sol`,
+# `enforce_pseudo_sol` and `lock`.
+#
+# If your constraint handler uses constraint objects (`needs_constraints`), you
+# create a subtype of the parametrized `AbstractConstraint`.
+#
+#
 # Current limitations:
-# - use fixed values for some properties
+# - We now use fixed values for some properties:
 #   - SEPAPRIORITY = 0
 #   - SEPAFREQ = -1
 #   - DELAYSEPA = FALSE
@@ -8,49 +23,124 @@
 #   - PROP_TIMING = SCIP_PROPTIMING_BEFORELP
 #   - PRESOLTIMING = SCIP_PRESOLTIMING_MEDIUM
 #   - MAXPREROUNDS = -1
-# - don't support optional methods: CONSHDLRCOPY, CONSFREE, CONSINIT, CONSEXIT,
-#   CONSINITPRE, CONSEXITPRE, CONSINITSOL, CONSEXITSOL, CONSDELETE, CONSTRANS,
-#   CONSINITLP, CONSSEPALP, CONSSEPASOL, CONSENFORELAX, CONSPROP, CONSPRESOL,
-#   CONSRESPROP, CONSACTIVE, CONSDEACTIVE, CONSENABLE, CONSDISABLE, CONSDELVARS,
-#   CONSPRINT, CONSCOPY, CONSPARSE, CONSGETVARS, CONSGETNVARS, CONSGETDIVEBDCHGS
-# - don't support linear or nonlinear constraint upgrading
+# - We don't support these optional methods: CONSHDLRCOPY, CONSFREE, CONSINIT,
+#   CONSEXIT, CONSINITPRE, CONSEXITPRE, CONSINITSOL, CONSEXITSOL, CONSDELETE,
+#   CONSTRANS, CONSINITLP, CONSSEPALP, CONSSEPASOL, CONSENFORELAX, CONSPROP,
+#   CONSPRESOL, CONSRESPROP, CONSACTIVE, CONSDEACTIVE, CONSENABLE, CONSDISABLE,
+#   CONSDELVARS, CONSPRINT, CONSCOPY, CONSPARSE, CONSGETVARS, CONSGETNVARS,
+#   CONSGETDIVEBDCHGS
+# - We don't support linear or nonlinear constraint upgrading.
+#
 
-# Abstract Types:
+#
+# Abstract Supertypes:
+#
 
-# (also: CONSHDLRDATA)
+"""
+    AbstractConstraintHandler
+
+Abstract supertype for objects that store all user data belonging to the
+constraint handler. This object is also used for method dispatch with the
+callback functions.
+
+From SCIP's point-of-view, this objects corresponds to the SCIP_CONSHDLRDATA,
+but its memory is managed by Julia's GC.
+
+It's recommended to store a reference to your instance of `ManagedSCIP` or
+`SCIP.Optimizer` here, so that you can use it within your callback methods.
+"""
 abstract type AbstractConstraintHandler end
 
-# (also: CONSDATA)
+"""
+    AbstractConstraint{Handler}
+
+Abstract supertype for objects that store all user data belonging to an
+individual constraint. It's parameterized by the type of constraint handler.
+
+From SCIP's point-of-view, this objects corresponds to the SCIP_CONSDATA,
+but its memory is managed by Julia's GC.
+"""
 abstract type AbstractConstraint{Handler} end
 
-# Interface methods
+#
+# Fundamental Callbacks:
+#
 
-# For semantics of callback methods, see SCIP documentation at:
-# https://scip.zib.de/doc-6.0.1/html/CONS.php#CONS_FUNDAMENTALCALLBACKS
+"""
+    check(
+        constraint_handler::CH,
+        constraints::Array{Ptr{SCIP_CONS}},
+        sol::Ptr{SCIP_SOL},
+        checkintegrality::SCIP_Bool,
+        checklprows::SCIP_Bool,
+        printreason::SCIP_Bool,
+        completely::SCIP_Bool
+    )::SCIP_RESULT
 
-# possible return values:
-# SCIP_FEASIBLE: given solution satisfies the constraint
-# SCIP_INFEASIBLE: given solution violates the constraint
+Check whether the solution candidate given by `sol` satisfies all constraints in
+`constraints`.
+
+Use the functions `user_constraint` and `sol_values` to access your
+constraint-specific user data and solution values, respectively.
+
+Acceptable result values are:
+* `SCIP_FEASIBLE`: The solution candidate satisfies all constraints.
+* `SCIP_INFEASIBLE`: The solution candidate violates at least one constraint.
+
+There is nothing else to do for the user in terms of dealing with the violation.
+"""
 function check end
 
-# possible return values:
-# SCIP_FEASIBLE: given solution satisfies the constraint
-# SCIP_CUTOFF: stating that the current subproblem is infeasible
-# SCIP_CONSADDED: adding constraint that resolves the infeasibility
-# SCIP_REDUCEDDOM: reducing the domain of a variable
-# SCIP_SEPARATED: adding a cutting plane
-# SCIP_BRANCHED: performing a branching
-# SCIP_INFEASIBLE: given solution violates the constraint (don't know what to do about it)
+"""
+    enforce_lp_sol(
+        constraint_handler::CH,
+        constraints::Array{Ptr{SCIP_CONS}},
+        nusefulconss::Cint,
+        solinfeasible::SCIP_Bool
+    )::SCIP_RESULT
+
+Enforce the current solution for the LP relaxation. That is, check all given
+constraints for violation and deal with it in some way (see below).
+
+Use the functions `user_constraint` and `sol_values` to access your
+constraint-specific user data and solution values, respectively.
+
+Acceptable result values are:
+* `SCIP_FEASIBLE`: The solution candidate satisfies all constraints.
+* `SCIP_CUTOFF`: The current subproblem is infeasible.
+* `SCIP_CONSADDED`: Added a constraint that resolves the infeasibility.
+* `SCIP_REDUCEDDOM`: Reduced the domain of a variable.
+* `SCIP_SEPARATED`: Added a cutting plane.
+* `SCIP_BRANCHED`: Performed a branching.
+* `SCIP_INFEASIBLE`: The solution candidate violates at least one constraint.
+"""
 function enforce_lp_sol end
 
-# possible return values:
-# SCIP_FEASIBLE: given solution satisfies the constraint
-# SCIP_CUTOFF: stating that the current subproblem is infeasible
-# SCIP_CONSADDED: adding constraint that resolves the infeasibility
-# SCIP_REDUCEDDOM: reducing the domain of a variable
-# SCIP_BRANCHED: performing a branching
-# SCIP_SOLVELP: force solving of LP
-# SCIP_INFEASIBLE: given solution violates the constraint (don't know what to do about it)
+"""
+    enforce_pseudo_sol(
+        constraint_handler::CH,
+        constraints::Array{Ptr{SCIP_CONS}},
+        nusefulconss::Cint,
+        solinfeasible::SCIP_Bool
+    )::SCIP_RESULT
+
+Enforce the current pseudo solution (the LP relaxation was not solved). That is,
+check all given constraints for violation and deal with it in some way (see
+below).
+
+Use the functions `user_constraint` and `sol_values` to access your
+constraint-specific user data and solution values, respectively.
+
+Acceptable result values are:
+* `SCIP_FEASIBLE`: The solution candidate satisfies all constraints.
+* `SCIP_CUTOFF`: The current subproblem is infeasible.
+* `SCIP_CONSADDED`: Added a constraint that resolves the infeasibility.
+* `SCIP_REDUCEDDOM`: Reduced the domain of a variable.
+* `SCIP_SEPARATED`: Added a cutting plane.
+* `SCIP_BRANCHED`: Performed a branching.
+* `SCIP_SOLVELP`: Force the solving of the LP relaxation.
+* `SCIP_INFEASIBLE`: The solution candidate violates at least one constraint.
+"""
 function enforce_pseudo_sol end
 
 function lock end
