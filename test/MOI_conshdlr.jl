@@ -17,10 +17,10 @@ const MOI = MathOptInterface
 
     # add constraint handler with constraint all-diff(x, y)
     alldiffch = NaiveAllDiff.NADCH(optimizer)
-    SCIP.include_conshdlr(optimizer.mscip, alldiffch; needs_constraints=true)
+    SCIP.include_conshdlr(optimizer, alldiffch; needs_constraints=true)
 
     alldiffcons = NaiveAllDiff.NADCons([x, y])
-    cr = SCIP.add_constraint(optimizer.mscip, alldiffch, alldiffcons)
+    cr = SCIP.add_constraint(optimizer, alldiffch, alldiffcons)
 
     # solve problem and query result
     MOI.optimize!(optimizer)
@@ -50,10 +50,10 @@ end
 
     # add constraint handler with constraints all-diff(x, y), all-diff(y, x)
     alldiffch = NaiveAllDiff.NADCH(optimizer)
-    SCIP.include_conshdlr(optimizer.mscip, alldiffch; needs_constraints=true)
+    SCIP.include_conshdlr(optimizer, alldiffch; needs_constraints=true)
 
-    SCIP.add_constraint(optimizer.mscip, alldiffch, NaiveAllDiff.NADCons([x, y]))
-    SCIP.add_constraint(optimizer.mscip, alldiffch, NaiveAllDiff.NADCons([y, z]))
+    SCIP.add_constraint(optimizer, alldiffch, NaiveAllDiff.NADCons([x, y]))
+    SCIP.add_constraint(optimizer, alldiffch, NaiveAllDiff.NADCons([y, z]))
 
     # solve problem and query result
     MOI.optimize!(optimizer)
@@ -84,11 +84,11 @@ end
 
     # add constraint handler with constraints all-diff(x, y, z)
     alldiffch = NaiveAllDiff.NADCH(optimizer)
-    SCIP.include_conshdlr(optimizer.mscip, alldiffch; needs_constraints=true)
+    SCIP.include_conshdlr(optimizer, alldiffch; needs_constraints=true)
 
-    SCIP.add_constraint(optimizer.mscip, alldiffch, NaiveAllDiff.NADCons([x, y]))
-    SCIP.add_constraint(optimizer.mscip, alldiffch, NaiveAllDiff.NADCons([x, z]))
-    SCIP.add_constraint(optimizer.mscip, alldiffch, NaiveAllDiff.NADCons([y, z]))
+    SCIP.add_constraint(optimizer, alldiffch, NaiveAllDiff.NADCons([x, y]))
+    SCIP.add_constraint(optimizer, alldiffch, NaiveAllDiff.NADCons([x, z]))
+    SCIP.add_constraint(optimizer, alldiffch, NaiveAllDiff.NADCons([y, z]))
 
     # solve problem and query result
     MOI.optimize!(optimizer)
@@ -116,9 +116,9 @@ end
 
     # add constraint handler with constraints all-diff(x, y, z)
     alldiffch = NaiveAllDiff.NADCH(optimizer)
-    SCIP.include_conshdlr(optimizer.mscip, alldiffch; needs_constraints=true)
+    SCIP.include_conshdlr(optimizer, alldiffch; needs_constraints=true)
 
-    SCIP.add_constraint(optimizer.mscip, alldiffch, NaiveAllDiff.NADCons([x, y, z]))
+    SCIP.add_constraint(optimizer, alldiffch, NaiveAllDiff.NADCons([x, y, z]))
 
     # solve problem and query result
     MOI.optimize!(optimizer)
@@ -147,9 +147,9 @@ end
 
     # add constraint handler with constraints all-diff(x, y, z)
     alldiffch = NaiveAllDiff.NADCH(optimizer)
-    SCIP.include_conshdlr(optimizer.mscip, alldiffch; needs_constraints=true)
+    SCIP.include_conshdlr(optimizer, alldiffch; needs_constraints=true)
 
-    SCIP.add_constraint(optimizer.mscip, alldiffch, NaiveAllDiff.NADCons([x, y, z]))
+    SCIP.add_constraint(optimizer, alldiffch, NaiveAllDiff.NADCons([x, y, z]))
 
     # solve problem and query result
     MOI.optimize!(optimizer)
@@ -180,7 +180,7 @@ end
 
     # add constraint handler with constraints
     counter = NoGoodCounter.Counter(optimizer, [x, y])
-    SCIP.include_conshdlr(optimizer.mscip, counter; needs_constraints=false)
+    SCIP.include_conshdlr(optimizer, counter; needs_constraints=false)
 
     # solve problem and query result
     MOI.optimize!(optimizer)

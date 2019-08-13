@@ -402,5 +402,5 @@ function add_constraint(mscip::ManagedSCIP, ch::CH, c::C;
     @SC SCIPaddCons(mscip, cons__[])
 
     # Register constraint and return reference.
-    return SCIP.store_cons!(mscip, cons__)
+    return store_cons!(mscip, cons__)
 end
