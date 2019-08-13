@@ -169,7 +169,9 @@ function lock end
 # user's method in the function body.
 #
 
-"Generic `check` function, matching the signature from SCIP's C API."
+"""
+Generic `check` function, matching the signature from SCIP's C API.
+"""
 function _conscheck(scip::Ptr{SCIP_}, conshdlr::Ptr{SCIP_CONSHDLR},
                     conss::Ptr{Ptr{SCIP_CONS}}, nconss::Cint,
                     sol::Ptr{SCIP_SOL}, checkintegrality::SCIP_Bool,
@@ -190,7 +192,9 @@ function _conscheck(scip::Ptr{SCIP_}, conshdlr::Ptr{SCIP_CONSHDLR},
     return SCIP_OKAY
 end
 
-"Generic `enfolp` function, matching the signature from SCIP's C API."
+"""
+Generic `enfolp` function, matching the signature from SCIP's C API.
+"""
 function _consenfolp(scip::Ptr{SCIP_}, conshdlr::Ptr{SCIP_CONSHDLR},
                      conss::Ptr{Ptr{SCIP_CONS}}, nconss::Cint,
                      nusefulconss::Cint, solinfeasible::SCIP_Bool,
@@ -210,7 +214,9 @@ function _consenfolp(scip::Ptr{SCIP_}, conshdlr::Ptr{SCIP_CONSHDLR},
     return SCIP_OKAY
 end
 
-"Generic `enfops` function, matching the signature from SCIP's C API."
+"""
+Generic `enfops` function, matching the signature from SCIP's C API.
+"""
 function _consenfops(scip::Ptr{SCIP_}, conshdlr::Ptr{SCIP_CONSHDLR},
                      conss::Ptr{Ptr{SCIP_CONS}}, nconss::Cint,
                      nusefulconss::Cint, solinfeasible::SCIP_Bool,
@@ -230,7 +236,9 @@ function _consenfops(scip::Ptr{SCIP_}, conshdlr::Ptr{SCIP_CONSHDLR},
     return SCIP_OKAY
 end
 
-"Generic `lock` function, matching the signature from SCIP's C API."
+"""
+Generic `lock` function, matching the signature from SCIP's C API.
+"""
 function _conslock(scip::Ptr{SCIP_}, conshdlr::Ptr{SCIP_CONSHDLR},
                    cons::Ptr{SCIP_CONS}, locktype::SCIP_LOCKTYPE,
                    nlockspos::Cint, nlocksneg::Cint)
@@ -252,7 +260,9 @@ end
 # so there is no method for the user to implement.
 #
 
-"Generic `free` function, matching the signature from SCIP's C API."
+"""
+Generic `free` function, matching the signature from SCIP's C API.
+"""
 function _consfree(scip::Ptr{SCIP_}, conshdlr::Ptr{SCIP_CONSHDLR})
     # Here, we should free the constraint handler data. But because this is an
     # object created and owned by Julia, we will let GC do it.
@@ -263,7 +273,9 @@ function _consfree(scip::Ptr{SCIP_}, conshdlr::Ptr{SCIP_CONSHDLR})
     return SCIP_OKAY
 end
 
-"Generic `delete` function, matching the signature from SCIP's C API."
+"""
+Generic `delete` function, matching the signature from SCIP's C API.
+"""
 function _consdelete(scip::Ptr{SCIP_}, conshdlr::Ptr{SCIP_CONSHDLR},
                      cons::Ptr{SCIP_CONS}, consdata::Ptr{Ptr{SCIP_CONSDATA}})
     # Here, we should free the constraint data. But because this is an object
