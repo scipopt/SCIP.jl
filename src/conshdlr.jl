@@ -32,6 +32,7 @@
 # - We don't support linear or nonlinear constraint upgrading.
 #
 
+
 #
 # Abstract Supertypes:
 #
@@ -62,8 +63,9 @@ but its memory is managed by Julia's GC.
 """
 abstract type AbstractConstraint{Handler} end
 
+
 #
-# Fundamental Callbacks:
+# Fundamental Callbacks for Julia.
 #
 
 """
@@ -143,14 +145,31 @@ Acceptable result values are:
 """
 function enforce_pseudo_sol end
 
+"""
+    lock(
+        constraint_handler::CH,
+        constraint::Ptr{SCIP_CONS},
+        locktype::SCIP_LOCKTYPE,
+        nlockspos::Cint,
+        nlocksneg::Cint
+    )
+
+Define the variable locks that the given constraint implies. For each related
+variable, call `SCIPaddVarLocksType` to let SCIP know whether rounding the value
+up or down might lead to constraint violation.
+"""
 function lock end
 
-# Methods
 
-# CONSCHECK
-# (SCIP* scip, SCIP_CONSHDLR* conshdlr, SCIP_CONS** conss, int nconss,
-#  SCIP_SOL* sol, SCIP_Bool checkintegrality, SCIP_Bool checklprows,
-#  SCIP_Bool printreason, SCIP_Bool completely, SCIP_RESULT* result
+#
+# Fundamental callback functions with SCIP's C API.
+#
+# There is only a single, generic implementation for each of these, which are
+# passed to all user-defined SCIP constraint handlers, but they will call the
+# user's method in the function body.
+#
+
+"Generic `check` function, matching the signature from SCIP's C API."
 function _conscheck(scip::Ptr{SCIP_}, conshdlr::Ptr{SCIP_CONSHDLR},
                     conss::Ptr{Ptr{SCIP_CONS}}, nconss::Cint,
                     sol::Ptr{SCIP_SOL}, checkintegrality::SCIP_Bool,
@@ -163,9 +182,6 @@ function _conscheck(scip::Ptr{SCIP_}, conshdlr::Ptr{SCIP_CONSHDLR},
     # get Julia array from C pointer
     constraints = unsafe_wrap(Array{Ptr{SCIP_CONS}}, conss, nconss)
 
-    # TODO: fetch solution values
-    # TODO: document meaning of all parameters
-
     # call user method via dispatch
     res = check(constraint_handler, constraints, sol, checkintegrality,
                 checklprows, printreason, completely)
@@ -174,10 +190,7 @@ function _conscheck(scip::Ptr{SCIP_}, conshdlr::Ptr{SCIP_CONSHDLR},
     return SCIP_OKAY
 end
 
-# CONSENFOLP
-# (SCIP* scip, SCIP_CONSHDLR* conshdlr, SCIP_CONS** conss, int nconss,
-#  int nusefulconss, SCIP_Bool solinfeasible, SCIP_RESULT* result)
-
+"Generic `enfolp` function, matching the signature from SCIP's C API."
 function _consenfolp(scip::Ptr{SCIP_}, conshdlr::Ptr{SCIP_CONSHDLR},
                      conss::Ptr{Ptr{SCIP_CONS}}, nconss::Cint,
                      nusefulconss::Cint, solinfeasible::SCIP_Bool,
@@ -189,9 +202,6 @@ function _consenfolp(scip::Ptr{SCIP_}, conshdlr::Ptr{SCIP_CONSHDLR},
     # get Julia array from C pointer
     constraints = unsafe_wrap(Array{Ptr{SCIP_CONS}}, conss, nconss)
 
-    # TODO: fetch solution values?
-    # TODO: document meaning of all parameters
-
     # call user method via dispatch
     res = enforce_lp_sol(constraint_handler, constraints, nusefulconss,
                          solinfeasible)
@@ -200,10 +210,7 @@ function _consenfolp(scip::Ptr{SCIP_}, conshdlr::Ptr{SCIP_CONSHDLR},
     return SCIP_OKAY
 end
 
-# CONSENFOPS
-# (SCIP* scip, SCIP_CONSHDLR* conshdlr, SCIP_CONS** conss, int nconss,
-#  int nusefulconss, SCIP_Bool solinfeasible, SCIP_Bool objinfeasible,
-#  SCIP_RESULT* result)
+"Generic `enfops` function, matching the signature from SCIP's C API."
 function _consenfops(scip::Ptr{SCIP_}, conshdlr::Ptr{SCIP_CONSHDLR},
                      conss::Ptr{Ptr{SCIP_CONS}}, nconss::Cint,
                      nusefulconss::Cint, solinfeasible::SCIP_Bool,
@@ -215,9 +222,6 @@ function _consenfops(scip::Ptr{SCIP_}, conshdlr::Ptr{SCIP_CONSHDLR},
     # get Julia array from C pointer
     constraints = unsafe_wrap(Array{Ptr{SCIP_CONS}}, conss, nconss)
 
-    # TODO: fetch solution values?
-    # TODO: document meaning of all parameters
-
     # call user method via dispatch
     res = enforce_pseudo_sol(constraint_handler, constraints, nusefulconss,
                              solinfeasible, objinfeasible)
@@ -226,9 +230,7 @@ function _consenfops(scip::Ptr{SCIP_}, conshdlr::Ptr{SCIP_CONSHDLR},
     return SCIP_OKAY
 end
 
-# CONSLOCK
-# (SCIP* scip, SCIP_CONSHDLR* conshdlr, SCIP_CONS* cons,
-#  SCIP_LOCKTYPE locktype, int nlockspos, int nlocksneg)
+"Generic `lock` function, matching the signature from SCIP's C API."
 function _conslock(scip::Ptr{SCIP_}, conshdlr::Ptr{SCIP_CONSHDLR},
                    cons::Ptr{SCIP_CONS}, locktype::SCIP_LOCKTYPE,
                    nlockspos::Cint, nlocksneg::Cint)
@@ -236,18 +238,21 @@ function _conslock(scip::Ptr{SCIP_}, conshdlr::Ptr{SCIP_CONSHDLR},
     conshdlrdata::Ptr{SCIP_CONSHDLRDATA} = SCIPconshdlrGetData(conshdlr)
     constraint_handler = unsafe_pointer_to_objref(conshdlrdata)
 
-    # TODO: document meaning of all parameters
-
     # call user method via dispatch
     lock(constraint_handler, cons, locktype, nlockspos, nlocksneg)
 
     return SCIP_OKAY
 end
 
-# additional methods for memory management
 
-# CONSFREE
-# (SCIP* scip, SCIP_CONSHDLR* conshdlr)
+#
+# Additional callback functions for memory management.
+#
+# The implementation should work for all constraint handlers defined in Julia,
+# so there is no method for the user to implement.
+#
+
+"Generic `free` function, matching the signature from SCIP's C API."
 function _consfree(scip::Ptr{SCIP_}, conshdlr::Ptr{SCIP_CONSHDLR})
     # Here, we should free the constraint handler data. But because this is an
     # object created and owned by Julia, we will let GC do it.
@@ -258,8 +263,7 @@ function _consfree(scip::Ptr{SCIP_}, conshdlr::Ptr{SCIP_CONSHDLR})
     return SCIP_OKAY
 end
 
-# CONSDELETE
-# (SCIP* scip, SCIP_CONSHDLR* conshdlr, SCIP_CONS* cons, SCIP_CONSDATA** consdata)
+"Generic `delete` function, matching the signature from SCIP's C API."
 function _consdelete(scip::Ptr{SCIP_}, conshdlr::Ptr{SCIP_CONSHDLR},
                      cons::Ptr{SCIP_CONS}, consdata::Ptr{Ptr{SCIP_CONSDATA}})
     # Here, we should free the constraint data. But because this is an object
@@ -271,17 +275,38 @@ function _consdelete(scip::Ptr{SCIP_}, conshdlr::Ptr{SCIP_CONSHDLR},
     return SCIP_OKAY
 end
 
-# SCIPincludeConsXyz(SCIP* scip)
+
 #
-# - is called by users, not SCIP: no need to make it signature conformant.
-# - set properties (NAME, DESC, ENFOPRIORITY, CHECKPRIORITY).
-# - initialize conshdlrdata (== Julia object)
-# - could be called from the constructor to constraint handler?
+# Adding constraint handlers and constraints to ManagedSCIP.
+#
+
+"""
+    include_conshdlr(
+        mscip::ManagedSCIP,
+        ch::CH;
+        name::String,
+        description::String,
+        enforce_priority::Int,
+        check_priority::Int,
+        eager_frequency::Int,
+        needs_constraints::Bool
+    )
+
+Include a user defined constraint handler `ch` to the SCIP instance `mscip`.
+
+All parameters have default values that can be set as keyword arguments.
+In particular, note the boolean `needs_constraints`:
+* If set to `true`, then the callbacks are only called for the constraints that
+  were added explicitly using `add_constraint`.
+* If set to `false`, the callback functions will always be called, even if no
+  corresponding constraint was added. It probably makes sense to set
+  `misc/allowdualreds` to `FALSE` in this case.
+"""
 function include_conshdlr(mscip::ManagedSCIP, ch::CH;
                           name="", description="", enforce_priority=-15,
                           check_priority=-7000000, eager_frequency=100,
-                          needs_constraints=false) where CH <: AbstractConstraintHandler
-    # get C function pointers from Julia functions
+                          needs_constraints=true) where CH <: AbstractConstraintHandler
+    # Get C function pointers from Julia functions
     _enfolp = @cfunction(_consenfolp, SCIP_RETCODE, (Ptr{SCIP_}, Ptr{SCIP_CONSHDLR}, Ptr{Ptr{SCIP_CONS}}, Cint, Cint, SCIP_Bool, Ptr{SCIP_RESULT}))
     _enfops = @cfunction(_consenfops, SCIP_RETCODE, (Ptr{SCIP_}, Ptr{SCIP_CONSHDLR}, Ptr{Ptr{SCIP_CONS}}, Cint, Cint, SCIP_Bool, SCIP_Bool, Ptr{SCIP_RESULT}))
     _check = @cfunction(_conscheck, SCIP_RETCODE, (Ptr{SCIP_}, Ptr{SCIP_CONSHDLR}, Ptr{Ptr{SCIP_CONS}}, Cint, Ptr{SCIP_SOL}, SCIP_Bool, SCIP_Bool, SCIP_Bool, SCIP_Bool, Ptr{SCIP_RESULT}))
@@ -303,32 +328,40 @@ function include_conshdlr(mscip::ManagedSCIP, ch::CH;
     # Sanity checks
     @assert conshdlr__[] != C_NULL
 
-    # Set additional callbacks
+    # Set additional callbacks.
     @SC SCIPsetConshdlrFree(
         mscip, conshdlr__[],
         @cfunction(_consfree, SCIP_RETCODE, (Ptr{SCIP_}, Ptr{SCIP_CONSHDLR})))
-
     @SC SCIPsetConshdlrDelete(
         mscip, conshdlr__[],
         @cfunction(_consdelete, SCIP_RETCODE, (Ptr{SCIP_}, Ptr{SCIP_CONSHDLR}, Ptr{SCIP_CONS}, Ptr{Ptr{SCIP_CONSDATA}})))
 
-    # Register constraint handler (for GC-protection and mapping)
+    # Register constraint handler (for GC-protection and mapping).
     mscip.conshdlrs[ch] = conshdlr__[]
 end
 
-# SCIPcreateConsBasicXyz(SCIP* scip, SCIP_CONS** cons, char* name, ...)
-#
-# - is called by users, not SCIP: no need to make it signature conformant.
-# - add custom arguments as needed
-# - store in consdata (== Julia object)
-# - could be the same as the constructor to AbstractConstraint?
-
 """
-Add constraint of user-defined type, returns cons ref.
+    add_constraint(
+        mscip::ManagedSCIP,
+        ch::CH,
+        c::C;
+        initial=true,
+        separate=true,
+        enforce=true,
+        check=true,
+        propagate=true,
+        _local=false,
+        modifiable=false,
+        dynamic=false,
+        removable=false,
+        stickingatnode=false
+    )::ConsRef
 
-# Arguments
-- `ch`: Julia-side constraint handler (== SCIP-side conshdlrdata)
-- `c`: Julia-side constraint (== SCIP-side consdata)
+
+Add constraint `c` belonging to user-defined constraint handler `ch` to model.
+Returns constraint reference.
+
+All keyword arguments are passed to the `SCIPcreateCons` call.
 """
 function add_constraint(mscip::ManagedSCIP, ch::CH, c::C;
                         initial=true, separate=true, enforce=true, check=true,
@@ -342,7 +375,6 @@ function add_constraint(mscip::ManagedSCIP, ch::CH, c::C;
     consdata_ = pointer_from_objref(c)
 
     # Create SCIP constraint (and attach constraint data).
-    # TODO: allow to set last 10 arguments as optional?
     cons__ = Ref{Ptr{SCIP_CONS}}(C_NULL)
     @SC SCIPcreateCons(mscip, cons__, "", conshdlr_, consdata_,
                        initial, separate, enforce, check, propagate,
