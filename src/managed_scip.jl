@@ -15,6 +15,11 @@ mutable struct ManagedSCIP
     conss::Dict{ConsRef, Ref{Ptr{SCIP_CONS}}}
     var_count::Int64
     cons_count::Int64
+
+    # Map from user-defined Julia types (keys are <: AbstractConstraintHandler
+    # or <: AbstractConstraint, respectively) to the corresponding SCIP objects.
+    # The reverse mapping is handled by SCIP itself.
+    # This also serves to prevent premature GC.
     conshdlrs::Dict{Any, Ptr{SCIP_CONSHDLR}}
     conshdlrconss::Dict{Any, Ptr{SCIP_CONS}}
 
