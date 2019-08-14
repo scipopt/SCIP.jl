@@ -96,17 +96,19 @@ end
     MOI.delete(optimizer, t)
     @test var_bounds(optimizer, x) == MOI.Interval(-1.0, 2.0)
 
-    # Is an error: binary variable with conflicting bounds (infeasible).
+    # No error: binary variable with conflicting bounds (infeasible).
     MOI.empty!(optimizer)
     x = MOI.add_variable(optimizer)
     b = MOI.add_constraint(optimizer, x, MOI.Interval(2.0, 3.0))
-    @test_throws ErrorException t = MOI.add_constraint(optimizer, x, MOI.ZeroOne())
+    t = MOI.add_constraint(optimizer, x, MOI.ZeroOne())
+    @test var_bounds(optimizer, x) == MOI.Interval(2.0, 3.0)
 
-    # Is an error: binary variable with conflicting bounds (infeasible, different order).
+    # No error: binary variable with conflicting bounds (infeasible, different order).
     MOI.empty!(optimizer)
     x = MOI.add_variable(optimizer)
     t = MOI.add_constraint(optimizer, x, MOI.ZeroOne())
-    @test_throws ErrorException b = MOI.add_constraint(optimizer, x, MOI.Interval(2.0, 3.0))
+    b = MOI.add_constraint(optimizer, x, MOI.Interval(2.0, 3.0))
+    @test var_bounds(optimizer, x) == MOI.Interval(2.0, 3.0)
 
     MOI.empty!(optimizer)
     x1 = MOI.add_variable(optimizer)

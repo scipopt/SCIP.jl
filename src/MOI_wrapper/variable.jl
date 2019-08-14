@@ -60,8 +60,6 @@ function MOI.add_constraint(o::Optimizer, func::SVF, set::S) where {S <: VAR_TYP
             @debug "Implicitly setting bounds [0,1] for binary variable at $(vi.value)!"
             @SC SCIPchgVarLb(o, v, 0.0)
             @SC SCIPchgVarUb(o, v, 1.0)
-        elseif lb > 1.0 || ub < 0.0
-                error("Existing bounds [$lb,$ub] conflict for binary variable at $(vi.value)!")
         else
             # Store old bounds for later recovery.
             o.binbounds[vi] = MOI.Interval(lb, ub)
@@ -128,13 +126,19 @@ function MOI.add_constraint(o::Optimizer, func::SVF, set::S) where S <: BOUNDS
         if SCIPvarGetType(v) == SCIP_VARTYPE_BINARY
             # Store new bounds
             o.binbounds[vi] = MOI.Interval(newlb, newub)
-            if newlb >= 0.0 && newlb <= newub && newub <= 1.0
+
+            if newlb < 0.0
+                @debug "Ignoring relaxed lower bound $newlb for binary variable at $(vi.value)!"
+                newlb = oldlb
+            end
+
+            if newub > 1.0
+                @debug "Ignoring relaxed upper bounds $newub for binary variable at $(vi.value)!"
+                newub = oldub
+            end
+
+            if newlb != oldlb || newub != oldub
                 @debug "Overwriting existing bounds [0.0,1.0] with [$newlb,$newub] for binary variable at $(vi.value)!"
-            elseif newlb <= oldlb && newub >= oldub
-                @debug "Ignoring wider bounds [$newlb,$newub] for binary variable at $(vi.value)!"
-                newlb, newub = oldlb, oldub
-            else
-                error("Invalid bounds [$newlb,$newub] for binary variable at $(vi.value)!")
             end
         else # general case (non-binary variable)
             error("Already have bounds [$oldlb,$oldub] for variable at $(vi.value)!")
