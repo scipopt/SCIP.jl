@@ -103,7 +103,8 @@ MOI.get(::Optimizer, ::MOI.SolverName) = "SCIP"
 
 MOIU.supports_default_copy_to(model::Optimizer, copy_names::Bool) = !copy_names
 
-const Param = MOI.RawParameter # for backwards-compatibility
+# Keep SCIP-specific alias for backwards-compatibility.
+const Param = MOI.RawParameter
 
 function MOI.get(o::Optimizer, param::MOI.RawParameter)
     return get_parameter(o.mscip, param.name)
@@ -127,6 +128,25 @@ function MOI.set(o::Optimizer, ::MOI.Silent, value)
         MOI.set(o, param, 0) # no output at all
     else
         MOI.set(o, param, 4) # default level
+    end
+end
+
+MOI.supports(o::Optimizer, ::MOI.TimeLimitSec) = true
+
+function MOI.get(o::Optimizer, ::MOI.TimeLimitSec)
+    raw_value = MOI.get(o, MOI.RawParameter("limits/time"))
+    if raw_value == SCIPinfinity(o)
+        return nothing
+    else
+        return raw_value
+    end
+end
+
+function MOI.set(o::Optimizer, ::MOI.TimeLimitSec, value)
+    if value == nothing
+        MOI.set(o, MOI.RawParameter("limits/time"), SCIPinfinity(o))
+    else
+        MOI.set(o, MOI.RawParameter("limits/time"), value)
     end
 end
 
