@@ -73,10 +73,10 @@ abstract type AbstractConstraint{Handler} end
         constraint_handler::CH,
         constraints::Array{Ptr{SCIP_CONS}},
         sol::Ptr{SCIP_SOL},
-        checkintegrality::SCIP_Bool,
-        checklprows::SCIP_Bool,
-        printreason::SCIP_Bool,
-        completely::SCIP_Bool
+        checkintegrality::Bool,
+        checklprows::Bool,
+        printreason::Bool,
+        completely::Bool
     )::SCIP_RESULT
 
 Check whether the solution candidate given by `sol` satisfies all constraints in
@@ -98,7 +98,7 @@ function check end
         constraint_handler::CH,
         constraints::Array{Ptr{SCIP_CONS}},
         nusefulconss::Cint,
-        solinfeasible::SCIP_Bool
+        solinfeasible::Bool
     )::SCIP_RESULT
 
 Enforce the current solution for the LP relaxation. That is, check all given
@@ -123,7 +123,7 @@ function enforce_lp_sol end
         constraint_handler::CH,
         constraints::Array{Ptr{SCIP_CONS}},
         nusefulconss::Cint,
-        solinfeasible::SCIP_Bool
+        solinfeasible::Bool
     )::SCIP_RESULT
 
 Enforce the current pseudo solution (the LP relaxation was not solved). That is,
@@ -185,8 +185,11 @@ function _conscheck(scip::Ptr{SCIP_}, conshdlr::Ptr{SCIP_CONSHDLR},
     constraints = unsafe_wrap(Array{Ptr{SCIP_CONS}}, conss, nconss)
 
     # call user method via dispatch
-    res = check(constraint_handler, constraints, sol, checkintegrality,
-                checklprows, printreason, completely)
+    res = check(constraint_handler, constraints, sol,
+                convert(Bool, checkintegrality),
+                convert(Bool, checklprows),
+                convert(Bool, printreason),
+                convert(Bool, completely))
     unsafe_store!(result, res)
 
     return SCIP_OKAY
@@ -208,7 +211,7 @@ function _consenfolp(scip::Ptr{SCIP_}, conshdlr::Ptr{SCIP_CONSHDLR},
 
     # call user method via dispatch
     res = enforce_lp_sol(constraint_handler, constraints, nusefulconss,
-                         solinfeasible)
+                         convert(Bool, solinfeasible))
     unsafe_store!(result, res)
 
     return SCIP_OKAY
@@ -230,7 +233,8 @@ function _consenfops(scip::Ptr{SCIP_}, conshdlr::Ptr{SCIP_CONSHDLR},
 
     # call user method via dispatch
     res = enforce_pseudo_sol(constraint_handler, constraints, nusefulconss,
-                             solinfeasible, objinfeasible)
+                             convert(Bool, solinfeasible),
+                             convert(Bool, objinfeasible))
     unsafe_store!(result, res)
 
     return SCIP_OKAY

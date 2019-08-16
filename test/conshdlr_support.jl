@@ -13,25 +13,39 @@ mutable struct DummyConsHdlr <: SCIP.AbstractConstraintHandler
 end
 
 # Implement only the fundamental callbacks:
-function SCIP.check(ch::DummyConsHdlr, constraint, sol, checkintegrality,
-                    checklprows, printreason, completely)
+function SCIP.check(ch::DummyConsHdlr,
+                    constraints::Array{Ptr{SCIP.SCIP_CONS}},
+                    sol::Ptr{SCIP.SCIP_SOL},
+                    checkintegrality::Bool,
+                    checklprows::Bool,
+                    printreason::Bool,
+                    completely::Bool)
     ch.check_called += 1
     return SCIP.SCIP_FEASIBLE
 end
 
-function SCIP.enforce_lp_sol(ch::DummyConsHdlr, constraints, nusefulconss,
-                             solinfeasible)
+function SCIP.enforce_lp_sol(ch::DummyConsHdlr,
+                             constraints::Array{Ptr{SCIP.SCIP_CONS}},
+                             nusefulconss::Cint,
+                             solinfeasible::Bool)
     ch.enfo_called += 1
     return SCIP.SCIP_FEASIBLE
 end
 
-function SCIP.enforce_pseudo_sol(ch::DummyConsHdlr, constraints, nusefulconss,
-                                 solinfeasible, objinfeasible)
+function SCIP.enforce_pseudo_sol(ch::DummyConsHdlr,
+                                 constraints::Array{Ptr{SCIP.SCIP_CONS}},
+                                 nusefulconss::Cint,
+                                 solinfeasible::Bool,
+                                 objinfeasible::Bool)
     ch.enfo_called += 1
     return SCIP.SCIP_FEASIBLE
 end
 
-function SCIP.lock(ch::DummyConsHdlr, constraint, locktype, nlockspos, nlocksneg)
+function SCIP.lock(ch::DummyConsHdlr,
+                   constraint::Ptr{SCIP.SCIP_CONS},
+                   locktype::SCIP.SCIP_LOCKTYPE,
+                   nlockspos::Cint,
+                   nlocksneg::Cint)
     ch.lock_called += 1
 end
 
