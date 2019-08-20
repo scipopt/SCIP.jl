@@ -43,11 +43,7 @@ end
 end
 
 @testset "MOI Integer Linear" begin
-    excluded = [
-        "indicator1", # bridge is missing and
-        "indicator2", # our native implementation is not merged.
-        "indicator3",
-    ]
+    excluded = String[]
     MOIT.intlineartest(BRIDGED, CONFIG, excluded)
 end
 

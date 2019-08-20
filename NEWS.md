@@ -2,6 +2,7 @@
 
 ## v0.8.0
 
+- SCIP-specific MOI indicator constraint replaced by the new MOI definition
 - support Windows [#122](https://github.com/SCIP-Interfaces/SCIP.jl/pull/122)
 - switch from REQUIRE to Project.toml [#119](https://github.com/SCIP-Interfaces/SCIP.jl/pull/119)
 
