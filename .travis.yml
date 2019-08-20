@@ -8,14 +8,10 @@ sudo: true
 julia:
   - 1.0
   - 1.1
-  - nightly
 notifications:
   email: false
 git:
   depth: 99999999
-matrix:
-  allow_failures:
-    - julia: nightly
 addons:
   apt:
     packages:
@@ -42,6 +38,8 @@ before_install:
 # script:
 #   - julia -e 'using Pkg; Pkg.clone(pwd()); Pkg.build("SCIP"); Pkg.test("SCIP"; coverage=true)'
 jobs:
+  allow_failures:
+    - stage: "MINLPTests"
   include:
     - stage: "MINLPTests"
       julia: 1.0
