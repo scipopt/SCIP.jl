@@ -37,6 +37,8 @@ before_install:
 # script:
 #   - julia -e 'using Pkg; Pkg.clone(pwd()); Pkg.build("SCIP"); Pkg.test("SCIP"; coverage=true)'
 jobs:
+  allow_failures:
+    - stage: "MINLPTests"
   include:
     - stage: "MINLPTests"
       julia: 1.0
