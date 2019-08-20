@@ -51,7 +51,7 @@ function SCIPgetRealParam(scip, name, value)
 end
 
 function SCIPgetCharParam(scip, name, value)
-    ccall((:SCIPgetCharParam, libscip), SCIP_RETCODE, (Ptr{SCIP_}, Cstring, Cstring), scip, name, value)
+    ccall((:SCIPgetCharParam, libscip), SCIP_RETCODE, (Ptr{SCIP_}, Cstring, Ptr{Cchar}), scip, name, value)
 end
 
 function SCIPgetStringParam(scip, name, value)
@@ -123,7 +123,7 @@ function SCIPchgCharParam(scip, param, value)
 end
 
 function SCIPsetCharParam(scip, name, value)
-    ccall((:SCIPsetCharParam, libscip), SCIP_RETCODE, (Ptr{SCIP_}, Cstring, UInt8), scip, name, value)
+    ccall((:SCIPsetCharParam, libscip), SCIP_RETCODE, (Ptr{SCIP_}, Ptr{Cchar}, UInt8), scip, name, value)
 end
 
 function SCIPisCharParamValid(scip, param, value)
