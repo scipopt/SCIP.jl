@@ -1,7 +1,8 @@
 # News
 
-## master
+## v0.9.0
 
+- support MOI v0.9 [#126](https://github.com/SCIP-Interfaces/SCIP.jl/pull/126)
 - SCIP-specific MOI indicator constraint replaced by the new MOI definition [#121](https://github.com/SCIP-Interfaces/SCIP.jl/pull/121)
 
 ## v0.8.0
