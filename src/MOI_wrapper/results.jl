@@ -37,8 +37,9 @@ end
 
 "Make sure that SCIP is currently in one of the allowed stages."
 function assert_stage(o::Optimizer, stages)
-    if !(SCIPgetStage(o) in stages)
-        error("SCIP is wrong stage, can not query results!")
+    stage = SCIPgetStage(o)
+    if !(stage in stages)
+        error("SCIP is wrong stage ($stage, need $stages), can not query results!")
     end
 end
 
