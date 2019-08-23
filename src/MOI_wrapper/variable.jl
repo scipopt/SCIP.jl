@@ -13,8 +13,8 @@ MOI.get(o::Optimizer, ::MOI.NumberOfVariables) = length(o.mscip.vars)
 MOI.get(o::Optimizer, ::MOI.ListOfVariableIndices) = [VI(k.val) for k in keys(o.mscip.vars)]
 MOI.is_valid(o::Optimizer, vi::VI) = haskey(o.mscip.vars, VarRef(vi.value))
 
-function MOI.get(o::Optimizer, ::MOI.VariableName, vi::VI)
-    return GC.@preserve o SCIPvarGetName(var(o, vi))
+function MOI.get(o::Optimizer, ::MOI.VariableName, vi::VI)::String
+    return GC.@preserve o unsafe_string(SCIPvarGetName(var(o, vi)))
 end
 
 function MOI.set(o::Optimizer, ::MOI.VariableName, vi::VI, name::String)
