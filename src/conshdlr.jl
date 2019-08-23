@@ -334,6 +334,11 @@ function include_conshdlr(mscip::ManagedSCIP, ch::CH;
     # Hand over Julia object as constraint handler data:
     conshdlrdata_ = pointer_from_objref(ch)
 
+    # Try to create unique name, or else SCIP will complain!
+    if name == ""
+        name = "__ch__$(length(mscip.conshdlrs))"
+    end
+
     # Register constraint handler with SCIP instance.
     @SC SCIPincludeConshdlrBasic(mscip, conshdlr__, name, description,
                                  enforce_priority, check_priority,
