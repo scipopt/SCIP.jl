@@ -103,13 +103,51 @@ MOI.get(::Optimizer, ::MOI.SolverName) = "SCIP"
 
 MOIU.supports_default_copy_to(model::Optimizer, copy_names::Bool) = !copy_names
 
-struct Param <: MOI.AbstractOptimizerAttribute
-    name::String
+# Keep SCIP-specific alias for backwards-compatibility.
+const Param = MOI.RawParameter
+
+function MOI.get(o::Optimizer, param::MOI.RawParameter)
+    return get_parameter(o.mscip, param.name)
 end
-function MOI.set(o::Optimizer, param::Param, value)
+
+function MOI.set(o::Optimizer, param::MOI.RawParameter, value)
     o.params[param.name] = value
     set_parameter(o.mscip, param.name, value)
     return nothing
+end
+
+MOI.supports(o::Optimizer, ::MOI.Silent) = true
+
+function MOI.get(o::Optimizer, ::MOI.Silent)
+    return MOI.get(o, MOI.RawParameter("display/verblevel")) == 0
+end
+
+function MOI.set(o::Optimizer, ::MOI.Silent, value)
+    param = MOI.RawParameter("display/verblevel")
+    if value
+        MOI.set(o, param, 0) # no output at all
+    else
+        MOI.set(o, param, 4) # default level
+    end
+end
+
+MOI.supports(o::Optimizer, ::MOI.TimeLimitSec) = true
+
+function MOI.get(o::Optimizer, ::MOI.TimeLimitSec)
+    raw_value = MOI.get(o, MOI.RawParameter("limits/time"))
+    if raw_value == SCIPinfinity(o)
+        return nothing
+    else
+        return raw_value
+    end
+end
+
+function MOI.set(o::Optimizer, ::MOI.TimeLimitSec, value)
+    if value == nothing
+        MOI.set(o, MOI.RawParameter("limits/time"), SCIPinfinity(o))
+    else
+        MOI.set(o, MOI.RawParameter("limits/time"), value)
+    end
 end
 
 ## model creation, query and modification

@@ -56,6 +56,48 @@ function free_scip(mscip::ManagedSCIP)
     @assert mscip.scip[] == C_NULL
 end
 
+"Set a parameter's current value."
+function get_parameter(mscip::ManagedSCIP, name::AbstractString)
+    param = SCIPgetParam(mscip, name)
+    if param == C_NULL
+        error("Unrecognized parameter: $name")
+    end
+    paramtype = SCIPparamGetType(param)
+    if paramtype === SCIP_PARAMTYPE_BOOL
+        value = Ref{SCIP_Bool}()
+        @SC SCIPgetBoolParam(mscip, name, value)
+        if value[] == TRUE
+            return true
+        elseif value[] == FALSE
+            return false
+        else
+            error("encountered invalid value for a boolean: $(value[])")
+        end
+    elseif paramtype === SCIP_PARAMTYPE_INT
+        value = Ref{Cint}()
+        @SC SCIPgetIntParam(mscip, name, value)
+        return value[]
+    elseif paramtype === SCIP_PARAMTYPE_LONGINT
+        value = Ref{Clonglong}()
+        @SC SCIPgetLongintParam(mscip, name, value)
+        return value[]
+    elseif paramtype === SCIP_PARAMTYPE_REAL
+        value = Ref{Cdouble}()
+        @SC SCIPgetRealParam(mscip, name, value)
+        return value[]
+    elseif paramtype === SCIP_PARAMTYPE_CHAR
+        value = Ref{Cchar}()
+        @SC SCIPgetCharParam(mscip, name, value)
+        return Char(value[])
+    elseif paramtype === SCIP_PARAMTYPE_STRING
+        value = Ref{Cstring}()
+        @SC SCIPgetStringParam(mscip, name, value)
+        return unsafe_string(value[])
+    else
+        error("Unexpected parameter type: $paramtype")
+    end
+end
+
 "Set a parameter."
 function set_parameter(mscip::ManagedSCIP, name::AbstractString, value)
     param = SCIPgetParam(mscip, name)

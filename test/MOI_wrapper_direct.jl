@@ -44,8 +44,10 @@ end
     # call individual tests
     MOIT.qcp2test(OPTIMIZER, CONFIG)
     MOIT.qcp3test(OPTIMIZER, CONFIG)
-    # MOIT.qcp4test(OPTIMIZER, CONFIG)  # not yet merged
-    # MOIT.qcp5test(OPTIMIZER, CONFIG)  # not yet merged
+    MOIT.qcp4test(OPTIMIZER, CONFIG)
+
+    MOIT.ncqcp1test(OPTIMIZER, CONFIG)
+    MOIT.ncqcp2test(OPTIMIZER, CONFIG)
 end
 
 @testset "MOI Integer Linear" begin
@@ -56,4 +58,7 @@ end
     MOIT.int1test(OPTIMIZER, CONFIG)
     MOIT.int2test(OPTIMIZER, CONFIG)
     MOIT.int3test(OPTIMIZER, CONFIG)
+    MOIT.indicator1_test(OPTIMIZER, CONFIG)
+    MOIT.indicator2_test(OPTIMIZER, CONFIG)
+    # MOIT.indicator3_test(OPTIMIZER, CONFIG) # no support for ACTIVATE_ON_ZERO
 end

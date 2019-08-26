@@ -96,17 +96,19 @@ end
     MOI.delete(optimizer, t)
     @test var_bounds(optimizer, x) == MOI.Interval(-1.0, 2.0)
 
-    # Is an error: binary variable with conflicting bounds (infeasible).
+    # No error: binary variable with conflicting bounds (infeasible).
     MOI.empty!(optimizer)
     x = MOI.add_variable(optimizer)
     b = MOI.add_constraint(optimizer, x, MOI.Interval(2.0, 3.0))
-    @test_throws ErrorException t = MOI.add_constraint(optimizer, x, MOI.ZeroOne())
+    t = MOI.add_constraint(optimizer, x, MOI.ZeroOne())
+    @test var_bounds(optimizer, x) == MOI.Interval(2.0, 3.0)
 
-    # Is an error: binary variable with conflicting bounds (infeasible, different order).
+    # No error: binary variable with conflicting bounds (infeasible, different order).
     MOI.empty!(optimizer)
     x = MOI.add_variable(optimizer)
     t = MOI.add_constraint(optimizer, x, MOI.ZeroOne())
-    @test_throws ErrorException b = MOI.add_constraint(optimizer, x, MOI.Interval(2.0, 3.0))
+    b = MOI.add_constraint(optimizer, x, MOI.Interval(2.0, 3.0))
+    @test var_bounds(optimizer, x) == MOI.Interval(2.0, 3.0)
 
     MOI.empty!(optimizer)
     x1 = MOI.add_variable(optimizer)
@@ -114,11 +116,33 @@ end
     x3 = MOI.add_variable(optimizer)
     y  = MOI.add_variable(optimizer)
     t = MOI.add_constraint(optimizer, y, MOI.ZeroOne())
-    iset = SCIP.IndicatorSet{Float64}(ones(3), 1.0)
-    c = MOI.add_constraint(optimizer,
-        MOI.VectorOfVariables([y, x1, x2, x3]), iset
+    iset = MOI.IndicatorSet{MOI.ACTIVATE_ON_ONE}(MOI.LessThan(1.0))
+    ind_func = MOI.VectorAffineFunction(
+        [MOI.VectorAffineTerm(1, MOI.ScalarAffineTerm(1.0, y)),
+         MOI.VectorAffineTerm(2, MOI.ScalarAffineTerm(1.0, x1)),
+         MOI.VectorAffineTerm(2, MOI.ScalarAffineTerm(1.0, x2)),
+         MOI.VectorAffineTerm(2, MOI.ScalarAffineTerm(1.0, x3)),
+        ], [0.0, 0.0],
     )
 
+    c = MOI.add_constraint(optimizer, ind_func, iset)
+    @test MOI.delete(optimizer, c) === nothing
+
+    # adding incorrect function throws
+    ind_func_wrong = MOI.VectorAffineFunction(
+        [MOI.VectorAffineTerm(1, MOI.ScalarAffineTerm(1.0, y)),
+         MOI.VectorAffineTerm(1, MOI.ScalarAffineTerm(1.0, x1)),
+         MOI.VectorAffineTerm(2, MOI.ScalarAffineTerm(1.0, x2)),
+         MOI.VectorAffineTerm(2, MOI.ScalarAffineTerm(1.0, x3)),
+        ], [0.0, 0.0],
+    )
+    @test_throws ErrorException MOI.add_constraint(optimizer, ind_func_wrong, iset)
+    ind_func_wrong2 = MOI.VectorAffineFunction(
+        [MOI.VectorAffineTerm(2, MOI.ScalarAffineTerm(1.0, x2)),
+         MOI.VectorAffineTerm(2, MOI.ScalarAffineTerm(1.0, x3)),
+        ], [0.0, 0.0],
+    )
+    @test_throws ErrorException MOI.add_constraint(optimizer, ind_func_wrong2, iset)
 end
 
 @testset "Bound constraints for a general variable." begin
@@ -357,108 +381,6 @@ end
     @test MOI.get(optimizer, MOI.VariablePrimal(), z2) ≈ -8.0 atol=atol rtol=rtol
 end
 
-@testset "indicator constraints" begin
-    # max  2x1 + 3x2
-    # s.t. x1 + x2 <= 10
-    #      z1 ==> x2 <= 8
-    #      z2 ==> x2 + x1/5 <= 9
-    # z1 + z2 >= 1
-
-    optimizer = SCIP.Optimizer(display_verblevel=0)
-
-    @test MOI.supports_constraint(optimizer, MOI.VectorOfVariables, SCIP.IndicatorSet{Float64})
-
-    x1 = MOI.add_variable(optimizer)
-    x2 = MOI.add_variable(optimizer)
-    x3 = MOI.add_variable(optimizer)
-    y  = MOI.add_variable(optimizer)
-    t = MOI.add_constraint(optimizer, y, MOI.ZeroOne())
-    iset = SCIP.IndicatorSet{Float64}(ones(3), 1.0)
-    @test_throws DimensionMismatch MOI.add_constraint(optimizer,
-        MOI.VectorOfVariables([y, x1, x2]), iset
-    )
-    MOI.empty!(optimizer)
-
-    # non-binary y throws error
-    x1 = MOI.add_variable(optimizer)
-    x2 = MOI.add_variable(optimizer)
-    y  = MOI.add_variable(optimizer)
-    iset = SCIP.IndicatorSet{Float64}(ones(2), 1.0)
-    @test_throws ErrorException MOI.add_constraint(optimizer,
-        MOI.VectorOfVariables([y, x1, x2]), iset
-    )
-
-    x1, x2, z1, z2 = MOI.add_variables(optimizer, 4)
-
-    MOI.set(optimizer, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(),
-            MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([2., 3.], [x1, x2]), 0.)
-    )
-    MOI.set(optimizer, MOI.ObjectiveSense(), MOI.MAX_SENSE)
-
-    MOI.add_constraint(optimizer, MOI.SingleVariable(z1), MOI.ZeroOne())
-    MOI.add_constraint(optimizer, MOI.SingleVariable(z2), MOI.ZeroOne())
-
-    MOI.add_constraint(optimizer,
-        MOI.ScalarAffineFunction([MOI.ScalarAffineTerm(1.0, x1), MOI.ScalarAffineTerm(1.0, x2)], 0.0),
-        MOI.LessThan(10.0),
-    )
-
-    MOI.add_constraint(optimizer,
-        MOI.ScalarAffineFunction([MOI.ScalarAffineTerm(1.0, z1), MOI.ScalarAffineTerm(1.0, z2)], 0.0),
-        MOI.GreaterThan(1.),
-    )
-
-    MOI.add_constraint(optimizer, MOI.VectorOfVariables([z1, x2]), SCIP.IndicatorSet{Float64}([1.], 8.))
-    MOI.add_constraint(optimizer, MOI.VectorOfVariables([z2, x1, x2]), SCIP.IndicatorSet{Float64}([0.2, 1.], 9.))
-
-    MOI.optimize!(optimizer)
-
-    @test MOI.get(optimizer, MOI.TerminationStatus()) == MOI.OPTIMAL
-    @test MOI.get(optimizer, MOI.PrimalStatus()) == MOI.FEASIBLE_POINT
-
-    atol, rtol = 1e-6, 1e-6
-    @test MOI.get(optimizer, MOI.ObjectiveValue()) ≈ 28.75 atol=atol rtol=rtol
-    @test MOI.get(optimizer, MOI.VariablePrimal(), x1) ≈ 1.25 atol=atol rtol=rtol
-    @test MOI.get(optimizer, MOI.VariablePrimal(), x2) ≈ 8.75 atol=atol rtol=rtol
-    @test MOI.get(optimizer, MOI.VariablePrimal(), z1) ≈ 0.0 atol=atol rtol=rtol
-    @test MOI.get(optimizer, MOI.VariablePrimal(), z2) ≈ 1.0 atol=atol rtol=rtol
-
-    # penalty on z2 must switch active constraint on z1
-    optimizer2 = SCIP.Optimizer(display_verblevel=0)
-
-    x1, x2, z1, z2 = MOI.add_variables(optimizer2, 4)
-
-    MOI.set(optimizer2, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(),
-            MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([2., 3., -30.], [x1, x2, z2]), 0.)
-    )
-    MOI.set(optimizer2, MOI.ObjectiveSense(), MOI.MAX_SENSE)
-
-    MOI.add_constraint(optimizer2, MOI.SingleVariable(z1), MOI.ZeroOne())
-    MOI.add_constraint(optimizer2, MOI.SingleVariable(z2), MOI.ZeroOne())
-
-    MOI.add_constraint(optimizer2,
-        MOI.ScalarAffineFunction([MOI.ScalarAffineTerm(1.0, x1), MOI.ScalarAffineTerm(1.0, x2)], 0.0),
-        MOI.LessThan(10.0),
-    )
-
-    MOI.add_constraint(optimizer2,
-        MOI.ScalarAffineFunction([MOI.ScalarAffineTerm(1.0, z1), MOI.ScalarAffineTerm(1.0, z2)], 0.0),
-        MOI.GreaterThan(1.),
-    )
-
-    MOI.add_constraint(optimizer2, MOI.VectorOfVariables([z1, x2]), SCIP.IndicatorSet{Float64}([1.], 8.))
-    MOI.add_constraint(optimizer2, MOI.VectorOfVariables([z2, x1, x2]), SCIP.IndicatorSet{Float64}([0.2, 1.], 9.))
-    MOI.optimize!(optimizer2)
-
-    atol, rtol = 1e-6, 1e-6
-    @test MOI.get(optimizer2, MOI.ObjectiveValue()) ≈ 28.0 atol=atol rtol=rtol
-    @test MOI.get(optimizer2, MOI.VariablePrimal(), x1) ≈ 2.0 atol=atol rtol=rtol
-    @test MOI.get(optimizer2, MOI.VariablePrimal(), x2) ≈ 8.0 atol=atol rtol=rtol
-    @test MOI.get(optimizer2, MOI.VariablePrimal(), z1) ≈ 1.0 atol=atol rtol=rtol
-    @test MOI.get(optimizer2, MOI.VariablePrimal(), z2) ≈ 0.0 atol=atol rtol=rtol
-
-end
-
 @testset "deleting variables" begin
     optimizer = SCIP.Optimizer()
 
@@ -504,27 +426,83 @@ end
 end
 
 @testset "set_parameter" begin
-    # TODO: verify that the parameter was actually set (implement a get_parameter function)
     # bool
     optimizer = SCIP.Optimizer(branching_preferbinary=true)
+    @test MOI.get(optimizer, MOI.RawParameter("branching/preferbinary")) == true
 
     # int
     optimizer = SCIP.Optimizer(conflict_minmaxvars=1)
+    @test MOI.get(optimizer, MOI.RawParameter("conflict/minmaxvars")) == 1
 
     # long int
     optimizer = SCIP.Optimizer(heuristics_alns_maxnodes=2)
+    @test MOI.get(optimizer, MOI.RawParameter("heuristics/alns/maxnodes")) == 2
 
     # real
     optimizer = SCIP.Optimizer(branching_scorefac=0.15)
+    @test MOI.get(optimizer, MOI.RawParameter("branching/scorefac")) == 0.15
 
     # char
     optimizer = SCIP.Optimizer(branching_scorefunc='s')
+    @test MOI.get(optimizer, MOI.RawParameter("branching/scorefunc")) == 's'
 
     # string
     optimizer = SCIP.Optimizer(heuristics_alns_rewardfilename="abc.txt")
+    @test MOI.get(optimizer, MOI.RawParameter("heuristics/alns/rewardfilename")) == "abc.txt"
 
     # invalid
     @test_throws ErrorException SCIP.Optimizer(some_invalid_param_name=true)
+end
+
+@testset "use RawParameter" begin
+    optimizer = SCIP.Optimizer()
+
+    # bool
+    MOI.set(optimizer, MOI.RawParameter("branching/preferbinary"), true)
+    @test MOI.get(optimizer, MOI.RawParameter("branching/preferbinary")) == true
+
+    # int
+    MOI.set(optimizer, MOI.RawParameter("conflict/minmaxvars"), 1)
+    @test MOI.get(optimizer, MOI.RawParameter("conflict/minmaxvars")) == 1
+
+    # long int
+    MOI.set(optimizer, MOI.RawParameter("heuristics/alns/maxnodes"), 2)
+    @test MOI.get(optimizer, MOI.RawParameter("heuristics/alns/maxnodes")) == 2
+
+    # real
+    MOI.set(optimizer, MOI.RawParameter("branching/scorefac"), 0.15)
+    @test MOI.get(optimizer, MOI.RawParameter("branching/scorefac")) == 0.15
+
+    # char
+    MOI.set(optimizer, MOI.RawParameter("branching/scorefunc"), 's')
+    @test MOI.get(optimizer, MOI.RawParameter("branching/scorefunc")) == 's'
+
+    # string
+    MOI.set(optimizer, MOI.RawParameter("heuristics/alns/rewardfilename"), "abc.txt")
+    @test MOI.get(optimizer, MOI.RawParameter("heuristics/alns/rewardfilename")) == "abc.txt"
+
+    # invalid
+    @test_throws ErrorException MOI.set(optimizer, MOI.RawParameter("some/invalid/param/name"), true)
+end
+
+@testset "Silent" begin
+    optimizer = SCIP.Optimizer()
+
+    @test MOI.supports(optimizer, MOI.Silent())
+
+    # "loud" by default
+    @test MOI.get(optimizer, MOI.Silent()) == false
+    @test MOI.get(optimizer, MOI.RawParameter("display/verblevel")) == 4
+
+    # make it silent
+    MOI.set(optimizer, MOI.Silent(), true)
+    @test MOI.get(optimizer, MOI.Silent()) == true
+    @test MOI.get(optimizer, MOI.RawParameter("display/verblevel")) == 0
+
+    # but a user can override it
+    MOI.set(optimizer, MOI.RawParameter("display/verblevel"), 1)
+    @test MOI.get(optimizer, MOI.Silent()) == false
+    @test MOI.get(optimizer, MOI.RawParameter("display/verblevel")) == 1
 end
 
 @testset "Query results (before/after solve)" begin
