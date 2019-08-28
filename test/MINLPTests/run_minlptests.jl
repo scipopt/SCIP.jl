@@ -5,187 +5,65 @@ const OBJTOL = 1e-4
 const PRIMALTOL = 1e-3
 const DUALTOL = NaN  # to disable the query
 
-@testset "MINLPTests - nlp" begin
-    @testset "nlp_005_010" begin
-        MINLPTests.nlp_005_010(OPTIMIZER, OBJTOL, PRIMALTOL, DUALTOL;
-                               termination_target = MOI.OPTIMAL)
-    end
+const TERMINATION_TARGET = Dict(
+    MINLPTests.FEASIBLE_PROBLEM => JuMP.MOI.OPTIMAL,
+    MINLPTests.INFEASIBLE_PROBLEM => JuMP.MOI.INFEASIBLE,
+)
 
-    @testset "nlp_007_010" begin
-        MINLPTests.nlp_007_010(OPTIMIZER, OBJTOL, PRIMALTOL, DUALTOL;
-                               termination_target = MOI.INFEASIBLE,
-                               primal_target = MOI.NO_SOLUTION)
-    end
-end
+const PRIMAL_TARGET = Dict(
+    MINLPTests.FEASIBLE_PROBLEM => JuMP.MOI.FEASIBLE_POINT,
+    MINLPTests.INFEASIBLE_PROBLEM => JuMP.MOI.NO_SOLUTION,
+)
 
-@testset "MINLPTests - nlp cvx" begin
-    @testset "nlp_cvx_001_010" begin
-        MINLPTests.nlp_cvx_001_010(OPTIMIZER, OBJTOL, PRIMALTOL, DUALTOL;
-                                   termination_target = MOI.OPTIMAL)
-    end
+MINLPTests.test_directory(
+    "nlp", OPTIMIZER,
+    objective_tol=OBJTOL, primal_tol=PRIMALTOL, dual_tol=DUALTOL,
+    termination_target=TERMINATION_TARGET, primal_target=PRIMAL_TARGET,
+    include=[
+        "005_010",
+        "007_010",
+    ])
 
-    @testset "nlp_cvx_002_010" begin
-        MINLPTests.nlp_cvx_002_010(OPTIMIZER, OBJTOL, PRIMALTOL, DUALTOL;
-                                   termination_target = MOI.OPTIMAL)
-    end
+MINLPTests.test_directory(
+    "nlp-cvx", OPTIMIZER,
+    objective_tol=OBJTOL, primal_tol=PRIMALTOL, dual_tol=DUALTOL,
+    termination_target=TERMINATION_TARGET, primal_target=PRIMAL_TARGET,
+    include=[
+        "001_010",
+        "002_010",
+        "101_010",
+        "101_012",
+        "102_010",
+        "102_011",
+        "102_012",
+        "103_010",
+        "103_011",
+        "103_012",
+        "103_013",
+        "103_014",
+        "104_010",
+        "105_010",
+        "105_011",
+        "105_012",
+        "105_013",
+        "201_010",
+        "201_011",
+        "202_010",
+        "202_011",
+        "202_012",
+        "202_013",
+        "202_014",
+        "203_010",
+        "204_010",
+        "205_010",
+    ])
 
-    @testset "nlp_cvx_101_010" begin
-        MINLPTests.nlp_cvx_101_010(OPTIMIZER, OBJTOL, PRIMALTOL, DUALTOL;
-                                   termination_target = MOI.OPTIMAL)
-    end
-
-    @testset "nlp_cvx_101_012" begin
-        MINLPTests.nlp_cvx_101_012(OPTIMIZER, OBJTOL, PRIMALTOL, DUALTOL;
-                                   termination_target = MOI.OPTIMAL)
-    end
-
-    @testset "nlp_cvx_102_010" begin
-        MINLPTests.nlp_cvx_102_010(OPTIMIZER, OBJTOL, PRIMALTOL, DUALTOL;
-                                   termination_target = MOI.OPTIMAL)
-    end
-
-    @testset "nlp_cvx_102_011" begin
-        MINLPTests.nlp_cvx_102_011(OPTIMIZER, OBJTOL, PRIMALTOL, DUALTOL;
-                                   termination_target = MOI.OPTIMAL)
-    end
-
-    @testset "nlp_cvx_102_012" begin
-        MINLPTests.nlp_cvx_102_012(OPTIMIZER, OBJTOL, PRIMALTOL, DUALTOL;
-                                   termination_target = MOI.OPTIMAL)
-    end
-
-    @testset "nlp_cvx_103_010" begin
-        MINLPTests.nlp_cvx_103_010(OPTIMIZER, OBJTOL, PRIMALTOL, DUALTOL;
-                                   termination_target = MOI.OPTIMAL)
-    end
-
-    @testset "nlp_cvx_103_011" begin
-        MINLPTests.nlp_cvx_103_011(OPTIMIZER, OBJTOL, PRIMALTOL, DUALTOL;
-                                   termination_target = MOI.OPTIMAL)
-    end
-
-    @testset "nlp_cvx_103_012" begin
-        MINLPTests.nlp_cvx_103_012(OPTIMIZER, OBJTOL, PRIMALTOL, DUALTOL;
-                                   termination_target = MOI.OPTIMAL)
-    end
-
-    @testset "nlp_cvx_103_013" begin
-        MINLPTests.nlp_cvx_103_013(OPTIMIZER, OBJTOL, PRIMALTOL, DUALTOL;
-                                   termination_target = MOI.OPTIMAL)
-    end
-
-    @testset "nlp_cvx_103_014" begin
-        MINLPTests.nlp_cvx_103_014(OPTIMIZER, OBJTOL, PRIMALTOL, DUALTOL;
-                                   termination_target = MOI.OPTIMAL)
-    end
-
-    @testset "nlp_cvx_104_010" begin
-        MINLPTests.nlp_cvx_104_010(OPTIMIZER, OBJTOL, PRIMALTOL, DUALTOL;
-                                   termination_target = MOI.OPTIMAL)
-    end
-
-    @testset "nlp_cvx_105_010" begin
-        MINLPTests.nlp_cvx_105_010(OPTIMIZER, OBJTOL, PRIMALTOL, DUALTOL;
-                                   termination_target = MOI.OPTIMAL)
-    end
-
-    @testset "nlp_cvx_105_011" begin
-        MINLPTests.nlp_cvx_105_011(OPTIMIZER, OBJTOL, PRIMALTOL, DUALTOL;
-                                   termination_target = MOI.OPTIMAL)
-    end
-
-    @testset "nlp_cvx_105_012" begin
-        MINLPTests.nlp_cvx_105_012(OPTIMIZER, OBJTOL, PRIMALTOL, DUALTOL;
-                                   termination_target = MOI.OPTIMAL)
-    end
-
-    @testset "nlp_cvx_105_013" begin
-        MINLPTests.nlp_cvx_105_013(OPTIMIZER, OBJTOL, PRIMALTOL, DUALTOL;
-                                   termination_target = MOI.OPTIMAL)
-    end
-
-    @testset "nlp_cvx_201_010" begin
-        MINLPTests.nlp_cvx_201_010(OPTIMIZER, OBJTOL, PRIMALTOL, DUALTOL;
-                                   termination_target = MOI.OPTIMAL)
-    end
-
-    @testset "nlp_cvx_201_011" begin
-        MINLPTests.nlp_cvx_201_011(OPTIMIZER, OBJTOL, PRIMALTOL, DUALTOL;
-                                   termination_target = MOI.OPTIMAL)
-    end
-
-    @testset "nlp_cvx_202_010" begin
-        MINLPTests.nlp_cvx_202_010(OPTIMIZER, OBJTOL, PRIMALTOL, DUALTOL;
-                                   termination_target = MOI.OPTIMAL)
-    end
-
-    @testset "nlp_cvx_202_011" begin
-        MINLPTests.nlp_cvx_202_011(OPTIMIZER, OBJTOL, PRIMALTOL, DUALTOL;
-                                   termination_target = MOI.OPTIMAL)
-    end
-
-    @testset "nlp_cvx_202_012" begin
-        MINLPTests.nlp_cvx_202_012(OPTIMIZER, OBJTOL, PRIMALTOL, DUALTOL;
-                                   termination_target = MOI.OPTIMAL)
-    end
-
-    @testset "nlp_cvx_202_013" begin
-        MINLPTests.nlp_cvx_202_013(OPTIMIZER, OBJTOL, PRIMALTOL, DUALTOL;
-                                   termination_target = MOI.OPTIMAL)
-    end
-
-    @testset "nlp_cvx_202_014" begin
-        MINLPTests.nlp_cvx_202_014(OPTIMIZER, OBJTOL, PRIMALTOL, DUALTOL;
-                                   termination_target = MOI.OPTIMAL)
-    end
-
-    @testset "nlp_cvx_203_010" begin
-        MINLPTests.nlp_cvx_203_010(OPTIMIZER, OBJTOL, PRIMALTOL, DUALTOL;
-                                   termination_target = MOI.OPTIMAL)
-    end
-
-    @testset "nlp_cvx_204_010" begin
-        MINLPTests.nlp_cvx_204_010(OPTIMIZER, OBJTOL, PRIMALTOL, DUALTOL;
-                                   termination_target = MOI.OPTIMAL)
-    end
-
-    @testset "nlp_cvx_205_010" begin
-        MINLPTests.nlp_cvx_205_010(OPTIMIZER, OBJTOL, PRIMALTOL, DUALTOL;
-                                   termination_target = MOI.OPTIMAL)
-    end
-
-    # Wrong solution?!
-    # @testset "nlp_cvx_206_010" begin
-    #     MINLPTests.nlp_cvx_206_010(OPTIMIZER, OBJTOL, PRIMALTOL, DUALTOL;
-    #                                termination_target = MOI.OPTIMAL)
-    # end
-
-    @testset "nlp_cvx_501_010" begin
-        MINLPTests.nlp_cvx_501_010(OPTIMIZER, OBJTOL, PRIMALTOL, DUALTOL;
-                                   termination_target = MOI.OPTIMAL)
-    end
-
-    @testset "nlp_cvx_501_011" begin
-        MINLPTests.nlp_cvx_501_011(OPTIMIZER, OBJTOL, PRIMALTOL, DUALTOL;
-                                   termination_target = MOI.OPTIMAL)
-    end
-end
-
-@testset "MINLPTests - nlp mi" begin
-    @testset "nlp_mi_005_010" begin
-        MINLPTests.nlp_mi_005_010(OPTIMIZER, OBJTOL, PRIMALTOL, DUALTOL;
-                                  termination_target = MOI.OPTIMAL)
-    end
-
-    @testset "nlp_mi_007_010" begin
-        MINLPTests.nlp_mi_007_010(OPTIMIZER, OBJTOL, PRIMALTOL, DUALTOL;
-                                  termination_target = MOI.INFEASIBLE,
-                                  primal_target = MOI.NO_SOLUTION)
-    end
-
-    @testset "nlp_mi_007_020" begin
-        MINLPTests.nlp_mi_007_020(OPTIMIZER, OBJTOL, PRIMALTOL, DUALTOL;
-                                  termination_target = MOI.INFEASIBLE,
-                                  primal_target = MOI.NO_SOLUTION)
-    end
-end
+MINLPTests.test_directory(
+    "nlp-mi", OPTIMIZER,
+    objective_tol=OBJTOL, primal_tol=PRIMALTOL, dual_tol=DUALTOL,
+    termination_target=TERMINATION_TARGET, primal_target=PRIMAL_TARGET,
+    include=[
+        "005_010",
+        "007_010",
+        "007_020",
+])
