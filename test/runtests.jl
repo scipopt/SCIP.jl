@@ -9,6 +9,13 @@ end
     include("managed_scip.jl")
 end
 
+# new type definitions in module (needs top level)
+include("conshdlr_support.jl")
+
+@testset "constraint handlers" begin
+    include("conshdlr.jl")
+end
+
 @testset "MathOptInterface tests (bridged)" begin
     include("MOI_wrapper_bridged.jl")
 end
@@ -27,4 +34,8 @@ end
 
 @testset "MathOptInterface nonlinear expressions" begin
     include("MOI_nonlinear_exprs.jl")
+end
+
+@testset "constraint handlers (with MOI)" begin
+    include("MOI_conshdlr.jl")
 end

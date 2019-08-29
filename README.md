@@ -20,7 +20,8 @@ The goal is to support [JuMP](https://github.com/JuliaOpt/JuMP.jl) (from version
 Currently, we support LP, MIP and QCP problems, as well as some nonlinear constraints, both through `MOI` sets
 (e.g., for second-order cones) as well as for expression graphs (see below).
 
-We still have feature loss in the area of callbacks compared to previous versions.
+It is now possible to implement SCIP constraint handlers in Julia. Other plugin
+types are not yet supported.
 
 ## Getting Started
 
