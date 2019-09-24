@@ -193,6 +193,7 @@ function MOI.optimize!(o::Optimizer)
 end
 
 include(joinpath("MOI_wrapper", "variable.jl"))
+include(joinpath("MOI_wrapper", "constraints.jl"))
 include(joinpath("MOI_wrapper", "linear_constraints.jl"))
 include(joinpath("MOI_wrapper", "quadratic_constraints.jl"))
 include(joinpath("MOI_wrapper", "soc_constraints.jl"))
