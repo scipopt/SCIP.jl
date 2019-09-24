@@ -27,3 +27,12 @@ function MOI.delete(o::Optimizer, ci::CI{VECTOR, SOC})
     delete(o.mscip, ConsRef(ci.value))
     return nothing
 end
+
+function MOI.get(o::Optimizer, ::MOI.ConstraintName, ci::CI{VECTOR, SOC})
+    return GC.@preserve o SCIPconsGetName(cons(o, ci))
+end
+
+function MOI.set(o::Optimizer, ::MOI.ConstraintName, ci::CI{VECTOR , SOC}, name::String)
+    @SC SCIPchgConsName(o, cons(o, ci), name)
+    return nothing
+end

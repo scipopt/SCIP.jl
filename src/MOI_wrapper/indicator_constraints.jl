@@ -25,3 +25,12 @@ function MOI.delete(o::Optimizer, ci::CI{MOI.VectorAffineFunction{T}, MOI.Indica
     delete(o.mscip, ConsRef(ci.value))
     return nothing
 end
+
+function MOI.get(o::Optimizer, ::MOI.ConstraintName, ci::CI{MOI.VectorAffineFunction, MOI.IndicatorSet{MOI.ACTIVATE_ON_ONE, MOI.LessThan}})
+    return GC.@preserve o SCIPconsGetName(cons(o, ci))
+end
+
+function MOI.set(o::Optimizer, ::MOI.ConstraintName, ci::CI{MOI.VectorAffineFunction, MOI.IndicatorSet{MOI.ACTIVATE_ON_ONE, MOI.LessThan}}, name::String)
+    @SC SCIPchgConsName(o, cons(o, ci), name)
+    return nothing
+end

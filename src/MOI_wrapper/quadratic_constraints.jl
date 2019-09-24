@@ -101,3 +101,12 @@ function MOI.get(o::Optimizer, ::MOI.ConstraintPrimal, ci::CI{SQF, S}) where S <
     @SC SCIPgetActivityQuadratic(o, cons(o, ci), SCIPgetBestSol(o), activity)
     return activity[]
 end
+
+function MOI.get(o::Optimizer, ::MOI.ConstraintName, ci::CI{SQF, BOUNDS})
+    return GC.@preserve o SCIPconsGetName(cons(o, ci))
+end
+
+function MOI.set(o::Optimizer, ::MOI.ConstraintName, ci::CI{SQF, BOUNDS}, name::String)
+    @SC SCIPchgConsName(o, cons(o, ci), name)
+    return nothing
+end

@@ -71,3 +71,12 @@ function MOI.get(o::Optimizer, ::MOI.ConstraintSet, ci::CI{VECTOR, SOS2})
     weights = unsafe_wrap(Array{Float64}, SCIPgetWeightsSOS2(o, c), nvars)
     return SOS2(weights)
 end
+
+function MOI.get(o::Optimizer, ::MOI.ConstraintName, ci::CI{VECTOR, Union{SOS1, SOS2}})
+    return GC.@preserve o SCIPconsGetName(cons(o, ci))
+end
+
+function MOI.set(o::Optimizer, ::MOI.ConstraintName, ci::CI{VECTOR, Union{SOS1, SOS2}}, name::String)
+    @SC SCIPchgConsName(o, cons(o, ci), name)
+    return nothing
+end
