@@ -109,40 +109,6 @@ end
     t = MOI.add_constraint(optimizer, x, MOI.ZeroOne())
     b = MOI.add_constraint(optimizer, x, MOI.Interval(2.0, 3.0))
     @test var_bounds(optimizer, x) == MOI.Interval(2.0, 3.0)
-
-    MOI.empty!(optimizer)
-    x1 = MOI.add_variable(optimizer)
-    x2 = MOI.add_variable(optimizer)
-    x3 = MOI.add_variable(optimizer)
-    y  = MOI.add_variable(optimizer)
-    t = MOI.add_constraint(optimizer, y, MOI.ZeroOne())
-    iset = MOI.IndicatorSet{MOI.ACTIVATE_ON_ONE}(MOI.LessThan(1.0))
-    ind_func = MOI.VectorAffineFunction(
-        [MOI.VectorAffineTerm(1, MOI.ScalarAffineTerm(1.0, y)),
-         MOI.VectorAffineTerm(2, MOI.ScalarAffineTerm(1.0, x1)),
-         MOI.VectorAffineTerm(2, MOI.ScalarAffineTerm(1.0, x2)),
-         MOI.VectorAffineTerm(2, MOI.ScalarAffineTerm(1.0, x3)),
-        ], [0.0, 0.0],
-    )
-
-    c = MOI.add_constraint(optimizer, ind_func, iset)
-    @test MOI.delete(optimizer, c) === nothing
-
-    # adding incorrect function throws
-    ind_func_wrong = MOI.VectorAffineFunction(
-        [MOI.VectorAffineTerm(1, MOI.ScalarAffineTerm(1.0, y)),
-         MOI.VectorAffineTerm(1, MOI.ScalarAffineTerm(1.0, x1)),
-         MOI.VectorAffineTerm(2, MOI.ScalarAffineTerm(1.0, x2)),
-         MOI.VectorAffineTerm(2, MOI.ScalarAffineTerm(1.0, x3)),
-        ], [0.0, 0.0],
-    )
-    @test_throws ErrorException MOI.add_constraint(optimizer, ind_func_wrong, iset)
-    ind_func_wrong2 = MOI.VectorAffineFunction(
-        [MOI.VectorAffineTerm(2, MOI.ScalarAffineTerm(1.0, x2)),
-         MOI.VectorAffineTerm(2, MOI.ScalarAffineTerm(1.0, x3)),
-        ], [0.0, 0.0],
-    )
-    @test_throws ErrorException MOI.add_constraint(optimizer, ind_func_wrong2, iset)
 end
 
 @testset "Bound constraints for a general variable." begin
@@ -393,6 +359,43 @@ end
     @test MOI.get(optimizer, MOI.VariablePrimal(), z1) ≈ 4.0 atol=atol rtol=rtol
     @test MOI.get(optimizer, MOI.VariablePrimal(), x2) ≈ -2.0 atol=atol rtol=rtol
     @test MOI.get(optimizer, MOI.VariablePrimal(), z2) ≈ -8.0 atol=atol rtol=rtol
+end
+
+@testset "indicator constraints" begin
+    optimizer = SCIP.Optimizer()
+
+    x1 = MOI.add_variable(optimizer)
+    x2 = MOI.add_variable(optimizer)
+    x3 = MOI.add_variable(optimizer)
+    y  = MOI.add_variable(optimizer)
+    t = MOI.add_constraint(optimizer, y, MOI.ZeroOne())
+    iset = MOI.IndicatorSet{MOI.ACTIVATE_ON_ONE}(MOI.LessThan(1.0))
+    ind_func = MOI.VectorAffineFunction(
+        [MOI.VectorAffineTerm(1, MOI.ScalarAffineTerm(1.0, y)),
+         MOI.VectorAffineTerm(2, MOI.ScalarAffineTerm(1.0, x1)),
+         MOI.VectorAffineTerm(2, MOI.ScalarAffineTerm(1.0, x2)),
+         MOI.VectorAffineTerm(2, MOI.ScalarAffineTerm(1.0, x3)),
+        ], [0.0, 0.0],
+    )
+
+    c = MOI.add_constraint(optimizer, ind_func, iset)
+    @test MOI.delete(optimizer, c) === nothing
+
+    # adding incorrect function throws
+    ind_func_wrong = MOI.VectorAffineFunction(
+        [MOI.VectorAffineTerm(1, MOI.ScalarAffineTerm(1.0, y)),
+         MOI.VectorAffineTerm(1, MOI.ScalarAffineTerm(1.0, x1)),
+         MOI.VectorAffineTerm(2, MOI.ScalarAffineTerm(1.0, x2)),
+         MOI.VectorAffineTerm(2, MOI.ScalarAffineTerm(1.0, x3)),
+        ], [0.0, 0.0],
+    )
+    @test_throws ErrorException MOI.add_constraint(optimizer, ind_func_wrong, iset)
+    ind_func_wrong2 = MOI.VectorAffineFunction(
+        [MOI.VectorAffineTerm(2, MOI.ScalarAffineTerm(1.0, x2)),
+         MOI.VectorAffineTerm(2, MOI.ScalarAffineTerm(1.0, x3)),
+        ], [0.0, 0.0],
+    )
+    @test_throws ErrorException MOI.add_constraint(optimizer, ind_func_wrong2, iset)
 end
 
 @testset "deleting variables" begin
