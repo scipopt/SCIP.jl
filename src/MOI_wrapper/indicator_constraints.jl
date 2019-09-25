@@ -26,7 +26,7 @@ function MOI.delete(o::Optimizer, ci::CI{MOI.VectorAffineFunction{T}, MOI.Indica
     return nothing
 end
 
-function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{VAF, INDICATOR})
+function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{MOI.VectorAffineFunction{T}, MOI.IndicatorSet{MOI.ACTIVATE_ON_ONE, LT}}) where {T<:Real, LT<:MOI.LessThan}
     indicator_cons = cons(o, ci)::Ptr{SCIP_CONS}
     bin_var = SCIPgetBinaryVarIndicator(indicator_cons)::Ptr{SCIP_VAR}
     slack_var = SCIPgetSlackVarIndicator(indicator_cons)::Ptr{SCIP_VAR}
@@ -35,13 +35,16 @@ function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{VAF, INDICATOR})
     nvars::Int = SCIPgetNVarsLinear(o, linear_cons)
     vars = unsafe_wrap(Array{Ptr{SCIP_VAR}}, SCIPgetVarsLinear(o, linear_cons), nvars)
     vals = unsafe_wrap(Array{Float64}, SCIPgetValsLinear(o, linear_cons), nvars)
-    terms = [AFF_TERM(vals[i], VI(ref(o, vars[i]).val)) for i=1:nvars
-             if vars[i] != slack_var]
+    aff_terms = [AFF_TERM(vals[i], VI(ref(o, vars[i]).val)) for i=1:nvars
+                 if vars[i] != slack_var]
 
-    return VAF(VECTOR(VI[]))
+    ind_terms = [VEC_TERM(1, AFF_TERM(1.0, VI(ref(o, bin_var).val)))]
+    vec_terms = [VEC_TERM(2, term) for term in aff_terms]
+
+    return VAF(vcat(ind_terms, vec_terms), [0.0, 0.0])
 end
 
-function MOI.get(o::Optimizer, ::MOI.ConstraintSet, ci::CI{VAF, INDICATOR})
+function MOI.get(o::Optimizer, ::MOI.ConstraintSet, ci::CI{MOI.VectorAffineFunction{T}, MOI.IndicatorSet{MOI.ACTIVATE_ON_ONE, LT}}) where {T<:Real, LT<:MOI.LessThan}
     indicator_cons = cons(o, ci)::Ptr{SCIP_CONS}
     linear_cons = SCIPgetLinearConsIndicator(indicator_cons)::Ptr{SCIP_CONS}
 
@@ -49,7 +52,5 @@ function MOI.get(o::Optimizer, ::MOI.ConstraintSet, ci::CI{VAF, INDICATOR})
     rhs = SCIPgetRhsLinear(o, linear_cons)
     lhs == -SCIPinfinity(o) || error("Have lower bound on indicator constraint!")
 
-    set = INDICATOR(MOI.LessThan(rhs))
-    @show set
-    return set
+    return MOI.IndicatorSet{MOI.ACTIVATE_ON_ONE}(MOI.LessThan(rhs))
 end
