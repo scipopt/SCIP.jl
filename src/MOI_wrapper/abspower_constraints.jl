@@ -53,3 +53,22 @@ function MOI.delete(o::Optimizer, ci::CI{VECTOR, ABSPOWER})
     delete(o.mscip, ConsRef(ci.value))
     return nothing
 end
+
+function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{VECTOR, ABSPOWER})
+    c = cons(o, ci)::Ptr{SCIP_CONS}
+    lvar = SCIPgetLinearVarAbspower(o, c)
+    nlvar = SCIPgetNonlinearVarAbspower(o, c)
+    return VECTOR([VI(ref(o, nlvar).val), VI(ref(o, lvar).val)])
+end
+
+function MOI.get(o::Optimizer, ::MOI.ConstraintSet, ci::CI{VECTOR, ABSPOWER})
+    c = cons(o, ci)::Ptr{SCIP_CONS}
+
+    n = SCIPgetExponentAbspower(o, c)
+    a = SCIPgetOffsetAbspower(o, c)
+    coef = SCIPgetCoefLinearAbspower(o, c)
+    lhs = SCIPgetLhsAbspower(o, c)
+    rhs = SCIPgetRhsAbspower(o, c)
+
+    return AbsolutePowerSet(n, a, coef, lhs, rhs)
+end
