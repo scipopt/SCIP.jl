@@ -310,13 +310,13 @@ Add indicator constraint to problem, return cons ref.
 y has to be a binary variable, or SCIP will error.
 
 # Arguments
-- `y::VarRef`: reference for binary variable
+- `y::VarRef`: reference for binary indicator variable
 - `x::Vector{VarRef}`: reference vector for variables
 - `a::Float64`: coefficients for x variable
 - `rhs::Float64`: right-hand side for linear constraint
 """
 function add_indicator_constraint(mscip::ManagedSCIP, y, x, a, rhs)
-    SCIPvarIsBinary(var(mscip, y)) > 0 || error("y variable must be binary for indicator constraint")
+    SCIPvarIsBinary(var(mscip, y)) > 0 || error("indicator variable must be binary.")
     cons__ = Ref{Ptr{SCIP_CONS}}(C_NULL)
     xref = [var(mscip, x[i]) for i in eachindex(x)]
     @SC SCIPcreateConsBasicIndicator(
