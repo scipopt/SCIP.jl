@@ -255,6 +255,9 @@ end
     csoc = MOI.add_constraint(optimizer, MOI.VectorOfVariables([x, y, z]),
                               MOI.SecondOrderCone(3))
 
+    @test MOI.get(optimizer, MOI.ConstraintFunction(), csoc) == MOI.VectorOfVariables([x, y, z])
+    @test MOI.get(optimizer, MOI.ConstraintSet(), csoc) == MOI.SecondOrderCone(3)
+
     MOI.optimize!(optimizer)
     @test MOI.get(optimizer, MOI.TerminationStatus()) == MOI.OPTIMAL
     @test MOI.get(optimizer, MOI.PrimalStatus()) == MOI.FEASIBLE_POINT
@@ -306,11 +309,14 @@ end
     MOI.add_constraint(optimizer, MOI.SingleVariable(y), MOI.LessThan(1.0))
     MOI.add_constraint(optimizer, MOI.SingleVariable(z), MOI.LessThan(1.0))
 
-    MOI.add_constraint(optimizer, MOI.VectorOfVariables([x,y,z]), MOI.SOS1([1.0,2.0,3.0]))
+    c = MOI.add_constraint(optimizer, MOI.VectorOfVariables([x,y,z]), MOI.SOS1([1.0,2.0,3.0]))
 
     MOI.set(optimizer, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(),
             MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0,2.0,3.0], [x,y,z]), 0.0))
     MOI.set(optimizer, MOI.ObjectiveSense(), MOI.MAX_SENSE)
+
+    @test MOI.get(optimizer, MOI.ConstraintFunction(), c) == MOI.VectorOfVariables([x,y,z])
+    @test MOI.get(optimizer, MOI.ConstraintSet(), c) == MOI.SOS1([1.0,2.0,3.0])
 
     MOI.optimize!(optimizer)
     @test MOI.get(optimizer, MOI.TerminationStatus()) == MOI.OPTIMAL
@@ -331,11 +337,14 @@ end
     MOI.add_constraint(optimizer, MOI.SingleVariable(y), MOI.LessThan(1.0))
     MOI.add_constraint(optimizer, MOI.SingleVariable(z), MOI.LessThan(1.0))
 
-    MOI.add_constraint(optimizer, MOI.VectorOfVariables([x,y,z]), MOI.SOS2([1.0,2.0,3.0]))
+    c = MOI.add_constraint(optimizer, MOI.VectorOfVariables([x,y,z]), MOI.SOS2([1.0,2.0,3.0]))
 
     MOI.set(optimizer, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(),
             MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0,2.0,3.0], [x,y,z]), 0.0))
     MOI.set(optimizer, MOI.ObjectiveSense(), MOI.MAX_SENSE)
+
+    @test MOI.get(optimizer, MOI.ConstraintFunction(), c) == MOI.VectorOfVariables([x,y,z])
+    @test MOI.get(optimizer, MOI.ConstraintSet(), c) == MOI.SOS2([1.0,2.0,3.0])
 
     MOI.optimize!(optimizer)
     @test MOI.get(optimizer, MOI.TerminationStatus()) == MOI.OPTIMAL
@@ -360,10 +369,15 @@ end
     MOI.add_constraint(optimizer, MOI.SingleVariable(z1), MOI.LessThan(4.0))
     MOI.add_constraint(optimizer, MOI.SingleVariable(z2), MOI.GreaterThan(-8.0))
 
-    MOI.add_constraint(optimizer, MOI.VectorOfVariables([x1, z1]),
-                       SCIP.AbsolutePowerSet(2.0))
-    MOI.add_constraint(optimizer, MOI.VectorOfVariables([x2, z2]),
-                       SCIP.AbsolutePowerSet(3.0))
+    c1 = MOI.add_constraint(optimizer, MOI.VectorOfVariables([x1, z1]),
+                            SCIP.AbsolutePowerSet(2.0))
+    c2 = MOI.add_constraint(optimizer, MOI.VectorOfVariables([x2, z2]),
+                            SCIP.AbsolutePowerSet(3.0))
+
+    @test MOI.get(optimizer, MOI.ConstraintFunction(), c1) == MOI.VectorOfVariables([x1, z1])
+    @test MOI.get(optimizer, MOI.ConstraintSet(), c1) == SCIP.AbsolutePowerSet(2.0)
+    @test MOI.get(optimizer, MOI.ConstraintFunction(), c2) == MOI.VectorOfVariables([x2, z2])
+    @test MOI.get(optimizer, MOI.ConstraintSet(), c2) == SCIP.AbsolutePowerSet(3.0)
 
     MOI.set(optimizer, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(),
             MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0, -1.0], [x1, x2]), 0.0))
