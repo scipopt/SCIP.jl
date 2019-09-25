@@ -25,3 +25,31 @@ function MOI.delete(o::Optimizer, ci::CI{MOI.VectorAffineFunction{T}, MOI.Indica
     delete(o.mscip, ConsRef(ci.value))
     return nothing
 end
+
+function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{VAF, INDICATOR})
+    indicator_cons = cons(o, ci)::Ptr{SCIP_CONS}
+    bin_var = SCIPgetBinaryVarIndicator(indicator_cons)::Ptr{SCIP_VAR}
+    slack_var = SCIPgetSlackVarIndicator(indicator_cons)::Ptr{SCIP_VAR}
+    linear_cons = SCIPgetLinearConsIndicator(indicator_cons)::Ptr{SCIP_CONS}
+
+    nvars::Int = SCIPgetNVarsLinear(o, linear_cons)
+    vars = unsafe_wrap(Array{Ptr{SCIP_VAR}}, SCIPgetVarsLinear(o, linear_cons), nvars)
+    vals = unsafe_wrap(Array{Float64}, SCIPgetValsLinear(o, linear_cons), nvars)
+    terms = [AFF_TERM(vals[i], VI(ref(o, vars[i]).val)) for i=1:nvars
+             if vars[i] != slack_var]
+
+    return VAF(VECTOR(VI[]))
+end
+
+function MOI.get(o::Optimizer, ::MOI.ConstraintSet, ci::CI{VAF, INDICATOR})
+    indicator_cons = cons(o, ci)::Ptr{SCIP_CONS}
+    linear_cons = SCIPgetLinearConsIndicator(indicator_cons)::Ptr{SCIP_CONS}
+
+    lhs = SCIPgetLhsLinear(o, linear_cons)
+    rhs = SCIPgetRhsLinear(o, linear_cons)
+    lhs == -SCIPinfinity(o) || error("Have lower bound on indicator constraint!")
+
+    set = INDICATOR(MOI.LessThan(rhs))
+    @show set
+    return set
+end
