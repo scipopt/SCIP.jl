@@ -379,6 +379,9 @@ end
     )
 
     c = MOI.add_constraint(optimizer, ind_func, iset)
+    @test MOI.get(optimizer, MOI.ConstraintFunction(), c) ≈ ind_func
+    @test MOI.get(optimizer, MOI.ConstraintSet(), c) == iset
+
     @test MOI.delete(optimizer, c) === nothing
 
     # adding incorrect function throws
