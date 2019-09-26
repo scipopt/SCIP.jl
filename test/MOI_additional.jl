@@ -433,6 +433,7 @@ end
     MOI.set(optimizer, MOI.ObjectiveSense(), MOI.MAX_SENSE)
     @test MOI.get(optimizer, MOI.ObjectiveFunction{MOI.SingleVariable}()) == obj
     @test MOI.get(optimizer, MOI.ObjectiveSense()) == MOI.MAX_SENSE
+    @test MOI.get(optimizer, MOI.ObjectiveFunctionType()) == MOI.ScalarAffineFunction{Float64}
 
     MOI.empty!(optimizer)
 
