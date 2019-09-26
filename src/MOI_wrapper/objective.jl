@@ -29,6 +29,7 @@ function MOI.set(o::Optimizer, ::MOI.ObjectiveFunction{SAF}, obj::SAF)
     return nothing
 end
 
+# Note that SCIP always uses a scalar affine function internally!
 function MOI.set(o::Optimizer, ::MOI.ObjectiveFunction{SVF}, obj::SVF)
     aff_obj = SAF([AFF_TERM(1.0, obj.variable)], 0.0)
     return MOI.set(o, MOI.ObjectiveFunction{SAF}(), aff_obj)
@@ -45,6 +46,7 @@ function MOI.get(o::Optimizer, ::MOI.ObjectiveFunction{SAF})
     return SAF(terms, constant)
 end
 
+# Note that SCIP always uses a scalar affine function internally!
 function MOI.get(o::Optimizer, ::MOI.ObjectiveFunction{SVF})
     aff_obj = MOI.get(o, MOI.ObjectiveFunction{SAF}())
     if (length(aff_obj.terms) != 1
@@ -77,3 +79,5 @@ function MOI.modify(o::Optimizer, ::MOI.ObjectiveFunction{SAF},
     @SC SCIPchgVarObj(o, var(o, change.variable), change.new_coefficient)
     return nothing
 end
+
+MOI.get(o::Optimizer, ::MOI.ObjectiveFunctionType) = SAF

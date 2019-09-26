@@ -27,3 +27,19 @@ function MOI.delete(o::Optimizer, ci::CI{VECTOR, SOC})
     delete(o.mscip, ConsRef(ci.value))
     return nothing
 end
+
+function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{VECTOR, SOC})
+    c = cons(o, ci)::Ptr{SCIP_CONS}
+    nvars::Int = SCIPgetNLhsVarsSOC(o, c)
+    vars = unsafe_wrap(Array{Ptr{SCIP_VAR}}, SCIPgetLhsVarsSOC(o, c), nvars)
+    rhsvar = SCIPgetRhsVarSOC(o, c)
+
+    ptr2index(p) = VI(ref(o, p).val)
+    return VECTOR(vcat([ptr2index(rhsvar)], ptr2index.(vars)))
+end
+
+function MOI.get(o::Optimizer, ::MOI.ConstraintSet, ci::CI{VECTOR, SOC})
+    c = cons(o, ci)::Ptr{SCIP_CONS}
+    nvars::Int = SCIPgetNLhsVarsSOC(o, c)
+    return MOI.SecondOrderCone(nvars + 1)
+end

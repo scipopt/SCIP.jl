@@ -61,15 +61,6 @@ function MOI.get(o::Optimizer, ::MOI.ConstraintSet, ci::CI{SAF, S}) where S <: B
     return from_bounds(S, lhs, rhs)
 end
 
-function MOI.get(o::Optimizer, ::MOI.ConstraintName, ci::CI{SAF,<:BOUNDS})
-    return GC.@preserve o SCIPconsGetName(cons(o, ci))
-end
-
-function MOI.set(o::Optimizer, ::MOI.ConstraintName, ci::CI{SAF,<:BOUNDS}, name::String)
-    @SC SCIPchgConsName(o, cons(o, ci), name)
-    return nothing
-end
-
 function MOI.modify(o::Optimizer, ci::CI{SAF, <:BOUNDS},
                     change::MOI.ScalarCoefficientChange{Float64})
     allow_modification(o)

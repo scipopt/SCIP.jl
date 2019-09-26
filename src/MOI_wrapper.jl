@@ -9,6 +9,7 @@ const CI = MOI.ConstraintIndex
 const SVF = MOI.SingleVariable
 const SAF = MOI.ScalarAffineFunction{Float64}
 const SQF = MOI.ScalarQuadraticFunction{Float64}
+const VAF = MOI.VectorAffineFunction{Float64}
 const VECTOR = MOI.VectorOfVariables
 # supported sets
 const BOUNDS = Union{MOI.EqualTo{Float64}, MOI.GreaterThan{Float64},
@@ -20,6 +21,7 @@ const SOS2 = MOI.SOS2{Float64}
 # other MOI types
 const AFF_TERM = MOI.ScalarAffineTerm{Float64}
 const QUAD_TERM = MOI.ScalarQuadraticTerm{Float64}
+const VEC_TERM = MOI.VectorAffineTerm{Float64}
 
 const PtrMap = Dict{Ptr{Cvoid}, Union{VarRef, ConsRef}}
 const ConsTypeMap = Dict{Tuple{DataType, DataType}, Set{ConsRef}}
@@ -193,6 +195,7 @@ function MOI.optimize!(o::Optimizer)
 end
 
 include(joinpath("MOI_wrapper", "variable.jl"))
+include(joinpath("MOI_wrapper", "constraints.jl"))
 include(joinpath("MOI_wrapper", "linear_constraints.jl"))
 include(joinpath("MOI_wrapper", "quadratic_constraints.jl"))
 include(joinpath("MOI_wrapper", "soc_constraints.jl"))
