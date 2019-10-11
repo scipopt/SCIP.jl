@@ -1,8 +1,13 @@
 # News
 
+## v0.9.2
+
+- support (and require) MOI v0.9.5 [#134](https://github.com/SCIP-Interfaces/SCIP.jl/pull/134)
+- implement more MOI methods to better support JuMP with `direct_model` [#133](https://github.com/SCIP-Interfaces/SCIP.jl/pull/133)
+
 ## v0.9.1
 
-- Add a Julia wrapper for constraint handlers. [109](https://github.com/SCIP-Interfaces/SCIP.jl/pull/109)
+- Add a Julia wrapper for constraint handlers. [#109](https://github.com/SCIP-Interfaces/SCIP.jl/pull/109)
 
 ## v0.9.0
 
