@@ -23,8 +23,12 @@ function MOI.get(o::Optimizer, ::MOI.TerminationStatus)
     return term_status_map[SCIPgetStatus(o)]
 end
 
-function MOI.get(o::Optimizer, ::MOI.PrimalStatus)
-    return SCIPgetNSols(o) > 0 ? MOI.FEASIBLE_POINT : MOI.NO_SOLUTION
+function MOI.get(o::Optimizer, attr::MOI.PrimalStatus)
+    return if 1 <= attr.N <= MOI.get(o, MOI.ResultCount())
+        MOI.FEASIBLE_POINT
+    else
+        MOI.NO_SOLUTION
+    end
 end
 
 function MOI.get(o::Optimizer, ::MOI.ResultCount)::Int
