@@ -27,7 +27,7 @@ function MOI.get(o::Optimizer, ::MOI.PrimalStatus)
     return SCIPgetNSols(o) > 0 ? MOI.FEASIBLE_POINT : MOI.NO_SOLUTION
 end
 
-function MOI.get(o::Optimizer, ::MOI.ResultCount)
+function MOI.get(o::Optimizer, ::MOI.ResultCount)::Int
     status = SCIPgetStatus(o)
     if status in [SCIP_STATUS_UNBOUNDED, SCIP_STATUS_INFORUNBD]
         return 0
