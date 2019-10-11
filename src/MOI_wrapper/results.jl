@@ -23,11 +23,15 @@ function MOI.get(o::Optimizer, ::MOI.TerminationStatus)
     return term_status_map[SCIPgetStatus(o)]
 end
 
-function MOI.get(o::Optimizer, ::MOI.PrimalStatus)
-    return SCIPgetNSols(o) > 0 ? MOI.FEASIBLE_POINT : MOI.NO_SOLUTION
+function MOI.get(o::Optimizer, attr::MOI.PrimalStatus)
+    return if 1 <= attr.N <= MOI.get(o, MOI.ResultCount())
+        MOI.FEASIBLE_POINT
+    else
+        MOI.NO_SOLUTION
+    end
 end
 
-function MOI.get(o::Optimizer, ::MOI.ResultCount)
+function MOI.get(o::Optimizer, ::MOI.ResultCount)::Int
     status = SCIPgetStatus(o)
     if status in [SCIP_STATUS_UNBOUNDED, SCIP_STATUS_INFORUNBD]
         return 0
@@ -66,24 +70,28 @@ assert_after_prob(o::Optimizer) = assert_stage(o, SCIP_Stage.(3:10))
 
 function MOI.get(o::Optimizer, attr::MOI.ObjectiveValue)
     assert_solved(o)
+    MOI.check_result_index_bounds(o, attr)
     sols = unsafe_wrap(Array{Ptr{SCIP_SOL}}, SCIPgetSols(o), SCIPgetNSols(o))
     return SCIPgetSolOrigObj(o, sols[attr.result_index])
 end
 
 function MOI.get(o::Optimizer, attr::MOI.VariablePrimal, vi::VI)
     assert_solved(o)
+    MOI.check_result_index_bounds(o, attr)
     sols = unsafe_wrap(Array{Ptr{SCIP_SOL}}, SCIPgetSols(o), SCIPgetNSols(o))
     return SCIPgetSolVal(o, sols[attr.N], var(o, vi))
 end
 
 function MOI.get(o::Optimizer, attr::MOI.ConstraintPrimal, ci::CI{SVF,<:BOUNDS})
     assert_solved(o)
+    MOI.check_result_index_bounds(o, attr)
     sols = unsafe_wrap(Array{Ptr{SCIP_SOL}}, SCIPgetSols(o), SCIPgetNSols(o))
     return SCIPgetSolVal(o, sols[attr.N], var(o, VI(ci.value)))
 end
 
 function MOI.get(o::Optimizer, attr::MOI.ConstraintPrimal, ci::CI{SAF,<:BOUNDS})
     assert_solved(o)
+    MOI.check_result_index_bounds(o, attr)
     sols = unsafe_wrap(Array{Ptr{SCIP_SOL}}, SCIPgetSols(o), SCIPgetNSols(o))
     return SCIPgetActivityLinear(o, cons(o, ci), sols[attr.N])
 end

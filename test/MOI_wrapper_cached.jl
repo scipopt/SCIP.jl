@@ -24,6 +24,8 @@ const CONFIG3 = MOIT.TestConfig(atol=1e-3, rtol=1e-2, duals=false, infeas_certif
     excluded = [
         "feasibility_sense", # TODO: support feasibility sense
         "solve_qp_edge_cases", # needs objective bridge
+        "number_threads", # can't set num. threads in single-threaded SCIP!
+        "delete_soc_variables", # SCIP requires non-negative "rhs variable"
     ]
     MOIT.unittest(BRIDGED2, CONFIG, excluded)
 end
