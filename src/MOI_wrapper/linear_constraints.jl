@@ -67,3 +67,10 @@ function MOI.modify(o::Optimizer, ci::CI{SAF, <:BOUNDS},
     @SC SCIPchgCoefLinear(o, cons(o, ci), var(o, change.variable), change.new_coefficient)
     return nothing
 end
+
+function MOI.get(o::Optimizer, attr::MOI.ConstraintPrimal, ci::CI{SAF,<:BOUNDS})
+    assert_solved(o)
+    MOI.check_result_index_bounds(o, attr)
+    sols = unsafe_wrap(Array{Ptr{SCIP_SOL}}, SCIPgetSols(o), SCIPgetNSols(o))
+    return SCIPgetActivityLinear(o, cons(o, ci), sols[attr.N])
+end
