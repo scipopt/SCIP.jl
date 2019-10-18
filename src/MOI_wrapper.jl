@@ -194,6 +194,35 @@ function MOI.optimize!(o::Optimizer)
     return nothing
 end
 
+# Some utilities:
+
+"Make sure that SCIP is currently in one of the allowed stages."
+function assert_stage(o::Optimizer, stages)
+    stage = SCIPgetStage(o)
+    if !(stage in stages)
+        error("SCIP is wrong stage ($stage, need $stages), can not query results!")
+    end
+end
+
+"Make sure that the problem was solved (SCIP is in SOLVED stage)."
+function assert_solved(o::Optimizer)
+    # SCIP's stage is SOLVING when stopped by user limit!
+    assert_stage(o, (SCIP_STAGE_SOLVING, SCIP_STAGE_SOLVED))
+
+    # Check for invalid status (when stage is SOLVING).
+    status = SCIPgetStatus(o)
+    if status in (SCIP_STATUS_UNKNOWN,
+                  SCIP_STATUS_USERINTERRUPT,
+                  SCIP_STATUS_TERMINATE)
+        error("SCIP's solving was interrupted, but not by a user-given limit!")
+    end
+end
+
+"Make sure that: TRANSFORMED ≤ stage ≤ SOLVED."
+assert_after_prob(o::Optimizer) = assert_stage(o, SCIP_Stage.(3:10))
+
+# Further methods related to specific constraint types, etc.
+
 include(joinpath("MOI_wrapper", "variable.jl"))
 include(joinpath("MOI_wrapper", "constraints.jl"))
 include(joinpath("MOI_wrapper", "linear_constraints.jl"))
