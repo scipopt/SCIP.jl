@@ -82,13 +82,6 @@ function MOI.get(o::Optimizer, attr::MOI.VariablePrimal, vi::VI)
     return SCIPgetSolVal(o, sols[attr.N], var(o, vi))
 end
 
-function MOI.get(o::Optimizer, attr::MOI.ConstraintPrimal, ci::CI{SVF,<:BOUNDS})
-    assert_solved(o)
-    MOI.check_result_index_bounds(o, attr)
-    sols = unsafe_wrap(Array{Ptr{SCIP_SOL}}, SCIPgetSols(o), SCIPgetNSols(o))
-    return SCIPgetSolVal(o, sols[attr.N], var(o, VI(ci.value)))
-end
-
 function MOI.get(o::Optimizer, ::MOI.ObjectiveBound)
     assert_after_prob(o)
     return SCIPgetDualbound(o)
