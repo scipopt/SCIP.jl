@@ -74,3 +74,14 @@ function MOI.get(o::Optimizer, attr::MOI.ConstraintPrimal, ci::CI{SAF,<:BOUNDS})
     sols = unsafe_wrap(Array{Ptr{SCIP_SOL}}, SCIPgetSols(o), SCIPgetNSols(o))
     return SCIPgetActivityLinear(o, cons(o, ci), sols[attr.N])
 end
+
+function MOI.get(o::Optimizer, attr::MOI.ConstraintDual, ci::CI{SAF,<:BOUNDS})
+    assert_solved(o)
+    MOI.check_result_index_bounds(o, attr)
+
+    dualsolval = Ref{Cdouble}()
+    boundconstraint = Ref{SCIP_Bool}()
+    @SC SCIPgetDualSolVal(o, cons(o, ci), dualsolval, boundconstraint)
+
+    return dualsolval[]
+end

@@ -31,6 +31,15 @@ function MOI.get(o::Optimizer, attr::MOI.PrimalStatus)
     end
 end
 
+function MOI.get(o::Optimizer, attr::MOI.DualStatus)
+    # TODO: check if the problem is actually LP?
+    return if 1 <= attr.N <= MOI.get(o, MOI.ResultCount())
+        MOI.FEASIBLE_POINT
+    else
+        MOI.NO_SOLUTION
+    end
+end
+
 function MOI.get(o::Optimizer, ::MOI.ResultCount)::Int
     status = SCIPgetStatus(o)
     if status in [SCIP_STATUS_UNBOUNDED, SCIP_STATUS_INFORUNBD]
@@ -48,6 +57,13 @@ function MOI.get(o::Optimizer, attr::MOI.ObjectiveValue)
     MOI.check_result_index_bounds(o, attr)
     sols = unsafe_wrap(Array{Ptr{SCIP_SOL}}, SCIPgetSols(o), SCIPgetNSols(o))
     return SCIPgetSolOrigObj(o, sols[attr.result_index])
+end
+
+function MOI.get(o::Optimizer, attr::MOI.DualObjectiveValue)
+    assert_solved(o)
+    MOI.check_result_index_bounds(o, attr)
+    # TODO: warn about attr.N != 1?
+    return SCIPgetDualbound(o)
 end
 
 function MOI.get(o::Optimizer, attr::MOI.VariablePrimal, vi::VI)
