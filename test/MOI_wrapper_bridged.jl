@@ -45,6 +45,7 @@ end
 @testset "MOI Integer Linear" begin
     excluded = String[]
     MOIT.intlineartest(BRIDGED, CONFIG, excluded)
+    MOIT.indicator3_test(BRIDGED, CONFIG)
 end
 
 @testset "MOI Integer Conic" begin
