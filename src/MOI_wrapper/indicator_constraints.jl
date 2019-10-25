@@ -10,8 +10,10 @@ function MOI.add_constraint(o::Optimizer, func::MOI.VectorAffineFunction{T}, set
     y = VarRef(first_index_terms[1].variable_index.value)
     x = [VarRef(vi.variable_index.value) for vi in scalar_index_terms]
     a = [vi.coefficient for vi in scalar_index_terms]
+    b = func.constants[2]
+    # a^T x + b <= c ===> a^T <= c - b
 
-    cr = add_indicator_constraint(o.mscip, y, x, a, MOI.constant(set.set))
+    cr = add_indicator_constraint(o.mscip, y, x, a, MOI.constant(set.set) - b)
     ci = CI{MOI.VectorAffineFunction{T}, MOI.IndicatorSet{MOI.ACTIVATE_ON_ONE, LT}}(cr.val)
     register!(o, ci)
     register!(o, cons(o, ci), cr)
