@@ -139,6 +139,7 @@ end
     MOIT.int3test(OPTIMIZER, CONFIG)
     MOIT.indicator1_test(OPTIMIZER, CONFIG)
     MOIT.indicator2_test(OPTIMIZER, CONFIG)
+    # replace with MOIT when MathOptInterface.jl#929 merged
     indicator4_test(OPTIMIZER, CONFIG)
     # MOIT.indicator3_test(OPTIMIZER, CONFIG) # no support for ACTIVATE_ON_ZERO
 end
