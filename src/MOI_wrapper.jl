@@ -53,13 +53,17 @@ Base.unsafe_convert(::Type{Ptr{SCIP_}}, o::Optimizer) = o.mscip.scip[]
 ## convenience functions (not part of MOI)
 
 "Return pointer to SCIP variable."
-var(o::Optimizer, v::VI) = var(o.mscip, VarRef(v.value))
+function var(o::Optimizer, v::VI)::Ptr{SCIP_VAR}
+    return var(o.mscip, VarRef(v.value))
+end
 
 "Return var/cons reference of SCIP variable/constraint."
 ref(o::Optimizer, ptr::Ptr{Cvoid}) = o.reference[ptr]
 
 "Return pointer to SCIP constraint."
-cons(o::Optimizer, c::CI{F,S}) where {F,S} = cons(o.mscip, ConsRef(c.value))
+function cons(o::Optimizer, c::CI{F,S})::Ptr{SCIP_CONS} where {F,S}
+    return cons(o.mscip, ConsRef(c.value))
+end
 
 "Extract bounds from sets."
 bounds(set::MOI.EqualTo{Float64}) = (set.value, set.value)

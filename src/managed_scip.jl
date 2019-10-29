@@ -124,10 +124,14 @@ function set_parameter(mscip::ManagedSCIP, name::AbstractString, value)
 end
 
 "Return pointer to SCIP variable."
-var(mscip::ManagedSCIP, vr::VarRef) = mscip.vars[vr][]
+function var(mscip::ManagedSCIP, vr::VarRef)::Ptr{SCIP_VAR}
+    return mscip.vars[vr][]
+end
 
 "Return pointer to SCIP constraint."
-cons(mscip::ManagedSCIP, cr::ConsRef) = mscip.conss[cr][]
+function cons(mscip::ManagedSCIP, cr::ConsRef)::Ptr{SCIP_CONS}
+    return mscip.conss[cr][]
+end
 
 "Store reference to variable, return VarRef"
 function store_var!(mscip::ManagedSCIP, var__::Ref{Ptr{SCIP_VAR}})
