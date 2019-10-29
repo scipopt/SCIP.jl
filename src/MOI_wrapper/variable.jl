@@ -227,3 +227,14 @@ function MOI.get(o::Optimizer, ::MOI.ConstraintSet, ci::CI{SVF, S}) where S <: B
     end
     return from_bounds(S, lb, ub)
 end
+
+# (partial) warm starts
+
+function MOI.get(o::Optimizer, ::MOI.VariablePrimalStart, vi::VI)
+    return o.start[vi]
+end
+
+function MOI.set(o::Optimizer, ::MOI.VariablePrimalStart, vi::VI, value::Float64)
+    o.start[vi] = value
+    return
+end
