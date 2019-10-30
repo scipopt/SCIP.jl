@@ -230,6 +230,8 @@ end
 
 # (partial) warm starts
 
+MOI.supports(::Optimizer, ::MOI.VariablePrimalStart) = true
+
 function MOI.get(o::Optimizer, ::MOI.VariablePrimalStart, vi::VI)
     return o.start[vi]
 end
