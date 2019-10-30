@@ -233,10 +233,21 @@ end
 MOI.supports(::Optimizer, ::MOI.VariablePrimalStart, ::Type{VI}) = true
 
 function MOI.get(o::Optimizer, ::MOI.VariablePrimalStart, vi::VI)
-    return o.start[vi]
+    return if haskey(o.start, vi)
+        o.start[vi]
+    else
+        nothing
+    end
 end
 
 function MOI.set(o::Optimizer, ::MOI.VariablePrimalStart, vi::VI, value::Float64)
     o.start[vi] = value
+    return
+end
+
+function MOI.set(o::Optimizer, ::MOI.VariablePrimalStart, vi::VI, value::Nothing)
+    if haskey(o.start, vi)
+        delete!(o.start, vi)
+    end
     return
 end

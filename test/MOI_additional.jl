@@ -595,8 +595,21 @@ end
 
     # optimal solution: x = 0, y = 1, value = 2
     # we submit the suboptimal x = 1 as start value
+
+    # first set only the value for one variable
     MOI.set(optimizer, MOI.VariablePrimalStart(), x, 1.0)
     @test MOI.get(optimizer, MOI.VariablePrimalStart(), x) == 1.0
+    @test MOI.get(optimizer, MOI.VariablePrimalStart(), y) === nothing
+
+    # unset the value
+    MOI.set(optimizer, MOI.VariablePrimalStart(), x, nothing)
+    @test MOI.get(optimizer, MOI.VariablePrimalStart(), x) === nothing
+    @test MOI.get(optimizer, MOI.VariablePrimalStart(), y) === nothing
+
+    # set all values (again)
+    MOI.set(optimizer, MOI.VariablePrimalStart(), [x, y], [1.0, nothing])
+    @test MOI.get(optimizer, MOI.VariablePrimalStart(), x) == 1.0
+    @test MOI.get(optimizer, MOI.VariablePrimalStart(), y) === nothing
 
     # "solve"
     MOI.optimize!(optimizer)
