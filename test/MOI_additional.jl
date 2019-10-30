@@ -571,3 +571,54 @@ end
     @test MOI.get(optimizer, MOI.SimplexIterations()) <= 3  # conservative
     @test MOI.get(optimizer, MOI.NodeCount()) <= 1          # conservative
 end
+
+@testset "Primal start values" begin
+    # stop after first feasible solution
+    optimizer = SCIP.Optimizer(display_verblevel=0, limits_solutions=1)
+    atol, rtol = 1e-6, 1e-6
+
+    # x, y binary
+    x, y = MOI.add_variables(optimizer, 2)
+    b1 = MOI.add_constraint(optimizer, x, MOI.ZeroOne())
+    b2 = MOI.add_constraint(optimizer, y, MOI.ZeroOne())
+
+    # x + y <= 1
+    c = MOI.add_constraint(
+        optimizer,
+        MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0, 1.0], [x, y]), 0.0),
+        MOI.LessThan(1.0))
+
+    # max x + 2y
+    MOI.set(optimizer, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(),
+            MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0, 2.0], [x, y]), 0.0))
+    MOI.set(optimizer, MOI.ObjectiveSense(), MOI.MAX_SENSE)
+
+    # optimal solution: x = 0, y = 1, value = 2
+    # we submit the suboptimal x = 1 as start value
+    @test MOI.supports(optimizer, MOI.VariablePrimalStart(), MOI.VariableIndex)
+
+    # first set only the value for one variable
+    MOI.set(optimizer, MOI.VariablePrimalStart(), x, 1.0)
+    @test MOI.get(optimizer, MOI.VariablePrimalStart(), x) == 1.0
+    @test MOI.get(optimizer, MOI.VariablePrimalStart(), y) === nothing
+
+    # unset the value
+    MOI.set(optimizer, MOI.VariablePrimalStart(), x, nothing)
+    @test MOI.get(optimizer, MOI.VariablePrimalStart(), x) === nothing
+    @test MOI.get(optimizer, MOI.VariablePrimalStart(), y) === nothing
+
+    # set all values (again)
+    MOI.set(optimizer, MOI.VariablePrimalStart(), [x, y], [1.0, nothing])
+    @test MOI.get(optimizer, MOI.VariablePrimalStart(), x) == 1.0
+    @test MOI.get(optimizer, MOI.VariablePrimalStart(), y) === nothing
+
+    # "solve"
+    MOI.optimize!(optimizer)
+    @test MOI.get(optimizer, MOI.TerminationStatus()) == MOI.SOLUTION_LIMIT
+    @test MOI.get(optimizer, MOI.PrimalStatus()) == MOI.FEASIBLE_POINT
+
+    # we should get back our start values, completed to a solution
+    @test MOI.get(optimizer, MOI.ObjectiveValue()) ≈ 1.0 atol=atol rtol=rtol
+    @test MOI.get(optimizer, MOI.VariablePrimal(), x) ≈ 1.0 atol=atol rtol=rtol
+    @test MOI.get(optimizer, MOI.VariablePrimal(), y) ≈ 0.0 atol=atol rtol=rtol
+end

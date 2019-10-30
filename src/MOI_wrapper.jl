@@ -32,9 +32,10 @@ mutable struct Optimizer <: MOI.AbstractOptimizer
     constypes::ConsTypeMap
     binbounds::Dict{VI,BOUNDS} # only for binary variables
     params::Dict{String,Any}
+    start::Dict{VI,Float64} # can be partial
 
     function Optimizer(; kwargs...)
-        o = new(ManagedSCIP(), PtrMap(), ConsTypeMap(), Dict(), Dict())
+        o = new(ManagedSCIP(), PtrMap(), ConsTypeMap(), Dict(), Dict(), Dict())
 
         # Set all parameters given as keyword arguments, replacing the
         # delimiter, since "/" is used by all SCIP parameters, but is not
@@ -53,13 +54,17 @@ Base.unsafe_convert(::Type{Ptr{SCIP_}}, o::Optimizer) = o.mscip.scip[]
 ## convenience functions (not part of MOI)
 
 "Return pointer to SCIP variable."
-var(o::Optimizer, v::VI) = var(o.mscip, VarRef(v.value))
+function var(o::Optimizer, v::VI)::Ptr{SCIP_VAR}
+    return var(o.mscip, VarRef(v.value))
+end
 
 "Return var/cons reference of SCIP variable/constraint."
 ref(o::Optimizer, ptr::Ptr{Cvoid}) = o.reference[ptr]
 
 "Return pointer to SCIP constraint."
-cons(o::Optimizer, c::CI{F,S}) where {F,S} = cons(o.mscip, ConsRef(c.value))
+function cons(o::Optimizer, c::CI{F,S})::Ptr{SCIP_CONS} where {F,S}
+    return cons(o.mscip, ConsRef(c.value))
+end
 
 "Extract bounds from sets."
 bounds(set::MOI.EqualTo{Float64}) = (set.value, set.value)
@@ -167,6 +172,7 @@ function MOI.empty!(o::Optimizer)
     o.reference = PtrMap()
     o.constypes = ConsTypeMap()
     o.binbounds = Dict()
+    o.start = Dict()
     # reapply parameters
     for pair in o.params
         set_parameter(o.mscip, pair.first, pair.second)
@@ -189,7 +195,31 @@ function MOI.get(o::Optimizer, ::MOI.ListOfConstraints)
     return collect(keys(o.constypes))
 end
 
+function set_start_values(o::Optimizer)
+    if isempty(o.start)
+        # no primal start values are given
+        return
+    end
+
+    # create new partial solution object
+    sol__ = Ref{Ptr{SCIP_SOL}}(C_NULL)
+    @SC SCIPcreatePartialSol(o, sol__, C_NULL)
+    @assert sol__[] != C_NULL
+
+    # set all given values
+    sol_ = sol__[]
+    for (vi, value) in o.start
+        @SC SCIPsetSolVal(o, sol_, var(o, vi), value)
+    end
+
+    # submit the candidate
+    stored_ = Ref{SCIP_Bool}(FALSE)
+    @SC SCIPaddSolFree(o, sol__, stored_)
+    @assert sol__[] == C_NULL
+end
+
 function MOI.optimize!(o::Optimizer)
+    set_start_values(o)
     @SC SCIPsolve(o)
     return nothing
 end

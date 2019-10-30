@@ -14,7 +14,6 @@ const CONFIG3 = MOIT.TestConfig(atol=1e-3, rtol=1e-2, duals=false, infeas_certif
         "linear11", # broken in SCIP (#2556)
         "linear13", # TODO: support MOI.FEASIBILITY_SENSE
         "linear14", # needs MOI.delete (of variables in constraints)
-        "partial_start", # TODO: supportVariablePrimalStart
     ]
     MOIT.contlineartest(BRIDGED, CONFIG, excluded)
 end

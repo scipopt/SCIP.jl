@@ -1,5 +1,9 @@
 # News
 
+## v0.9.3
+
+- add support for VariablePrimalStart [#138](https://github.com/SCIP-Interfaces/SCIP.jl/pull/138)
+
 ## v0.9.2
 
 - support (and require) MOI v0.9.5 [#134](https://github.com/SCIP-Interfaces/SCIP.jl/pull/134)
