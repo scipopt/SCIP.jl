@@ -16,7 +16,6 @@ const CONFIG = MOIT.TestConfig(atol=1e-5, rtol=1e-5, duals=false,
         "linear13", # TODO: support MOI.FEASIBILITY_SENSE
         "linear14", # needs MOI.delete (of variables in constraints)
         "linear15", # needs MOI.VectorAffineFunction
-        "partial_start", # TODO: supportVariablePrimalStart
     ]
     # MOIT.contlineartest(OPTIMIZER, CONFIG, excluded)
 
@@ -32,6 +31,7 @@ const CONFIG = MOIT.TestConfig(atol=1e-5, rtol=1e-5, duals=false,
     MOIT.linear10test(OPTIMIZER, CONFIG)
     MOIT.linear10btest(OPTIMIZER, CONFIG)
     MOIT.linear12test(OPTIMIZER, CONFIG)
+    MOIT.partial_start_test(OPTIMIZER, CONFIG)
 end
 
 @testset "MOI Quadratic Constraint" begin
