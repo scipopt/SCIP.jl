@@ -595,6 +595,7 @@ end
 
     # optimal solution: x = 0, y = 1, value = 2
     # we submit the suboptimal x = 1 as start value
+    @test MOI.supports(optimizer, MOI.VariablePrimalStart(), MOI.VariableIndex)
 
     # first set only the value for one variable
     MOI.set(optimizer, MOI.VariablePrimalStart(), x, 1.0)
