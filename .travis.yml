@@ -29,6 +29,7 @@ before_install:
   - export DEBFILE=SCIPOptSuite-$VERSION-Linux-Ub1604.deb
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then wget http://scip.zib.de/download/release/$DEBFILE; fi
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo dpkg -i $DEBFILE ; fi
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then mkdir install; fi
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then wget http://scip.zib.de/download/release/SCIPOptSuite-$VERSION-Darwin.sh; fi
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then sh SCIPOptSuite-$VERSION-Darwin.sh --skip-license --prefix=install --exclude-subdir; fi
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then export SCIPOPTDIR=$(pwd)/install; fi
