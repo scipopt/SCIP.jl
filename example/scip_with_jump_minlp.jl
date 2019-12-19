@@ -1,3 +1,7 @@
+#=
+The following some part of code are excerpt from "Julia Programming for Operations Research 2/e (Changhyun Kwon) - Chap 8"
+=#
+
 using JuMP
 #using JuMP:MOI
 using SCIP
