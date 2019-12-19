@@ -40,7 +40,7 @@ function MOI.get(o::Optimizer, ::MOI.ResultCount)::Int
 end
 
 function MOI.get(o::Optimizer, ::MOI.RawStatusString)
-    return String(CEnum.enum_name(SCIPgetStatus(o)))
+    return String(Symbol(SCIPgetStatus(o)))
 end
 
 "Make sure that SCIP is currently in one of the allowed stages."
