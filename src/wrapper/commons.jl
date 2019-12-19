@@ -700,7 +700,7 @@ const SCIP_PRIMAL = SCIP_Primal
 # Skipping MacroDefinition: SCIP_DECL_PROBEXITSOL ( x ) SCIP_RETCODE x ( SCIP * scip , SCIP_PROBDATA * probdata , SCIP_Bool restart )
 # Skipping MacroDefinition: SCIP_DECL_PROBCOPY ( x ) SCIP_RETCODE x ( SCIP * scip , SCIP * sourcescip , SCIP_PROBDATA * sourcedata , SCIP_HASHMAP * varmap , SCIP_HASHMAP * consmap , SCIP_PROBDATA * * targetdata , SCIP_Bool global , SCIP_RESULT * result )
 
-@cenum(SCIP_Objsense{Int32},
+@cenum(SCIP_Objsense,
     SCIP_OBJSENSE_MAXIMIZE = -1,
     SCIP_OBJSENSE_MINIMIZE = 1,
 )
@@ -811,7 +811,7 @@ const REOPT_CONSTYPE = Reopt_ConsType
 
 const SCIP_RESULT = SCIP_Result
 
-@cenum(SCIP_Retcode{Int32},
+@cenum(SCIP_Retcode,
     SCIP_OKAY = 1,
     SCIP_ERROR = 0,
     SCIP_NOMEMORY = -1,
@@ -1111,7 +1111,7 @@ const SCIP_VAR = SCIP_Var
 const SCIP_VarData = Cvoid
 const SCIP_VARDATA = SCIP_VarData
 
-@cenum(SCIP_VBCColor{Int32},
+@cenum(SCIP_VBCColor,
     SCIP_VBCCOLOR_UNSOLVED = 3,
     SCIP_VBCCOLOR_SOLVED = 2,
     SCIP_VBCCOLOR_CUTOFF = 4,
@@ -1201,7 +1201,7 @@ const SCIP_LINCONSUPGRADE = SCIP_LinConsUpgrade
 const SCIP_ORBITOPETYPE = SCIP_OrbitopeType
 const ARTIFICIALVARNAMEPREFIX = "andresultant_"
 
-@cenum(SCIP_LinearConsType{Int32},
+@cenum(SCIP_LinearConsType,
     SCIP_LINEARCONSTYPE_INVALIDCONS = -1,
     SCIP_LINEARCONSTYPE_LINEAR = 0,
     SCIP_LINEARCONSTYPE_LOGICOR = 1,
@@ -1265,7 +1265,7 @@ end
 const SCIP_INTERVAL = SCIP_Interval
 const SCIP_ROUNDMODE = Cint
 
-@cenum(SCIP_ObjSen{Int32},
+@cenum(SCIP_ObjSen,
     SCIP_OBJSEN_MAXIMIZE = -1,
     SCIP_OBJSEN_MINIMIZE = 1,
 )
