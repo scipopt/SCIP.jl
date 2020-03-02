@@ -3,6 +3,7 @@
 ## v0.9.3
 
 - add support for VariablePrimalStart [#138](https://github.com/SCIP-Interfaces/SCIP.jl/pull/138)
+- fix indicator constraints [#137](https://github.com/SCIP-Interfaces/SCIP.jl/pull/137)
 
 ## v0.9.2
 
