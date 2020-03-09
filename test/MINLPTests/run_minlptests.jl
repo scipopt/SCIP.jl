@@ -1,6 +1,7 @@
 using MINLPTests, JuMP, SCIP, Test
 
-const OPTIMIZER = JuMP.with_optimizer(SCIP.Optimizer, display_verblevel=0)
+const OPTIMIZER = JuMP.optimizer_with_attributes(
+    SCIP.Optimizer, "display/verblevel" => 0)
 const OBJTOL = 1e-4
 const PRIMALTOL = 1e-3
 const DUALTOL = NaN  # to disable the query
