@@ -7,7 +7,7 @@ dist: xenial
 sudo: true
 julia:
   - 1.0
-  - 1.1
+  - 1.3
 notifications:
   email: false
 git:
