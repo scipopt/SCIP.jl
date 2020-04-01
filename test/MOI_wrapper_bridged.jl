@@ -42,7 +42,7 @@ end
 end
 
 @testset "MOI Integer Linear" begin
-    excluded = String[]
+    excluded = String["semiconttest", "semiinttest"]
     MOIT.intlineartest(BRIDGED, CONFIG, excluded)
     MOIT.indicator3_test(BRIDGED, CONFIG)
 end
