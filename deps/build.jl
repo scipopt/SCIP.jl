@@ -18,7 +18,7 @@ libname = if Sys.islinux()
 elseif Sys.isapple()
     "libscip.dylib"
 elseif Sys.iswindows()
-    "libscip.dll"
+    "libscip.lib"
 else
     error("SCIP is currently not supported on \"$(Sys.KERNEL)\"")
 end
