@@ -163,8 +163,15 @@ end
 end
 
 @testset "NoGoodCounter (2 binary vars)" begin
-    optimizer = SCIP.Optimizer(display_verblevel=0,
-                               misc_allowdualreds=SCIP.FALSE)
+    optimizer = SCIP.Optimizer(display_verblevel=0)
+
+    allow_dual_reductions = if SCIP.SCIPmajorVersion() < 7
+        MOI.RawParameter("misc/allowdualreds")
+    else
+        MOI.RawParameter("misc/allowstrongdualreds")
+    end
+    MOI.set(optimizer, allow_dual_reductions, SCIP.FALSE)
+
     atol, rtol = 1e-6, 1e-6
 
     # add binary variables
