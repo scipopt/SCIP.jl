@@ -1,5 +1,9 @@
 # News
 
+## v0.9.4
+
+- support SCIP 7.0.0 [#149](https://github.com/SCIP-Interfaces/SCIP.jl/pull/149)
+
 ## v0.9.3
 
 - add support for VariablePrimalStart [#138](https://github.com/SCIP-Interfaces/SCIP.jl/pull/138)
