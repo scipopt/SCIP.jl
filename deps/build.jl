@@ -18,7 +18,7 @@ libname = if Sys.islinux()
 elseif Sys.isapple()
     "libscip.dylib"
 elseif Sys.iswindows()
-    "scip.dll"
+    "libscip.dll"
 else
     error("SCIP is currently not supported on \"$(Sys.KERNEL)\"")
 end
@@ -35,19 +35,24 @@ end
 push!(paths_to_try, libname)
 
 found = false
+tried = String[]
 for l in paths_to_try
-    d = Libdl.dlopen_e(l)
-    if d != C_NULL
+    try
+        d = Libdl.dlopen(l)
         global found = true
         write_depsfile(l)
         break
+    catch e
+        push!(tried, "$(l): $(e.msg)")
     end
 end
 
 if !found && !haskey(ENV, "SCIP_JL_SKIP_LIB_CHECK")
     error("""
-Unable to locate SCIP installation.
-Tried:\n\t$(join(paths_to_try, "\n\t"))
+Unable to locate SCIP installation. Tried:
+
+$(join(tried, "\n\n"))
+
 Note that this must be downloaded separately from scip.zib.de.
 Please set the environment variable SCIPOPTDIR to SCIP's installation path.
 """)
