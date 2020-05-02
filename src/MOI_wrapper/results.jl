@@ -31,6 +31,10 @@ function MOI.get(o::Optimizer, attr::MOI.PrimalStatus)
     end
 end
 
+function MOI.get(::Optimizer, ::MOI.DualStatus)
+    return MOI.NO_SOLUTION
+end
+
 function MOI.get(o::Optimizer, ::MOI.ResultCount)::Int
     status = SCIPgetStatus(o)
     if status in [SCIP_STATUS_UNBOUNDED, SCIP_STATUS_INFORUNBD]
