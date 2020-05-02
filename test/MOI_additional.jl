@@ -622,3 +622,9 @@ end
     @test MOI.get(optimizer, MOI.VariablePrimal(), x) ≈ 1.0 atol=atol rtol=rtol
     @test MOI.get(optimizer, MOI.VariablePrimal(), y) ≈ 0.0 atol=atol rtol=rtol
 end
+
+@testset "No dual solution" begin
+    optimizer = SCIP.Optimizer(display_verblevel=0)
+    MOI.optimize!(optimizer)
+    @test MOI.get(optimizer, MOI.DualStatus()) == MOI.NO_SOLUTION
+end
