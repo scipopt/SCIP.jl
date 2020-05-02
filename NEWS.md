@@ -1,5 +1,9 @@
 # News
 
+## v0.9.5
+
+- add Implement MOI.DualStatus [#158](https://github.com/SCIP-Interfaces/SCIP.jl/pull/158)
+
 ## v0.9.4
 
 - support SCIP 7.0.0 [#149](https://github.com/SCIP-Interfaces/SCIP.jl/pull/149)
