@@ -1,5 +1,8 @@
 using Test
 using SCIP
+using Aqua
+
+Aqua.test_all(SCIP)
 
 @testset "direct library calls" begin
     include("direct_library_calls.jl")
