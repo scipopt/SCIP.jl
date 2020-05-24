@@ -210,7 +210,7 @@ end
 
 # TODO: is actually wrong for unbounded variables?
 function MOI.is_valid(o::Optimizer, ci::CI{SVF,<:BOUNDS})
-    return haskey(o.mscip.vars, VarRef(vi.value))
+    return haskey(o.mscip.vars, VarRef(ci.value))
 end
 
 function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{SVF, S}) where S <: BOUNDS
