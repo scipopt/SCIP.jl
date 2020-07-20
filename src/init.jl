@@ -11,7 +11,7 @@ function __init__()
     patch = SCIPtechVersion()
     current = VersionNumber("$major.$minor.$patch")
     required = VersionNumber("6.0.0")
-    upperbound = VersionNumber("7.0.0")
+    upperbound = VersionNumber("7.0.1")
     if current < required || current > upperbound
         error("SCIP is installed at version $current, " *
               "supported are $required up to (including) $upperbound.")
