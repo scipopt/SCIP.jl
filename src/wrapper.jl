@@ -1,7 +1,8 @@
 wrap(base) = joinpath("wrapper", base * ".jl")
 
 # used by Clang.jl
-using CEnum
+include("CEnum.jl")
+using .CEnum
 
 # all type definitions
 include(wrap("manual_commons"))
