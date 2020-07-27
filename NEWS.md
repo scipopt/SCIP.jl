@@ -1,5 +1,11 @@
 # News
 
+## v0.9.6
+
+- add local CEnum submodule to avoid version conflicts [#175](https://github.com/SCIP-Interfaces/SCIP.jl/pull/175)
+- support SCIP 7.0.1 [#173](https://github.com/SCIP-Interfaces/SCIP.jl/pull/173)
+- fix SCIP status bug when adding nonlinear constraints after solving [#171](https://github.com/SCIP-Interfaces/SCIP.jl/pull/171)
+
 ## v0.9.5
 
 - add Implement MOI.DualStatus [#158](https://github.com/SCIP-Interfaces/SCIP.jl/pull/158)
