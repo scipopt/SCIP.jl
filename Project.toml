@@ -1,9 +1,8 @@
 name = "SCIP"
 uuid = "82193955-e24f-5292-bf16-6f2c5261a85f"
-version = "0.9.5"
+version = "0.9.6"
 
 [deps]
-CEnum = "fa961155-64e5-5f13-b03f-caf6b980ea82"
 Libdl = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
 MathOptInterface = "b8f27783-ece8-5eb3-8dc8-9495eed66fee"
 

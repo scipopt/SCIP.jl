@@ -29,9 +29,9 @@ addons:
 before_install:
   - export VERSION=7.0.0
   - export DEBFILE=SCIPOptSuite-$VERSION-Linux.deb
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then wget https://scip.zib.de/download/release/$DEBFILE; fi
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then wget --no-check-certificate https://scip.zib.de/download/release/$DEBFILE; fi
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo dpkg -i $DEBFILE ; fi
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then wget https://scip.zib.de/download/release/scipoptsuite-$VERSION.tgz; fi
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then wget --no-check-certificate https://scip.zib.de/download/release/scipoptsuite-$VERSION.tgz; fi
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then tar -xf scipoptsuite-$VERSION.tgz && cd scipoptsuite-$VERSION; fi
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then mkdir build && cd build && cmake -D CMAKE_BUILD_TYPE=Release -D ZIMPL=OFF -D GCG=OFF -D BUILD_TESTING=OFF -D CMAKE_INSTALL_PREFIX=../install ..; fi
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then make -j 4 && make install; fi

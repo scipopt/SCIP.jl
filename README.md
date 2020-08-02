@@ -13,9 +13,9 @@ See [NEWS.md](https://github.com/SCIP-Interfaces/SCIP.jl/blob/master/NEWS.md) fo
 We have completely rewritten the interface from scratch, using
 [Clang.jl](https://github.com/ihnorton/Clang.jl) to generate wrappers based on
 the headers of the SCIP library.
-The goal is to support [JuMP](https://github.com/JuliaOpt/JuMP.jl) (from version
+The goal is to support [JuMP](https://github.com/jump-dev/JuMP.jl) (from version
 0.19 on) through
-[MathOptInterface](https://github.com/JuliaOpt/MathOptInterface.jl).
+[MathOptInterface](https://github.com/jump-dev/MathOptInterface.jl).
 
 Currently, we support LP, MIP and QCP problems, as well as some nonlinear constraints, both through `MOI` sets
 (e.g., for second-order cones) as well as for expression graphs (see below).
@@ -115,8 +115,8 @@ In particular, trigonometric functions are not supported.
 ## Old Interface Implementation
 
 A previous implementation of SCIP.jl supported
-[JuMP](https://github.com/JuliaOpt/JuMP.jl) (up to version 0.18) through
-[MathProgBase](https://github.com/JuliaOpt/MathOptInterface.jl). It did not
+[JuMP](https://github.com/jump-dev/JuMP.jl) (up to version 0.18) through
+[MathProgBase](https://github.com/jump-dev/MathOptInterface.jl). It did not
 interface SCIP directly, but went through
 [CSIP](https://github.com/SCIP-Interfaces/CSIP), a simplified C wrapper.
 

@@ -10,6 +10,9 @@ function MOI.set(o::Optimizer, ::MOI.NLPBlock, data::MOI.NLPBlockData)
         error("Nonlinear objective not supported by SCIP.jl!")
     end
 
+    # go back to problem stage
+    allow_modification(o::Optimizer)
+
     MOI.initialize(data.evaluator, [:ExprGraph])
     for i in 1:length(data.constraint_bounds)
         expr = MOI.constraint_expr(data.evaluator, i)
