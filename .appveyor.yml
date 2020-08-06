@@ -1,7 +1,6 @@
 environment:
   matrix:
   - julia_version: 1.5
-  SCIPOPTDIR: C:\scipoptdir
 
 platform:
   - x64 # 64-bit
