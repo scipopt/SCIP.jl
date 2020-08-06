@@ -1,5 +1,10 @@
 using Libdl
 
+if VERSION >= v"1.3" && !haskey(ENV, "SCIPOPTDIR")
+    # Skip build in favor of SCIP_jll
+    exit()
+end
+
 depsfile = joinpath(dirname(@__FILE__), "deps.jl")
 if isfile(depsfile)
     rm(depsfile)
