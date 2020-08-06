@@ -1,13 +1,7 @@
 ## Documentation: http://docs.travis-ci.com/user/languages/julia/
 language: julia
-os:
-  - linux
-  - osx
 dist: bionic
 sudo: true
-julia:
-  - 1.0
-  - 1.3
 notifications:
   email: false
 git:
@@ -27,15 +21,10 @@ addons:
     - libtbb2
     - zlib1g
 before_install:
-  - export VERSION=7.0.0
+  - export VERSION=7.0.1
   - export DEBFILE=SCIPOptSuite-$VERSION-Linux.deb
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then wget --no-check-certificate https://scip.zib.de/download/release/$DEBFILE; fi
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo dpkg -i $DEBFILE ; fi
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then wget --no-check-certificate https://scip.zib.de/download/release/scipoptsuite-$VERSION.tgz; fi
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then tar -xf scipoptsuite-$VERSION.tgz && cd scipoptsuite-$VERSION; fi
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then mkdir build && cd build && cmake -D CMAKE_BUILD_TYPE=Release -D ZIMPL=OFF -D GCG=OFF -D BUILD_TESTING=OFF -D CMAKE_INSTALL_PREFIX=../install ..; fi
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then make -j 4 && make install; fi
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then cd .. && export SCIPOPTDIR=$(pwd)/install && cd ..; fi
 # Use default build script.
 # script:
 #   - julia -e 'using Pkg; Pkg.clone(pwd()); Pkg.build("SCIP"); Pkg.test("SCIP"; coverage=true)'
@@ -43,8 +32,14 @@ jobs:
   allow_failures:
     - stage: "MINLPTests"
   include:
-    - stage: "MINLPTests"
+    - os: linux
       julia: 1.0
+    - os: linux
+      julia: 1.5
+    - os: osx
+      julia: 1.5
+    - stage: "MINLPTests"
+      julia: 1.5
       os: linux
       script:
         - julia --project=test/MINLPTests -e 'using Pkg; Pkg.instantiate(); Pkg.add(PackageSpec(path=pwd()))'
