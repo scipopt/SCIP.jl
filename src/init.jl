@@ -1,9 +1,11 @@
-import Libdl
-const depsjl_path = joinpath(@__DIR__, "..", "deps", "deps.jl")
-if !isfile(depsjl_path)
-    error("SCIP was not built properly, please run Pkg.build(\"SCIP\")")
-end
-include(depsjl_path)
+# import Libdl
+# const depsjl_path = joinpath(@__DIR__, "..", "deps", "deps.jl")
+# if !isfile(depsjl_path)
+#     error("SCIP was not built properly, please run Pkg.build(\"SCIP\")")
+# end
+# include(depsjl_path)
+
+using SCIP_jll
 
 function __init__()
     major = SCIPmajorVersion()
