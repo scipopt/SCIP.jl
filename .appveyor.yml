@@ -1,6 +1,15 @@
 environment:
   matrix:
-  - julia_version: 1.5
+  # Julia 1.0 with downloaded SCIP
+  - julia_version: 1.0
+    SCIPOPTDIR: C:\scipoptdir
+
+  # Latest Julia with downloaded SCIP
+  - julia_version: 1
+    SCIPOPTDIR: C:\scipoptdir
+
+  # Latest Julia with SCIP_jll
+  - julia_version: 1
 
 platform:
   - x64 # 64-bit
@@ -17,6 +26,8 @@ notifications:
 
 install:
   - ps: iex ((new-object net.webclient).DownloadString("https://raw.githubusercontent.com/JuliaCI/Appveyor.jl/version-1/bin/install.ps1"))
+  - ps: wget https://scip.zib.de/download/release/SCIPOptSuite-7.0.0-win64-VS15.exe -outfile scipopt-installer.exe
+  - scipopt-installer.exe /S /D=%SCIPOPTDIR%
 
 build_script:
   - echo "%JL_BUILD_SCRIPT%"
