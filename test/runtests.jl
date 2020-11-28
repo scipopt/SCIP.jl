@@ -16,6 +16,8 @@ include("conshdlr_support.jl")
     include("conshdlr.jl")
 end
 
+include("sepa_support.jl")
+
 @testset "separators" begin
     include("sepa.jl")
 end
