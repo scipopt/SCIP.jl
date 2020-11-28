@@ -18,6 +18,9 @@ include("nonlinear.jl")
 # constraint handlers
 include("conshdlr.jl")
 
+# separators
+include("sepa.jl")
+
 # implementation of MOI
 include("MOI_wrapper.jl")
 

@@ -16,6 +16,10 @@ include("conshdlr_support.jl")
     include("conshdlr.jl")
 end
 
+@testset "separators" begin
+    include("sepa.jl")
+end
+
 @testset "MathOptInterface tests (bridged)" begin
     include("MOI_wrapper_bridged.jl")
 end
@@ -38,4 +42,8 @@ end
 
 @testset "constraint handlers (with MOI)" begin
     include("MOI_conshdlr.jl")
+end
+
+@testset "separators (with MOI and JuMP)" begin
+    include("MOI_sepa.jl")
 end

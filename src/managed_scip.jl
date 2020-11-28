@@ -23,6 +23,10 @@ mutable struct ManagedSCIP
     conshdlrs::Dict{Any, Ptr{SCIP_CONSHDLR}}
     conshdlrconss::Dict{Any, Ptr{SCIP_CONS}}
 
+    # Map from user-defined types (keys are <: AbstractSeparator) to the
+    # corresponding SCIP objects.
+    sepas::Dict{Any, Ptr{SCIP_SEPA}}
+
     function ManagedSCIP()
         scip = Ref{Ptr{SCIP_}}(C_NULL)
         @SC SCIPcreate(scip)
@@ -30,7 +34,7 @@ mutable struct ManagedSCIP
         @SC SCIPincludeDefaultPlugins(scip[])
         @SC SCIP.SCIPcreateProbBasic(scip[], "")
 
-        mscip = new(scip, Dict(), Dict(), 0, 0, Dict(), Dict())
+        mscip = new(scip, Dict(), Dict(), 0, 0, Dict(), Dict(), Dict())
         finalizer(free_scip, mscip)
     end
 end
