@@ -8,13 +8,7 @@ using JuMP
 
     # create an empty problem
     model = Model(SCIP.Optimizer)
-    set_optimizer_attribute(model, "display/verblevel", 0)
-    set_optimizer_attribute(model, "presolving/maxrounds", 0)
-    set_optimizer_attribute(model, "heuristics/locks/freq", -1)
-    set_optimizer_attribute(model, "heuristics/oneopt/freq", -1)
-    set_optimizer_attribute(model, "heuristics/simplerounding/freq", -1)
-    set_optimizer_attribute(model, "heuristics/rounding/freq", -1)
-    set_optimizer_attribute(model, "heuristics/shifting/freq", -1)
+    sepa_set_scip_parameters((par, val) -> set_optimizer_attribute(model, par, val))
 
     # add variables
     @variable(model, x, Bin)
@@ -35,8 +29,9 @@ using JuMP
     # solve the problem
     optimize!(model)
 
+    # The cut callback was called and obtaining the LP-solution worked.
     @test calls >= 1
-    @test x_val + y_val ≈ 1.5 atol=atol rtol=rtol
+    @test x_val + y_val >= 1.0 - min(atol, 1.0 * rtol)
 
     # SCIP found an optimal solution
     @test termination_status(model) == MOI.OPTIMAL
@@ -51,13 +46,7 @@ end
 
     # create an empty problem
     model = Model(SCIP.Optimizer)
-    set_optimizer_attribute(model, "display/verblevel", 0)
-    set_optimizer_attribute(model, "presolving/maxrounds", 0)
-    set_optimizer_attribute(model, "heuristics/locks/freq", -1)
-    set_optimizer_attribute(model, "heuristics/oneopt/freq", -1)
-    set_optimizer_attribute(model, "heuristics/simplerounding/freq", -1)
-    set_optimizer_attribute(model, "heuristics/rounding/freq", -1)
-    set_optimizer_attribute(model, "heuristics/shifting/freq", -1)
+    sepa_set_scip_parameters((par, val) -> set_optimizer_attribute(model, par, val))
 
     # add variables
     @variable(model, x, Bin)
@@ -76,6 +65,7 @@ end
     # solve the problem
     optimize!(model)
 
+    # The cut callback was called.
     @test calls >= 1
 
     # SCIP found the single remaining optimal solution
@@ -93,13 +83,7 @@ end
 
     # create an empty problem
     model = Model(SCIP.Optimizer)
-    set_optimizer_attribute(model, "display/verblevel", 0)
-    set_optimizer_attribute(model, "presolving/maxrounds", 0)
-    set_optimizer_attribute(model, "heuristics/locks/freq", -1)
-    set_optimizer_attribute(model, "heuristics/oneopt/freq", -1)
-    set_optimizer_attribute(model, "heuristics/simplerounding/freq", -1)
-    set_optimizer_attribute(model, "heuristics/rounding/freq", -1)
-    set_optimizer_attribute(model, "heuristics/shifting/freq", -1)
+    sepa_set_scip_parameters((par, val) -> set_optimizer_attribute(model, par, val))
 
     # add variables
     @variable(model, x, Bin)
@@ -118,6 +102,7 @@ end
     # solve the problem
     optimize!(model)
 
+    # The cut callback was called.
     @test calls >= 1
 
     # SCIP found the single remaining optimal solution
