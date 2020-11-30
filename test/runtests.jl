@@ -22,6 +22,10 @@ include("sepa_support.jl")
     include("sepa.jl")
 end
 
+@testset "cut callbacks" begin
+    include("cutcallback.jl")
+end
+
 @testset "MathOptInterface tests (bridged)" begin
     include("MOI_wrapper_bridged.jl")
 end
@@ -44,8 +48,4 @@ end
 
 @testset "constraint handlers (with MOI)" begin
     include("MOI_conshdlr.jl")
-end
-
-@testset "separators (with MOI and JuMP)" begin
-    include("MOI_sepa.jl")
 end

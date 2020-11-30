@@ -2,15 +2,16 @@ module DummySepa
 
 using SCIP
 
-# Define a minimal no-op separator.
-# Needs to be mutable for `pointer_from_objref` to work.
+
+"""
+A minimal no-op separator.
+"""
 mutable struct Sepa <: SCIP.AbstractSeparator
     called::Int64
 
     Sepa() = new(0)
 end
 
-# Implement only the fundamental callbacks:
 function SCIP.exec_lp(sepa::Sepa)
     sepa.called += 1
     return SCIP.SCIP_DIDNOTRUN
@@ -23,8 +24,10 @@ module AddSingleCut
 
 using SCIP
 
-# Define a separator, that 
-# Needs to be mutable for `pointer_from_objref` to work.
+
+"""
+A separator, that adds one predefined cut.
+"""
 mutable struct Sepa <: SCIP.AbstractSeparator
     mscip::SCIP.ManagedSCIP
     varrefs::AbstractArray{SCIP.VarRef}
@@ -33,7 +36,6 @@ mutable struct Sepa <: SCIP.AbstractSeparator
     rhs::Float64
 end
 
-# Implement only the fundamental callbacks:
 function SCIP.exec_lp(sepa::Sepa)
     SCIP.add_cut_sepa(sepa.mscip, sepa, sepa.varrefs, sepa.coefs,
                       sepa.lhs, sepa.rhs, removable=false)
@@ -42,12 +44,21 @@ end
 
 end # module SelectSol
 
+"""
+    sepa_set_scip_parameters(setter::Function)
+
+Set all SCIP parameters, that are needed for the sepa-tests using `setter`.
+
+# Arguments
+- `setter(parameter::String, value::Int64)`
+"""
 function sepa_set_scip_parameters(setter::Function)
     setter("display/verblevel", 0)
-    setter("presolving/maxrounds", 0)
 
     # All the following parameters make sure, that the separator is called and
     # the cut is added to the LP.
+
+    setter("presolving/maxrounds", 0)
 
     setter("separating/minefficacy", 0)
     setter("separating/minefficacyroot", 0)

@@ -30,7 +30,7 @@ end
 
 
 #
-# Create separator for cutcallbacks.
+# Separator for cutcallbacks.
 #
 
 mutable struct CutCbSeparator <: AbstractSeparator
@@ -38,10 +38,16 @@ mutable struct CutCbSeparator <: AbstractSeparator
     cutcallback::Function
 end
 
+# If no cutcallback is given, the cut callback does nothing.
 CutCbSeparator(mscip::ManagedSCIP) = CutCbSeparator(mscip, cb_data -> nothing)
 
+"""
+Used for an argument to the cut callback, which in turn uses that argument to
+obtain the LP-solution via `MOI.get` and to add cuts via `MOI.submit`.
+"""
 mutable struct CutCbData
     sepa::CutCbSeparator
+    "Did the cut callback call submit?"
     submit_called::Bool
 end
 

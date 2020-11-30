@@ -3,7 +3,9 @@ const MOI = MathOptInterface
 using JuMP
 
 
-@testset "MOI Cutcallback (obtaining the LP-solution)" begin
+# Test, whether the cut callback is actually called and whether
+# `callback_value` works as intended.
+@testset "obtain the LP-solution" begin
     atol, rtol = 1e-6, 1e-6
 
     # create an empty problem
@@ -41,7 +43,8 @@ using JuMP
 end
 
 
-@testset "MOI Cutcallback (cutting one optimal solution)" begin
+# Test, whether adding cuts within cut callbacks via `submit` works [1/2].
+@testset "cutting one optimal solution" begin
     atol, rtol = 1e-6, 1e-6
 
     # create an empty problem
@@ -78,7 +81,8 @@ end
 end
 
 
-@testset "MOI Cutcallback (cutting another optimal solution)" begin
+# Test, whether adding cuts within cut callbacks via `submit` works [2/2].
+@testset "cutting another optimal solution" begin
     atol, rtol = 1e-6, 1e-6
 
     # create an empty problem

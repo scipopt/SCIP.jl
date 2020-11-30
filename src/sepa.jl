@@ -1,12 +1,13 @@
 #
-# Wrappers for implementing SCIP separators in Julia.
+# Wrapper for implementing SCIP separators in Julia.
 #
 # Please study the corresponding SCIP documentation first, to become familiar
 # with basic concepts and terms: https://www.scipopt.org/doc/html/SEPA.php
 #
 # The basic idea is that you create a new subtype of `AbstractSeparator`
 # to store the separator data and implement the fundamental callback by
-# adding a method to the function `exec_lp`.
+# adding a method to the function `exec_lp`. In `test/sepa.jl` and
+# `test/sepa_support.jl` you can find examples on how to use separators
 #
 #
 # Current limitations:

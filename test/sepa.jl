@@ -1,6 +1,7 @@
 using MathOptInterface
 const MOI = MathOptInterface
 
+# Test, whether the callback of the separator is called.
 @testset "dummy sepa (no separation)" begin
     # create an empty problem
     optimizer = SCIP.Optimizer()
@@ -37,7 +38,8 @@ const MOI = MathOptInterface
 end
 
 
-@testset "AddSingleCut (cut off one optimal solution)" begin
+# Test, whether adding cuts in `exec_lp` via `add_cut_sepa` works [1/2].
+@testset "AddSingleCut sepa (cut off one optimal solution)" begin
     atol, rtol = 1e-6, 1e-6
 
     # create an empty problem
@@ -83,6 +85,7 @@ end
 end
 
 
+# Test, whether adding cuts in `exec_lp` via `add_cut_sepa` works [2/2].
 @testset "AddSingleCut (cut off another optimal solution)" begin
     atol, rtol = 1e-6, 1e-6
 
@@ -129,6 +132,7 @@ end
 end
 
 
+# Test, whether we can cut the optimal solution.
 @testset "AddSingleCut (too strong cut)" begin
     atol, rtol = 1e-6, 1e-6
 
