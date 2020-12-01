@@ -59,6 +59,7 @@ function sepa_set_scip_parameters(setter::Function)
     # the cut is added to the LP.
 
     setter("presolving/maxrounds", 0)
+    setter("misc/usesymmetry", 0)
 
     setter("separating/minefficacy", 0)
     setter("separating/minefficacyroot", 0)

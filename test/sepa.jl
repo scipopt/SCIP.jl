@@ -2,7 +2,7 @@ using MathOptInterface
 const MOI = MathOptInterface
 
 # Test, whether the callback of the separator is called.
-@testset "dummy sepa (no separation)" begin
+@testset "DummySepa (no separation)" begin
     # create an empty problem
     optimizer = SCIP.Optimizer()
     mscip = optimizer.mscip
@@ -39,7 +39,7 @@ end
 
 
 # Test, whether adding cuts in `exec_lp` via `add_cut_sepa` works [1/2].
-@testset "AddSingleCut sepa (cut off one optimal solution)" begin
+@testset "AddSingleCut (cut off one optimal solution)" begin
     atol, rtol = 1e-6, 1e-6
 
     # create an empty problem
