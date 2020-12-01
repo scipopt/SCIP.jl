@@ -38,7 +38,7 @@ mutable struct CutCbSeparator <: AbstractSeparator
     cutcallback::Function
 end
 
-# If no cutcallback is given, the cut callback does nothing.
+# If no cut callback is given, the cut callback does nothing.
 CutCbSeparator(mscip::ManagedSCIP) = CutCbSeparator(mscip, cb_data -> nothing)
 
 """
