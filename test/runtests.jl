@@ -16,6 +16,16 @@ include("conshdlr_support.jl")
     include("conshdlr.jl")
 end
 
+include("sepa_support.jl")
+
+@testset "separators" begin
+    include("sepa.jl")
+end
+
+@testset "cut callbacks" begin
+    include("cutcallback.jl")
+end
+
 @testset "MathOptInterface tests (bridged)" begin
     include("MOI_wrapper_bridged.jl")
 end
