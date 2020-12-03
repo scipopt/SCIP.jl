@@ -1,5 +1,9 @@
 # News
 
+## v0.9.7
+
+- support MOI user cut callbacks [#179](https://github.com/SCIP-Interfaces/SCIP.jl/pull/179)
+
 ## v0.9.6
 
 - add local CEnum submodule to avoid version conflicts [#175](https://github.com/SCIP-Interfaces/SCIP.jl/pull/175)
@@ -8,7 +12,7 @@
 
 ## v0.9.5
 
-- add Implement MOI.DualStatus [#158](https://github.com/SCIP-Interfaces/SCIP.jl/pull/158)
+- implement MOI.DualStatus [#158](https://github.com/SCIP-Interfaces/SCIP.jl/pull/158)
 
 ## v0.9.4
 
