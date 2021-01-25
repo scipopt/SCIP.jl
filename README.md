@@ -10,17 +10,19 @@ See [NEWS.md](https://github.com/SCIP-Interfaces/SCIP.jl/blob/master/NEWS.md) fo
 
 ## Update (August 2020)
 
-It is no longer required to install [SCIP](http://scip.zib.de) itself before you
-can use this package. There now exists a
+On MacOS and Linux, it is no longer required to install the [SCIP](https://scipopt.org/) binaries using this package. There now exists a
 [BinaryBuilder.jl](https://github.com/JuliaPackaging/BinaryBuilder.jl) generated
 package [SCIP_jll.jl](https://github.com/JuliaBinaryWrappers/SCIP_jll.jl) which
 is installed automatically as a dependency.
 
-So, with if you use Julia version 1.3 or newer, you can get started simply with
+
+On Windows, the separate installation of SCIP is still mandatory.
+
+Under Julia 1.3 or more recent, you can use this default installation:
 
     pkg> add SCIP
 
-See below for support of custom SCIP installations.
+If you use an older Julia version, Windows or want a custom SCIP installation, see below for the build steps.
 
 ## Update (March 2019)
 
