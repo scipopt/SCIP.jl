@@ -2,11 +2,27 @@
 
 Julia interface to [SCIP](http://scip.zib.de) solver.
 
-[![Build Status](https://travis-ci.org/SCIP-Interfaces/SCIP.jl.svg?branch=master)](https://travis-ci.org/SCIP-Interfaces/SCIP.jl)
+[![Build Status](https://github.com/scipopt/SCIP.jl/workflows/CI/badge.svg?branch=master)](https://github.com/scipopt/SCIP.jl/actions?query=workflow%3ACI)
 [![Coverage Status](https://coveralls.io/repos/github/SCIP-Interfaces/SCIP.jl/badge.svg?branch=master)](https://coveralls.io/github/SCIP-Interfaces/SCIP.jl?branch=master)
 [![codecov](https://codecov.io/gh/SCIP-Interfaces/SCIP.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/SCIP-Interfaces/SCIP.jl)
 
 See [NEWS.md](https://github.com/SCIP-Interfaces/SCIP.jl/blob/master/NEWS.md) for changes in each (recent) release.
+
+## Update (August 2020)
+
+On MacOS and Linux, it is no longer required to install the [SCIP](https://scipopt.org/) binaries using this package. There now exists a
+[BinaryBuilder.jl](https://github.com/JuliaPackaging/BinaryBuilder.jl) generated
+package [SCIP_jll.jl](https://github.com/JuliaBinaryWrappers/SCIP_jll.jl) which
+is installed automatically as a dependency.
+
+
+On Windows, the separate installation of SCIP is still mandatory.
+
+Under Julia 1.3 or more recent, you can use this default installation:
+
+    pkg> add SCIP
+
+If you use an older Julia version, Windows or want a custom SCIP installation, see below for the build steps.
 
 ## Update (March 2019)
 
@@ -23,26 +39,19 @@ Currently, we support LP, MIP and QCP problems, as well as some nonlinear constr
 It is now possible to implement SCIP constraint handlers in Julia. Other plugin
 types are not yet supported.
 
-## Getting Started
+## Custom SCIP installations.
 
-To use SCIP.jl, you will need [SCIP](http://scip.zib.de) installed on your
-system. [SCIP's license](https://scip.zib.de/index.php#license) does not allow
-(automatic) redistribution, so please
-[download](https://scip.zib.de/index.php#download) and install it yourself.
+If you prefer to link to your own installation of SCIP, please set the
+environment variable `SCIPOPTDIR` to point to the **installation path**. That
+is, either `$SCIPOPTDIR/lib/libscip.so`, `$SCIPOPTDIR/lib/libscip.dylib` or
+`$SCIPOPTDIR/bin/scip.dll` should exist, depending on your operating system.
 
-Currently, Linux, OS X and Windows are tested and supported.
+When this is set before you install this package, it should be recognized
+automatically. Afterwards, you can trigger the build with
 
-We recommend using one of the provided installers, e.g.,
-`SCIPOptSuite-6.0.1-Linux.deb` for systems based on Debian. Adding the SCIP.jl
-package should then work out of the box:
-
-    pkg> add SCIP
-
-If you [build SCIP from source](https://scip.zib.de/doc-6.0.1/html/CMAKE.php)
-you should set the environment variable `SCIPOPTDIR` to point the the
-**installation path**. That is, either `$SCIPOPTDIR/lib/libscip.so`,
-`$SCIPOPTDIR/lib/libscip.dylib` or `$SCIPOPTDIR/bin/scip.dll` should exist,
-depending on your operating system.
+    pkg> build SCIP
+    
+This step is also required if your Julia version is older than 1.3.
 
 ## Setting Parameters
 
