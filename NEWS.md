@@ -1,5 +1,11 @@
 # News
 
+## v0.9.8
+
+Support for SCIP 7.0.2.
+Automatic SCIP binary installation through [SCIP_jll](https://github.com/JuliaBinaryWrappers/SCIP_jll.jl)
+built by BinaryBuilder [#177](https://github.com/scipopt/SCIP.jl/pull/177).
+
 ## v0.9.7
 
 - support MOI user cut callbacks [#179](https://github.com/SCIP-Interfaces/SCIP.jl/pull/179)
