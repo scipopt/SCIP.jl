@@ -1,6 +1,6 @@
 name = "SCIP"
 uuid = "82193955-e24f-5292-bf16-6f2c5261a85f"
-version = "0.9.7"
+version = "0.9.8"
 
 [deps]
 Ipopt_jll = "9cc047cb-c261-5740-88fc-0cf96f7bdcc7"
