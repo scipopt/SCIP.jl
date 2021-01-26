@@ -24,21 +24,6 @@ Under Julia 1.3 or more recent, you can use this default installation:
 
 If you use an older Julia version, Windows or want a custom SCIP installation, see below for the build steps.
 
-## Update (March 2019)
-
-We have completely rewritten the interface from scratch, using
-[Clang.jl](https://github.com/ihnorton/Clang.jl) to generate wrappers based on
-the headers of the SCIP library.
-The goal is to support [JuMP](https://github.com/jump-dev/JuMP.jl) (from version
-0.19 on) through
-[MathOptInterface](https://github.com/jump-dev/MathOptInterface.jl).
-
-Currently, we support LP, MIP and QCP problems, as well as some nonlinear constraints, both through `MOI` sets
-(e.g., for second-order cones) as well as for expression graphs (see below).
-
-It is now possible to implement SCIP constraint handlers in Julia. Other plugin
-types are not yet supported.
-
 ## Custom SCIP installations.
 
 If you prefer to link to your own installation of SCIP, please set the
