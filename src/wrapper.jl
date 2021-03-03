@@ -1,6 +1,9 @@
+include("LibSCIP.jl")
+using .LibSCIP
 
-include("CEnum.jl")
-using .CEnum
+const SCIP_ = LibSCIP.SCIP
+const TRUE = LibSCIP.TRUE
+const FALSE = LibSCIP.FALSE
 
 # SCIP_CALL: macro to check return codes, inspired by @assert
 macro SC(ex)

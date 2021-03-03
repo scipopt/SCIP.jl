@@ -1,5 +1,7 @@
 module SCIP
 
+using CEnum
+
 # assorted utility functions
 include("util.jl")
 

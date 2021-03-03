@@ -1,0 +1,18 @@
+[general]
+library_name = "libscip"
+output_file_path = "../src/LibSCIP.jl"
+module_name = "LibSCIP"
+prologue_file_path = "./prologue.jl"
+epilogue_file_path = "./epilogue.jl"
+export_symbol_prefixes = ["SCIP_", "SCIP", "BMS_"]
+
+printer_blacklist = [
+    "printError",
+    "printErrorHeader"
+]
+
+[codegen]
+opaque_as_mutable_struct = false
+
+[codegen.macro]
+macro_mode = "basic"
