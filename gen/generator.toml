@@ -5,7 +5,7 @@ module_name = "LibSCIP"
 prologue_file_path = "./prologue.jl"
 epilogue_file_path = "./epilogue.jl"
 export_symbol_prefixes = ["SCIP_", "SCIP", "BMS_"]
-
+use_julia_native_enum_type = true
 printer_blacklist = [
     "printError",
     "printErrorHeader"

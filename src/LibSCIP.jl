@@ -1,7 +1,5 @@
 module LibSCIP
 
-using CEnum
-
 using ..SCIP: libscip
 
 const uint8_t = UInt8
@@ -45,7 +43,7 @@ const SCIP_EVENTTYPE_ROWSIDECHANGED = UInt64(0x80000000)
 const SCIP_EVENTTYPE_SYNC = UInt64(0x100000000)
 
 
-@cenum SCIP_Retcode::Int32 begin
+@enum SCIP_Retcode::Int32 begin
     SCIP_OKAY = 1
     SCIP_ERROR = 0
     SCIP_NOMEMORY = -1
@@ -70,7 +68,7 @@ end
 
 const SCIP_RETCODE = SCIP_Retcode
 
-@cenum SCIP_VerbLevel::UInt32 begin
+@enum SCIP_VerbLevel::UInt32 begin
     SCIP_VERBLEVEL_NONE = 0
     SCIP_VERBLEVEL_DIALOG = 1
     SCIP_VERBLEVEL_MINIMAL = 2
@@ -137,7 +135,7 @@ function SCIPmessagehdlrIsQuiet(messagehdlr)
     ccall((:SCIPmessagehdlrIsQuiet, libscip), Cuint, (Ptr{SCIP_MESSAGEHDLR},), messagehdlr)
 end
 
-@cenum SCIP_Result::UInt32 begin
+@enum SCIP_Result::UInt32 begin
     SCIP_DIDNOTRUN = 1
     SCIP_DELAYED = 2
     SCIP_DIDNOTFIND = 3
@@ -160,7 +158,7 @@ end
 
 const SCIP_RESULT = SCIP_Result
 
-@cenum SCIP_ClockType::UInt32 begin
+@enum SCIP_ClockType::UInt32 begin
     SCIP_CLOCKTYPE_DEFAULT = 0
     SCIP_CLOCKTYPE_CPU = 1
     SCIP_CLOCKTYPE_WALL = 2
@@ -180,7 +178,7 @@ const SCIP_WallClock = Cvoid
 
 const SCIP_WALLCLOCK = SCIP_WallClock
 
-@cenum SCIP_Confidencelevel::UInt32 begin
+@enum SCIP_Confidencelevel::UInt32 begin
     SCIP_CONFIDENCELEVEL_MIN = 0
     SCIP_CONFIDENCELEVEL_LOW = 1
     SCIP_CONFIDENCELEVEL_MEDIUM = 2
@@ -190,7 +188,7 @@ end
 
 const SCIP_CONFIDENCELEVEL = SCIP_Confidencelevel
 
-@cenum SCIP_Hashmaptype::UInt32 begin
+@enum SCIP_Hashmaptype::UInt32 begin
     SCIP_HASHMAPTYPE_UNKNOWN = 0
     SCIP_HASHMAPTYPE_POINTER = 1
     SCIP_HASHMAPTYPE_REAL = 2
@@ -293,7 +291,7 @@ const SCIP_PROPTIMING = Cuint
 
 const SCIP_HEURTIMING = Cuint
 
-@cenum SCIP_ParamType::UInt32 begin
+@enum SCIP_ParamType::UInt32 begin
     SCIP_PARAMTYPE_BOOL = 0
     SCIP_PARAMTYPE_INT = 1
     SCIP_PARAMTYPE_LONGINT = 2
@@ -304,7 +302,7 @@ end
 
 const SCIP_PARAMTYPE = SCIP_ParamType
 
-@cenum SCIP_ParamSetting::UInt32 begin
+@enum SCIP_ParamSetting::UInt32 begin
     SCIP_PARAMSETTING_DEFAULT = 0
     SCIP_PARAMSETTING_AGGRESSIVE = 1
     SCIP_PARAMSETTING_FAST = 2
@@ -313,7 +311,7 @@ end
 
 const SCIP_PARAMSETTING = SCIP_ParamSetting
 
-@cenum SCIP_ParamEmphasis::UInt32 begin
+@enum SCIP_ParamEmphasis::UInt32 begin
     SCIP_PARAMEMPHASIS_DEFAULT = 0
     SCIP_PARAMEMPHASIS_CPSOLVER = 1
     SCIP_PARAMEMPHASIS_EASYCIP = 2
@@ -431,7 +429,7 @@ const SCIP_EventQueue = Cvoid
 
 const SCIP_EVENTQUEUE = SCIP_EventQueue
 
-@cenum SCIP_LPSolStat::UInt32 begin
+@enum SCIP_LPSolStat::UInt32 begin
     SCIP_LPSOLSTAT_NOTSOLVED = 0
     SCIP_LPSOLSTAT_OPTIMAL = 1
     SCIP_LPSOLSTAT_INFEASIBLE = 2
@@ -444,21 +442,21 @@ end
 
 const SCIP_LPSOLSTAT = SCIP_LPSolStat
 
-@cenum SCIP_BoundType::UInt32 begin
+@enum SCIP_BoundType::UInt32 begin
     SCIP_BOUNDTYPE_LOWER = 0
     SCIP_BOUNDTYPE_UPPER = 1
 end
 
 const SCIP_BOUNDTYPE = SCIP_BoundType
 
-@cenum SCIP_SideType::UInt32 begin
+@enum SCIP_SideType::UInt32 begin
     SCIP_SIDETYPE_LEFT = 0
     SCIP_SIDETYPE_RIGHT = 1
 end
 
 const SCIP_SIDETYPE = SCIP_SideType
 
-@cenum SCIP_RowOriginType::UInt32 begin
+@enum SCIP_RowOriginType::UInt32 begin
     SCIP_ROWORIGINTYPE_UNSPEC = 0
     SCIP_ROWORIGINTYPE_CONSHDLR = 1
     SCIP_ROWORIGINTYPE_CONS = 2
@@ -468,7 +466,7 @@ end
 
 const SCIP_ROWORIGINTYPE = SCIP_RowOriginType
 
-@cenum SCIP_LPAlgo::UInt32 begin
+@enum SCIP_LPAlgo::UInt32 begin
     SCIP_LPALGO_PRIMALSIMPLEX = 0
     SCIP_LPALGO_DUALSIMPLEX = 1
     SCIP_LPALGO_BARRIER = 2
@@ -509,7 +507,7 @@ const SCIP_Nlp = Cvoid
 
 const SCIP_NLP = SCIP_Nlp
 
-@cenum SCIP_Varstatus::UInt32 begin
+@enum SCIP_Varstatus::UInt32 begin
     SCIP_VARSTATUS_ORIGINAL = 0
     SCIP_VARSTATUS_LOOSE = 1
     SCIP_VARSTATUS_COLUMN = 2
@@ -521,7 +519,7 @@ end
 
 const SCIP_VARSTATUS = SCIP_Varstatus
 
-@cenum SCIP_Vartype::UInt32 begin
+@enum SCIP_Vartype::UInt32 begin
     SCIP_VARTYPE_BINARY = 0
     SCIP_VARTYPE_INTEGER = 1
     SCIP_VARTYPE_IMPLINT = 2
@@ -530,7 +528,7 @@ end
 
 const SCIP_VARTYPE = SCIP_Vartype
 
-@cenum SCIP_DomchgType::UInt32 begin
+@enum SCIP_DomchgType::UInt32 begin
     SCIP_DOMCHGTYPE_DYNAMIC = 0
     SCIP_DOMCHGTYPE_BOTH = 1
     SCIP_DOMCHGTYPE_BOUND = 2
@@ -538,7 +536,7 @@ end
 
 const SCIP_DOMCHGTYPE = SCIP_DomchgType
 
-@cenum SCIP_BoundchgType::UInt32 begin
+@enum SCIP_BoundchgType::UInt32 begin
     SCIP_BOUNDCHGTYPE_BRANCHING = 0
     SCIP_BOUNDCHGTYPE_CONSINFER = 1
     SCIP_BOUNDCHGTYPE_PROPINFER = 2
@@ -546,7 +544,7 @@ end
 
 const SCIP_BOUNDCHGTYPE = SCIP_BoundchgType
 
-@cenum SCIP_LockType::UInt32 begin
+@enum SCIP_LockType::UInt32 begin
     SCIP_LOCKTYPE_MODEL = 0
     SCIP_LOCKTYPE_CONFLICT = 1
 end
@@ -629,7 +627,7 @@ const SCIP_VarData = Cvoid
 
 const SCIP_VARDATA = SCIP_VarData
 
-@cenum SCIP_Objsense::Int32 begin
+@enum SCIP_Objsense::Int32 begin
     SCIP_OBJSENSE_MAXIMIZE = -1
     SCIP_OBJSENSE_MINIMIZE = 1
 end
@@ -644,7 +642,7 @@ const SCIP_ProbData = Cvoid
 
 const SCIP_PROBDATA = SCIP_ProbData
 
-@cenum SCIP_NodeType::UInt32 begin
+@enum SCIP_NodeType::UInt32 begin
     SCIP_NODETYPE_FOCUSNODE = 0
     SCIP_NODETYPE_PROBINGNODE = 1
     SCIP_NODETYPE_SIBLING = 2
@@ -756,7 +754,7 @@ const SCIP_Conflict = Cvoid
 
 const SCIP_CONFLICT = SCIP_Conflict
 
-@cenum SCIP_ConflictType::UInt32 begin
+@enum SCIP_ConflictType::UInt32 begin
     SCIP_CONFTYPE_UNKNOWN = 0
     SCIP_CONFTYPE_PROPAGATION = 1
     SCIP_CONFTYPE_INFEASLP = 2
@@ -767,7 +765,7 @@ end
 
 const SCIP_CONFTYPE = SCIP_ConflictType
 
-@cenum SCIP_ConflictPresolStrat::UInt32 begin
+@enum SCIP_ConflictPresolStrat::UInt32 begin
     SCIP_CONFPRES_DISABLED = 0
     SCIP_CONFPRES_ONLYLOCAL = 1
     SCIP_CONFPRES_ONLYGLOBAL = 2
@@ -776,7 +774,7 @@ end
 
 const SCIP_CONFPRES = SCIP_ConflictPresolStrat
 
-@cenum SCIP_SolOrigin::UInt32 begin
+@enum SCIP_SolOrigin::UInt32 begin
     SCIP_SOLORIGIN_ORIGINAL = 0
     SCIP_SOLORIGIN_ZERO = 1
     SCIP_SOLORIGIN_LPSOL = 2
@@ -797,7 +795,7 @@ const SCIP_Viol = Cvoid
 
 const SCIP_VIOL = SCIP_Viol
 
-@cenum SCIP_SolType::UInt32 begin
+@enum SCIP_SolType::UInt32 begin
     SCIP_SOLTYPE_UNKNOWN = 0
     SCIP_SOLTYPE_HEUR = 1
     SCIP_SOLTYPE_RELAX = 2
@@ -810,7 +808,7 @@ const SCIP_SOLTYPE = SCIP_SolType
 
 const SCIP_DIVETYPE = Cuint
 
-@cenum SCIP_DiveContext::UInt32 begin
+@enum SCIP_DiveContext::UInt32 begin
     SCIP_DIVECONTEXT_TOTAL = 0
     SCIP_DIVECONTEXT_SINGLE = 1
     SCIP_DIVECONTEXT_ADAPTIVE = 2
@@ -858,7 +856,7 @@ const SCIP_LinConsStats = Cvoid
 
 const SCIP_LINCONSSTATS = SCIP_LinConsStats
 
-@cenum SCIP_LinConstype::UInt32 begin
+@enum SCIP_LinConstype::UInt32 begin
     SCIP_LINCONSTYPE_EMPTY = 0
     SCIP_LINCONSTYPE_FREE = 1
     SCIP_LINCONSTYPE_SINGLETON = 2
@@ -896,7 +894,7 @@ const SCIP_Linelist = Cvoid
 
 const SCIP_LINELIST = SCIP_Linelist
 
-@cenum SCIP_DispStatus::UInt32 begin
+@enum SCIP_DispStatus::UInt32 begin
     SCIP_DISPSTATUS_OFF = 0
     SCIP_DISPSTATUS_AUTO = 1
     SCIP_DISPSTATUS_ON = 2
@@ -904,7 +902,7 @@ end
 
 const SCIP_DISPSTATUS = SCIP_DispStatus
 
-@cenum SCIP_DispMode::UInt32 begin
+@enum SCIP_DispMode::UInt32 begin
     SCIP_DISPMODE_DEFAULT = 1
     SCIP_DISPMODE_CONCURRENT = 2
     SCIP_DISPMODE_ALL = 3
@@ -928,7 +926,7 @@ const SCIP_ComprData = Cvoid
 
 const SCIP_COMPRDATA = SCIP_ComprData
 
-@cenum SCIP_BranchDir::UInt32 begin
+@enum SCIP_BranchDir::UInt32 begin
     SCIP_BRANCHDIR_DOWNWARDS = 0
     SCIP_BRANCHDIR_UPWARDS = 1
     SCIP_BRANCHDIR_FIXED = 2
@@ -1019,7 +1017,7 @@ const SCIP_ReoptConsData = Cvoid
 
 const SCIP_REOPTCONSDATA = SCIP_ReoptConsData
 
-@cenum SCIP_ReoptType::UInt32 begin
+@enum SCIP_ReoptType::UInt32 begin
     SCIP_REOPTTYPE_NONE = 0
     SCIP_REOPTTYPE_TRANSIT = 1
     SCIP_REOPTTYPE_INFSUBTREE = 2
@@ -1032,7 +1030,7 @@ end
 
 const SCIP_REOPTTYPE = SCIP_ReoptType
 
-@cenum Reopt_ConsType::UInt32 begin
+@enum Reopt_ConsType::UInt32 begin
     REOPT_CONSTYPE_INFSUBTREE = 0
     REOPT_CONSTYPE_DUALREDS = 1
     REOPT_CONSTYPE_CUT = 2
@@ -1065,7 +1063,7 @@ const SCIP_PropData = Cvoid
 
 const SCIP_PROPDATA = SCIP_PropData
 
-@cenum SCIP_Status::UInt32 begin
+@enum SCIP_Status::UInt32 begin
     SCIP_STATUS_UNKNOWN = 0
     SCIP_STATUS_USERINTERRUPT = 1
     SCIP_STATUS_NODELIMIT = 2
@@ -1090,7 +1088,7 @@ const SCIP_Stat = Cvoid
 
 const SCIP_STAT = SCIP_Stat
 
-@cenum SCIP_Parallelmode::UInt32 begin
+@enum SCIP_Parallelmode::UInt32 begin
     SCIP_PARA_OPPORTUNISTIC = 0
     SCIP_PARA_DETERMINISTIC = 1
 end
@@ -1125,7 +1123,7 @@ const SCIP_ConcSolverData = Cvoid
 
 const SCIP_CONCSOLVERDATA = SCIP_ConcSolverData
 
-@cenum SCIP_BendersEnfoType::UInt32 begin
+@enum SCIP_BendersEnfoType::UInt32 begin
     SCIP_BENDERSENFOTYPE_LP = 1
     SCIP_BENDERSENFOTYPE_RELAX = 2
     SCIP_BENDERSENFOTYPE_PSEUDO = 3
@@ -1134,7 +1132,7 @@ end
 
 const SCIP_BENDERSENFOTYPE = SCIP_BendersEnfoType
 
-@cenum SCIP_BendersSolveLoop::UInt32 begin
+@enum SCIP_BendersSolveLoop::UInt32 begin
     SCIP_BENDERSSOLVELOOP_CONVEX = 0
     SCIP_BENDERSSOLVELOOP_CIP = 1
     SCIP_BENDERSSOLVELOOP_USERCONVEX = 2
@@ -1143,7 +1141,7 @@ end
 
 const SCIP_BENDERSSOLVELOOP = SCIP_BendersSolveLoop
 
-@cenum SCIP_BendersSubStatus::UInt32 begin
+@enum SCIP_BendersSubStatus::UInt32 begin
     SCIP_BENDERSSUBSTATUS_UNKNOWN = 0
     SCIP_BENDERSSUBSTATUS_OPTIMAL = 1
     SCIP_BENDERSSUBSTATUS_AUXVIOL = 2
@@ -1152,7 +1150,7 @@ end
 
 const SCIP_BENDERSSUBSTATUS = SCIP_BendersSubStatus
 
-@cenum SCIP_BendersSubType::UInt32 begin
+@enum SCIP_BendersSubType::UInt32 begin
     SCIP_BENDERSSUBTYPE_CONVEXCONT = 0
     SCIP_BENDERSSUBTYPE_CONVEXDIS = 1
     SCIP_BENDERSSUBTYPE_NONCONVEXCONT = 2
@@ -2986,7 +2984,7 @@ function SCIPcolGetMaxPrimsol(col)
     ccall((:SCIPcolGetMaxPrimsol, libscip), Cdouble, (Ptr{SCIP_COL},), col)
 end
 
-@cenum SCIP_BaseStat::UInt32 begin
+@enum SCIP_BaseStat::UInt32 begin
     SCIP_BASESTAT_LOWER = 0
     SCIP_BASESTAT_BASIC = 1
     SCIP_BASESTAT_UPPER = 2
@@ -3215,7 +3213,7 @@ function SCIProwChgRank(row, rank)
     ccall((:SCIProwChgRank, libscip), Cvoid, (Ptr{SCIP_ROW}, Cint), row, rank)
 end
 
-@cenum SCIP_Stage::UInt32 begin
+@enum SCIP_Stage::UInt32 begin
     SCIP_STAGE_INIT = 0
     SCIP_STAGE_PROBLEM = 1
     SCIP_STAGE_TRANSFORMING = 2
@@ -3234,7 +3232,7 @@ end
 
 const SCIP_STAGE = SCIP_Stage
 
-@cenum SCIP_Setting::UInt32 begin
+@enum SCIP_Setting::UInt32 begin
     SCIP_UNDEFINED = 0
     SCIP_DISABLED = 1
     SCIP_AUTO = 2
@@ -3331,7 +3329,7 @@ function SCIPnlrowGetRhs(nlrow)
     ccall((:SCIPnlrowGetRhs, libscip), Cdouble, (Ptr{SCIP_NLROW},), nlrow)
 end
 
-@cenum SCIP_ExprCurv::UInt32 begin
+@enum SCIP_ExprCurv::UInt32 begin
     SCIP_EXPRCURV_UNKNOWN = 0
     SCIP_EXPRCURV_CONVEX = 1
     SCIP_EXPRCURV_CONCAVE = 2
@@ -11124,7 +11122,7 @@ function SCIPsolveNLP(scip)
     ccall((:SCIPsolveNLP, libscip), SCIP_RETCODE, (Ptr{SCIP},), scip)
 end
 
-@cenum SCIP_NlpSolStat::UInt32 begin
+@enum SCIP_NlpSolStat::UInt32 begin
     SCIP_NLPSOLSTAT_GLOBOPT = 0
     SCIP_NLPSOLSTAT_LOCOPT = 1
     SCIP_NLPSOLSTAT_FEASIBLE = 2
@@ -11140,7 +11138,7 @@ function SCIPgetNLPSolstat(scip)
     ccall((:SCIPgetNLPSolstat, libscip), SCIP_NLPSOLSTAT, (Ptr{SCIP},), scip)
 end
 
-@cenum SCIP_NlpTermStat::UInt32 begin
+@enum SCIP_NlpTermStat::UInt32 begin
     SCIP_NLPTERMSTAT_OKAY = 0
     SCIP_NLPTERMSTAT_TILIM = 1
     SCIP_NLPTERMSTAT_ITLIM = 2
@@ -11178,7 +11176,7 @@ function SCIPgetNLPFracVars(scip, fracvars, fracvarssol, fracvarsfrac, nfracvars
     ccall((:SCIPgetNLPFracVars, libscip), SCIP_RETCODE, (Ptr{SCIP}, Ptr{Ptr{Ptr{SCIP_VAR}}}, Ptr{Ptr{Cdouble}}, Ptr{Ptr{Cdouble}}, Ptr{Cint}, Ptr{Cint}), scip, fracvars, fracvarssol, fracvarsfrac, nfracvars, npriofracvars)
 end
 
-@cenum SCIP_NlpParam::UInt32 begin
+@enum SCIP_NlpParam::UInt32 begin
     SCIP_NLPPAR_FROMSCRATCH = 0
     SCIP_NLPPAR_VERBLEVEL = 1
     SCIP_NLPPAR_FEASTOL = 2
@@ -14821,7 +14819,7 @@ function SCIPincludeConshdlrBivariate(scip)
     ccall((:SCIPincludeConshdlrBivariate, libscip), SCIP_RETCODE, (Ptr{SCIP},), scip)
 end
 
-@cenum SCIP_BIVAR_CONVEXITY::UInt32 begin
+@enum SCIP_BIVAR_CONVEXITY::UInt32 begin
     SCIP_BIVAR_ALLCONVEX = 0
     SCIP_BIVAR_1CONVEX_INDEFINITE = 1
     SCIP_BIVAR_CONVEX_CONCAVE = 2
@@ -15568,7 +15566,7 @@ function SCIPincludeConshdlrOrbitope(scip)
     ccall((:SCIPincludeConshdlrOrbitope, libscip), SCIP_RETCODE, (Ptr{SCIP},), scip)
 end
 
-@cenum SCIP_OrbitopeType::UInt32 begin
+@enum SCIP_OrbitopeType::UInt32 begin
     SCIP_ORBITOPETYPE_FULL = 0
     SCIP_ORBITOPETYPE_PARTITIONING = 1
     SCIP_ORBITOPETYPE_PACKING = 2
@@ -15588,7 +15586,7 @@ function SCIPincludeConshdlrPseudoboolean(scip)
     ccall((:SCIPincludeConshdlrPseudoboolean, libscip), SCIP_RETCODE, (Ptr{SCIP},), scip)
 end
 
-@cenum SCIP_LinearConsType::Int32 begin
+@enum SCIP_LinearConsType::Int32 begin
     SCIP_LINEARCONSTYPE_INVALIDCONS = -1
     SCIP_LINEARCONSTYPE_LINEAR = 0
     SCIP_LINEARCONSTYPE_LOGICOR = 1
@@ -15875,7 +15873,7 @@ function SCIPincludeConshdlrSetppc(scip)
     ccall((:SCIPincludeConshdlrSetppc, libscip), SCIP_RETCODE, (Ptr{SCIP},), scip)
 end
 
-@cenum SCIP_SetppcType::UInt32 begin
+@enum SCIP_SetppcType::UInt32 begin
     SCIP_SETPPCTYPE_PARTITIONING = 0
     SCIP_SETPPCTYPE_PACKING = 1
     SCIP_SETPPCTYPE_COVERING = 2
@@ -17303,14 +17301,14 @@ function BMSprintBufferMemory(buffer)
     ccall((:BMSprintBufferMemory, libscip), Cvoid, (Ptr{BMS_BUFMEM},), buffer)
 end
 
-@cenum SCIP_ObjSen::Int32 begin
+@enum SCIP_ObjSen::Int32 begin
     SCIP_OBJSEN_MAXIMIZE = -1
     SCIP_OBJSEN_MINIMIZE = 1
 end
 
 const SCIP_OBJSEN = SCIP_ObjSen
 
-@cenum SCIP_LPParam::UInt32 begin
+@enum SCIP_LPParam::UInt32 begin
     SCIP_LPPAR_FROMSCRATCH = 0
     SCIP_LPPAR_FASTMIP = 1
     SCIP_LPPAR_SCALING = 2
@@ -17335,7 +17333,7 @@ end
 
 const SCIP_LPPARAM = SCIP_LPParam
 
-@cenum SCIP_Pricing::UInt32 begin
+@enum SCIP_Pricing::UInt32 begin
     SCIP_PRICING_LPIDEFAULT = 0
     SCIP_PRICING_AUTO = 1
     SCIP_PRICING_FULL = 2
@@ -17347,14 +17345,14 @@ end
 
 const SCIP_PRICING = SCIP_Pricing
 
-@cenum SCIP_LPSolQuality::UInt32 begin
+@enum SCIP_LPSolQuality::UInt32 begin
     SCIP_LPSOLQUALITY_ESTIMCONDITION = 0
     SCIP_LPSOLQUALITY_EXACTCONDITION = 1
 end
 
 const SCIP_LPSOLQUALITY = SCIP_LPSolQuality
 
-@cenum SCIP_ExprOp::UInt32 begin
+@enum SCIP_ExprOp::UInt32 begin
     SCIP_EXPR_VARIDX = 1
     SCIP_EXPR_CONST = 2
     SCIP_EXPR_PARAM = 3
