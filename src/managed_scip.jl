@@ -94,7 +94,7 @@ function get_parameter(mscip::ManagedSCIP, name::AbstractString)
         @SC SCIPgetCharParam(mscip, name, value)
         return Char(value[])
     elseif paramtype === SCIP_PARAMTYPE_STRING
-        value = Ref{Cstring}()
+        value = Ref{Ptr{Cchar}}()
         @SC SCIPgetStringParam(mscip, name, value)
         return unsafe_string(value[])
     else
