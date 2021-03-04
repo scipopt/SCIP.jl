@@ -8,7 +8,7 @@ export_symbol_prefixes = ["SCIP_", "SCIP", "BMS_"]
 use_julia_native_enum_type = true
 printer_blacklist = [
     "printError",
-    "printErrorHeader"
+    "printErrorHeader",
 ]
 
 [codegen]
