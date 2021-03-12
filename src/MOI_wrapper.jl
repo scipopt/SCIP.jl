@@ -33,11 +33,11 @@ mutable struct Optimizer <: MOI.AbstractOptimizer
     binbounds::Dict{VI,BOUNDS} # only for binary variables
     params::Dict{String,Any}
     start::Dict{VI,Float64} # can be partial
-    moi_separator # ::Union{CutCbSeparator, Nothing}
+    moi_separator::Any #Union{CutCbSeparator, Nothing}
 
     function Optimizer(; kwargs...)
         o = new(ManagedSCIP(), PtrMap(), ConsTypeMap(), Dict(), Dict(), Dict(),
-                Nothing)
+                nothing)
 
         # Set all parameters given as keyword arguments, replacing the
         # delimiter, since "/" is used by all SCIP parameters, but is not
@@ -152,7 +152,7 @@ function MOI.get(o::Optimizer, ::MOI.TimeLimitSec)
 end
 
 function MOI.set(o::Optimizer, ::MOI.TimeLimitSec, value)
-    if value == nothing
+    if value === nothing
         MOI.set(o, MOI.RawParameter("limits/time"), SCIPinfinity(o))
     else
         MOI.set(o, MOI.RawParameter("limits/time"), value)
