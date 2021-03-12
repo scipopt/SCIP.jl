@@ -13,8 +13,8 @@ function MOI.add_constraint(o::Optimizer, func::SAF, set::S) where {S <: BOUNDS}
     coefs = [t.coefficient for t in func.terms]
 
     lhs, rhs = bounds(set)
-    lhs = lhs == nothing ? -SCIPinfinity(o) : lhs
-    rhs = rhs == nothing ?  SCIPinfinity(o) : rhs
+    lhs = lhs === nothing ? -SCIPinfinity(o) : lhs
+    rhs = rhs === nothing ?  SCIPinfinity(o) : rhs
 
     cr = add_linear_constraint(o.mscip, varrefs, coefs, lhs, rhs)
     ci = CI{SAF, S}(cr.val)
@@ -35,8 +35,8 @@ function MOI.set(o::SCIP.Optimizer, ::MOI.ConstraintSet, ci::CI{SAF,S}, set::S) 
     allow_modification(o)
 
     lhs, rhs = bounds(set)
-    lhs = lhs == nothing ? -SCIPinfinity(o) : lhs
-    rhs = rhs == nothing ?  SCIPinfinity(o) : rhs
+    lhs = lhs === nothing ? -SCIPinfinity(o) : lhs
+    rhs = rhs === nothing ?  SCIPinfinity(o) : rhs
 
     @SC SCIPchgLhsLinear(o, cons(o, ci), lhs)
     @SC SCIPchgRhsLinear(o, cons(o, ci), rhs)
