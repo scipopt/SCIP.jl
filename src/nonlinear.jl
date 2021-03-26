@@ -61,10 +61,10 @@ function push_expr!(nonlin::NonlinExpr, mscip::ManagedSCIP, expr::Expr)
             @assert isa(expr.args[3], Number)
             if isa(expr.args[3], Integer)
                 exponent = Cint(expr.args[3])
-                @SC SCIPexprCreate(SCIPblkmem(mscip), expr__, SCIP_EXPR_INTPOWER, base, exponent)
+                @SCIP_CALL SCIPexprCreate(SCIPblkmem(mscip), expr__, SCIP_EXPR_INTPOWER, base, exponent)
             else
                 exponent = Cdouble(expr.args[3])
-                @SC SCIPexprCreate(SCIPblkmem(mscip), expr__, SCIP_EXPR_REALPOWER, base, exponent)
+                @SCIP_CALL SCIPexprCreate(SCIPblkmem(mscip), expr__, SCIP_EXPR_REALPOWER, base, exponent)
             end
 
         elseif op == :- && num_children == 1
@@ -78,7 +78,7 @@ function push_expr!(nonlin::NonlinExpr, mscip::ManagedSCIP, expr::Expr)
             right = push_expr!(nonlin, mscip, expr.args[2])
 
             # Finally, add the (binary) minus:
-            @SC SCIPexprCreate(SCIPblkmem(mscip), expr__, OPMAP[op], left, right)
+            @SCIP_CALL SCIPexprCreate(SCIPblkmem(mscip), expr__, OPMAP[op], left, right)
 
         elseif op in [:sqrt, :exp, :log, :abs]
             # Unary operators
@@ -88,7 +88,7 @@ function push_expr!(nonlin::NonlinExpr, mscip::ManagedSCIP, expr::Expr)
             child = push_expr!(nonlin, mscip, expr.args[2])
 
             # Add this operator on top
-            @SC SCIPexprCreate(SCIPblkmem(mscip), expr__, OPMAP[op], child)
+            @SCIP_CALL SCIPexprCreate(SCIPblkmem(mscip), expr__, OPMAP[op], child)
 
         elseif op in [:-, :/, :min, :max]
             # Binary operators
@@ -98,7 +98,7 @@ function push_expr!(nonlin::NonlinExpr, mscip::ManagedSCIP, expr::Expr)
             left = push_expr!(nonlin, mscip, expr.args[2])
             right = push_expr!(nonlin, mscip, expr.args[3])
 
-            @SC SCIPexprCreate(SCIPblkmem(mscip), expr__, OPMAP[op], left, right)
+            @SCIP_CALL SCIPexprCreate(SCIPblkmem(mscip), expr__, OPMAP[op], left, right)
 
         elseif op in [:+, :*]
             # N-ary operators
@@ -112,7 +112,7 @@ function push_expr!(nonlin::NonlinExpr, mscip::ManagedSCIP, expr::Expr)
             end
             @assert length(children) == num_children
 
-            @SC SCIPexprCreate(SCIPblkmem(mscip), expr__, OPMAP[op], Cint(num_children), children)
+            @SCIP_CALL SCIPexprCreate(SCIPblkmem(mscip), expr__, OPMAP[op], Cint(num_children), children)
 
         else
             error("Operator $op (in $expr) not supported by SCIP.jl!")
@@ -129,7 +129,7 @@ function push_expr!(nonlin::NonlinExpr, mscip::ManagedSCIP, expr::Expr)
 
         # 0-based indexing for SCIP
         op = SCIP_EXPR_VARIDX
-        @SC SCIPexprCreate(SCIPblkmem(mscip), expr__, op, Cint(length(nonlin.vars)))
+        @SCIP_CALL SCIPexprCreate(SCIPblkmem(mscip), expr__, op, Cint(length(nonlin.vars)))
         push!(nonlin.vars, v)
 
     else
@@ -147,7 +147,7 @@ function push_expr!(nonlin::NonlinExpr, mscip::ManagedSCIP, expr::Number)
     op = SCIP_EXPR_CONST
     value = Cdouble(expr)
 
-    @SC SCIPexprCreate(SCIPblkmem(mscip), expr__, op, value)
+    @SCIP_CALL SCIPexprCreate(SCIPblkmem(mscip), expr__, op, value)
 
     # double check whether value was saved correctly
     value_stored = SCIPexprGetOpReal(expr__[])
@@ -182,17 +182,17 @@ function add_nonlinear_constraint(mscip::ManagedSCIP, expr::Expr, lhs::Float64, 
 
     # create expression graph object
     tree__ = Ref{Ptr{SCIP_EXPRTREE}}(C_NULL)
-    @SC SCIPexprtreeCreate(SCIPblkmem(mscip), tree__, root, length(vars), 0, C_NULL)
-    @SC SCIPexprtreeSetVars(tree__[], length(vars), vars)
+    @SCIP_CALL SCIPexprtreeCreate(SCIPblkmem(mscip), tree__, root, length(vars), 0, C_NULL)
+    @SCIP_CALL SCIPexprtreeSetVars(tree__[], length(vars), vars)
 
     # create and add cons_nonlinear
     cons__ = Ref{Ptr{SCIP_CONS}}(C_NULL)
-    @SC SCIPcreateConsBasicNonlinear(mscip, cons__, "", 0, C_NULL, C_NULL,
+    @SCIP_CALL SCIPcreateConsBasicNonlinear(mscip, cons__, "", 0, C_NULL, C_NULL,
                                      1, tree__, C_NULL, lhs, rhs)
-    @SC SCIPaddCons(mscip, cons__[])
+    @SCIP_CALL SCIPaddCons(mscip, cons__[])
 
     # free memory
-    @SC SCIPexprtreeFree(tree__)
+    @SCIP_CALL SCIPexprtreeFree(tree__)
 
     # register and return cons ref
     return store_cons!(mscip, cons__)

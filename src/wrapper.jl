@@ -136,7 +136,7 @@ include(wrap("pub_expr"))
 include(wrap("expr_manual"))
 
 # SCIP_CALL: macro to check return codes, inspired by @assert
-macro SC(ex)
+macro SCIP_CALL(ex)
     return :(@assert $(esc(ex)) == SCIP_OKAY)
 end
 

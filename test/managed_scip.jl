@@ -24,7 +24,7 @@ end
 
         t = SCIP.add_variable(mscip)
         # set lower bound for assertion in cons_soc.c
-        SCIP.@SC SCIP.SCIPchgVarLb(mscip, SCIP.var(mscip, t), 0.0)
+        SCIP.@SCIP_CALL SCIP.SCIPchgVarLb(mscip, SCIP.var(mscip, t), 0.0)
         x = SCIP.add_variable(mscip)
         y = SCIP.add_variable(mscip)
         c = SCIP.add_linear_constraint(mscip, [x, y], [2.0, 3.0], 1.0, 9.0)
@@ -40,15 +40,15 @@ end
 
         # indicator constraint: z = 1 ==> 𝟙^T [x, y] <= 1.
         z = SCIP.add_variable(mscip)
-        SCIP.@SC SCIP.SCIPchgVarType(mscip, SCIP.var(mscip, z), SCIP.SCIP_VARTYPE_BINARY, Ref{SCIP.SCIP_Bool}())
-        SCIP.@SC SCIP.SCIPchgVarLb(mscip, SCIP.var(mscip, z), 0.0)
-        SCIP.@SC SCIP.SCIPchgVarUb(mscip, SCIP.var(mscip, z), 1.0)
+        SCIP.@SCIP_CALL SCIP.SCIPchgVarType(mscip, SCIP.var(mscip, z), SCIP.SCIP_VARTYPE_BINARY, Ref{SCIP.SCIP_Bool}())
+        SCIP.@SCIP_CALL SCIP.SCIPchgVarLb(mscip, SCIP.var(mscip, z), 0.0)
+        SCIP.@SCIP_CALL SCIP.SCIPchgVarUb(mscip, SCIP.var(mscip, z), 1.0)
 
         ic = SCIP.add_indicator_constraint(mscip, z, [x, y], ones(2), 1.)
 
         if i==2
             # solve, but don't check results (this test is about memory mgmt)
-            SCIP.@SC SCIP.SCIPsolve(mscip.scip[])
+            SCIP.@SCIP_CALL SCIP.SCIPsolve(mscip.scip[])
         end
 
         finalize(mscip)
@@ -79,7 +79,7 @@ end
 
         if i==2
             # solve, but don't check results (this test is about memory mgmt)
-            SCIP.@SC SCIP.SCIPsolve(mscip)
+            SCIP.@SCIP_CALL SCIP.SCIPsolve(mscip)
         end
 
         finalize(mscip)
@@ -101,7 +101,7 @@ end
     y = SCIP.add_variable(mscip)
     z = SCIP.add_variable(mscip)
     c = SCIP.add_linear_constraint(mscip, [x, y], [2.0, 3.0], 1.0, 9.0)
-    SCIP.@SC SCIP.SCIPsolve(mscip)
+    SCIP.@SCIP_CALL SCIP.SCIPsolve(mscip)
 
     @testset "$statistics_func" for statistics_func in map(x -> eval(:(SCIP.$x)), SCIP.STATISTICS_FUNCS)
         mktempdir() do dir

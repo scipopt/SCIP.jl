@@ -38,8 +38,8 @@ function MOI.set(o::SCIP.Optimizer, ::MOI.ConstraintSet, ci::CI{SAF,S}, set::S) 
     lhs = lhs == nothing ? -SCIPinfinity(o) : lhs
     rhs = rhs == nothing ?  SCIPinfinity(o) : rhs
 
-    @SC SCIPchgLhsLinear(o, cons(o, ci), lhs)
-    @SC SCIPchgRhsLinear(o, cons(o, ci), rhs)
+    @SCIP_CALL SCIPchgLhsLinear(o, cons(o, ci), lhs)
+    @SCIP_CALL SCIPchgRhsLinear(o, cons(o, ci), rhs)
 
     return nothing
 end
@@ -64,6 +64,6 @@ end
 function MOI.modify(o::Optimizer, ci::CI{SAF, <:BOUNDS},
                     change::MOI.ScalarCoefficientChange{Float64})
     allow_modification(o)
-    @SC SCIPchgCoefLinear(o, cons(o, ci), var(o, change.variable), change.new_coefficient)
+    @SCIP_CALL SCIPchgCoefLinear(o, cons(o, ci), var(o, change.variable), change.new_coefficient)
     return nothing
 end

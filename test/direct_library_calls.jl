@@ -61,9 +61,9 @@
     @test rc == SCIP.SCIP_OKAY
 end
 
-@testset "SCIP_CALL macro (@SC)" begin
+@testset "SCIP_CALL macro (@SCIP_CALL)" begin
     # should do nothing
-    @SCIP.SC SCIP.SCIP_OKAY
+    @SCIP.SCIP_CALL SCIP.SCIP_OKAY
 
-    @test_throws AssertionError @SCIP.SC SCIP.SCIP_ERROR
+    @test_throws AssertionError @SCIP.SCIP_CALL SCIP.SCIP_ERROR
 end

@@ -49,8 +49,8 @@ function MOI.set(o::SCIP.Optimizer, ::MOI.ConstraintSet, ci::CI{SQF,S}, set::S) 
     lhs = lhs == nothing ? -SCIPinfinity(o) : lhs
     rhs = rhs == nothing ?  SCIPinfinity(o) : rhs
 
-    @SC SCIPchgLhsQuadratic(o, cons(o, ci), lhs)
-    @SC SCIPchgRhsQuadratic(o, cons(o, ci), rhs)
+    @SCIP_CALL SCIPchgLhsQuadratic(o, cons(o, ci), lhs)
+    @SCIP_CALL SCIPchgRhsQuadratic(o, cons(o, ci), rhs)
 
     return nothing
 end
@@ -98,6 +98,6 @@ end
 
 function MOI.get(o::Optimizer, ::MOI.ConstraintPrimal, ci::CI{SQF, S}) where S <: BOUNDS
     activity = Ref{Cdouble}()
-    @SC SCIPgetActivityQuadratic(o, cons(o, ci), SCIPgetBestSol(o), activity)
+    @SCIP_CALL SCIPgetActivityQuadratic(o, cons(o, ci), SCIPgetBestSol(o), activity)
     return activity[]
 end

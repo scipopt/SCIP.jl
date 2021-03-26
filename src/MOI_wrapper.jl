@@ -101,7 +101,7 @@ end
 "Go back from solved stage to problem modification stage, invalidating results."
 function allow_modification(o::Optimizer)
     if !(SCIPgetStage(o) in (SCIP_STAGE_PROBLEM, SCIP_STAGE_SOLVING))
-        @SC SCIPfreeTransform(o)
+        @SCIP_CALL SCIPfreeTransform(o)
     end
     return nothing
 end
@@ -187,7 +187,7 @@ function MOI.copy_to(dest::Optimizer, src::MOI.ModelLike; kws...)
 end
 
 MOI.get(o::Optimizer, ::MOI.Name) = SCIPgetProbName(o)
-MOI.set(o::Optimizer, ::MOI.Name, name::String) = @SC SCIPsetProbName(o, name)
+MOI.set(o::Optimizer, ::MOI.Name, name::String) = @SCIP_CALL SCIPsetProbName(o, name)
 
 function MOI.get(o::Optimizer, ::MOI.NumberOfConstraints{F,S}) where {F,S}
     return haskey(o.constypes, (F, S)) ? length(o.constypes[F, S]) : 0
@@ -205,24 +205,24 @@ function set_start_values(o::Optimizer)
 
     # create new partial solution object
     sol__ = Ref{Ptr{SCIP_SOL}}(C_NULL)
-    @SC SCIPcreatePartialSol(o, sol__, C_NULL)
+    @SCIP_CALL SCIPcreatePartialSol(o, sol__, C_NULL)
     @assert sol__[] != C_NULL
 
     # set all given values
     sol_ = sol__[]
     for (vi, value) in o.start
-        @SC SCIPsetSolVal(o, sol_, var(o, vi), value)
+        @SCIP_CALL SCIPsetSolVal(o, sol_, var(o, vi), value)
     end
 
     # submit the candidate
     stored_ = Ref{SCIP_Bool}(FALSE)
-    @SC SCIPaddSolFree(o, sol__, stored_)
+    @SCIP_CALL SCIPaddSolFree(o, sol__, stored_)
     @assert sol__[] == C_NULL
 end
 
 function MOI.optimize!(o::Optimizer)
     set_start_values(o)
-    @SC SCIPsolve(o)
+    @SCIP_CALL SCIPsolve(o)
     return nothing
 end
 
