@@ -165,7 +165,7 @@ function SCIP.lock(ch::NADCH, constraint, locktype, nlockspos, nlocksneg)
         var_::Ptr{SCIP.SCIP_VAR} = SCIP.var(ch.scip, vi)
         var_ != C_NULL || continue  # avoid segfault!
 
-        SCIP.@SC SCIP.SCIPaddVarLocksType(
+        SCIP.@SCIP_CALL SCIP.SCIPaddVarLocksType(
             ch.scip, var_, locktype, nlockspos + nlocksneg, nlockspos + nlocksneg)
     end
 end

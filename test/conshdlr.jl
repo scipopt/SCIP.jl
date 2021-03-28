@@ -8,7 +8,7 @@
     SCIP.include_conshdlr(mscip, ch; needs_constraints=false)
 
     # solve the problem
-    SCIP.@SC SCIP.SCIPsolve(mscip.scip[])
+    SCIP.@SCIP_CALL SCIP.SCIPsolve(mscip.scip[])
 
     @test ch.check_called >= 1
     @test ch.enfo_called == 0
@@ -31,7 +31,7 @@ end
     cr = SCIP.add_constraint(mscip, ch, Dummy.DummyCons())
 
     # solve the problem
-    SCIP.@SC SCIP.SCIPsolve(mscip.scip[])
+    SCIP.@SCIP_CALL SCIP.SCIPsolve(mscip.scip[])
 
     @test ch.check_called >= 1
     @test ch.enfo_called == 0
@@ -51,7 +51,7 @@ end
     SCIP.include_conshdlr(mscip, ch; needs_constraints=true)
 
     # solve the problem
-    SCIP.@SC SCIP.SCIPsolve(mscip.scip[])
+    SCIP.@SCIP_CALL SCIP.SCIPsolve(mscip.scip[])
 
     @test ch.check_called == 0
     @test ch.enfo_called == 0
@@ -71,7 +71,7 @@ end
     SCIP.include_conshdlr(mscip, ch; needs_constraints=false)
 
     # solve the problem
-    SCIP.@SC SCIP.SCIPsolve(mscip.scip[])
+    SCIP.@SCIP_CALL SCIP.SCIPsolve(mscip.scip[])
 
     @test ch.check_called >= 1
     @test ch.enfo_called == 1
@@ -91,7 +91,7 @@ end
     SCIP.include_conshdlr(mscip, ch; needs_constraints=true)
 
     # solve the problem
-    SCIP.@SC SCIP.SCIPsolve(mscip.scip[])
+    SCIP.@SCIP_CALL SCIP.SCIPsolve(mscip.scip[])
 
     @test ch.check_called == 0
     @test ch.enfo_called == 0
@@ -114,7 +114,7 @@ end
     cr = SCIP.add_constraint(mscip, ch, NeverSatisfied.Cons())
 
     # solve the problem
-    SCIP.@SC SCIP.SCIPsolve(mscip.scip[])
+    SCIP.@SCIP_CALL SCIP.SCIPsolve(mscip.scip[])
 
     @test ch.check_called >= 1
     @test ch.enfo_called == 1
