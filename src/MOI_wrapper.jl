@@ -26,6 +26,8 @@ const VEC_TERM = MOI.VectorAffineTerm{Float64}
 const PtrMap = Dict{Ptr{Cvoid}, Union{VarRef, ConsRef}}
 const ConsTypeMap = Dict{Tuple{DataType, DataType}, Set{ConsRef}}
 
+#will include struct ManagedSCIP in the future
+#free_scip will also have to be adjusted
 mutable struct Optimizer <: MOI.AbstractOptimizer
     mscip::ManagedSCIP
     reference::PtrMap

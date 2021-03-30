@@ -8,6 +8,7 @@ struct ConsRef
     val::Int64
 end
 
+#to be moved to MOI_wrapper
 "ManagedSCIP holds pointers to SCIP data and takes care of memory management."
 mutable struct ManagedSCIP
     scip::Ref{Ptr{SCIP_}}
