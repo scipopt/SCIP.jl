@@ -38,8 +38,18 @@ mutable struct Optimizer <: MOI.AbstractOptimizer
     moi_separator # ::Union{CutCbSeparator, Nothing}
 
     function Optimizer(; kwargs...)
-        o = new(ManagedSCIP(), PtrMap(), ConsTypeMap(), Dict(), Dict(), Dict(),
-                Nothing)
+        scip = Ref{Ptr{SCIP_}}(C_NULL)
+        @SCIP_CALL SCIPcreate(scip)
+        @assert scip[] != C_NULL
+        @SCIP_CALL SCIPincludeDefaultPlugins(scip[])
+        @SCIP_CALL SCIP.SCIPcreateProbBasic(scip[], "")
+
+        scip_data = SCIPData(scip, Dict(), Dict(), 0, 0, Dict(), Dict(), Dict())
+
+        o = new(scip_data, PtrMap(), ConsTypeMap(), Dict(), Dict(), Dict(),
+        Nothing)   # Is scip_data the right argument here? in the original, new called ManagedSCIP(), which is now included in the Optimizer function
+        finalizer(free_scip, o)
+    end
 
         # Set all parameters given as keyword arguments, replacing the
         # delimiter, since "/" is used by all SCIP parameters, but is not

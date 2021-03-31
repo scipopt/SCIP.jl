@@ -9,8 +9,8 @@ struct ConsRef
 end
 
 #to be moved to MOI_wrapper
-"ManagedSCIP holds pointers to SCIP data and takes care of memory management."
-mutable struct ManagedSCIP
+"SCIPData holds pointers to SCIP data and takes care of memory management."
+mutable struct SCIPData
     scip::Ref{Ptr{SCIP_}}
     vars::Dict{VarRef, Ref{Ptr{SCIP_VAR}}}
     conss::Dict{ConsRef, Ref{Ptr{SCIP_CONS}}}
@@ -28,17 +28,9 @@ mutable struct ManagedSCIP
     # corresponding SCIP objects.
     sepas::Dict{Any, Ptr{SCIP_SEPA}}
 
-    function ManagedSCIP()
-        scip = Ref{Ptr{SCIP_}}(C_NULL)
-        @SCIP_CALL SCIPcreate(scip)
-        @assert scip[] != C_NULL
-        @SCIP_CALL SCIPincludeDefaultPlugins(scip[])
-        @SCIP_CALL SCIP.SCIPcreateProbBasic(scip[], "")
-
-        mscip = new(scip, Dict(), Dict(), 0, 0, Dict(), Dict(), Dict())
-        finalizer(free_scip, mscip)
-    end
 end
+
+# TODO: all references to mscip / ManagedSCIP need to be changed to (reference to optimmizer struct?) / SCIPData
 
 # Protect ManagedSCIP from GC for ccall with Ptr{SCIP_} argument.
 Base.unsafe_convert(::Type{Ptr{SCIP_}}, mscip::ManagedSCIP) = mscip.scip[]
