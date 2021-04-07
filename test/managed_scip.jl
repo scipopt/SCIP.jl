@@ -3,14 +3,14 @@
 using MathOptInterface
 
 @testset "create and manual free" begin
-    mscip = SCIP.ManagedSCIP()
+    mscip = SCIP.SCIPData()
     @test mscip.scip[] != C_NULL
     SCIP.free_scip(mscip)
     @test mscip.scip[] == C_NULL
 end
 
 @testset "create and semi-manual free" begin
-    mscip = SCIP.ManagedSCIP()
+    mscip = SCIP.SCIPData()
     @test mscip.scip[] != C_NULL
     finalize(mscip)
     @test mscip.scip[] == C_NULL
@@ -18,7 +18,7 @@ end
 
 @testset "create with vars and cons, and free" begin
     for i=1:2 # run twice, with(out) solving
-        mscip = SCIP.ManagedSCIP()
+        mscip = SCIP.SCIPData()
         @test mscip.scip[] != C_NULL
         SCIP.set_parameter(mscip, "display/verblevel", 0)
 
@@ -64,7 +64,7 @@ end
 
 @testset "create vars and cons, delete some, and free" begin
     for i=1:2 # run twice, with(out) solving
-        mscip = SCIP.ManagedSCIP()
+        mscip = SCIP.SCIPData()
         @test mscip.scip[] != C_NULL
         SCIP.set_parameter(mscip, "display/verblevel", 0)
 
@@ -94,7 +94,7 @@ end
 end
 
 @testset "print statistics" begin
-    mscip = SCIP.ManagedSCIP()
+    mscip = SCIP.SCIPData()
     SCIP.set_parameter(mscip, "display/verblevel", 0)
 
     x = SCIP.add_variable(mscip)

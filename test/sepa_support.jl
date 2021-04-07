@@ -29,7 +29,7 @@ using SCIP
 A separator, that adds one predefined cut.
 """
 mutable struct Sepa <: SCIP.AbstractSeparator
-    mscip::SCIP.ManagedSCIP
+    mscip::SCIP.SCIPData
     varrefs::AbstractArray{SCIP.VarRef}
     coefs::AbstractArray{Float64}
     lhs::Float64

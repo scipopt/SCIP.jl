@@ -31,7 +31,7 @@ functions.
 From SCIP's point-of-view, this objects corresponds to the SCIP_SEPADATA,
 but its memory is managed by Julia's GC.
 
-It's recommended to store a reference to your instance of `ManagedSCIP` or
+It's recommended to store a reference to your instance of `SCIPData` or
 `SCIP.Optimizer` here, so that you can use it within `exec_lp`.
 """
 abstract type AbstractSeparator end
@@ -107,12 +107,12 @@ end
 
 
 #
-# Adding a separator to ManagedSCIP.
+# Adding a separator to SCIPData.
 #
 
 """
     include_sepa(
-        mscip::ManagedSCIP,
+        mscip::SCIPData,
         sepa::SEPA;
         name::String,
         description::String,
@@ -126,7 +126,7 @@ end
 Include a user defined separator `sepa` to the SCIP instance `mscip`.
 
 """
-function include_sepa(mscip::ManagedSCIP, sepa::SEPA;
+function include_sepa(mscip::SCIPData, sepa::SEPA;
                       name="", description="", priority=0, freq=1,
                       maxbounddist=0.0, usessubscip=false,
                       delay=false) where SEPA <: AbstractSeparator
@@ -167,7 +167,7 @@ end
 
 """
     add_cut_sepa(
-        mscip::ManagedSCIP,
+        mscip::SCIPData,
         sepa::SEPA,
         varrefs::AbstractArray{VarRef},
         coefs::AbstractArray{Float64},
@@ -187,7 +187,7 @@ associated to the separator `sepa`.
 - modifiable: is row modifiable during node processing (subject to column generation)?
 - removable: should the row be removed from the LP due to aging or cleanup?
 """
-function add_cut_sepa(mscip::ManagedSCIP, sepa::SEPA, varrefs, coefs, lhs, rhs;
+function add_cut_sepa(mscip::SCIPData, sepa::SEPA, varrefs, coefs, lhs, rhs;
                       islocal=false, modifiable=false, removable=true
                      ) where SEPA <: AbstractSeparator
     @assert length(varrefs) == length(coefs)

@@ -24,7 +24,7 @@ mutable struct NonlinExpr
 end
 
 "Extract operators from Julia expr recursively and convert to SCIP expressions."
-function push_expr!(nonlin::NonlinExpr, mscip::ManagedSCIP, expr::Expr)
+function push_expr!(nonlin::NonlinExpr, mscip::SCIPData, expr::Expr)
     # Storage for SCIP_EXPR*
     expr__ = Ref{Ptr{SCIP_EXPR}}(C_NULL)
     num_children = length(expr.args) - 1
@@ -140,7 +140,7 @@ function push_expr!(nonlin::NonlinExpr, mscip::ManagedSCIP, expr::Expr)
     return expr__[]
 end
 
-function push_expr!(nonlin::NonlinExpr, mscip::ManagedSCIP, expr::Number)
+function push_expr!(nonlin::NonlinExpr, mscip::SCIPData, expr::Number)
     # Storage for SCIP_EXPR*
     expr__ = Ref{Ptr{SCIP_EXPR}}(C_NULL)
 
@@ -173,7 +173,7 @@ Add nonlinear constraint to problem, return cons ref.
 - `rhs::Float64`: right-hand side for ranged constraint
 
 """
-function add_nonlinear_constraint(mscip::ManagedSCIP, expr::Expr, lhs::Float64, rhs::Float64)
+function add_nonlinear_constraint(mscip::SCIPData, expr::Expr, lhs::Float64, rhs::Float64)
     nonlin = NonlinExpr([])
 
     # convert expression recursively, extract root and variable pointers

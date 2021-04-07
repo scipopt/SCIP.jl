@@ -47,7 +47,7 @@ callback functions.
 From SCIP's point-of-view, this objects corresponds to the SCIP_CONSHDLRDATA,
 but its memory is managed by Julia's GC.
 
-It's recommended to store a reference to your instance of `ManagedSCIP` or
+It's recommended to store a reference to your instance of `SCIPData` or
 `SCIP.Optimizer` here, so that you can use it within your callback methods.
 """
 abstract type AbstractConstraintHandler end
@@ -293,12 +293,12 @@ end
 
 
 #
-# Adding constraint handlers and constraints to ManagedSCIP.
+# Adding constraint handlers and constraints to SCIPData.
 #
 
 """
     include_conshdlr(
-        mscip::ManagedSCIP,
+        mscip::SCIPData,
         ch::CH;
         name::String,
         description::String,
@@ -318,7 +318,7 @@ In particular, note the boolean `needs_constraints`:
   corresponding constraint was added. It probably makes sense to set
   `misc/allowdualreds` to `FALSE` in this case.
 """
-function include_conshdlr(mscip::ManagedSCIP, ch::CH;
+function include_conshdlr(mscip::SCIPData, ch::CH;
                           name="", description="", enforce_priority=-15,
                           check_priority=-7000000, eager_frequency=100,
                           needs_constraints=true) where CH <: AbstractConstraintHandler
@@ -363,7 +363,7 @@ end
 
 """
     add_constraint(
-        mscip::ManagedSCIP,
+        mscip::SCIPData,
         ch::CH,
         c::C;
         initial=true,
@@ -384,7 +384,7 @@ Returns constraint reference.
 
 All keyword arguments are passed to the `SCIPcreateCons` call.
 """
-function add_constraint(mscip::ManagedSCIP, ch::CH, c::C;
+function add_constraint(mscip::SCIPData, ch::CH, c::C;
                         initial=true, separate=true, enforce=true, check=true,
                         propagate=true, _local=false, modifiable=false,
                         dynamic=false, removable=false, stickingatnode=false) where {CH <:AbstractConstraintHandler, C <: AbstractConstraint{CH}}

@@ -1,6 +1,6 @@
 @testset "dummy conshdlr (always satisfied, no constraint)" begin
     # create an empty problem
-    mscip = SCIP.ManagedSCIP()
+    mscip = SCIP.SCIPData()
     SCIP.set_parameter(mscip, "display/verblevel", 0)
 
     # add the constraint handler
@@ -20,7 +20,7 @@ end
 
 @testset "dummy conshdlr (always satisfied, with constraint)" begin
     # create an empty problem
-    mscip = SCIP.ManagedSCIP()
+    mscip = SCIP.SCIPData()
     SCIP.set_parameter(mscip, "display/verblevel", 0)
 
     # add the constraint handler
@@ -43,7 +43,7 @@ end
 
 @testset "dummy conshdlr (always satisfied, no constraint, but needs it)" begin
     # create an empty problem
-    mscip = SCIP.ManagedSCIP()
+    mscip = SCIP.SCIPData()
     SCIP.set_parameter(mscip, "display/verblevel", 0)
 
     # add the constraint handler
@@ -63,7 +63,7 @@ end
 
 @testset "never satisfied conshdlr (does not need constraint)" begin
     # create an empty problem
-    mscip = SCIP.ManagedSCIP()
+    mscip = SCIP.SCIPData()
     SCIP.set_parameter(mscip, "display/verblevel", 0)
 
     # add the constraint handler
@@ -83,7 +83,7 @@ end
 
 @testset "never satisfied conshdlr (needs constraint but does not have it)" begin
     # create an empty problem
-    mscip = SCIP.ManagedSCIP()
+    mscip = SCIP.SCIPData()
     SCIP.set_parameter(mscip, "display/verblevel", 0)
 
     # add the constraint handler
@@ -103,7 +103,7 @@ end
 
 @testset "never satisfied conshdlr (needs constraint and has one)" begin
     # create an empty problem
-    mscip = SCIP.ManagedSCIP()
+    mscip = SCIP.SCIPData()
     SCIP.set_parameter(mscip, "display/verblevel", 0)
 
     # add the constraint handler

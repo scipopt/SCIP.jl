@@ -26,10 +26,10 @@ const VEC_TERM = MOI.VectorAffineTerm{Float64}
 const PtrMap = Dict{Ptr{Cvoid}, Union{VarRef, ConsRef}}
 const ConsTypeMap = Dict{Tuple{DataType, DataType}, Set{ConsRef}}
 
-#will include struct ManagedSCIP in the future
+#will include struct SCIPData in the future
 #free_scip will also have to be adjusted
 mutable struct Optimizer <: MOI.AbstractOptimizer
-    mscip::ManagedSCIP
+    mscip::SCIPData
     reference::PtrMap
     constypes::ConsTypeMap
     binbounds::Dict{VI,BOUNDS} # only for binary variables
@@ -47,7 +47,7 @@ mutable struct Optimizer <: MOI.AbstractOptimizer
         scip_data = SCIPData(scip, Dict(), Dict(), 0, 0, Dict(), Dict(), Dict())
 
         o = new(scip_data, PtrMap(), ConsTypeMap(), Dict(), Dict(), Dict(),
-        Nothing)   # Is scip_data the right argument here? in the original, new called ManagedSCIP(), which is now included in the Optimizer function
+        Nothing)   # Is scip_data the right argument here? in the original, new called SCIPData(), which is now included in the Optimizer function
         finalizer(free_scip, o)
     end
 
@@ -181,7 +181,7 @@ function MOI.empty!(o::Optimizer)
     # free the underlying problem
     finalize(o.mscip)
     # create a new one
-    o.mscip = ManagedSCIP()
+    o.mscip = SCIPData()
     # clear auxiliary mapping structures
     o.reference = PtrMap()
     o.constypes = ConsTypeMap()

@@ -30,13 +30,13 @@ mutable struct SCIPData
 
 end
 
-# TODO: all references to mscip / ManagedSCIP need to be changed to (reference to optimmizer struct?) / SCIPData
+# TODO: all references to mscip / SCIPData need to be changed to (reference to optimmizer struct?) / SCIPData
 
-# Protect ManagedSCIP from GC for ccall with Ptr{SCIP_} argument.
-Base.unsafe_convert(::Type{Ptr{SCIP_}}, mscip::ManagedSCIP) = mscip.scip[]
+# Protect SCIPData from GC for ccall with Ptr{SCIP_} argument.
+Base.unsafe_convert(::Type{Ptr{SCIP_}}, mscip::SCIPData) = mscip.scip[]
 
 "Release references and free memory."
-function free_scip(mscip::ManagedSCIP)
+function free_scip(mscip::SCIPData)
     # Avoid double-free (SCIP will set the pointers to NULL).
     if mscip.scip[] != C_NULL
         for c in values(mscip.conss)
@@ -54,7 +54,7 @@ function free_scip(mscip::ManagedSCIP)
 end
 
 "Set a parameter's current value."
-function get_parameter(mscip::ManagedSCIP, name::AbstractString)
+function get_parameter(mscip::SCIPData, name::AbstractString)
     param = SCIPgetParam(mscip, name)
     if param == C_NULL
         error("Unrecognized parameter: $name")
@@ -96,7 +96,7 @@ function get_parameter(mscip::ManagedSCIP, name::AbstractString)
 end
 
 "Set a parameter."
-function set_parameter(mscip::ManagedSCIP, name::AbstractString, value)
+function set_parameter(mscip::SCIPData, name::AbstractString, value)
     param = SCIPgetParam(mscip, name)
     if param == C_NULL
         error("Unrecognized parameter: $name")
@@ -121,17 +121,17 @@ function set_parameter(mscip::ManagedSCIP, name::AbstractString, value)
 end
 
 "Return pointer to SCIP variable."
-function var(mscip::ManagedSCIP, vr::VarRef)::Ptr{SCIP_VAR}
+function var(mscip::SCIPData, vr::VarRef)::Ptr{SCIP_VAR}
     return mscip.vars[vr][]
 end
 
 "Return pointer to SCIP constraint."
-function cons(mscip::ManagedSCIP, cr::ConsRef)::Ptr{SCIP_CONS}
+function cons(mscip::SCIPData, cr::ConsRef)::Ptr{SCIP_CONS}
     return mscip.conss[cr][]
 end
 
 "Store reference to variable, return VarRef"
-function store_var!(mscip::ManagedSCIP, var__::Ref{Ptr{SCIP_VAR}})
+function store_var!(mscip::SCIPData, var__::Ref{Ptr{SCIP_VAR}})
     mscip.var_count += 1
     vr = VarRef(mscip.var_count)
     mscip.vars[vr] = var__
@@ -139,7 +139,7 @@ function store_var!(mscip::ManagedSCIP, var__::Ref{Ptr{SCIP_VAR}})
 end
 
 "Store reference to constraint, return ConsRef"
-function store_cons!(mscip::ManagedSCIP, cons__::Ref{Ptr{SCIP_CONS}})
+function store_cons!(mscip::SCIPData, cons__::Ref{Ptr{SCIP_CONS}})
     mscip.cons_count += 1
     cr = ConsRef(mscip.cons_count)
     mscip.conss[cr] = cons__
@@ -147,7 +147,7 @@ function store_cons!(mscip::ManagedSCIP, cons__::Ref{Ptr{SCIP_CONS}})
 end
 
 "Add variable to problem (continuous, no bounds), return var ref."
-function add_variable(mscip::ManagedSCIP)
+function add_variable(mscip::SCIPData)
     var__ = Ref{Ptr{SCIP_VAR}}(C_NULL)
     @SCIP_CALL SCIPcreateVarBasic(mscip, var__, "", -SCIPinfinity(mscip), SCIPinfinity(mscip),
                            0.0, SCIP_VARTYPE_CONTINUOUS)
@@ -156,7 +156,7 @@ function add_variable(mscip::ManagedSCIP)
 end
 
 "Delete variable from problem."
-function delete(mscip::ManagedSCIP, vr::VarRef)
+function delete(mscip::SCIPData, vr::VarRef)
     # delete variable from SCIP problem
     deleted = Ref{SCIP_Bool}()
     @SCIP_CALL SCIPdelVar(mscip, var(mscip, vr), deleted)
@@ -169,7 +169,7 @@ function delete(mscip::ManagedSCIP, vr::VarRef)
 end
 
 "Delete constraint from problem."
-function delete(mscip::ManagedSCIP, cr::ConsRef)
+function delete(mscip::SCIPData, cr::ConsRef)
     @SCIP_CALL SCIPdelCons(mscip, cons(mscip, cr))
 
     # release memory and remove reference
@@ -189,7 +189,7 @@ Add (ranged) linear constraint to problem, return cons ref.
 
 Use `(-)SCIPinfinity(scip)` for one of the bounds if not applicable.
 """
-function add_linear_constraint(mscip::ManagedSCIP, varrefs, coefs, lhs, rhs)
+function add_linear_constraint(mscip::SCIPData, varrefs, coefs, lhs, rhs)
     @assert length(varrefs) == length(coefs)
     vars = [var(mscip, vr) for vr in varrefs]
     cons__ = Ref{Ptr{SCIP_CONS}}(C_NULL)
@@ -213,7 +213,7 @@ Add (ranged) quadratic constraint to problem, return cons ref.
 
 Use `(-)SCIPinfinity(scip)` for one of the bounds if not applicable.
 """
-function add_quadratic_constraint(mscip::ManagedSCIP, linrefs, lincoefs,
+function add_quadratic_constraint(mscip::SCIPData, linrefs, lincoefs,
                                   quadrefs1, quadrefs2, quadcoefs, lhs, rhs)
     @assert length(linrefs) == length(lincoefs)
     @assert length(quadrefs1) == length(quadrefs2)
@@ -238,7 +238,7 @@ Does not support the full generality of SCIP's constraint (offsets and
 coefficients). The first entry in `varrefs` is used for the special variable on
 the right-hand side.
 """
-function add_second_order_cone_constraint(mscip::ManagedSCIP, varrefs)
+function add_second_order_cone_constraint(mscip::SCIPData, varrefs)
     vars = [var(mscip, vr) for vr in varrefs]
     cons__ = Ref{Ptr{SCIP_CONS}}(C_NULL)
     @SCIP_CALL SCIPcreateConsBasicSOC(mscip, cons__, "", length(vars) - 1,
@@ -254,7 +254,7 @@ Add special-ordered-set of type 1 to problem, return cons ref.
 - `varrefs::AbstractArray{VarRef}`: variable references
 - `weights::AbstractArray{Float64}`: numeric weights
 """
-function add_special_ordered_set_type1(mscip::ManagedSCIP, varrefs, weights)
+function add_special_ordered_set_type1(mscip::SCIPData, varrefs, weights)
     @assert length(varrefs) == length(weights)
     vars = [var(mscip, vr) for vr in varrefs]
     cons__ = Ref{Ptr{SCIP_CONS}}(C_NULL)
@@ -270,7 +270,7 @@ Add special-ordered-set of type 2 to problem, return cons ref.
 - `varrefs::AbstractArray{VarRef}`: variable references
 - `weights::AbstractArray{Float64}`: numeric weights
 """
-function add_special_ordered_set_type2(mscip::ManagedSCIP, varrefs, weights)
+function add_special_ordered_set_type2(mscip::SCIPData, varrefs, weights)
     @assert length(varrefs) == length(weights)
     vars = [var(mscip, vr) for vr in varrefs]
     cons__ = Ref{Ptr{SCIP_CONS}}(C_NULL)
@@ -295,7 +295,7 @@ Add abspower constraint to problem, return cons ref.
 
 Use `(-)SCIPinfinity(scip)` for one of the bounds if not applicable.
 """
-function add_abspower_constraint(mscip::ManagedSCIP, x, a, n, z, c, lhs, rhs)
+function add_abspower_constraint(mscip::SCIPData, x, a, n, z, c, lhs, rhs)
     cons__ = Ref{Ptr{SCIP_CONS}}(C_NULL)
     @SCIP_CALL SCIPcreateConsBasicAbspower(
         mscip, cons__, "", var(mscip, x), var(mscip, z), n, a, c, lhs, rhs)
@@ -316,7 +316,7 @@ y has to be a binary variable, or SCIP will error.
 - `a::Float64`: coefficients for x variable
 - `rhs::Float64`: right-hand side for linear constraint
 """
-function add_indicator_constraint(mscip::ManagedSCIP, y, x, a, rhs)
+function add_indicator_constraint(mscip::SCIPData, y, x, a, rhs)
     SCIPvarIsBinary(var(mscip, y)) > 0 || error("indicator variable must be binary.")
     cons__ = Ref{Ptr{SCIP_CONS}}(C_NULL)
     xref = [var(mscip, x[i]) for i in eachindex(x)]
@@ -336,13 +336,13 @@ const STATISTICS_FUNCS = map(x -> Symbol(camel_case_to_snake_case(string(x)[5 : 
 for (scip_statistics_func, statistics_func) in zip(SCIP_STATISTICS_FUNCS, STATISTICS_FUNCS)
     @eval begin
         """
-            $($statistics_func)(mscip::ManagedSCIP)
+            $($statistics_func)(mscip::SCIPData)
 
         Print statistics (calls `$($scip_statistics_func)`) to standard output.
         """
         function $statistics_func end
 
-        function $statistics_func(mscip::ManagedSCIP)
+        function $statistics_func(mscip::SCIPData)
             ret = $scip_statistics_func(mscip, C_NULL)
             ret !== nothing && @assert ret == SCIP_OKAY
             return nothing
