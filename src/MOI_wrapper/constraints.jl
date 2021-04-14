@@ -5,6 +5,6 @@ function MOI.get(o::Optimizer, ::MOI.ConstraintName, ci::CI)::String
 end
 
 function MOI.set(o::Optimizer, ::MOI.ConstraintName, ci::CI, name::String)
-    @SC SCIPchgConsName(o, cons(o, ci), name)
+    @SCIP_CALL SCIPchgConsName(o, cons(o, ci), name)
     return nothing
 end

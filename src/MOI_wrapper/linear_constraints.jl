@@ -13,8 +13,8 @@ function MOI.add_constraint(o::Optimizer, func::SAF, set::S) where {S <: BOUNDS}
     coefs = [t.coefficient for t in func.terms]
 
     lhs, rhs = bounds(set)
-    lhs = lhs == nothing ? -SCIPinfinity(o) : lhs
-    rhs = rhs == nothing ?  SCIPinfinity(o) : rhs
+    lhs = lhs === nothing ? -SCIPinfinity(o) : lhs
+    rhs = rhs === nothing ?  SCIPinfinity(o) : rhs
 
     cr = add_linear_constraint(o.mscip, varrefs, coefs, lhs, rhs)
     ci = CI{SAF, S}(cr.val)
@@ -35,11 +35,11 @@ function MOI.set(o::SCIP.Optimizer, ::MOI.ConstraintSet, ci::CI{SAF,S}, set::S) 
     allow_modification(o)
 
     lhs, rhs = bounds(set)
-    lhs = lhs == nothing ? -SCIPinfinity(o) : lhs
-    rhs = rhs == nothing ?  SCIPinfinity(o) : rhs
+    lhs = lhs === nothing ? -SCIPinfinity(o) : lhs
+    rhs = rhs === nothing ?  SCIPinfinity(o) : rhs
 
-    @SC SCIPchgLhsLinear(o, cons(o, ci), lhs)
-    @SC SCIPchgRhsLinear(o, cons(o, ci), rhs)
+    @SCIP_CALL SCIPchgLhsLinear(o, cons(o, ci), lhs)
+    @SCIP_CALL SCIPchgRhsLinear(o, cons(o, ci), rhs)
 
     return nothing
 end
@@ -64,6 +64,6 @@ end
 function MOI.modify(o::Optimizer, ci::CI{SAF, <:BOUNDS},
                     change::MOI.ScalarCoefficientChange{Float64})
     allow_modification(o)
-    @SC SCIPchgCoefLinear(o, cons(o, ci), var(o, change.variable), change.new_coefficient)
+    @SCIP_CALL SCIPchgCoefLinear(o, cons(o, ci), var(o, change.variable), change.new_coefficient)
     return nothing
 end

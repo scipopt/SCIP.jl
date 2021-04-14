@@ -146,7 +146,7 @@ function include_sepa(mscip::ManagedSCIP, sepa::SEPA;
     end
 
     # Register separator with SCIP instance.
-    @SC SCIPincludeSepaBasic(mscip, sepa__, name, description,
+    @SCIP_CALL SCIPincludeSepaBasic(mscip, sepa__, name, description,
                              priority, freq, maxbounddist,
                              usessubscip, delay, 
                              _execlp, _execsol,
@@ -156,7 +156,7 @@ function include_sepa(mscip::ManagedSCIP, sepa::SEPA;
     @assert sepa__[] != C_NULL
 
     # Set additional callbacks.
-    @SC SCIPsetSepaFree(
+    @SCIP_CALL SCIPsetSepaFree(
         mscip, sepa__[],
         @cfunction(_sepafree, SCIP_RETCODE, (Ptr{SCIP_}, Ptr{SCIP_SEPA})))
 
@@ -194,14 +194,14 @@ function add_cut_sepa(mscip::ManagedSCIP, sepa::SEPA, varrefs, coefs, lhs, rhs;
     vars = [var(mscip, vr) for vr in varrefs]
     row__ = Ref{Ptr{SCIP_ROW}}(C_NULL)
     sepa__ = mscip.sepas[sepa]
-    @SC SCIPcreateEmptyRowSepa(
+    @SCIP_CALL SCIPcreateEmptyRowSepa(
         mscip, row__, sepa__, "", lhs, rhs, islocal, modifiable, removable)
-    @SC SCIPaddVarsToRow(mscip, row__[], length(vars), vars, coefs)
+    @SCIP_CALL SCIPaddVarsToRow(mscip, row__[], length(vars), vars, coefs)
     if islocal
       infeasible = Ref{SCIP_Bool}()
-      @SC SCIPaddRow(mscip, row__[], true, infeasible)
+      @SCIP_CALL SCIPaddRow(mscip, row__[], true, infeasible)
     else
-      @SC SCIPaddPoolCut(mscip, row__[])
+      @SCIP_CALL SCIPaddPoolCut(mscip, row__[])
     end
-    @SC SCIPreleaseRow(mscip, row__)
+    @SCIP_CALL SCIPreleaseRow(mscip, row__)
 end

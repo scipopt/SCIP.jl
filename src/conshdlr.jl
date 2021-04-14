@@ -340,7 +340,7 @@ function include_conshdlr(mscip::ManagedSCIP, ch::CH;
     end
 
     # Register constraint handler with SCIP instance.
-    @SC SCIPincludeConshdlrBasic(mscip, conshdlr__, name, description,
+    @SCIP_CALL SCIPincludeConshdlrBasic(mscip, conshdlr__, name, description,
                                  enforce_priority, check_priority,
                                  eager_frequency, needs_constraints,
                                  _enfolp, _enfops, _check, _lock,
@@ -350,10 +350,10 @@ function include_conshdlr(mscip::ManagedSCIP, ch::CH;
     @assert conshdlr__[] != C_NULL
 
     # Set additional callbacks.
-    @SC SCIPsetConshdlrFree(
+    @SCIP_CALL SCIPsetConshdlrFree(
         mscip, conshdlr__[],
         @cfunction(_consfree, SCIP_RETCODE, (Ptr{SCIP_}, Ptr{SCIP_CONSHDLR})))
-    @SC SCIPsetConshdlrDelete(
+    @SCIP_CALL SCIPsetConshdlrDelete(
         mscip, conshdlr__[],
         @cfunction(_consdelete, SCIP_RETCODE, (Ptr{SCIP_}, Ptr{SCIP_CONSHDLR}, Ptr{SCIP_CONS}, Ptr{Ptr{SCIP_CONSDATA}})))
 
@@ -397,7 +397,7 @@ function add_constraint(mscip::ManagedSCIP, ch::CH, c::C;
 
     # Create SCIP constraint (and attach constraint data).
     cons__ = Ref{Ptr{SCIP_CONS}}(C_NULL)
-    @SC SCIPcreateCons(mscip, cons__, "", conshdlr_, consdata_,
+    @SCIP_CALL SCIPcreateCons(mscip, cons__, "", conshdlr_, consdata_,
                        initial, separate, enforce, check, propagate,
                        _local, modifiable, dynamic, removable, stickingatnode)
 
@@ -408,7 +408,7 @@ function add_constraint(mscip::ManagedSCIP, ch::CH, c::C;
     mscip.conshdlrconss[c] = cons__[]
 
     # Add constraint to problem.
-    @SC SCIPaddCons(mscip, cons__[])
+    @SCIP_CALL SCIPaddCons(mscip, cons__[])
 
     # Register constraint and return reference.
     return store_cons!(mscip, cons__)

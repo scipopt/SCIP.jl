@@ -42,7 +42,7 @@ const MOI = MathOptInterface
     MOI.set(optimizer, MOI.UserCutCallback(), cutcallback)
 
     # solve the problem
-    SCIP.@SC SCIP.SCIPsolve(mscip.scip[])
+    SCIP.@SCIP_CALL SCIP.SCIPsolve(mscip.scip[])
 
     # The cut callback was called and obtaining the LP-solution worked.
     @test calls >= 1
@@ -92,7 +92,7 @@ end
     MOI.set(optimizer, MOI.UserCutCallback(), cutcallback)
 
     # solve the problem
-    SCIP.@SC SCIP.SCIPsolve(mscip.scip[])
+    SCIP.@SCIP_CALL SCIP.SCIPsolve(mscip.scip[])
 
     # The cut callback was called.
     @test calls >= 1
@@ -143,7 +143,7 @@ end
     MOI.set(optimizer, MOI.UserCutCallback(), cutcallback)
 
     # solve the problem
-    SCIP.@SC SCIP.SCIPsolve(mscip.scip[])
+    SCIP.@SCIP_CALL SCIP.SCIPsolve(mscip.scip[])
 
     # The cut callback was called.
     @test calls >= 1

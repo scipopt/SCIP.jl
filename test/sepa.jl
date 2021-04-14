@@ -28,7 +28,7 @@ const MOI = MathOptInterface
     SCIP.include_sepa(mscip, sepa)
 
     # solve the problem
-    SCIP.@SC SCIP.SCIPsolve(mscip.scip[])
+    SCIP.@SCIP_CALL SCIP.SCIPsolve(mscip.scip[])
 
     # the separator is called
     @test sepa.called >= 1
@@ -70,7 +70,7 @@ end
     SCIP.include_sepa(mscip, sepa)
 
     # solve the problem
-    SCIP.@SC SCIP.SCIPsolve(mscip.scip[])
+    SCIP.@SCIP_CALL SCIP.SCIPsolve(mscip.scip[])
 
     # SCIP found the single remaining optimal solution
     @test MOI.get(optimizer, MOI.TerminationStatus()) == MOI.OPTIMAL
@@ -117,7 +117,7 @@ end
     SCIP.include_sepa(mscip, sepa)
 
     # solve the problem
-    SCIP.@SC SCIP.SCIPsolve(mscip.scip[])
+    SCIP.@SCIP_CALL SCIP.SCIPsolve(mscip.scip[])
 
     # SCIP found the single remaining optimal solution
     @test MOI.get(optimizer, MOI.TerminationStatus()) == MOI.OPTIMAL
@@ -164,7 +164,7 @@ end
     SCIP.include_sepa(mscip, sepa)
 
     # solve the problem
-    SCIP.@SC SCIP.SCIPsolve(mscip.scip[])
+    SCIP.@SCIP_CALL SCIP.SCIPsolve(mscip.scip[])
 
     # SCIP found the non-optimal solution, that remains after the cut.
     @test MOI.get(optimizer, MOI.TerminationStatus()) == MOI.OPTIMAL

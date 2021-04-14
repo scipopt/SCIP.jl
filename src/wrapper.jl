@@ -6,7 +6,7 @@ const TRUE = LibSCIP.TRUE
 const FALSE = LibSCIP.FALSE
 
 # SCIP_CALL: macro to check return codes, inspired by @assert
-macro SC(ex)
+macro SCIP_CALL(ex)
     return :(@assert $(esc(ex)) == SCIP_OKAY)
 end
 
