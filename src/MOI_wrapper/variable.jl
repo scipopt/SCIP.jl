@@ -116,8 +116,8 @@ function MOI.add_constraint(o::Optimizer, func::SVF, set::S) where S <: BOUNDS
     inf = SCIPinfinity(o)
 
     newlb, newub = bounds(set)
-    newlb = newlb == nothing ? -inf : newlb
-    newub = newub == nothing ?  inf : newub
+    newlb = newlb === nothing ? -inf : newlb
+    newub = newub === nothing ?  inf : newub
 
     # Check for existing bounds first.
     oldlb, oldub = SCIPvarGetLbOriginal(v), SCIPvarGetUbOriginal(v)
@@ -196,8 +196,8 @@ function MOI.set(o::SCIP.Optimizer, ::MOI.ConstraintSet, ci::CI{SVF,S}, set::S) 
     allow_modification(o)
     v = var(o, VI(ci.value)) # cons index is actually var index
     lb, ub = bounds(set)
-    lb = lb == nothing ? -SCIPinfinity(o) : lb
-    ub = ub == nothing ?  SCIPinfinity(o) : ub
+    lb = lb === nothing ? -SCIPinfinity(o) : lb
+    ub = ub === nothing ?  SCIPinfinity(o) : ub
     if SCIPvarGetType(v) == SCIP_VARTYPE_BINARY
         o.binbounds[vi] = MOI.Interval(lb, ub)
         lb = max(lb, 0.0)

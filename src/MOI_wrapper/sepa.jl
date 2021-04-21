@@ -22,7 +22,7 @@ All parameters have default values, that can be set as keyword arguments.
 function include_sepa(o::Optimizer, sepa::SEPA;
                       name="", description="", priority=0, freq=1,
                       maxbounddist=0.0, usessubscip=false,
-                      delay=false) where SEPA <: AbstractSeparator
+                      delay=false) where {SEPA <: AbstractSeparator}
     include_sepa(o.mscip, sepa, name=name, description=description,
                  priority=priority, freq=freq, maxbounddist=maxbounddist,
                  usessubscip=usessubscip, delay=delay)
@@ -68,7 +68,7 @@ function MOI.get(o::Optimizer, ::MOI.CallbackVariablePrimal{CutCbData}, vi)
 end
 
 function MOI.set(o::Optimizer, ::MOI.UserCutCallback, cb::Function)
-    if o.moi_separator == Nothing
+    if o.moi_separator === nothing
         o.moi_separator = CutCbSeparator(o.mscip, cb)
         include_sepa(o, o.moi_separator)
     else
@@ -83,8 +83,8 @@ function MOI.submit(o::Optimizer, cb_data::MOI.UserCut{CutCbData},
     coefs = [t.coefficient for t in func.terms]
 
     lhs, rhs = bounds(set)
-    lhs = lhs == nothing ? -SCIPinfinity(o) : lhs
-    rhs = rhs == nothing ?  SCIPinfinity(o) : rhs
+    lhs = lhs === nothing ? -SCIPinfinity(o) : lhs
+    rhs = rhs === nothing ?  SCIPinfinity(o) : rhs
 
     add_cut_sepa(o.mscip, cb_data.callback_data.sepa, varrefs, coefs, lhs, rhs)
     cb_data.callback_data.submit_called = true
