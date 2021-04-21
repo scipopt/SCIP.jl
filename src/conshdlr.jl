@@ -47,8 +47,8 @@ callback functions.
 From SCIP's point-of-view, this objects corresponds to the SCIP_CONSHDLRDATA,
 but its memory is managed by Julia's GC.
 
-It's recommended to store a reference to your instance of `SCIPData` or
-`SCIP.Optimizer` here, so that you can use it within your callback methods.
+It's recommended to store a reference to your instance of `SCIP.Optimizer`
+here so that you can use it within your callback methods.
 """
 abstract type AbstractConstraintHandler end
 
