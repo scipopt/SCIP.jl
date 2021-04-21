@@ -49,7 +49,6 @@ mutable struct Optimizer <: MOI.AbstractOptimizer
         o = new(scip_data, PtrMap(), ConsTypeMap(), Dict(), Dict(), Dict(),
         Nothing)   # Is scip_data the right argument here? in the original, new called SCIPData(), which is now included in the Optimizer function
         finalizer(free_scip, o)
-    end
 
         # Set all parameters given as keyword arguments, replacing the
         # delimiter, since "/" is used by all SCIP parameters, but is not

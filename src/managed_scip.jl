@@ -27,7 +27,6 @@ mutable struct SCIPData
     # Map from user-defined types (keys are <: AbstractSeparator) to the
     # corresponding SCIP objects.
     sepas::Dict{Any, Ptr{SCIP_SEPA}}
-
 end
 
 # TODO: all references to mscip / SCIPData need to be changed to (reference to optimmizer struct?) / SCIPData
