@@ -29,7 +29,7 @@ const ConsTypeMap = Dict{Tuple{DataType, DataType}, Set{ConsRef}}
 #will include struct SCIPData in the future
 #free_scip will also have to be adjusted
 mutable struct Optimizer <: MOI.AbstractOptimizer
-    mscip::SCIPData
+    inner::SCIPData
     reference::PtrMap
     constypes::ConsTypeMap
     binbounds::Dict{VI,BOUNDS} # only for binary variables
@@ -62,13 +62,13 @@ mutable struct Optimizer <: MOI.AbstractOptimizer
 end
 
 # Protect Optimizer from GC for ccall with Ptr{SCIP_} argument.
-Base.unsafe_convert(::Type{Ptr{SCIP_}}, o::Optimizer) = o.mscip.scip[]
+Base.unsafe_convert(::Type{Ptr{SCIP_}}, o::Optimizer) = o.inner.scip[]
 
 ## convenience functions (not part of MOI)
 
 "Return pointer to SCIP variable."
 function var(o::Optimizer, v::VI)::Ptr{SCIP_VAR}
-    return var(o.mscip, VarRef(v.value))
+    return var(o.inner, VarRef(v.value))
 end
 
 "Return var/cons reference of SCIP variable/constraint."
@@ -76,7 +76,7 @@ ref(o::Optimizer, ptr::Ptr{Cvoid}) = o.reference[ptr]
 
 "Return pointer to SCIP constraint."
 function cons(o::Optimizer, c::CI{F,S})::Ptr{SCIP_CONS} where {F,S}
-    return cons(o.mscip, ConsRef(c.value))
+    return cons(o.inner, ConsRef(c.value))
 end
 
 "Extract bounds from sets."
@@ -127,12 +127,12 @@ MOIU.supports_default_copy_to(model::Optimizer, copy_names::Bool) = !copy_names
 const Param = MOI.RawParameter
 
 function MOI.get(o::Optimizer, param::MOI.RawParameter)
-    return get_parameter(o.mscip, param.name)
+    return get_parameter(o.inner, param.name)
 end
 
 function MOI.set(o::Optimizer, param::MOI.RawParameter, value)
     o.params[param.name] = value
-    set_parameter(o.mscip, param.name, value)
+    set_parameter(o.inner, param.name, value)
     return nothing
 end
 
@@ -173,14 +173,14 @@ end
 ## model creation, query and modification
 
 function MOI.is_empty(o::Optimizer)
-    return length(o.mscip.vars) == 0 && length(o.mscip.conss) == 0
+    return length(o.inner.vars) == 0 && length(o.inner.conss) == 0
 end
 
 function MOI.empty!(o::Optimizer)
     # free the underlying problem
-    finalize(o.mscip)
+    finalize(o.inner)
     # create a new one
-    o.mscip = SCIPData()
+    o.inner = SCIPData()
     # clear auxiliary mapping structures
     o.reference = PtrMap()
     o.constypes = ConsTypeMap()
@@ -188,7 +188,7 @@ function MOI.empty!(o::Optimizer)
     o.start = Dict()
     # reapply parameters
     for pair in o.params
-        set_parameter(o.mscip, pair.first, pair.second)
+        set_parameter(o.inner, pair.first, pair.second)
     end
     return nothing
 end

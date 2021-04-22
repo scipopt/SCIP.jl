@@ -4,23 +4,23 @@ using MathOptInterface
 
 @testset "create and manual free" begin
     mscip = SCIP.Optimizer()
-    @test mscip.scip[] != C_NULL
-    SCIP.free_scip(mscip)
-    @test mscip.scip[] == C_NULL
+    @test mscip.inner.scip[] != C_NULL
+    SCIP.free_scip(mscip.inner)
+    @test mscip.inner.scip[] == C_NULL
 end
 
 @testset "create and semi-manual free" begin
     mscip = SCIP.Optimizer()
-    @test mscip.scip[] != C_NULL
+    @test mscip.inner.scip[] != C_NULL
     finalize(mscip)
-    @test mscip.scip[] == C_NULL
+    @test mscip.inner.scip[] == C_NULL
 end
 
 @testset "create with vars and cons, and free" begin
     for i=1:2 # run twice, with(out) solving
         mscip = SCIP.Optimizer()
-        @test mscip.scip[] != C_NULL
-        SCIP.set_parameter(mscip, "display/verblevel", 0)
+        @test mscip.inner.scip[] != C_NULL
+        SCIP.set_parameter(mscip.inner, "display/verblevel", 0)
 
         t = SCIP.add_variable(mscip)
         # set lower bound for assertion in cons_soc.c
