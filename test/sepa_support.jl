@@ -29,7 +29,7 @@ using SCIP
 A separator, that adds one predefined cut.
 """
 mutable struct Sepa <: SCIP.AbstractSeparator
-    mscip::SCIP.SCIPData
+    scipd::SCIP.SCIPData
     varrefs::AbstractArray{SCIP.VarRef}
     coefs::AbstractArray{Float64}
     lhs::Float64
@@ -37,7 +37,7 @@ mutable struct Sepa <: SCIP.AbstractSeparator
 end
 
 function SCIP.exec_lp(sepa::Sepa)
-    SCIP.add_cut_sepa(sepa.mscip, sepa, sepa.varrefs, sepa.coefs,
+    SCIP.add_cut_sepa(sepa.scipd, sepa, sepa.varrefs, sepa.coefs,
                       sepa.lhs, sepa.rhs, removable=false)
     return SCIP.SCIP_SEPARATED
 end
