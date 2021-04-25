@@ -29,39 +29,39 @@ mutable struct SCIPData
     sepas::Dict{Any, Ptr{SCIP_SEPA}}
 end
 
-# TODO: all references to mscip / SCIPData need to be changed to (reference to optimmizer struct?) / SCIPData
+# TODO: all references to scipd / SCIPData need to be changed to (reference to optimmizer struct?) / SCIPData
 
 # Protect SCIPData from GC for ccall with Ptr{SCIP_} argument.
-Base.unsafe_convert(::Type{Ptr{SCIP_}}, mscip::SCIPData) = mscip.scip[]
+Base.unsafe_convert(::Type{Ptr{SCIP_}}, scipd::SCIPData) = scipd.scip[]
 
 "Release references and free memory."
-function free_scip(mscip::SCIPData)
+function free_scip(scipd::SCIPData)
     # Avoid double-free (SCIP will set the pointers to NULL).
-    if mscip.scip[] != C_NULL
-        for c in values(mscip.conss)
-            @SCIP_CALL SCIPreleaseCons(mscip, c)
+    if scipd.scip[] != C_NULL
+        for c in values(scipd.conss)
+            @SCIP_CALL SCIPreleaseCons(scipd, c)
         end
-        for v in values(mscip.vars)
-            @SCIP_CALL SCIPreleaseVar(mscip, v)
+        for v in values(scipd.vars)
+            @SCIP_CALL SCIPreleaseVar(scipd, v)
         end
-        # only mscip.scip is GC-protected during ccall!
-        GC.@preserve mscip begin
-            @SCIP_CALL SCIPfree(mscip.scip)
+        # only scipd.scip is GC-protected during ccall!
+        GC.@preserve scipd begin
+            @SCIP_CALL SCIPfree(scipd.scip)
         end
     end
-    @assert mscip.scip[] == C_NULL
+    @assert scipd.scip[] == C_NULL
 end
 
 "Set a parameter's current value."
-function get_parameter(mscip::SCIPData, name::AbstractString)
-    param = SCIPgetParam(mscip, name)
+function get_parameter(scipd::SCIPData, name::AbstractString)
+    param = SCIPgetParam(scipd, name)
     if param == C_NULL
         error("Unrecognized parameter: $name")
     end
     paramtype = SCIPparamGetType(param)
     if paramtype === SCIP_PARAMTYPE_BOOL
         value = Ref{SCIP_Bool}()
-        @SCIP_CALL SCIPgetBoolParam(mscip, name, value)
+        @SCIP_CALL SCIPgetBoolParam(scipd, name, value)
         if value[] == TRUE
             return true
         elseif value[] == FALSE
@@ -71,23 +71,23 @@ function get_parameter(mscip::SCIPData, name::AbstractString)
         end
     elseif paramtype === SCIP_PARAMTYPE_INT
         value = Ref{Cint}()
-        @SCIP_CALL SCIPgetIntParam(mscip, name, value)
+        @SCIP_CALL SCIPgetIntParam(scipd, name, value)
         return value[]
     elseif paramtype === SCIP_PARAMTYPE_LONGINT
         value = Ref{Clonglong}()
-        @SCIP_CALL SCIPgetLongintParam(mscip, name, value)
+        @SCIP_CALL SCIPgetLongintParam(scipd, name, value)
         return value[]
     elseif paramtype === SCIP_PARAMTYPE_REAL
         value = Ref{Cdouble}()
-        @SCIP_CALL SCIPgetRealParam(mscip, name, value)
+        @SCIP_CALL SCIPgetRealParam(scipd, name, value)
         return value[]
     elseif paramtype === SCIP_PARAMTYPE_CHAR
         value = Ref{Cchar}()
-        @SCIP_CALL SCIPgetCharParam(mscip, name, value)
+        @SCIP_CALL SCIPgetCharParam(scipd, name, value)
         return Char(value[])
     elseif paramtype === SCIP_PARAMTYPE_STRING
         value = Ref{Cstring}()
-        @SCIP_CALL SCIPgetStringParam(mscip, name, value)
+        @SCIP_CALL SCIPgetStringParam(scipd, name, value)
         return unsafe_string(value[])
     else
         error("Unexpected parameter type: $paramtype")
@@ -95,24 +95,24 @@ function get_parameter(mscip::SCIPData, name::AbstractString)
 end
 
 "Set a parameter."
-function set_parameter(mscip::SCIPData, name::AbstractString, value)
-    param = SCIPgetParam(mscip, name)
+function set_parameter(scipd::SCIPData, name::AbstractString, value)
+    param = SCIPgetParam(scipd, name)
     if param == C_NULL
         error("Unrecognized parameter: $name")
     end
     paramtype = SCIPparamGetType(param)
     if paramtype === SCIP_PARAMTYPE_BOOL
-        @SCIP_CALL SCIPsetBoolParam(mscip, name, value)
+        @SCIP_CALL SCIPsetBoolParam(scipd, name, value)
     elseif paramtype === SCIP_PARAMTYPE_INT
-        @SCIP_CALL SCIPsetIntParam(mscip, name, value)
+        @SCIP_CALL SCIPsetIntParam(scipd, name, value)
     elseif paramtype === SCIP_PARAMTYPE_LONGINT
-        @SCIP_CALL SCIPsetLongintParam(mscip, name, value)
+        @SCIP_CALL SCIPsetLongintParam(scipd, name, value)
     elseif paramtype === SCIP_PARAMTYPE_REAL
-        @SCIP_CALL SCIPsetRealParam(mscip, name, value)
+        @SCIP_CALL SCIPsetRealParam(scipd, name, value)
     elseif paramtype === SCIP_PARAMTYPE_CHAR
-        @SCIP_CALL SCIPsetCharParam(mscip, name, value)
+        @SCIP_CALL SCIPsetCharParam(scipd, name, value)
     elseif paramtype === SCIP_PARAMTYPE_STRING
-        @SCIP_CALL SCIPsetStringParam(mscip, name, value)
+        @SCIP_CALL SCIPsetStringParam(scipd, name, value)
     else
         error("Unexpected parameter type: $paramtype")
     end
@@ -120,60 +120,60 @@ function set_parameter(mscip::SCIPData, name::AbstractString, value)
 end
 
 "Return pointer to SCIP variable."
-function var(mscip::SCIPData, vr::VarRef)::Ptr{SCIP_VAR}
-    return mscip.vars[vr][]
+function var(scipd::SCIPData, vr::VarRef)::Ptr{SCIP_VAR}
+    return scipd.vars[vr][]
 end
 
 "Return pointer to SCIP constraint."
-function cons(mscip::SCIPData, cr::ConsRef)::Ptr{SCIP_CONS}
-    return mscip.conss[cr][]
+function cons(scipd::SCIPData, cr::ConsRef)::Ptr{SCIP_CONS}
+    return scipd.conss[cr][]
 end
 
 "Store reference to variable, return VarRef"
-function store_var!(mscip::SCIPData, var__::Ref{Ptr{SCIP_VAR}})
-    mscip.var_count += 1
-    vr = VarRef(mscip.var_count)
-    mscip.vars[vr] = var__
+function store_var!(scipd::SCIPData, var__::Ref{Ptr{SCIP_VAR}})
+    scipd.var_count += 1
+    vr = VarRef(scipd.var_count)
+    scipd.vars[vr] = var__
     return vr
 end
 
 "Store reference to constraint, return ConsRef"
-function store_cons!(mscip::SCIPData, cons__::Ref{Ptr{SCIP_CONS}})
-    mscip.cons_count += 1
-    cr = ConsRef(mscip.cons_count)
-    mscip.conss[cr] = cons__
+function store_cons!(scipd::SCIPData, cons__::Ref{Ptr{SCIP_CONS}})
+    scipd.cons_count += 1
+    cr = ConsRef(scipd.cons_count)
+    scipd.conss[cr] = cons__
     return cr
 end
 
 "Add variable to problem (continuous, no bounds), return var ref."
-function add_variable(mscip::SCIPData)
+function add_variable(scipd::SCIPData)
     var__ = Ref{Ptr{SCIP_VAR}}(C_NULL)
-    @SCIP_CALL SCIPcreateVarBasic(mscip, var__, "", -SCIPinfinity(mscip), SCIPinfinity(mscip),
+    @SCIP_CALL SCIPcreateVarBasic(scipd, var__, "", -SCIPinfinity(scipd), SCIPinfinity(scipd),
                            0.0, SCIP_VARTYPE_CONTINUOUS)
-    @SCIP_CALL SCIPaddVar(mscip, var__[])
-    return store_var!(mscip, var__)
+    @SCIP_CALL SCIPaddVar(scipd, var__[])
+    return store_var!(scipd, var__)
 end
 
 "Delete variable from problem."
-function delete(mscip::SCIPData, vr::VarRef)
+function delete(scipd::SCIPData, vr::VarRef)
     # delete variable from SCIP problem
     deleted = Ref{SCIP_Bool}()
-    @SCIP_CALL SCIPdelVar(mscip, var(mscip, vr), deleted)
+    @SCIP_CALL SCIPdelVar(scipd, var(scipd, vr), deleted)
     deleted[] == TRUE || error("Variable at $(vr.val) could not be deleted!")
 
     # release memory and remove reference
-    @SCIP_CALL SCIPreleaseVar(mscip, mscip.vars[vr])
-    delete!(mscip.vars, vr)
+    @SCIP_CALL SCIPreleaseVar(scipd, scipd.vars[vr])
+    delete!(scipd.vars, vr)
     return nothing
 end
 
 "Delete constraint from problem."
-function delete(mscip::SCIPData, cr::ConsRef)
-    @SCIP_CALL SCIPdelCons(mscip, cons(mscip, cr))
+function delete(scipd::SCIPData, cr::ConsRef)
+    @SCIP_CALL SCIPdelCons(scipd, cons(scipd, cr))
 
     # release memory and remove reference
-    @SCIP_CALL SCIPreleaseCons(mscip, mscip.conss[cr])
-    delete!(mscip.conss, cr)
+    @SCIP_CALL SCIPreleaseCons(scipd, scipd.conss[cr])
+    delete!(scipd.conss, cr)
     return nothing
 end
 
@@ -188,14 +188,14 @@ Add (ranged) linear constraint to problem, return cons ref.
 
 Use `(-)SCIPinfinity(scip)` for one of the bounds if not applicable.
 """
-function add_linear_constraint(mscip::SCIPData, varrefs, coefs, lhs, rhs)
+function add_linear_constraint(scipd::SCIPData, varrefs, coefs, lhs, rhs)
     @assert length(varrefs) == length(coefs)
-    vars = [var(mscip, vr) for vr in varrefs]
+    vars = [var(scipd, vr) for vr in varrefs]
     cons__ = Ref{Ptr{SCIP_CONS}}(C_NULL)
     @SCIP_CALL SCIPcreateConsBasicLinear(
-        mscip, cons__, "", length(vars), vars, coefs, lhs, rhs)
-    @SCIP_CALL SCIPaddCons(mscip, cons__[])
-    return store_cons!(mscip, cons__)
+        scipd, cons__, "", length(vars), vars, coefs, lhs, rhs)
+    @SCIP_CALL SCIPaddCons(scipd, cons__[])
+    return store_cons!(scipd, cons__)
 end
 
 """
@@ -212,22 +212,22 @@ Add (ranged) quadratic constraint to problem, return cons ref.
 
 Use `(-)SCIPinfinity(scip)` for one of the bounds if not applicable.
 """
-function add_quadratic_constraint(mscip::SCIPData, linrefs, lincoefs,
+function add_quadratic_constraint(scipd::SCIPData, linrefs, lincoefs,
                                   quadrefs1, quadrefs2, quadcoefs, lhs, rhs)
     @assert length(linrefs) == length(lincoefs)
     @assert length(quadrefs1) == length(quadrefs2)
     @assert length(quadrefs1) == length(quadcoefs)
 
-    linvars = [var(mscip, vr) for vr in linrefs]
-    quadvars1 = [var(mscip, vr) for vr in quadrefs1]
-    quadvars2 = [var(mscip, vr) for vr in quadrefs2]
+    linvars = [var(scipd, vr) for vr in linrefs]
+    quadvars1 = [var(scipd, vr) for vr in quadrefs1]
+    quadvars2 = [var(scipd, vr) for vr in quadrefs2]
 
     cons__ = Ref{Ptr{SCIP_CONS}}(C_NULL)
     @SCIP_CALL SCIPcreateConsBasicQuadratic(
-        mscip, cons__, "", length(linvars), linvars, lincoefs,
+        scipd, cons__, "", length(linvars), linvars, lincoefs,
         length(quadvars1), quadvars1, quadvars2, quadcoefs, lhs, rhs)
-    @SCIP_CALL SCIPaddCons(mscip, cons__[])
-    return store_cons!(mscip, cons__)
+    @SCIP_CALL SCIPaddCons(scipd, cons__[])
+    return store_cons!(scipd, cons__)
 end
 
 """
@@ -237,13 +237,13 @@ Does not support the full generality of SCIP's constraint (offsets and
 coefficients). The first entry in `varrefs` is used for the special variable on
 the right-hand side.
 """
-function add_second_order_cone_constraint(mscip::SCIPData, varrefs)
-    vars = [var(mscip, vr) for vr in varrefs]
+function add_second_order_cone_constraint(scipd::SCIPData, varrefs)
+    vars = [var(scipd, vr) for vr in varrefs]
     cons__ = Ref{Ptr{SCIP_CONS}}(C_NULL)
-    @SCIP_CALL SCIPcreateConsBasicSOC(mscip, cons__, "", length(vars) - 1,
+    @SCIP_CALL SCIPcreateConsBasicSOC(scipd, cons__, "", length(vars) - 1,
                                vars[2:end], C_NULL, C_NULL, 0.0, vars[1], 1.0, 0.0)
-    @SCIP_CALL SCIPaddCons(mscip, cons__[])
-    return store_cons!(mscip, cons__)
+    @SCIP_CALL SCIPaddCons(scipd, cons__[])
+    return store_cons!(scipd, cons__)
 end
 
 """
@@ -253,13 +253,13 @@ Add special-ordered-set of type 1 to problem, return cons ref.
 - `varrefs::AbstractArray{VarRef}`: variable references
 - `weights::AbstractArray{Float64}`: numeric weights
 """
-function add_special_ordered_set_type1(mscip::SCIPData, varrefs, weights)
+function add_special_ordered_set_type1(scipd::SCIPData, varrefs, weights)
     @assert length(varrefs) == length(weights)
-    vars = [var(mscip, vr) for vr in varrefs]
+    vars = [var(scipd, vr) for vr in varrefs]
     cons__ = Ref{Ptr{SCIP_CONS}}(C_NULL)
-    @SCIP_CALL SCIPcreateConsBasicSOS1(mscip, cons__, "", length(vars), vars, weights)
-    @SCIP_CALL SCIPaddCons(mscip, cons__[])
-    return store_cons!(mscip, cons__)
+    @SCIP_CALL SCIPcreateConsBasicSOS1(scipd, cons__, "", length(vars), vars, weights)
+    @SCIP_CALL SCIPaddCons(scipd, cons__[])
+    return store_cons!(scipd, cons__)
 end
 
 """
@@ -269,13 +269,13 @@ Add special-ordered-set of type 2 to problem, return cons ref.
 - `varrefs::AbstractArray{VarRef}`: variable references
 - `weights::AbstractArray{Float64}`: numeric weights
 """
-function add_special_ordered_set_type2(mscip::SCIPData, varrefs, weights)
+function add_special_ordered_set_type2(scipd::SCIPData, varrefs, weights)
     @assert length(varrefs) == length(weights)
-    vars = [var(mscip, vr) for vr in varrefs]
+    vars = [var(scipd, vr) for vr in varrefs]
     cons__ = Ref{Ptr{SCIP_CONS}}(C_NULL)
-    @SCIP_CALL SCIPcreateConsBasicSOS2(mscip, cons__, "", length(vars), vars, weights)
-    @SCIP_CALL SCIPaddCons(mscip, cons__[])
-    return store_cons!(mscip, cons__)
+    @SCIP_CALL SCIPcreateConsBasicSOS2(scipd, cons__, "", length(vars), vars, weights)
+    @SCIP_CALL SCIPaddCons(scipd, cons__[])
+    return store_cons!(scipd, cons__)
 end
 
 """
@@ -294,12 +294,12 @@ Add abspower constraint to problem, return cons ref.
 
 Use `(-)SCIPinfinity(scip)` for one of the bounds if not applicable.
 """
-function add_abspower_constraint(mscip::SCIPData, x, a, n, z, c, lhs, rhs)
+function add_abspower_constraint(scipd::SCIPData, x, a, n, z, c, lhs, rhs)
     cons__ = Ref{Ptr{SCIP_CONS}}(C_NULL)
     @SCIP_CALL SCIPcreateConsBasicAbspower(
-        mscip, cons__, "", var(mscip, x), var(mscip, z), n, a, c, lhs, rhs)
-    @SCIP_CALL SCIPaddCons(mscip, cons__[])
-    return store_cons!(mscip, cons__)
+        scipd, cons__, "", var(scipd, x), var(scipd, z), n, a, c, lhs, rhs)
+    @SCIP_CALL SCIPaddCons(scipd, cons__[])
+    return store_cons!(scipd, cons__)
 end
 
 """
@@ -315,15 +315,15 @@ y has to be a binary variable, or SCIP will error.
 - `a::Float64`: coefficients for x variable
 - `rhs::Float64`: right-hand side for linear constraint
 """
-function add_indicator_constraint(mscip::SCIPData, y, x, a, rhs)
-    SCIPvarIsBinary(var(mscip, y)) > 0 || error("indicator variable must be binary.")
+function add_indicator_constraint(scipd::SCIPData, y, x, a, rhs)
+    SCIPvarIsBinary(var(scipd, y)) > 0 || error("indicator variable must be binary.")
     cons__ = Ref{Ptr{SCIP_CONS}}(C_NULL)
-    xref = [var(mscip, x[i]) for i in eachindex(x)]
+    xref = [var(scipd, x[i]) for i in eachindex(x)]
     @SCIP_CALL SCIPcreateConsBasicIndicator(
-        mscip, cons__, "", var(mscip, y), length(x), xref, a, rhs
+        scipd, cons__, "", var(scipd, y), length(x), xref, a, rhs
     )
-    @SCIP_CALL SCIPaddCons(mscip, cons__[])
-    return store_cons!(mscip, cons__)
+    @SCIP_CALL SCIPaddCons(scipd, cons__[])
+    return store_cons!(scipd, cons__)
 end
 
 # Transform SCIP C function name as follows:
@@ -335,14 +335,14 @@ const STATISTICS_FUNCS = map(x -> Symbol(camel_case_to_snake_case(string(x)[5 : 
 for (scip_statistics_func, statistics_func) in zip(SCIP_STATISTICS_FUNCS, STATISTICS_FUNCS)
     @eval begin
         """
-            $($statistics_func)(mscip::SCIPData)
+            $($statistics_func)(scipd::SCIPData)
 
         Print statistics (calls `$($scip_statistics_func)`) to standard output.
         """
         function $statistics_func end
 
-        function $statistics_func(mscip::SCIPData)
-            ret = $scip_statistics_func(mscip, C_NULL)
+        function $statistics_func(scipd::SCIPData)
+            ret = $scip_statistics_func(scipd, C_NULL)
             ret !== nothing && @assert ret == SCIP_OKAY
             return nothing
         end

@@ -3,105 +3,105 @@
 using MathOptInterface
 
 @testset "create and manual free" begin
-    mscip = SCIP.Optimizer()
-    @test mscip.inner.scip[] != C_NULL
-    SCIP.free_scip(mscip.inner)
-    @test mscip.inner.scip[] == C_NULL
+    o = SCIP.Optimizer()
+    @test o.inner.scip[] != C_NULL
+    SCIP.free_scip(o.inner)
+    @test o.inner.scip[] == C_NULL
 end
 
 @testset "create and semi-manual free" begin
-    mscip = SCIP.Optimizer()
-    @test mscip.inner.scip[] != C_NULL
-    finalize(mscip)
-    @test mscip.inner.scip[] == C_NULL
+    o = SCIP.Optimizer()
+    @test o.inner.scip[] != C_NULL
+    finalize(o)
+    @test o.inner.scip[] == C_NULL
 end
 
 @testset "create with vars and cons, and free" begin
     for i=1:2 # run twice, with(out) solving
-        mscip = SCIP.Optimizer()
-        @test mscip.inner.scip[] != C_NULL
-        SCIP.set_parameter(mscip.inner, "display/verblevel", 0)
+        o = SCIP.Optimizer()
+        @test o.inner.scip[] != C_NULL
+        SCIP.set_parameter(o.inner, "display/verblevel", 0)
 
-        t = SCIP.add_variable(mscip)
+        t = SCIP.add_variable(o.inner)
         # set lower bound for assertion in cons_soc.c
-        SCIP.@SCIP_CALL SCIP.SCIPchgVarLb(mscip, SCIP.var(mscip, t), 0.0)
-        x = SCIP.add_variable(mscip)
-        y = SCIP.add_variable(mscip)
-        c = SCIP.add_linear_constraint(mscip, [x, y], [2.0, 3.0], 1.0, 9.0)
-        q = SCIP.add_quadratic_constraint(mscip, [x], [2.0], [x, x], [x, y], [4.0, 5.0], 1.0, 9.0)
-        s = SCIP.add_second_order_cone_constraint(mscip, [t, x, y])
-        s1 = SCIP.add_special_ordered_set_type1(mscip, [t, x], [1.0, 2.0])
-        s2 = SCIP.add_special_ordered_set_type2(mscip, [x, y], [1.0, 2.0])
+        SCIP.@SCIP_CALL SCIP.SCIPchgVarLb(o, SCIP.var(o.inner, t), 0.0)
+        x = SCIP.add_variable(o.inner)
+        y = SCIP.add_variable(o.inner)
+        c = SCIP.add_linear_constraint(o.inner, [x, y], [2.0, 3.0], 1.0, 9.0)
+        q = SCIP.add_quadratic_constraint(o.inner, [x], [2.0], [x, x], [x, y], [4.0, 5.0], 1.0, 9.0)
+        s = SCIP.add_second_order_cone_constraint(o.inner, [t, x, y])
+        s1 = SCIP.add_special_ordered_set_type1(o.inner, [t, x], [1.0, 2.0])
+        s2 = SCIP.add_special_ordered_set_type2(o.inner, [x, y], [1.0, 2.0])
         # abspower:  y == sign(x) * |x|^2 ( == x * |x| )
-        a = SCIP.add_abspower_constraint(mscip, x, 0.0, 2.0, y, -1.0, 0.0, 0.0)
+        a = SCIP.add_abspower_constraint(o.inner, x, 0.0, 2.0, y, -1.0, 0.0, 0.0)
         # nonlinear: x^0.2 == 1
         vi = MathOptInterface.VariableIndex(x.val)
-        n = SCIP.add_nonlinear_constraint(mscip, :(x[$vi]^0.2 == 1.0), 1.0, 1.0)
+        n = SCIP.add_nonlinear_constraint(o.inner, :(x[$vi]^0.2 == 1.0), 1.0, 1.0)
 
         # indicator constraint: z = 1 ==> 𝟙^T [x, y] <= 1.
-        z = SCIP.add_variable(mscip)
-        SCIP.@SCIP_CALL SCIP.SCIPchgVarType(mscip, SCIP.var(mscip, z), SCIP.SCIP_VARTYPE_BINARY, Ref{SCIP.SCIP_Bool}())
-        SCIP.@SCIP_CALL SCIP.SCIPchgVarLb(mscip, SCIP.var(mscip, z), 0.0)
-        SCIP.@SCIP_CALL SCIP.SCIPchgVarUb(mscip, SCIP.var(mscip, z), 1.0)
+        z = SCIP.add_variable(o.inner)
+        SCIP.@SCIP_CALL SCIP.SCIPchgVarType(o, SCIP.var(o.inner, z), SCIP.SCIP_VARTYPE_BINARY, Ref{SCIP.SCIP_Bool}())
+        SCIP.@SCIP_CALL SCIP.SCIPchgVarLb(o, SCIP.var(o.inner, z), 0.0)
+        SCIP.@SCIP_CALL SCIP.SCIPchgVarUb(o, SCIP.var(o.inner, z), 1.0)
 
-        ic = SCIP.add_indicator_constraint(mscip, z, [x, y], ones(2), 1.)
+        ic = SCIP.add_indicator_constraint(o.inner, z, [x, y], ones(2), 1.)
 
         if i==2
             # solve, but don't check results (this test is about memory mgmt)
-            SCIP.@SCIP_CALL SCIP.SCIPsolve(mscip.scip[])
+            SCIP.@SCIP_CALL SCIP.SCIPsolve(o.inner.scip[])
         end
 
-        finalize(mscip)
-        for var in values(mscip.vars)
+        finalize(o)
+        for var in values(o.inner.vars)
             @test var[] == C_NULL
         end
-        for cons in values(mscip.conss)
+        for cons in values(o.inner.conss)
             @test cons[] == C_NULL
         end
-        @test mscip.scip[] == C_NULL
+        @test o.inner.scip[] == C_NULL
     end
 end
 
 @testset "create vars and cons, delete some, and free" begin
     for i=1:2 # run twice, with(out) solving
-        mscip = SCIP.Optimizer()
-        @test mscip.scip[] != C_NULL
-        SCIP.set_parameter(mscip, "display/verblevel", 0)
+        o = SCIP.Optimizer()
+        @test o.inner.scip[] != C_NULL
+        SCIP.set_parameter(o.inner, "display/verblevel", 0)
 
-        x = SCIP.add_variable(mscip)
-        y = SCIP.add_variable(mscip)
-        z = SCIP.add_variable(mscip)
-        c = SCIP.add_linear_constraint(mscip, [x, y], [2.0, 3.0], 1.0, 9.0)
-        d = SCIP.add_linear_constraint(mscip, [x, z], [2.0, 1.0], 2.0, 8.0)
+        x = SCIP.add_variable(o.inner)
+        y = SCIP.add_variable(o.inner)
+        z = SCIP.add_variable(o.inner)
+        c = SCIP.add_linear_constraint(o.inner, [x, y], [2.0, 3.0], 1.0, 9.0)
+        d = SCIP.add_linear_constraint(o.inner, [x, z], [2.0, 1.0], 2.0, 8.0)
 
-        SCIP.delete(mscip, d)
-        SCIP.delete(mscip, z) # only occured in constraint 'd'
+        SCIP.delete(o.inner, d)
+        SCIP.delete(o.inner, z) # only occured in constraint 'd'
 
         if i==2
             # solve, but don't check results (this test is about memory mgmt)
-            SCIP.@SCIP_CALL SCIP.SCIPsolve(mscip)
+            SCIP.@SCIP_CALL SCIP.SCIPsolve(o)
         end
 
-        finalize(mscip)
-        for var in values(mscip.vars)
+        finalize(o)
+        for var in values(o.inner.vars)
             @test var[] == C_NULL
         end
-        for cons in values(mscip.conss)
+        for cons in values(o.inner.conss)
             @test cons[] == C_NULL
         end
-        @test mscip.scip[] == C_NULL
+        @test o.inner.scip[] == C_NULL
     end
 end
 
 @testset "print statistics" begin
-    mscip = SCIP.Optimizer()
-    SCIP.set_parameter(mscip, "display/verblevel", 0)
+    o = SCIP.Optimizer()
+    SCIP.set_parameter(o.inner, "display/verblevel", 0)
 
-    x = SCIP.add_variable(mscip)
-    y = SCIP.add_variable(mscip)
-    z = SCIP.add_variable(mscip)
-    c = SCIP.add_linear_constraint(mscip, [x, y], [2.0, 3.0], 1.0, 9.0)
-    SCIP.@SCIP_CALL SCIP.SCIPsolve(mscip)
+    x = SCIP.add_variable(o.inner)
+    y = SCIP.add_variable(o.inner)
+    z = SCIP.add_variable(o.inner)
+    c = SCIP.add_linear_constraint(o.inner, [x, y], [2.0, 3.0], 1.0, 9.0)
+    SCIP.@SCIP_CALL SCIP.SCIPsolve(o)
 
     @testset "$statistics_func" for statistics_func in map(x -> eval(:(SCIP.$x)), SCIP.STATISTICS_FUNCS)
         mktempdir() do dir
@@ -109,7 +109,7 @@ end
             @test !isfile(filename)
             open(filename, write=true) do io
                 redirect_stdout(io) do
-                    statistics_func(mscip)
+                    statistics_func(o)
                 end
             end
             @test isfile(filename)
