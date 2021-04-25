@@ -109,7 +109,7 @@ end
             @test !isfile(filename)
             open(filename, write=true) do io
                 redirect_stdout(io) do
-                    statistics_func(o)
+                    statistics_func(o.inner)
                 end
             end
             @test isfile(filename)
