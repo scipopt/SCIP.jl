@@ -45,7 +45,7 @@ mutable struct Optimizer <: MOI.AbstractOptimizer
         scip_data = SCIPData(scip, Dict(), Dict(), 0, 0, Dict(), Dict(), Dict())
 
         o = new(scip_data, PtrMap(), ConsTypeMap(), Dict(), Dict(), Dict(),
-        Nothing)   # Is scip_data the right argument here? in the original, new called SCIPData(), which is now included in the Optimizer function
+        Nothing)
         finalizer(free_scip, o)
 
         # Set all parameters given as keyword arguments, replacing the
@@ -179,7 +179,7 @@ function MOI.get(o::Optimizer, ::MOI.TimeLimitSec)
 end
 
 function MOI.set(o::Optimizer, ::MOI.TimeLimitSec, value)
-    if value == nothing
+    if value === nothing
         MOI.set(o, MOI.RawParameter("limits/time"), SCIPinfinity(o))
     else
         MOI.set(o, MOI.RawParameter("limits/time"), value)
