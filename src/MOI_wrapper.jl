@@ -26,8 +26,6 @@ const VEC_TERM = MOI.VectorAffineTerm{Float64}
 const PtrMap = Dict{Ptr{Cvoid}, Union{VarRef, ConsRef}}
 const ConsTypeMap = Dict{Tuple{DataType, DataType}, Set{ConsRef}}
 
-#will include struct SCIPData in the future
-#free_scip will also have to be adjusted
 mutable struct Optimizer <: MOI.AbstractOptimizer
     inner::SCIPData
     reference::PtrMap
@@ -35,7 +33,7 @@ mutable struct Optimizer <: MOI.AbstractOptimizer
     binbounds::Dict{VI,BOUNDS} # only for binary variables
     params::Dict{String,Any}
     start::Dict{VI,Float64} # can be partial
-    moi_separator # ::Union{CutCbSeparator, Nothing}
+    moi_separator::Any # ::Union{CutCbSeparator, Nothing}
 
     function Optimizer(; kwargs...)
         scip = Ref{Ptr{SCIP_}}(C_NULL)
