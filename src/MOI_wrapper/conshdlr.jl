@@ -28,7 +28,7 @@ function include_conshdlr(o::Optimizer, ch::CH;
                           name="", description="", enforce_priority=-15,
                           check_priority=-7000000, eager_frequency=100,
                           needs_constraints=true) where CH <: AbstractConstraintHandler
-    include_conshdlr(o.mscip, ch, name=name, description=description,
+    include_conshdlr(o.inner, ch, name=name, description=description,
                      enforce_priority=enforce_priority,
                      check_priority=check_priority,
                      eager_frequency=eager_frequency,
@@ -62,7 +62,7 @@ function add_constraint(o::Optimizer, ch::CH, c::C;
                         initial=true, separate=true, enforce=true, check=true,
                         propagate=true, _local=false, modifiable=false,
                         dynamic=false, removable=false, stickingatnode=false) where {CH <:AbstractConstraintHandler, C <: AbstractConstraint{CH}}
-    return add_constraint(o.mscip, ch, c, initial=initial, separate=separate,
+    return add_constraint(o.inner, ch, c, initial=initial, separate=separate,
                           enforce=enforce, check=check, propagate=propagate,
                           _local=_local, modifiable=modifiable, dynamic=dynamic,
                           removable=removable, stickingatnode=stickingatnode)

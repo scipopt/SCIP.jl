@@ -298,7 +298,7 @@ end
 
 """
     include_conshdlr(
-        mscip::SCIPData,
+        scipd::SCIPData,
         ch::CH;
         name::String,
         description::String,
@@ -308,7 +308,7 @@ end
         needs_constraints::Bool
     )
 
-Include a user defined constraint handler `ch` to the SCIP instance `mscip`.
+Include a user defined constraint handler `ch` to the SCIP instance `scipd`.
 
 All parameters have default values that can be set as keyword arguments.
 In particular, note the boolean `needs_constraints`:
@@ -318,7 +318,7 @@ In particular, note the boolean `needs_constraints`:
   corresponding constraint was added. It probably makes sense to set
   `misc/allowdualreds` to `FALSE` in this case.
 """
-function include_conshdlr(mscip::SCIPData, ch::CH;
+function include_conshdlr(scipd::SCIPData, ch::CH;
                           name="", description="", enforce_priority=-15,
                           check_priority=-7000000, eager_frequency=100,
                           needs_constraints=true) where CH <: AbstractConstraintHandler
@@ -336,11 +336,11 @@ function include_conshdlr(mscip::SCIPData, ch::CH;
 
     # Try to create unique name, or else SCIP will complain!
     if name == ""
-        name = "__ch__$(length(mscip.conshdlrs))"
+        name = "__ch__$(length(scipd.conshdlrs))"
     end
 
     # Register constraint handler with SCIP instance.
-    @SCIP_CALL SCIPincludeConshdlrBasic(mscip, conshdlr__, name, description,
+    @SCIP_CALL SCIPincludeConshdlrBasic(scipd, conshdlr__, name, description,
                                  enforce_priority, check_priority,
                                  eager_frequency, needs_constraints,
                                  _enfolp, _enfops, _check, _lock,
@@ -351,19 +351,19 @@ function include_conshdlr(mscip::SCIPData, ch::CH;
 
     # Set additional callbacks.
     @SCIP_CALL SCIPsetConshdlrFree(
-        mscip, conshdlr__[],
+        scipd, conshdlr__[],
         @cfunction(_consfree, SCIP_RETCODE, (Ptr{SCIP_}, Ptr{SCIP_CONSHDLR})))
     @SCIP_CALL SCIPsetConshdlrDelete(
-        mscip, conshdlr__[],
+        scipd, conshdlr__[],
         @cfunction(_consdelete, SCIP_RETCODE, (Ptr{SCIP_}, Ptr{SCIP_CONSHDLR}, Ptr{SCIP_CONS}, Ptr{Ptr{SCIP_CONSDATA}})))
 
     # Register constraint handler (for GC-protection and mapping).
-    mscip.conshdlrs[ch] = conshdlr__[]
+    scipd.conshdlrs[ch] = conshdlr__[]
 end
 
 """
     add_constraint(
-        mscip::SCIPData,
+        scipd::SCIPData,
         ch::CH,
         c::C;
         initial=true,
@@ -384,12 +384,12 @@ Returns constraint reference.
 
 All keyword arguments are passed to the `SCIPcreateCons` call.
 """
-function add_constraint(mscip::SCIPData, ch::CH, c::C;
+function add_constraint(scipd::SCIPData, ch::CH, c::C;
                         initial=true, separate=true, enforce=true, check=true,
                         propagate=true, _local=false, modifiable=false,
                         dynamic=false, removable=false, stickingatnode=false) where {CH <:AbstractConstraintHandler, C <: AbstractConstraint{CH}}
     # Find matching SCIP constraint handler plugin.
-    conshdlr_::Ptr{SCIP_CONSHDLR} = get(mscip.conshdlrs, ch, C_NULL)
+    conshdlr_::Ptr{SCIP_CONSHDLR} = get(scipd.conshdlrs, ch, C_NULL)
     conshdlr_ != C_NULL || error("No matching constraint handler registered!")
 
     # Hand over Julia object as constraint data:
@@ -397,7 +397,7 @@ function add_constraint(mscip::SCIPData, ch::CH, c::C;
 
     # Create SCIP constraint (and attach constraint data).
     cons__ = Ref{Ptr{SCIP_CONS}}(C_NULL)
-    @SCIP_CALL SCIPcreateCons(mscip, cons__, "", conshdlr_, consdata_,
+    @SCIP_CALL SCIPcreateCons(scipd, cons__, "", conshdlr_, consdata_,
                        initial, separate, enforce, check, propagate,
                        _local, modifiable, dynamic, removable, stickingatnode)
 
@@ -405,11 +405,11 @@ function add_constraint(mscip::SCIPData, ch::CH, c::C;
     @assert cons__[] != C_NULL
 
     # Register constraint data (for GC-protection).
-    mscip.conshdlrconss[c] = cons__[]
+    scipd.conshdlrconss[c] = cons__[]
 
     # Add constraint to problem.
-    @SCIP_CALL SCIPaddCons(mscip, cons__[])
+    @SCIP_CALL SCIPaddCons(scipd, cons__[])
 
     # Register constraint and return reference.
-    return store_cons!(mscip, cons__)
+    return store_cons!(scipd, cons__)
 end

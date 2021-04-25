@@ -16,7 +16,7 @@ function MOI.add_constraint(o::Optimizer, func::SAF, set::S) where {S <: BOUNDS}
     lhs = lhs === nothing ? -SCIPinfinity(o) : lhs
     rhs = rhs === nothing ?  SCIPinfinity(o) : rhs
 
-    cr = add_linear_constraint(o.mscip, varrefs, coefs, lhs, rhs)
+    cr = add_linear_constraint(o.inner, varrefs, coefs, lhs, rhs)
     ci = CI{SAF, S}(cr.val)
     register!(o, ci)
     register!(o, cons(o, ci), cr)
@@ -27,7 +27,7 @@ function MOI.delete(o::Optimizer, ci::CI{SAF, S}) where {S <: BOUNDS}
     allow_modification(o)
     delete!(o.constypes[SAF, S], ConsRef(ci.value))
     delete!(o.reference, cons(o, ci))
-    delete(o.mscip, ConsRef(ci.value))
+    delete(o.inner, ConsRef(ci.value))
     return nothing
 end
 

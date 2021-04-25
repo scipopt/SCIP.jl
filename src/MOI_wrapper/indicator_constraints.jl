@@ -13,7 +13,7 @@ function MOI.add_constraint(o::Optimizer, func::MOI.VectorAffineFunction{T}, set
     b = func.constants[2]
     # a^T x + b <= c ===> a^T <= c - b
 
-    cr = add_indicator_constraint(o.mscip, y, x, a, MOI.constant(set.set) - b)
+    cr = add_indicator_constraint(o.inner, y, x, a, MOI.constant(set.set) - b)
     ci = CI{MOI.VectorAffineFunction{T}, MOI.IndicatorSet{MOI.ACTIVATE_ON_ONE, LT}}(cr.val)
     register!(o, ci)
     register!(o, cons(o, ci), cr)
@@ -24,7 +24,7 @@ function MOI.delete(o::Optimizer, ci::CI{MOI.VectorAffineFunction{T}, MOI.Indica
     allow_modification(o)
     delete!(o.constypes[MOI.VectorAffineFunction{T}, MOI.IndicatorSet{MOI.ACTIVATE_ON_ONE, LT}], ConsRef(ci.value))
     delete!(o.reference, cons(o, ci))
-    delete(o.mscip, ConsRef(ci.value))
+    delete(o.inner, ConsRef(ci.value))
     return nothing
 end
 

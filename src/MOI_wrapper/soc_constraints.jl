@@ -13,7 +13,7 @@ function MOI.add_constraint(o::Optimizer, func::VECTOR, set::SOC)
     end
 
     varrefs = [VarRef(vi.value) for vi in func.variables]
-    cr = add_second_order_cone_constraint(o.mscip, varrefs)
+    cr = add_second_order_cone_constraint(o.inner, varrefs)
     ci = CI{VECTOR, SOC}(cr.val)
     register!(o, ci)
     register!(o, cons(o, ci), cr)
@@ -24,7 +24,7 @@ function MOI.delete(o::Optimizer, ci::CI{VECTOR, SOC})
     allow_modification(o)
     delete!(o.constypes[VECTOR, SOC], ConsRef(ci.value))
     delete!(o.reference, cons(o, ci))
-    delete(o.mscip, ConsRef(ci.value))
+    delete(o.inner, ConsRef(ci.value))
     return nothing
 end
 

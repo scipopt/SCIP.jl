@@ -26,7 +26,7 @@ function MOI.add_constraint(o::Optimizer, func::SQF, set::S) where {S <: BOUNDS}
     lhs = lhs === nothing ? -SCIPinfinity(o) : lhs
     rhs = rhs === nothing ?  SCIPinfinity(o) : rhs
 
-    cr = add_quadratic_constraint(o.mscip, linrefs, lincoefs,
+    cr = add_quadratic_constraint(o.inner, linrefs, lincoefs,
                                   quadrefs1, quadrefs2, quadcoefs, lhs, rhs)
     ci = CI{SQF, S}(cr.val)
     register!(o, ci)
@@ -38,7 +38,7 @@ function MOI.delete(o::Optimizer, ci::CI{SQF, S}) where {S <: BOUNDS}
     allow_modification(o)
     delete!(o.constypes[SQF, S], ConsRef(ci.value))
     delete!(o.reference, cons(o, ci))
-    delete(o.mscip, ConsRef(ci.value))
+    delete(o.inner, ConsRef(ci.value))
     return nothing
 end
 

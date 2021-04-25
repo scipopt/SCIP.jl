@@ -112,7 +112,7 @@ end
 
 """
     include_sepa(
-        mscip::SCIPData,
+        scipd::SCIPData,
         sepa::SEPA;
         name::String,
         description::String,
@@ -123,10 +123,10 @@ end
         delay::Bool
     )
 
-Include a user defined separator `sepa` to the SCIP instance `mscip`.
+Include a user defined separator `sepa` to the SCIP instance `scipd`.
 
 """
-function include_sepa(mscip::SCIPData, sepa::SEPA;
+function include_sepa(scipd::SCIPData, sepa::SEPA;
                       name="", description="", priority=0, freq=1,
                       maxbounddist=0.0, usessubscip=false,
                       delay=false) where SEPA <: AbstractSeparator
@@ -142,11 +142,11 @@ function include_sepa(mscip::SCIPData, sepa::SEPA;
 
     # Try to create unique name, or else SCIP will complain!
     if name == ""
-        name = "__sepa__$(length(mscip.sepas))"
+        name = "__sepa__$(length(scipd.sepas))"
     end
 
     # Register separator with SCIP instance.
-    @SCIP_CALL SCIPincludeSepaBasic(mscip, sepa__, name, description,
+    @SCIP_CALL SCIPincludeSepaBasic(scipd, sepa__, name, description,
                              priority, freq, maxbounddist,
                              usessubscip, delay, 
                              _execlp, _execsol,
@@ -157,17 +157,17 @@ function include_sepa(mscip::SCIPData, sepa::SEPA;
 
     # Set additional callbacks.
     @SCIP_CALL SCIPsetSepaFree(
-        mscip, sepa__[],
+        scipd, sepa__[],
         @cfunction(_sepafree, SCIP_RETCODE, (Ptr{SCIP_}, Ptr{SCIP_SEPA})))
 
     # Register separator (for GC-protection and mapping).
-    mscip.sepas[sepa] = sepa__[]
+    scipd.sepas[sepa] = sepa__[]
 end
 
 
 """
     add_cut_sepa(
-        mscip::SCIPData,
+        scipd::SCIPData,
         sepa::SEPA,
         varrefs::AbstractArray{VarRef},
         coefs::AbstractArray{Float64},
@@ -178,7 +178,7 @@ end
         removable::Bool
     )
 
-Add the cut given by `varrefs`, `coefs`, `lhs` and `rhs` to `mscip`.
+Add the cut given by `varrefs`, `coefs`, `lhs` and `rhs` to `scipd`.
 `add_cut_sepa` is intended to be called from the method `exec_lp`, that is
 associated to the separator `sepa`.
 
@@ -187,21 +187,21 @@ associated to the separator `sepa`.
 - modifiable: is row modifiable during node processing (subject to column generation)?
 - removable: should the row be removed from the LP due to aging or cleanup?
 """
-function add_cut_sepa(mscip::SCIPData, sepa::SEPA, varrefs, coefs, lhs, rhs;
+function add_cut_sepa(scipd::SCIPData, sepa::SEPA, varrefs, coefs, lhs, rhs;
                       islocal=false, modifiable=false, removable=true
                      ) where SEPA <: AbstractSeparator
     @assert length(varrefs) == length(coefs)
-    vars = [var(mscip, vr) for vr in varrefs]
+    vars = [var(scipd, vr) for vr in varrefs]
     row__ = Ref{Ptr{SCIP_ROW}}(C_NULL)
-    sepa__ = mscip.sepas[sepa]
+    sepa__ = scipd.sepas[sepa]
     @SCIP_CALL SCIPcreateEmptyRowSepa(
-        mscip, row__, sepa__, "", lhs, rhs, islocal, modifiable, removable)
-    @SCIP_CALL SCIPaddVarsToRow(mscip, row__[], length(vars), vars, coefs)
+        scipd, row__, sepa__, "", lhs, rhs, islocal, modifiable, removable)
+    @SCIP_CALL SCIPaddVarsToRow(scipd, row__[], length(vars), vars, coefs)
     if islocal
       infeasible = Ref{SCIP_Bool}()
-      @SCIP_CALL SCIPaddRow(mscip, row__[], true, infeasible)
+      @SCIP_CALL SCIPaddRow(scipd, row__[], true, infeasible)
     else
-      @SCIP_CALL SCIPaddPoolCut(mscip, row__[])
+      @SCIP_CALL SCIPaddPoolCut(scipd, row__[])
     end
-    @SCIP_CALL SCIPreleaseRow(mscip, row__)
+    @SCIP_CALL SCIPreleaseRow(scipd, row__)
 end

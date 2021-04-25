@@ -23,7 +23,7 @@ function include_sepa(o::Optimizer, sepa::SEPA;
                       name="", description="", priority=0, freq=1,
                       maxbounddist=0.0, usessubscip=false,
                       delay=false) where {SEPA <: AbstractSeparator}
-    include_sepa(o.mscip, sepa, name=name, description=description,
+    include_sepa(o.inner, sepa, name=name, description=description,
                  priority=priority, freq=freq, maxbounddist=maxbounddist,
                  usessubscip=usessubscip, delay=delay)
 end
@@ -34,12 +34,12 @@ end
 #
 
 mutable struct CutCbSeparator <: AbstractSeparator
-    mscip::SCIPData
+    scipd::SCIPData
     cutcallback::Function
 end
 
 # If no cut callback is given, the cut callback does nothing.
-CutCbSeparator(mscip::SCIPData) = CutCbSeparator(mscip, cb_data -> nothing)
+CutCbSeparator(scipd::SCIPData) = CutCbSeparator(scipd, cb_data -> nothing)
 
 """
 Used for an argument to the cut callback, which in turn uses that argument to
@@ -69,7 +69,7 @@ end
 
 function MOI.set(o::Optimizer, ::MOI.UserCutCallback, cb::Function)
     if o.moi_separator === nothing
-        o.moi_separator = CutCbSeparator(o.mscip, cb)
+        o.moi_separator = CutCbSeparator(o.inner, cb)
         include_sepa(o, o.moi_separator)
     else
         o.moi_separator.cutcallback = cb;
@@ -86,7 +86,7 @@ function MOI.submit(o::Optimizer, cb_data::MOI.UserCut{CutCbData},
     lhs = lhs === nothing ? -SCIPinfinity(o) : lhs
     rhs = rhs === nothing ?  SCIPinfinity(o) : rhs
 
-    add_cut_sepa(o.mscip, cb_data.callback_data.sepa, varrefs, coefs, lhs, rhs)
+    add_cut_sepa(o.inner, cb_data.callback_data.sepa, varrefs, coefs, lhs, rhs)
     cb_data.callback_data.submit_called = true
 end
 MOI.supports(::Optimizer, ::MOI.UserCut{CutCbData}) = true
