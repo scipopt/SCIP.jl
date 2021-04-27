@@ -45,7 +45,7 @@ mutable struct Optimizer <: MOI.AbstractOptimizer
         scip_data = SCIPData(scip, Dict(), Dict(), 0, 0, Dict(), Dict(), Dict())
 
         o = new(scip_data, PtrMap(), ConsTypeMap(), Dict(), Dict(), Dict(),
-        Nothing)
+        nothing)
         finalizer(free_scip, o)
 
         # Set all parameters given as keyword arguments, replacing the
