@@ -195,13 +195,14 @@ end
 function MOI.empty!(o::Optimizer)
     # free the underlying problem
     finalize(o.inner)
-    # create a new one
-    o.inner = SCIPData()
     # clear auxiliary mapping structures
     o.reference = PtrMap()
     o.constypes = ConsTypeMap()
     o.binbounds = Dict()
     o.start = Dict()
+    scip = Ref{Ptr{SCIP_}}(C_NULL)
+    # create a new problem
+    o.inner = SCIPData(scip, Dict(), Dict(), 0, 0, Dict(), Dict(), Dict())
     # reapply parameters
     for pair in o.params
         set_parameter(o.inner, pair.first, pair.second)
