@@ -200,7 +200,12 @@ function MOI.empty!(o::Optimizer)
     o.constypes = ConsTypeMap()
     o.binbounds = Dict()
     o.start = Dict()
+    # manually recreate empty o.inner (formerly done by creating a new mscip before ManagedSCIP was removed)
     scip = Ref{Ptr{SCIP_}}(C_NULL)
+    @SCIP_CALL SCIPcreate(scip)
+    @assert scip[] != C_NULL
+    @SCIP_CALL SCIPincludeDefaultPlugins(scip[])
+    @SCIP_CALL SCIP.SCIPcreateProbBasic(scip[], "")
     # create a new problem
     o.inner = SCIPData(scip, Dict(), Dict(), 0, 0, Dict(), Dict(), Dict())
     # reapply parameters
