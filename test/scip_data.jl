@@ -9,6 +9,16 @@ using MathOptInterface
     @test o.inner.scip[] == C_NULL
 end
 
+@testset "create, add var and cons, and manual free" begin
+    o = SCIP.Optimizer()
+    @test o.inner.scip[] != C_NULL
+    x = SCIP.add_variable(o.inner)
+    y = SCIP.add_variable(o.inner)
+    c = SCIP.add_linear_constraint(o.inner, [x, y], [2.0, 3.0], 1.0, 9.0)
+    SCIP.free_scip(o.inner)
+    @test o.inner.scip[] == C_NULL
+end
+
 @testset "create and semi-manual free" begin
     o = SCIP.Optimizer()
     @test o.inner.scip[] != C_NULL
