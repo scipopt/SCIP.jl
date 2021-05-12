@@ -16,7 +16,8 @@ headers = [SCIP_H, SCIP_DEF_PLUGINS_H, MEMORY_H, TYPE_LIP_H, TYPE_EXPR, TYPE_NLP
 
 options = load_options(joinpath(@__DIR__, "generator.toml"))
 
-args = ["-I$HEADER_BASE"]
+args = get_default_args()
+push!(args, "-I$HEADER_BASE")
 
 ctx = create_context(headers, args, options)
 
