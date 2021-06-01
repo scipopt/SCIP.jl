@@ -29,8 +29,6 @@ mutable struct SCIPData
     sepas::Dict{Any, Ptr{SCIP_SEPA}}
 end
 
-# TODO: all references to scipd / SCIPData need to be changed to (reference to optimmizer struct?) / SCIPData
-
 # Protect SCIPData from GC for ccall with Ptr{SCIP_} argument.
 Base.unsafe_convert(::Type{Ptr{SCIP_}}, scipd::SCIPData) = scipd.scip[]
 
