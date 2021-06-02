@@ -77,10 +77,11 @@ constraints objects that use [reference
 counting](https://scip.zib.de/doc-6.0.0/html/OBJ.php) for memory management.
 SCIP.jl provides a wrapper type `SCIPData` that collects lists of `SCIP_VAR*`
 and `SCIP_CONS*` under the hood, and releases all reference when it is garbage
-collected itself (via `finalize`). When adding a variable (`add_variable`) or a
-constraint (`add_linear_constraint`), an integer index is returned. This index
-can be used to retrieve the `SCIP_VAR*` or `SCIP_CONS*` pointer via `get_var`
-and `get_cons` respectively.
+collected itself (via `finalize`). `SCIPData` is an internal structure used by
+`Optimizer`, which is what should be used preferably. When adding a variable 
+(`add_variable`) or a constraint (`add_linear_constraint`), an integer index
+is returned. This index can be used to retrieve the `SCIP_VAR*` or `SCIP_CONS*`
+pointer via `get_var` and `get_cons` respectively.
 
 `SCIPData` does not currently support deletion of variables or constraints.
 
