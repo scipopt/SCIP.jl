@@ -69,14 +69,12 @@ function free_scip(o::Optimizer)
         for v in values(o.inner.vars)
             @SCIP_CALL SCIPreleaseVar(o.inner, v)
         end
-        # only o.inner.scip is GC-protected during ccall!
-        GC.@preserve o begin
-            @SCIP_CALL SCIPfree(o.inner.scip)
-        end
+        @SCIP_CALL SCIPfree(o.inner.scip)
     end
     @assert o.inner.scip[] == C_NULL
 end
 
+Base.cconvert(::Type{Ptr{SCIP_}}, o::Optimizer) = o
 # Protect Optimizer from GC for ccall with Ptr{SCIP_} argument.
 Base.unsafe_convert(::Type{Ptr{SCIP_}}, o::Optimizer) = o.inner.scip[]
 
