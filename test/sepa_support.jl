@@ -37,7 +37,7 @@ mutable struct Sepa <: SCIP.AbstractSeparator
 end
 
 function SCIP.exec_lp(sepa::Sepa)
-    SCIP.add_cut_sepa(sepa.scipd, sepa, sepa.varrefs, sepa.coefs,
+    SCIP.add_cut_sepa(sepa.scipd.scip[], sepa.scipd.vars, sepa.scipd.sepas, sepa, sepa.varrefs, sepa.coefs,
                       sepa.lhs, sepa.rhs, removable=false)
     return SCIP.SCIP_SEPARATED
 end

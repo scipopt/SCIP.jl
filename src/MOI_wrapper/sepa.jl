@@ -86,7 +86,7 @@ function MOI.submit(o::Optimizer, cb_data::MOI.UserCut{CutCbData},
     lhs = lhs === nothing ? -SCIPinfinity(o) : lhs
     rhs = rhs === nothing ?  SCIPinfinity(o) : rhs
 
-    add_cut_sepa(o.inner, cb_data.callback_data.sepa, varrefs, coefs, lhs, rhs)
+    add_cut_sepa(o.inner.scip[], o.inner.vars, o.inner.sepas, cb_data.callback_data.sepa, varrefs, coefs, lhs, rhs)
     cb_data.callback_data.submit_called = true
 end
 MOI.supports(::Optimizer, ::MOI.UserCut{CutCbData}) = true
