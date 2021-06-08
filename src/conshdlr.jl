@@ -293,12 +293,13 @@ end
 
 
 #
-# Adding constraint handlers and constraints to SCIPData.
+# Adding constraint handlers and constraints to SCIP.
 #
 
 """
     include_conshdlr(
-        scipd::SCIPData,
+        scip::Ptr{SCIP_}, 
+        conshdlrs::Dict{Any, Ptr{SCIP_CONSHDLR}},
         ch::CH;
         name::String,
         description::String,
@@ -308,7 +309,7 @@ end
         needs_constraints::Bool
     )
 
-Include a user defined constraint handler `ch` to the SCIP instance `scipd`.
+Include a user defined constraint handler `ch` to the SCIP instance `scip`.
 
 All parameters have default values that can be set as keyword arguments.
 In particular, note the boolean `needs_constraints`:
@@ -318,7 +319,7 @@ In particular, note the boolean `needs_constraints`:
   corresponding constraint was added. It probably makes sense to set
   `misc/allowdualreds` to `FALSE` in this case.
 """
-function include_conshdlr(scipd::SCIPData, ch::CH;
+function include_conshdlr(scip::Ptr{SCIP_}, conshdlrs::Dict{Any, Ptr{SCIP_CONSHDLR}}, ch::CH;
                           name="", description="", enforce_priority=-15,
                           check_priority=-7000000, eager_frequency=100,
                           needs_constraints=true) where CH <: AbstractConstraintHandler
@@ -336,11 +337,11 @@ function include_conshdlr(scipd::SCIPData, ch::CH;
 
     # Try to create unique name, or else SCIP will complain!
     if name == ""
-        name = "__ch__$(length(scipd.conshdlrs))"
+        name = "__ch__$(length(conshdlrs))"
     end
 
     # Register constraint handler with SCIP instance.
-    @SCIP_CALL SCIPincludeConshdlrBasic(scipd, conshdlr__, name, description,
+    @SCIP_CALL SCIPincludeConshdlrBasic(scip, conshdlr__, name, description,
                                  enforce_priority, check_priority,
                                  eager_frequency, needs_constraints,
                                  _enfolp, _enfops, _check, _lock,
@@ -351,14 +352,14 @@ function include_conshdlr(scipd::SCIPData, ch::CH;
 
     # Set additional callbacks.
     @SCIP_CALL SCIPsetConshdlrFree(
-        scipd, conshdlr__[],
+        scip, conshdlr__[],
         @cfunction(_consfree, SCIP_RETCODE, (Ptr{SCIP_}, Ptr{SCIP_CONSHDLR})))
     @SCIP_CALL SCIPsetConshdlrDelete(
-        scipd, conshdlr__[],
+        scip, conshdlr__[],
         @cfunction(_consdelete, SCIP_RETCODE, (Ptr{SCIP_}, Ptr{SCIP_CONSHDLR}, Ptr{SCIP_CONS}, Ptr{Ptr{SCIP_CONSDATA}})))
 
     # Register constraint handler (for GC-protection and mapping).
-    scipd.conshdlrs[ch] = conshdlr__[]
+    conshdlrs[ch] = conshdlr__[]
 end
 
 """
