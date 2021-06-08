@@ -23,7 +23,7 @@ function include_sepa(o::Optimizer, sepa::SEPA;
                       name="", description="", priority=0, freq=1,
                       maxbounddist=0.0, usessubscip=false,
                       delay=false) where {SEPA <: AbstractSeparator}
-    include_sepa(o.inner, sepa, name=name, description=description,
+    include_sepa(o.inner.scip[], o.inner.sepas, sepa, name=name, description=description,
                  priority=priority, freq=freq, maxbounddist=maxbounddist,
                  usessubscip=usessubscip, delay=delay)
 end

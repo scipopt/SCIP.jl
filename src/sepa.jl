@@ -107,12 +107,13 @@ end
 
 
 #
-# Adding a separator to SCIPData.
+# Adding a separator to SCIP.
 #
 
 """
     include_sepa(
-        scipd::SCIPData,
+        scip::Ptr{SCIP_},
+        sepas::Dict{Any, Ptr{SCIP_SEPA}},
         sepa::SEPA;
         name::String,
         description::String,
@@ -123,10 +124,10 @@ end
         delay::Bool
     )
 
-Include a user defined separator `sepa` to the SCIP instance `scipd`.
+Include a user defined separator `sepa` to the SCIP instance `scip`.
 
 """
-function include_sepa(scipd::SCIPData, sepa::SEPA;
+function include_sepa(scip::Ptr{SCIP_}, sepas::Dict{Any, Ptr{SCIP_SEPA}}, sepa::SEPA;
                       name="", description="", priority=0, freq=1,
                       maxbounddist=0.0, usessubscip=false,
                       delay=false) where SEPA <: AbstractSeparator
@@ -142,11 +143,11 @@ function include_sepa(scipd::SCIPData, sepa::SEPA;
 
     # Try to create unique name, or else SCIP will complain!
     if name == ""
-        name = "__sepa__$(length(scipd.sepas))"
+        name = "__sepa__$(length(sepas))"
     end
 
     # Register separator with SCIP instance.
-    @SCIP_CALL SCIPincludeSepaBasic(scipd, sepa__, name, description,
+    @SCIP_CALL SCIPincludeSepaBasic(scip, sepa__, name, description,
                              priority, freq, maxbounddist,
                              usessubscip, delay, 
                              _execlp, _execsol,
@@ -157,11 +158,11 @@ function include_sepa(scipd::SCIPData, sepa::SEPA;
 
     # Set additional callbacks.
     @SCIP_CALL SCIPsetSepaFree(
-        scipd, sepa__[],
+        scip, sepa__[],
         @cfunction(_sepafree, SCIP_RETCODE, (Ptr{SCIP_}, Ptr{SCIP_SEPA})))
 
     # Register separator (for GC-protection and mapping).
-    scipd.sepas[sepa] = sepa__[]
+    sepas[sepa] = sepa__[]
 end
 
 
