@@ -574,7 +574,7 @@ end
 
 @testset "Primal start values" begin
     # stop after first feasible solution
-    optimizer = SCIP.Optimizer(display_verblevel=0, limits_solutions=1)
+    optimizer = SCIP.Optimizer(display_verblevel=0, limits_solutions=1, presolving_maxrounds=0)
     atol, rtol = 1e-6, 1e-6
 
     # x, y binary
