@@ -25,7 +25,7 @@ const MOI = MathOptInterface
 
     # add the separator
     sepa = DummySepa.Sepa()
-    SCIP.include_sepa(inner, sepa)
+    SCIP.include_sepa(inner.scip[], inner.sepas, sepa)
 
     # solve the problem
     SCIP.@SCIP_CALL SCIP.SCIPsolve(inner.scip[])
@@ -67,7 +67,7 @@ end
     varrefs = [SCIP.VarRef(x.value)]
     coefs = [1.0]
     sepa = AddSingleCut.Sepa(inner, varrefs, coefs, 0.0, 0.0)
-    SCIP.include_sepa(inner, sepa)
+    SCIP.include_sepa(inner.scip[], inner.sepas, sepa)
 
     # solve the problem
     SCIP.@SCIP_CALL SCIP.SCIPsolve(inner.scip[])
@@ -114,7 +114,7 @@ end
     varrefs = [SCIP.VarRef(y.value)]
     coefs = [1.0]
     sepa = AddSingleCut.Sepa(inner, varrefs, coefs, 0.0, 0.0)
-    SCIP.include_sepa(inner, sepa)
+    SCIP.include_sepa(inner.scip[], inner.sepas, sepa)
 
     # solve the problem
     SCIP.@SCIP_CALL SCIP.SCIPsolve(inner.scip[])
@@ -161,7 +161,7 @@ end
     varrefs = [SCIP.VarRef(x.value), SCIP.VarRef(y.value)]
     coefs = [1.0, 1.0]
     sepa = AddSingleCut.Sepa(inner, varrefs, coefs, 0.0, 0.0)
-    SCIP.include_sepa(inner, sepa)
+    SCIP.include_sepa(inner.scip[], inner.sepas, sepa)
 
     # solve the problem
     SCIP.@SCIP_CALL SCIP.SCIPsolve(inner.scip[])

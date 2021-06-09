@@ -5,7 +5,7 @@
 
     # add the constraint handler
     ch = Dummy.DummyConsHdlr()
-    SCIP.include_conshdlr(o.inner, ch; needs_constraints=false)
+    SCIP.include_conshdlr(o.inner.scip[], o.inner.conshdlrs, ch; needs_constraints=false)
 
     # solve the problem
     SCIP.@SCIP_CALL SCIP.SCIPsolve(o.inner.scip[])
@@ -25,7 +25,7 @@ end
 
     # add the constraint handler
     ch = Dummy.DummyConsHdlr()
-    SCIP.include_conshdlr(o.inner, ch; needs_constraints=true)
+    SCIP.include_conshdlr(o.inner.scip[], o.inner.conshdlrs, ch; needs_constraints=true)
 
     # add dummy constraint
     cr = SCIP.add_constraint(o.inner, ch, Dummy.DummyCons())
@@ -48,7 +48,7 @@ end
 
     # add the constraint handler
     ch = Dummy.DummyConsHdlr()
-    SCIP.include_conshdlr(o.inner, ch; needs_constraints=true)
+    SCIP.include_conshdlr(o.inner.scip[], o.inner.conshdlrs, ch; needs_constraints=true)
 
     # solve the problem
     SCIP.@SCIP_CALL SCIP.SCIPsolve(o.inner.scip[])
@@ -68,7 +68,7 @@ end
 
     # add the constraint handler
     ch = NeverSatisfied.NSCH()
-    SCIP.include_conshdlr(o.inner, ch; needs_constraints=false)
+    SCIP.include_conshdlr(o.inner.scip[], o.inner.conshdlrs, ch; needs_constraints=false)
 
     # solve the problem
     SCIP.@SCIP_CALL SCIP.SCIPsolve(o.inner.scip[])
@@ -88,7 +88,7 @@ end
 
     # add the constraint handler
     ch = NeverSatisfied.NSCH()
-    SCIP.include_conshdlr(o.inner, ch; needs_constraints=true)
+    SCIP.include_conshdlr(o.inner.scip[], o.inner.conshdlrs, ch; needs_constraints=true)
 
     # solve the problem
     SCIP.@SCIP_CALL SCIP.SCIPsolve(o.inner.scip[])
@@ -108,7 +108,7 @@ end
 
     # add the constraint handler
     ch = NeverSatisfied.NSCH()
-    SCIP.include_conshdlr(o.inner, ch; needs_constraints=true)
+    SCIP.include_conshdlr(o.inner.scip[], o.inner.conshdlrs, ch; needs_constraints=true)
 
     # add one constraint
     cr = SCIP.add_constraint(o.inner, ch, NeverSatisfied.Cons())

@@ -23,7 +23,7 @@ function include_sepa(o::Optimizer, sepa::SEPA;
                       name="", description="", priority=0, freq=1,
                       maxbounddist=0.0, usessubscip=false,
                       delay=false) where {SEPA <: AbstractSeparator}
-    include_sepa(o.inner, sepa, name=name, description=description,
+    include_sepa(o.inner.scip[], o.inner.sepas, sepa, name=name, description=description,
                  priority=priority, freq=freq, maxbounddist=maxbounddist,
                  usessubscip=usessubscip, delay=delay)
 end
@@ -86,7 +86,7 @@ function MOI.submit(o::Optimizer, cb_data::MOI.UserCut{CutCbData},
     lhs = lhs === nothing ? -SCIPinfinity(o) : lhs
     rhs = rhs === nothing ?  SCIPinfinity(o) : rhs
 
-    add_cut_sepa(o.inner, cb_data.callback_data.sepa, varrefs, coefs, lhs, rhs)
+    add_cut_sepa(o.inner.scip[], o.inner.vars, o.inner.sepas, cb_data.callback_data.sepa, varrefs, coefs, lhs, rhs)
     cb_data.callback_data.submit_called = true
 end
 MOI.supports(::Optimizer, ::MOI.UserCut{CutCbData}) = true
