@@ -74,7 +74,7 @@ end
     SCIP.@SCIP_CALL SCIP.SCIPsolve(o.inner.scip[])
 
     @test ch.check_called >= 1
-    @test ch.enfo_called == 1
+    @test ch.enfo_called in 0:1 # depends on SCIP presolver behavior
     @test ch.lock_called == 1
 
     # free the problem
