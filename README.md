@@ -83,8 +83,6 @@ collected itself (via `finalize`). `SCIPData` is an internal structure used by
 is returned. This index can be used to retrieve the `SCIP_VAR*` or `SCIP_CONS*`
 pointer via `get_var` and `get_cons` respectively.
 
-`SCIPData` does not currently support deletion of variables or constraints.
-
 **Supported Features for MathOptInterface**: We aim at exposing many of SCIP's
 features through MathOptInterface. However, the focus is on keeping the wrapper
 simple and avoiding duplicate storage of model data.
