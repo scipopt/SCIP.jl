@@ -6,7 +6,7 @@ function MOI.add_constraint(o::Optimizer, func::VECTOR, set::SOS1)
     allow_modification(o)
 
     varrefs = [VarRef(vi.value) for vi in func.variables]
-    cr = add_special_ordered_set_type1(o.mscip, varrefs, set.weights)
+    cr = add_special_ordered_set_type1(o.inner, varrefs, set.weights)
     ci = CI{VECTOR, SOS1}(cr.val)
     register!(o, ci)
     register!(o, cons(o, ci), cr)
@@ -17,7 +17,7 @@ function MOI.delete(o::Optimizer, ci::CI{VECTOR, SOS1})
     allow_modification(o)
     delete!(o.constypes[VECTOR, SOS1], ConsRef(ci.value))
     delete!(o.reference, cons(o, ci))
-    delete(o.mscip, ConsRef(ci.value))
+    delete(o.inner, ConsRef(ci.value))
     return nothing
 end
 
@@ -43,7 +43,7 @@ function MOI.add_constraint(o::Optimizer, func::VECTOR, set::SOS2)
     allow_modification(o)
 
     varrefs = [VarRef(vi.value) for vi in func.variables]
-    cr = add_special_ordered_set_type2(o.mscip, varrefs, set.weights)
+    cr = add_special_ordered_set_type2(o.inner, varrefs, set.weights)
     ci = CI{VECTOR, SOS2}(cr.val)
     register!(o, ci)
     register!(o, cons(o, ci), cr)
@@ -54,7 +54,7 @@ function MOI.delete(o::Optimizer, ci::CI{VECTOR, SOS2})
     allow_modification(o)
     delete!(o.constypes[VECTOR, SOS2], ConsRef(ci.value))
     delete!(o.reference, cons(o, ci))
-    delete(o.mscip, ConsRef(ci.value))
+    delete(o.inner, ConsRef(ci.value))
     return nothing
 end
 

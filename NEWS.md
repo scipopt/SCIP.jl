@@ -1,5 +1,8 @@
 # News
 
+Removed ManagedSCIP as a logic layer.
+Memory management is now done at the SCIP.Optimizer layer.
+
 ## v0.9.8
 
 Support for SCIP 7.0.2.

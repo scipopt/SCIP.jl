@@ -2,16 +2,16 @@
 
 function MOI.add_variable(o::Optimizer)
     allow_modification(o)
-    vr = add_variable(o.mscip)
-    var::Ptr{SCIP_VAR} = o.mscip.vars[vr][]
+    vr = add_variable(o.inner)
+    var::Ptr{SCIP_VAR} = o.inner.vars[vr][]
     register!(o, var, vr)
     return MOI.VariableIndex(vr.val)
 end
 
 MOI.add_variables(o::Optimizer, n) = [MOI.add_variable(o) for i=1:n]
-MOI.get(o::Optimizer, ::MOI.NumberOfVariables) = length(o.mscip.vars)
-MOI.get(o::Optimizer, ::MOI.ListOfVariableIndices) = [VI(k.val) for k in keys(o.mscip.vars)]
-MOI.is_valid(o::Optimizer, vi::VI) = haskey(o.mscip.vars, VarRef(vi.value))
+MOI.get(o::Optimizer, ::MOI.NumberOfVariables) = length(o.inner.vars)
+MOI.get(o::Optimizer, ::MOI.ListOfVariableIndices) = [VI(k.val) for k in keys(o.inner.vars)]
+MOI.is_valid(o::Optimizer, vi::VI) = haskey(o.inner.vars, VarRef(vi.value))
 
 function MOI.get(o::Optimizer, ::MOI.VariableName, vi::VI)::String
     return GC.@preserve o unsafe_string(SCIPvarGetName(var(o, vi)))
@@ -27,14 +27,14 @@ function MOI.delete(o::Optimizer, vi::VI)
     # present in some constraint. We don't want the overhead of keeping track of
     # the variable-in-constraint relation, so, to be conservative, we only allow
     # to delete a variable when there are no constraints in the model.
-    if length(o.mscip.conss) > 0
+    if length(o.inner.conss) > 0
         error("Can not delete variable while model contains constraints!")
     end
 
     allow_modification(o)
     haskey(o.binbounds, vi) && delete!(o.binbounds, vi)
     delete!(o.reference, var(o, vi))
-    delete(o.mscip, VarRef(vi.value))
+    delete(o.inner, VarRef(vi.value))
     return nothing
 end
 
@@ -210,7 +210,7 @@ end
 
 # TODO: is actually wrong for unbounded variables?
 function MOI.is_valid(o::Optimizer, ci::CI{SVF,<:BOUNDS})
-    return haskey(o.mscip.vars, VarRef(ci.value))
+    return haskey(o.inner.vars, VarRef(ci.value))
 end
 
 function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{SVF, S}) where S <: BOUNDS

@@ -5,8 +5,8 @@ const MOI = MathOptInterface
 @testset "DummySepa (no separation)" begin
     # create an empty problem
     optimizer = SCIP.Optimizer()
-    mscip = optimizer.mscip
-    sepa_set_scip_parameters((par,val) -> SCIP.set_parameter(mscip, par, val))
+    inner = optimizer.inner
+    sepa_set_scip_parameters((par,val) -> SCIP.set_parameter(inner, par, val))
 
     # add variables
     x, y = MOI.add_variables(optimizer, 2)
@@ -25,16 +25,16 @@ const MOI = MathOptInterface
 
     # add the separator
     sepa = DummySepa.Sepa()
-    SCIP.include_sepa(mscip, sepa)
+    SCIP.include_sepa(inner.scip[], inner.sepas, sepa)
 
     # solve the problem
-    SCIP.@SCIP_CALL SCIP.SCIPsolve(mscip.scip[])
+    SCIP.@SCIP_CALL SCIP.SCIPsolve(inner.scip[])
 
     # the separator is called
     @test sepa.called >= 1
 
     # free the problem
-    finalize(mscip)
+    finalize(inner)
 end
 
 
@@ -44,8 +44,8 @@ end
 
     # create an empty problem
     optimizer = SCIP.Optimizer()
-    mscip = optimizer.mscip
-    sepa_set_scip_parameters((par,val) -> SCIP.set_parameter(mscip, par, val))
+    inner = optimizer.inner
+    sepa_set_scip_parameters((par,val) -> SCIP.set_parameter(inner, par, val))
 
 
     # add variables
@@ -66,11 +66,11 @@ end
     # add the separator
     varrefs = [SCIP.VarRef(x.value)]
     coefs = [1.0]
-    sepa = AddSingleCut.Sepa(mscip, varrefs, coefs, 0.0, 0.0)
-    SCIP.include_sepa(mscip, sepa)
+    sepa = AddSingleCut.Sepa(inner, varrefs, coefs, 0.0, 0.0)
+    SCIP.include_sepa(inner.scip[], inner.sepas, sepa)
 
     # solve the problem
-    SCIP.@SCIP_CALL SCIP.SCIPsolve(mscip.scip[])
+    SCIP.@SCIP_CALL SCIP.SCIPsolve(inner.scip[])
 
     # SCIP found the single remaining optimal solution
     @test MOI.get(optimizer, MOI.TerminationStatus()) == MOI.OPTIMAL
@@ -81,7 +81,7 @@ end
     @test MOI.get(optimizer, MOI.VariablePrimal(), y) ≈ 1.0 atol=atol rtol=rtol
 
     # free the problem
-    finalize(mscip)
+    finalize(inner)
 end
 
 
@@ -91,8 +91,8 @@ end
 
     # create an empty problem
     optimizer = SCIP.Optimizer()
-    mscip = optimizer.mscip
-    sepa_set_scip_parameters((par,val) -> SCIP.set_parameter(mscip, par, val))
+    inner = optimizer.inner
+    sepa_set_scip_parameters((par,val) -> SCIP.set_parameter(inner, par, val))
 
 
     # add variables
@@ -113,11 +113,11 @@ end
     # add the separator
     varrefs = [SCIP.VarRef(y.value)]
     coefs = [1.0]
-    sepa = AddSingleCut.Sepa(mscip, varrefs, coefs, 0.0, 0.0)
-    SCIP.include_sepa(mscip, sepa)
+    sepa = AddSingleCut.Sepa(inner, varrefs, coefs, 0.0, 0.0)
+    SCIP.include_sepa(inner.scip[], inner.sepas, sepa)
 
     # solve the problem
-    SCIP.@SCIP_CALL SCIP.SCIPsolve(mscip.scip[])
+    SCIP.@SCIP_CALL SCIP.SCIPsolve(inner.scip[])
 
     # SCIP found the single remaining optimal solution
     @test MOI.get(optimizer, MOI.TerminationStatus()) == MOI.OPTIMAL
@@ -128,7 +128,7 @@ end
     @test MOI.get(optimizer, MOI.VariablePrimal(), y) ≈ 0.0 atol=atol rtol=rtol
 
     # free the problem
-    finalize(mscip)
+    finalize(inner)
 end
 
 
@@ -138,8 +138,8 @@ end
 
     # create an empty problem
     optimizer = SCIP.Optimizer()
-    mscip = optimizer.mscip
-    sepa_set_scip_parameters((par,val) -> SCIP.set_parameter(mscip, par, val))
+    inner = optimizer.inner
+    sepa_set_scip_parameters((par,val) -> SCIP.set_parameter(inner, par, val))
 
 
     # add variables
@@ -160,11 +160,11 @@ end
     # add the separator
     varrefs = [SCIP.VarRef(x.value), SCIP.VarRef(y.value)]
     coefs = [1.0, 1.0]
-    sepa = AddSingleCut.Sepa(mscip, varrefs, coefs, 0.0, 0.0)
-    SCIP.include_sepa(mscip, sepa)
+    sepa = AddSingleCut.Sepa(inner, varrefs, coefs, 0.0, 0.0)
+    SCIP.include_sepa(inner.scip[], inner.sepas, sepa)
 
     # solve the problem
-    SCIP.@SCIP_CALL SCIP.SCIPsolve(mscip.scip[])
+    SCIP.@SCIP_CALL SCIP.SCIPsolve(inner.scip[])
 
     # SCIP found the non-optimal solution, that remains after the cut.
     @test MOI.get(optimizer, MOI.TerminationStatus()) == MOI.OPTIMAL
@@ -175,5 +175,5 @@ end
     @test MOI.get(optimizer, MOI.VariablePrimal(), y) ≈ 0.0 atol=atol rtol=rtol
 
     # free the problem
-    finalize(mscip)
+    finalize(inner)
 end

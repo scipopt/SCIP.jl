@@ -10,7 +10,7 @@ include("init.jl")
 include("wrapper.jl")
 
 # memory management
-include("managed_scip.jl")
+include("scip_data.jl")
 
 # constraints from nonlinear expressions
 include("nonlinear.jl")
