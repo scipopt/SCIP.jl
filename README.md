@@ -1,6 +1,6 @@
 # SCIP.jl
 
-Julia interface to [SCIP](http://scip.zib.de) solver.
+Julia interface to the [SCIP](http://scipopt.org) solver.
 
 [![Build Status](https://github.com/scipopt/SCIP.jl/workflows/CI/badge.svg?branch=master)](https://github.com/scipopt/SCIP.jl/actions?query=workflow%3ACI)
 [![codecov](https://codecov.io/gh/scipopt/SCIP.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/scipopt/SCIP.jl)
@@ -75,14 +75,13 @@ Julia). Convenience wrapper functions based on Julia types are added as needed.
 **Memory Management**: Programming with SCIP requires dealing with variable and
 constraints objects that use [reference
 counting](https://scip.zib.de/doc-6.0.0/html/OBJ.php) for memory management.
-SCIP.jl provides a wrapper type `ManagedSCIP` that collects lists of `SCIP_VAR*`
+The `SCIP.Optimizer` wrapper type collects lists of `SCIP_VAR*`
 and `SCIP_CONS*` under the hood, and releases all reference when it is garbage
-collected itself (via `finalize`). When adding a variable (`add_variable`) or a
-constraint (`add_linear_constraint`), an integer index is returned. This index
-can be used to retrieve the `SCIP_VAR*` or `SCIP_CONS*` pointer via `get_var`
-and `get_cons` respectively.
-
-`ManagedSCIP` does not currently support deletion of variables or constraints.
+collected itself (via `finalize`).
+When adding a variable (`add_variable`) or a constraint (`add_linear_constraint`),
+an integer index is returned.
+This index can be used to retrieve the `SCIP_VAR*` or `SCIP_CONS*`
+pointer via `get_var` and `get_cons` respectively.
 
 **Supported Features for MathOptInterface**: We aim at exposing many of SCIP's
 features through MathOptInterface. However, the focus is on keeping the wrapper
@@ -104,20 +103,3 @@ Supported operators in nonlinear expressions are as follows:
 - n-ary: `+`, `*`
 
 In particular, trigonometric functions are not supported.
-
-## Old Interface Implementation
-
-A previous implementation of SCIP.jl supported
-[JuMP](https://github.com/jump-dev/JuMP.jl) (up to version 0.18) through
-[MathProgBase](https://github.com/jump-dev/MathOptInterface.jl). It did not
-interface SCIP directly, but went through
-[CSIP](https://github.com/SCIP-Interfaces/CSIP), a simplified C wrapper.
-
-Back then, the interface support MINLP problems as well as solver-indepentent
-callbacks for lazy constraints and heuristics.
-
-To use that version, you need to pin the version of SCIP.jl to `v0.6.1` (the
-last release before the rewrite):
-
-    pkg> add SCIP@v0.6.1
-    pkg> pin SCIP

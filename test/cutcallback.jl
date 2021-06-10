@@ -9,8 +9,8 @@ const MOI = MathOptInterface
 
     # create an empty problem
     optimizer = SCIP.Optimizer()
-    mscip = optimizer.mscip
-    sepa_set_scip_parameters((par,val) -> SCIP.set_parameter(mscip, par, val))
+    inner = optimizer.inner
+    sepa_set_scip_parameters((par,val) -> SCIP.set_parameter(inner, par, val))
 
     # add variables
     x, y = MOI.add_variables(optimizer, 2)
@@ -42,7 +42,7 @@ const MOI = MathOptInterface
     MOI.set(optimizer, MOI.UserCutCallback(), cutcallback)
 
     # solve the problem
-    SCIP.@SCIP_CALL SCIP.SCIPsolve(mscip.scip[])
+    SCIP.@SCIP_CALL SCIP.SCIPsolve(inner.scip[])
 
     # The cut callback was called and obtaining the LP-solution worked.
     @test calls >= 1
@@ -55,7 +55,7 @@ const MOI = MathOptInterface
     @test MOI.get(optimizer, MOI.ObjectiveValue()) ≈ 1.0 atol=atol rtol=rtol
 
     # free the problem
-    finalize(mscip)
+    finalize(inner)
 end
 
 # Test, whether adding cuts within cut callbacks via `submit` works [1/2].
@@ -64,8 +64,8 @@ end
 
     # create an empty problem
     optimizer = SCIP.Optimizer()
-    mscip = optimizer.mscip
-    sepa_set_scip_parameters((par,val) -> SCIP.set_parameter(mscip, par, val))
+    inner = optimizer.inner
+    sepa_set_scip_parameters((par,val) -> SCIP.set_parameter(inner, par, val))
 
     # add variables
     x, y = MOI.add_variables(optimizer, 2)
@@ -92,7 +92,7 @@ end
     MOI.set(optimizer, MOI.UserCutCallback(), cutcallback)
 
     # solve the problem
-    SCIP.@SCIP_CALL SCIP.SCIPsolve(mscip.scip[])
+    SCIP.@SCIP_CALL SCIP.SCIPsolve(inner.scip[])
 
     # The cut callback was called.
     @test calls >= 1
@@ -106,7 +106,7 @@ end
     @test MOI.get(optimizer, MOI.VariablePrimal(), y) ≈ 1.0 atol=atol rtol=rtol
 
     # free the problem
-    finalize(mscip)
+    finalize(inner)
 end
 
 # Test, whether adding cuts within cut callbacks via `submit` works [2/2].
@@ -115,8 +115,8 @@ end
 
     # create an empty problem
     optimizer = SCIP.Optimizer()
-    mscip = optimizer.mscip
-    sepa_set_scip_parameters((par,val) -> SCIP.set_parameter(mscip, par, val))
+    inner = optimizer.inner
+    sepa_set_scip_parameters((par,val) -> SCIP.set_parameter(inner, par, val))
 
     # add variables
     x, y = MOI.add_variables(optimizer, 2)
@@ -143,7 +143,7 @@ end
     MOI.set(optimizer, MOI.UserCutCallback(), cutcallback)
 
     # solve the problem
-    SCIP.@SCIP_CALL SCIP.SCIPsolve(mscip.scip[])
+    SCIP.@SCIP_CALL SCIP.SCIPsolve(inner.scip[])
 
     # The cut callback was called.
     @test calls >= 1
@@ -157,5 +157,5 @@ end
     @test MOI.get(optimizer, MOI.VariablePrimal(), y) ≈ 0.0 atol=atol rtol=rtol
 
     # free the problem
-    finalize(mscip)
+    finalize(inner)
 end

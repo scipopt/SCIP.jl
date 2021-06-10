@@ -12,7 +12,7 @@ function MOI.set(o::Optimizer, ::MOI.ObjectiveFunction{SAF}, obj::SAF)
     allow_modification(o)
 
     # reset objective coefficient of all variables first
-    for v in values(o.mscip.vars)
+    for v in values(o.inner.vars)
         @SCIP_CALL SCIPchgVarObj(o, v[], 0.0)
     end
 
@@ -37,7 +37,7 @@ end
 
 function MOI.get(o::Optimizer, ::MOI.ObjectiveFunction{SAF})
     terms = AFF_TERM[]
-    for vr = keys(o.mscip.vars)
+    for vr = keys(o.inner.vars)
         vi = VI(vr.val)
         coef = SCIPvarGetObj(var(o, vi))
         coef == 0.0 || push!(terms, AFF_TERM(coef, vi))

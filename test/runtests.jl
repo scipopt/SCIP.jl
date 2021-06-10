@@ -6,7 +6,7 @@ using SCIP
 end
 
 @testset "managed memory" begin
-    include("managed_scip.jl")
+    include("scip_data.jl")
 end
 
 # new type definitions in module (needs top level)

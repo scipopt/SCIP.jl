@@ -39,7 +39,7 @@ function MOI.add_constraint(o::Optimizer, func::VECTOR, set::ABSPOWER)
     allow_modification(o)
 
     x, z = [VarRef(vi.value) for vi in func.variables]
-    cr = add_abspower_constraint(o.mscip, x, set.a, set.n, z, set.c, set.lhs, set.rhs)
+    cr = add_abspower_constraint(o.inner, x, set.a, set.n, z, set.c, set.lhs, set.rhs)
     ci = CI{VECTOR, ABSPOWER}(cr.val)
     register!(o, ci)
     register!(o, cons(o, ci), cr)
@@ -50,7 +50,7 @@ function MOI.delete(o::Optimizer, ci::CI{VECTOR, ABSPOWER})
     allow_modification(o)
     delete!(o.constypes[VECTOR, ABSPOWER], ConsRef(ci.value))
     delete!(o.reference, cons(o, ci))
-    delete(o.mscip, ConsRef(ci.value))
+    delete(o.inner, ConsRef(ci.value))
     return nothing
 end
 
