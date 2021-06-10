@@ -9,7 +9,10 @@ struct ConsRef
 end
 
 #to be moved to MOI_wrapper
-"SCIPData holds pointers to SCIP data and takes care of memory management."
+"""
+SCIPData holds pointers to SCIP data.
+It does not perform memory management and should not be created directly.
+"""
 mutable struct SCIPData
     scip::Ref{Ptr{SCIP_}}
     vars::Dict{VarRef, Ref{Ptr{SCIP_VAR}}}
