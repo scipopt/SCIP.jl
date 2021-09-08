@@ -4,8 +4,8 @@ const MOIB = MOI.Bridges
 const MOIT = MOI.Test
 
 const BRIDGED = MOIB.full_bridge_optimizer(SCIP.Optimizer(display_verblevel=0), Float64)
-const CONFIG = MOIT.TestConfig(atol=1e-5, rtol=1e-5, duals=false, infeas_certificates=false)
-const CONFIG3 = MOIT.TestConfig(atol=1e-3, rtol=1e-2, duals=false, infeas_certificates=false)
+const CONFIG = MOIT.Config(atol=1e-5, rtol=1e-5, exclude=Any[MOI.ConstraintDual])
+const CONFIG3 = MOIT.Config(atol=1e-3, rtol=1e-2, exclude=Any[MOI.ConstraintDual])
 
 @testset "MOI Continuous Linear" begin
     excluded = [

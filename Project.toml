@@ -10,7 +10,7 @@ SCIP_jll = "e5ac4fe4-a920-5659-9bf8-f9f73e9e79ce"
 
 [compat]
 Ipopt_jll = "^3.13.2"
-MathOptInterface = "^0.9.6"
+MathOptInterface = "0.10"
 SCIP_jll = "^0.1.2"
 julia = "1"
 

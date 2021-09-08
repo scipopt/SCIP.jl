@@ -166,9 +166,9 @@ end
     optimizer = SCIP.Optimizer(display_verblevel=0, presolving_maxrounds=0)
 
     allow_dual_reductions = if SCIP.SCIPmajorVersion() < 7
-        MOI.RawParameter("misc/allowdualreds")
+        MOI.RawOptimizerAttribute("misc/allowdualreds")
     else
-        MOI.RawParameter("misc/allowstrongdualreds")
+        MOI.RawOptimizerAttribute("misc/allowstrongdualreds")
     end
     MOI.set(optimizer, allow_dual_reductions, SCIP.FALSE)
 

@@ -3,14 +3,13 @@ const MOI = MathOptInterface
 
 const VI = MOI.VariableIndex
 const CI = MOI.ConstraintIndex
-const SVF = MOI.SingleVariable
 
 function var_bounds(o::SCIP.Optimizer, vi::VI)
-    return MOI.get(o, MOI.ConstraintSet(), CI{SVF,MOI.Interval{Float64}}(vi.value))
+    return MOI.get(o, MOI.ConstraintSet(), CI{VI,MOI.Interval{Float64}}(vi.value))
 end
 
 function chg_bounds(o::SCIP.Optimizer, vi::VI, set::S) where S
-    ci = CI{SVF,S}(vi.value)
+    ci = CI{VI,S}(vi.value)
     MOI.set(o, MOI.ConstraintSet(), ci, set)
     return nothing
 end
@@ -369,7 +368,7 @@ end
     x3 = MOI.add_variable(optimizer)
     y  = MOI.add_variable(optimizer)
     t = MOI.add_constraint(optimizer, y, MOI.ZeroOne())
-    iset = MOI.IndicatorSet{MOI.ACTIVATE_ON_ONE}(MOI.LessThan(1.0))
+    iset = MOI.Indicator{MOI.ACTIVATE_ON_ONE}(MOI.LessThan(1.0))
     ind_func = MOI.VectorAffineFunction(
         [MOI.VectorAffineTerm(1, MOI.ScalarAffineTerm(1.0, y)),
          MOI.VectorAffineTerm(2, MOI.ScalarAffineTerm(1.0, x1)),
@@ -449,27 +448,27 @@ end
 @testset "set_parameter" begin
     # bool
     optimizer = SCIP.Optimizer(branching_preferbinary=true)
-    @test MOI.get(optimizer, MOI.RawParameter("branching/preferbinary")) == true
+    @test MOI.get(optimizer, MOI.RawOptimizerAttribute("branching/preferbinary")) == true
 
     # int
     optimizer = SCIP.Optimizer(conflict_minmaxvars=1)
-    @test MOI.get(optimizer, MOI.RawParameter("conflict/minmaxvars")) == 1
+    @test MOI.get(optimizer, MOI.RawOptimizerAttribute("conflict/minmaxvars")) == 1
 
     # long int
     optimizer = SCIP.Optimizer(heuristics_alns_maxnodes=2)
-    @test MOI.get(optimizer, MOI.RawParameter("heuristics/alns/maxnodes")) == 2
+    @test MOI.get(optimizer, MOI.RawOptimizerAttribute("heuristics/alns/maxnodes")) == 2
 
     # real
     optimizer = SCIP.Optimizer(branching_scorefac=0.15)
-    @test MOI.get(optimizer, MOI.RawParameter("branching/scorefac")) == 0.15
+    @test MOI.get(optimizer, MOI.RawOptimizerAttribute("branching/scorefac")) == 0.15
 
     # char
     optimizer = SCIP.Optimizer(branching_scorefunc='s')
-    @test MOI.get(optimizer, MOI.RawParameter("branching/scorefunc")) == 's'
+    @test MOI.get(optimizer, MOI.RawOptimizerAttribute("branching/scorefunc")) == 's'
 
     # string
     optimizer = SCIP.Optimizer(heuristics_alns_rewardfilename="abc.txt")
-    @test MOI.get(optimizer, MOI.RawParameter("heuristics/alns/rewardfilename")) == "abc.txt"
+    @test MOI.get(optimizer, MOI.RawOptimizerAttribute("heuristics/alns/rewardfilename")) == "abc.txt"
 
     # invalid
     @test_throws ErrorException SCIP.Optimizer(some_invalid_param_name=true)
@@ -479,31 +478,31 @@ end
     optimizer = SCIP.Optimizer()
 
     # bool
-    MOI.set(optimizer, MOI.RawParameter("branching/preferbinary"), true)
-    @test MOI.get(optimizer, MOI.RawParameter("branching/preferbinary")) == true
+    MOI.set(optimizer, MOI.RawOptimizerAttribute("branching/preferbinary"), true)
+    @test MOI.get(optimizer, MOI.RawOptimizerAttribute("branching/preferbinary")) == true
 
     # int
-    MOI.set(optimizer, MOI.RawParameter("conflict/minmaxvars"), 1)
-    @test MOI.get(optimizer, MOI.RawParameter("conflict/minmaxvars")) == 1
+    MOI.set(optimizer, MOI.RawOptimizerAttribute("conflict/minmaxvars"), 1)
+    @test MOI.get(optimizer, MOI.RawOptimizerAttribute("conflict/minmaxvars")) == 1
 
     # long int
-    MOI.set(optimizer, MOI.RawParameter("heuristics/alns/maxnodes"), 2)
-    @test MOI.get(optimizer, MOI.RawParameter("heuristics/alns/maxnodes")) == 2
+    MOI.set(optimizer, MOI.RawOptimizerAttribute("heuristics/alns/maxnodes"), 2)
+    @test MOI.get(optimizer, MOI.RawOptimizerAttribute("heuristics/alns/maxnodes")) == 2
 
     # real
-    MOI.set(optimizer, MOI.RawParameter("branching/scorefac"), 0.15)
-    @test MOI.get(optimizer, MOI.RawParameter("branching/scorefac")) == 0.15
+    MOI.set(optimizer, MOI.RawOptimizerAttribute("branching/scorefac"), 0.15)
+    @test MOI.get(optimizer, MOI.RawOptimizerAttribute("branching/scorefac")) == 0.15
 
     # char
-    MOI.set(optimizer, MOI.RawParameter("branching/scorefunc"), 's')
-    @test MOI.get(optimizer, MOI.RawParameter("branching/scorefunc")) == 's'
+    MOI.set(optimizer, MOI.RawOptimizerAttribute("branching/scorefunc"), 's')
+    @test MOI.get(optimizer, MOI.RawOptimizerAttribute("branching/scorefunc")) == 's'
 
     # string
-    MOI.set(optimizer, MOI.RawParameter("heuristics/alns/rewardfilename"), "abc.txt")
-    @test MOI.get(optimizer, MOI.RawParameter("heuristics/alns/rewardfilename")) == "abc.txt"
+    MOI.set(optimizer, MOI.RawOptimizerAttribute("heuristics/alns/rewardfilename"), "abc.txt")
+    @test MOI.get(optimizer, MOI.RawOptimizerAttribute("heuristics/alns/rewardfilename")) == "abc.txt"
 
     # invalid
-    @test_throws ErrorException MOI.set(optimizer, MOI.RawParameter("some/invalid/param/name"), true)
+    @test_throws ErrorException MOI.set(optimizer, MOI.RawOptimizerAttribute("some/invalid/param/name"), true)
 end
 
 @testset "Silent" begin
@@ -513,17 +512,17 @@ end
 
     # "loud" by default
     @test MOI.get(optimizer, MOI.Silent()) == false
-    @test MOI.get(optimizer, MOI.RawParameter("display/verblevel")) == 4
+    @test MOI.get(optimizer, MOI.RawOptimizerAttribute("display/verblevel")) == 4
 
     # make it silent
     MOI.set(optimizer, MOI.Silent(), true)
     @test MOI.get(optimizer, MOI.Silent()) == true
-    @test MOI.get(optimizer, MOI.RawParameter("display/verblevel")) == 0
+    @test MOI.get(optimizer, MOI.RawOptimizerAttribute("display/verblevel")) == 0
 
     # but a user can override it
-    MOI.set(optimizer, MOI.RawParameter("display/verblevel"), 1)
+    MOI.set(optimizer, MOI.RawOptimizerAttribute("display/verblevel"), 1)
     @test MOI.get(optimizer, MOI.Silent()) == false
-    @test MOI.get(optimizer, MOI.RawParameter("display/verblevel")) == 1
+    @test MOI.get(optimizer, MOI.RawOptimizerAttribute("display/verblevel")) == 1
 end
 
 @testset "Query results (before/after solve)" begin

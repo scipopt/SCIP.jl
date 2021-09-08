@@ -10,8 +10,8 @@ const MOI = MathOptInterface
 
     # add variables
     x, y = MOI.add_variables(optimizer, 2)
-    MOI.add_constraint(optimizer, MOI.SingleVariable(x), MOI.ZeroOne())
-    MOI.add_constraint(optimizer, MOI.SingleVariable(y), MOI.ZeroOne())
+    MOI.add_constraint(optimizer, x, MOI.ZeroOne())
+    MOI.add_constraint(optimizer, y, MOI.ZeroOne())
 
     # add constraint: x + y ≤ 1.5
     MOI.add_constraint(optimizer,

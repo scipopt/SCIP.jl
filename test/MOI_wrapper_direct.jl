@@ -70,7 +70,7 @@ function indicator4_test(model::MOI.ModelLike, config)
     @test MOI.supports_constraint(model, MOI.SingleVariable, MOI.ZeroOne)
     @test MOI.supports_constraint(model, MOI.SingleVariable, MOI.Interval{Float64})
     @test MOI.supports_constraint(model, MOI.ScalarAffineFunction{Float64}, MOI.Interval{Float64})
-    @test MOI.supports_constraint(model, MOI.VectorAffineFunction{Float64}, MOI.IndicatorSet{MOI.ACTIVATE_ON_ONE, MOI.LessThan{Float64}})
+    @test MOI.supports_constraint(model, MOI.VectorAffineFunction{Float64}, MOI.Indicator{MOI.ACTIVATE_ON_ONE, MOI.LessThan{Float64}})
     x1 = MOI.add_variable(model)
     x2 = MOI.add_variable(model)
     z1 = MOI.add_variable(model)
@@ -83,7 +83,7 @@ function indicator4_test(model::MOI.ModelLike, config)
         ],
         [0.0, -1.0]
     )
-    iset1 = MOI.IndicatorSet{MOI.ACTIVATE_ON_ONE}(MOI.LessThan(7.0))
+    iset1 = MOI.Indicator{MOI.ACTIVATE_ON_ONE}(MOI.LessThan(7.0))
     MOI.add_constraint(model, f1, iset1)
 
     f2 = MOI.VectorAffineFunction(
@@ -93,7 +93,7 @@ function indicator4_test(model::MOI.ModelLike, config)
         ],
         [0.0, 1.0],
     )
-    iset2 = MOI.IndicatorSet{MOI.ACTIVATE_ON_ONE}(MOI.LessThan(10.0))
+    iset2 = MOI.Indicator{MOI.ACTIVATE_ON_ONE}(MOI.LessThan(10.0))
 
     MOI.add_constraint(model, f2, iset2)
 
