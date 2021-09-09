@@ -7,8 +7,8 @@ function MOI.add_constraint(o::Optimizer, func::MOI.VectorAffineFunction{T}, set
     first_index_terms  = [v.scalar_term for v in func.terms if v.output_index == 1]
     scalar_index_terms = [v.scalar_term for v in func.terms if v.output_index != 1]
     length(first_index_terms) == 1 || error("There should be exactly one term in output_index 1, found $(length(first_index_terms))")
-    y = VarRef(first_index_terms[1].variable_index.value)
-    x = [VarRef(vi.variable_index.value) for vi in scalar_index_terms]
+    y = VarRef(first_index_terms[1].variable.value)
+    x = [VarRef(vi.variable.value) for vi in scalar_index_terms]
     a = [vi.coefficient for vi in scalar_index_terms]
     b = func.constants[2]
     # a^T x + b <= c ===> a^T <= c - b

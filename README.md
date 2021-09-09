@@ -88,7 +88,7 @@ features through MathOptInterface. However, the focus is on keeping the wrapper
 simple and avoiding duplicate storage of model data.
 
 As a consequence, we do not currently support some features such as retrieving
-constraints by name (`SingleVariable`-set constraints are not stored as SCIP
+constraints by name (`VariableIndex`-set constraints are not stored as SCIP
 constraints explicitly).
 
 Support for more constraint types (quadratic/SOC, SOS1/2, nonlinear expression)

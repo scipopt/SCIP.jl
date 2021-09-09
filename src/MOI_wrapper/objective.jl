@@ -18,7 +18,7 @@ function MOI.set(o::Optimizer, ::MOI.ObjectiveFunction{SAF}, obj::SAF)
 
     # set new objective coefficients, summing coefficients
     for t in obj.terms
-        v = var(o, t.variable_index)
+        v = var(o, t.variable)
         oldcoef = SCIPvarGetObj(v)
         newcoef = oldcoef + t.coefficient
         @SCIP_CALL SCIPchgVarObj(o, v, newcoef)
@@ -54,7 +54,7 @@ function MOI.get(o::Optimizer, ::MOI.ObjectiveFunction{VI})
         || aff_obj.constant != 0.0)
         error("Objective is not single variable: $aff_obj !")
     end
-    return aff_obj.terms[1].variable_index
+    return aff_obj.terms[1].variable
 end
 
 function MOI.set(o::Optimizer, ::MOI.ObjectiveSense, sense::MOI.OptimizationSense)

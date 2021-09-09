@@ -10,12 +10,12 @@ function MOI.add_constraint(o::Optimizer, func::SQF, set::S) where {S <: BOUNDS}
     allow_modification(o)
 
     # affine terms
-    linrefs = [VarRef(t.variable_index.value) for t in func.affine_terms]
+    linrefs = [VarRef(t.variable.value) for t in func.affine_terms]
     lincoefs = [t.coefficient for t in func.affine_terms]
 
     # quadratic terms
-    quadrefs1 = [VarRef(t.variable_index_1.value) for t in func.quadratic_terms]
-    quadrefs2 = [VarRef(t.variable_index_2.value) for t in func.quadratic_terms]
+    quadrefs1 = [VarRef(t.variable_1.value) for t in func.quadratic_terms]
+    quadrefs2 = [VarRef(t.variable_2.value) for t in func.quadratic_terms]
     # Divide coefficients by 2 iff they come from the diagonal:
     # Take coef * x * y as-is, but turn coef * x^2 into coef/2 * x^2.
     factor = 1.0 .- 0.5 * (quadrefs1 .== quadrefs2)

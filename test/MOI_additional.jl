@@ -216,7 +216,7 @@ end
             MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0,1.0], [y,z]), 0.0))
     MOI.set(optimizer, MOI.ObjectiveSense(), MOI.MAX_SENSE)
 
-    ceq = MOI.add_constraint(optimizer, MOI.SingleVariable(x), MOI.EqualTo(1.0))
+    ceq = MOI.add_constraint(optimizer, x, MOI.EqualTo(1.0))
     csoc = MOI.add_constraint(optimizer, MOI.VectorOfVariables([x, y, z]),
                               MOI.SecondOrderCone(3))
 
@@ -245,8 +245,8 @@ end
 
     x, y = MOI.add_variables(optimizer, 2)
 
-    MOI.add_constraint(optimizer, MOI.SingleVariable(x), MOI.Interval(0.0, 1.0))
-    MOI.add_constraint(optimizer, MOI.SingleVariable(y), MOI.GreaterThan(2.0))
+    MOI.add_constraint(optimizer, x, MOI.Interval(0.0, 1.0))
+    MOI.add_constraint(optimizer, y, MOI.GreaterThan(2.0))
     MOI.add_constraint(optimizer, MOI.VectorOfVariables([x, y]), MOI.SecondOrderCone(2))
 
     MOI.optimize!(optimizer)
@@ -260,7 +260,7 @@ end
     @test_throws ErrorException MOI.add_constraint(
         optimizer, MOI.VectorOfVariables([x, y]), MOI.SecondOrderCone(2))
 
-    MOI.add_constraint(optimizer, MOI.SingleVariable(x), MOI.GreaterThan(0.0))
+    MOI.add_constraint(optimizer, x, MOI.GreaterThan(0.0))
     MOI.add_constraint(optimizer, MOI.VectorOfVariables([x, y]),
                        MOI.SecondOrderCone(2))
     # no error
@@ -270,9 +270,9 @@ end
     optimizer = SCIP.Optimizer(display_verblevel=0)
 
     x, y, z = MOI.add_variables(optimizer, 3)
-    MOI.add_constraint(optimizer, MOI.SingleVariable(x), MOI.LessThan(1.0))
-    MOI.add_constraint(optimizer, MOI.SingleVariable(y), MOI.LessThan(1.0))
-    MOI.add_constraint(optimizer, MOI.SingleVariable(z), MOI.LessThan(1.0))
+    MOI.add_constraint(optimizer, x, MOI.LessThan(1.0))
+    MOI.add_constraint(optimizer, y, MOI.LessThan(1.0))
+    MOI.add_constraint(optimizer, z, MOI.LessThan(1.0))
 
     c = MOI.add_constraint(optimizer, MOI.VectorOfVariables([x,y,z]), MOI.SOS1([1.0,2.0,3.0]))
 
@@ -298,9 +298,9 @@ end
     optimizer = SCIP.Optimizer(display_verblevel=0)
 
     x, y, z = MOI.add_variables(optimizer, 3)
-    MOI.add_constraint(optimizer, MOI.SingleVariable(x), MOI.LessThan(1.0))
-    MOI.add_constraint(optimizer, MOI.SingleVariable(y), MOI.LessThan(1.0))
-    MOI.add_constraint(optimizer, MOI.SingleVariable(z), MOI.LessThan(1.0))
+    MOI.add_constraint(optimizer, x, MOI.LessThan(1.0))
+    MOI.add_constraint(optimizer, y, MOI.LessThan(1.0))
+    MOI.add_constraint(optimizer, z, MOI.LessThan(1.0))
 
     c = MOI.add_constraint(optimizer, MOI.VectorOfVariables([x,y,z]), MOI.SOS2([1.0,2.0,3.0]))
 
@@ -331,8 +331,8 @@ end
     optimizer = SCIP.Optimizer(display_verblevel=0)
 
     x1, x2, z1, z2 = MOI.add_variables(optimizer, 4)
-    MOI.add_constraint(optimizer, MOI.SingleVariable(z1), MOI.LessThan(4.0))
-    MOI.add_constraint(optimizer, MOI.SingleVariable(z2), MOI.GreaterThan(-8.0))
+    MOI.add_constraint(optimizer, z1, MOI.LessThan(4.0))
+    MOI.add_constraint(optimizer, z2, MOI.GreaterThan(-8.0))
 
     c1 = MOI.add_constraint(optimizer, MOI.VectorOfVariables([x1, z1]),
                             SCIP.AbsolutePowerSet(2.0))
@@ -427,10 +427,10 @@ end
 
     # Happy Path: add objective and retrieve it.
     x = MOI.add_variable(optimizer)
-    obj = MOI.SingleVariable(x)
-    MOI.set(optimizer, MOI.ObjectiveFunction{MOI.SingleVariable}(), obj)
+    obj = x
+    MOI.set(optimizer, MOI.ObjectiveFunction{MOI.VariableIndex}(), obj)
     MOI.set(optimizer, MOI.ObjectiveSense(), MOI.MAX_SENSE)
-    @test MOI.get(optimizer, MOI.ObjectiveFunction{MOI.SingleVariable}()) == obj
+    @test MOI.get(optimizer, MOI.ObjectiveFunction{MOI.VariableIndex}()) == obj
     @test MOI.get(optimizer, MOI.ObjectiveSense()) == MOI.MAX_SENSE
     @test MOI.get(optimizer, MOI.ObjectiveFunctionType()) == MOI.ScalarAffineFunction{Float64}
 
@@ -442,7 +442,7 @@ end
     aff_obj = MOI.ScalarAffineFunction([MOI.ScalarAffineTerm(1.0, x)], 3.0)
     MOI.set(optimizer, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(), aff_obj)
     MOI.set(optimizer, MOI.ObjectiveSense(), MOI.MAX_SENSE)
-    @test_throws ErrorException MOI.get(optimizer, MOI.ObjectiveFunction{MOI.SingleVariable}())
+    @test_throws ErrorException MOI.get(optimizer, MOI.ObjectiveFunction{MOI.VariableIndex}())
 end
 
 @testset "set_parameter" begin
@@ -530,8 +530,8 @@ end
     atol, rtol = 1e-6, 1e-6
 
     x, y = MOI.add_variables(optimizer, 2)
-    MOI.add_constraint(optimizer, MOI.SingleVariable(x), MOI.GreaterThan(0.0))
-    MOI.add_constraint(optimizer, MOI.SingleVariable(y), MOI.GreaterThan(0.0))
+    MOI.add_constraint(optimizer, x, MOI.GreaterThan(0.0))
+    MOI.add_constraint(optimizer, y, MOI.GreaterThan(0.0))
 
     c = MOI.add_constraint(
         optimizer,

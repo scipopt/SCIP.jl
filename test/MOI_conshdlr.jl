@@ -7,8 +7,8 @@ const MOI = MathOptInterface
 
     # add two binary variables: x, y
     x, y = MOI.add_variables(optimizer, 2)
-    MOI.add_constraint(optimizer, MOI.SingleVariable(x), MOI.ZeroOne())
-    MOI.add_constraint(optimizer, MOI.SingleVariable(y), MOI.ZeroOne())
+    MOI.add_constraint(optimizer, x, MOI.ZeroOne())
+    MOI.add_constraint(optimizer, y, MOI.ZeroOne())
 
     # maximize 2x + y
     MOI.set(optimizer, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(),
@@ -38,9 +38,9 @@ end
 
     # add three binary variables
     x, y, z = MOI.add_variables(optimizer, 3)
-    MOI.add_constraint(optimizer, MOI.SingleVariable(x), MOI.ZeroOne())
-    MOI.add_constraint(optimizer, MOI.SingleVariable(y), MOI.ZeroOne())
-    MOI.add_constraint(optimizer, MOI.SingleVariable(z), MOI.ZeroOne())
+    MOI.add_constraint(optimizer, x, MOI.ZeroOne())
+    MOI.add_constraint(optimizer, y, MOI.ZeroOne())
+    MOI.add_constraint(optimizer, z, MOI.ZeroOne())
 
     # maximize 2x + 3y + 2z
     MOI.set(optimizer, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(),
@@ -72,9 +72,9 @@ end
 
     # add three binary variables
     x, y, z = MOI.add_variables(optimizer, 3)
-    MOI.add_constraint(optimizer, MOI.SingleVariable(x), MOI.ZeroOne())
-    MOI.add_constraint(optimizer, MOI.SingleVariable(y), MOI.ZeroOne())
-    MOI.add_constraint(optimizer, MOI.SingleVariable(z), MOI.ZeroOne())
+    MOI.add_constraint(optimizer, x, MOI.ZeroOne())
+    MOI.add_constraint(optimizer, y, MOI.ZeroOne())
+    MOI.add_constraint(optimizer, z, MOI.ZeroOne())
 
     # maximize 2x + 3y + 2z
     MOI.set(optimizer, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(),
@@ -104,9 +104,9 @@ end
 
     # add three binary variables
     x, y, z = MOI.add_variables(optimizer, 3)
-    MOI.add_constraint(optimizer, MOI.SingleVariable(x), MOI.ZeroOne())
-    MOI.add_constraint(optimizer, MOI.SingleVariable(y), MOI.ZeroOne())
-    MOI.add_constraint(optimizer, MOI.SingleVariable(z), MOI.ZeroOne())
+    MOI.add_constraint(optimizer, x, MOI.ZeroOne())
+    MOI.add_constraint(optimizer, y, MOI.ZeroOne())
+    MOI.add_constraint(optimizer, z, MOI.ZeroOne())
 
     # maximize 2x + 3y + 2z
     MOI.set(optimizer, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(),
@@ -135,8 +135,8 @@ end
     # add three integer variables, in {0, 1, 2}
     x, y, z = MOI.add_variables(optimizer, 3)
     for v in [x, y, z]
-        MOI.add_constraint(optimizer, MOI.SingleVariable(v), MOI.Integer())
-        MOI.add_constraint(optimizer, MOI.SingleVariable(v), MOI.Interval(0.0, 2.0))
+        MOI.add_constraint(optimizer, v, MOI.Integer())
+        MOI.add_constraint(optimizer, v, MOI.Interval(0.0, 2.0))
     end
 
     # maximize 2x + y
@@ -176,8 +176,8 @@ end
 
     # add binary variables
     x, y = MOI.add_variables(optimizer, 2)
-    MOI.add_constraint(optimizer, MOI.SingleVariable(x), MOI.ZeroOne())
-    MOI.add_constraint(optimizer, MOI.SingleVariable(y), MOI.ZeroOne())
+    MOI.add_constraint(optimizer, x, MOI.ZeroOne())
+    MOI.add_constraint(optimizer, y, MOI.ZeroOne())
 
     # maximize 2x + y
     MOI.set(optimizer, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(),

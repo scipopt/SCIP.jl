@@ -9,7 +9,7 @@ function MOI.add_constraint(o::Optimizer, func::SAF, set::S) where {S <: BOUNDS}
 
     allow_modification(o)
 
-    varrefs = [VarRef(t.variable_index.value) for t in func.terms]
+    varrefs = [VarRef(t.variable.value) for t in func.terms]
     coefs = [t.coefficient for t in func.terms]
 
     lhs, rhs = bounds(set)
