@@ -111,7 +111,7 @@ end
 
 MOI.supports_constraint(o::Optimizer, ::Type{VI}, ::Type{<:BOUNDS}) = true
 
-function MOI.add_constraint(o::Optimizer, vi::VI, set::S) where S <: BOUNDS
+function MOI.add_constraint(o::Optimizer, vi::VI, set::S) where {S <: BOUNDS}
     allow_modification(o)
     v = var(o, vi)
     inf = SCIPinfinity(o)
@@ -142,7 +142,8 @@ function MOI.add_constraint(o::Optimizer, vi::VI, set::S) where S <: BOUNDS
                 @debug "Overwriting existing bounds [0.0,1.0] with [$newlb,$newub] for binary variable at $(vi.value)!"
             end
         else # general case (non-binary variable)
-            error("Already have bounds [$oldlb,$oldub] for variable at $(vi.value)!")
+            # TODO find initially-set bound constraint
+            throw(MOI.LowerBoundAlreadySet{S,S}(vi))
         end
     end
 
@@ -173,7 +174,7 @@ function reset_bounds(o::Optimizer, v, lb, ub, ci::CI{VI, MOI.LessThan{Float64}}
 end
 
 
-function MOI.delete(o::Optimizer, ci::CI{VI,S}) where S <: BOUNDS
+function MOI.delete(o::Optimizer, ci::CI{VI,S}) where {S <: BOUNDS}
     _throw_if_invalid(o, ci)
     allow_modification(o)
 
@@ -211,18 +212,24 @@ function MOI.set(o::SCIP.Optimizer, ::MOI.ConstraintSet, ci::CI{VI,S}, set::S) w
 end
 
 # TODO: is actually wrong for unbounded variables?
-function MOI.is_valid(o::Optimizer, ci::CI{VI,<:BOUNDS})
-    return haskey(o.inner.vars, VarRef(ci.value))
+function MOI.is_valid(o::Optimizer, ci::CI{VI,S}) where {S <: BOUNDS}
+    if !haskey(o.inner.vars, VarRef(ci.value))
+        return false
+    end
+    return ConsRef(ci.value) in o.constypes[VI, S]
 end
 
-function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{VI, S}) where S <: BOUNDS
+function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{VI, S}) where {S <: BOUNDS}
     if !MOI.is_valid(o, ci)
         throw(MOI.InvalidIndex(ci))
     end
     return VI(ci.value)
 end
 
-function MOI.get(o::Optimizer, ::MOI.ConstraintSet, ci::CI{VI, S}) where S <: BOUNDS
+function MOI.get(o::Optimizer, ::MOI.ConstraintSet, ci::CI{VI, S}) where {S <: BOUNDS}
+    if !MOI.is_valid(o, ci)
+        throw(MOI.InvalidIndex(ci))
+    end
     vi = VI(ci.value)
     v = var(o, vi)
     lb, ub = SCIPvarGetLbOriginal(v), SCIPvarGetUbOriginal(v)
@@ -231,6 +238,13 @@ function MOI.get(o::Optimizer, ::MOI.ConstraintSet, ci::CI{VI, S}) where S <: BO
         lb, ub = bounds.lower, bounds.upper
     end
     return from_bounds(S, lb, ub)
+end
+
+function MOI.is_valid(o::Optimizer, ci::CI{VI,S}) where {S <: Union{MOI.ZeroOne, MOI.Integer}}
+    if !haskey(o.inner.vars, VarRef(ci.value))
+        return false
+    end
+    return ConsRef(ci.value) in o.constypes[VI, S]
 end
 
 function MOI.get(o::Optimizer, ::MOI.ConstraintSet, ci::CI{VI, MOI.ZeroOne})

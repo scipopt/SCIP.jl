@@ -23,6 +23,7 @@ function MOI.delete(o::Optimizer, ci::CI{VECTOR, SOS1})
 end
 
 function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{VECTOR, SOS1})
+    _throw_if_invalid(o, ci)
     c = cons(o, ci)
     nvars::Int = SCIPgetNVarsSOS1(o, c)
     vars = unsafe_wrap(Array{Ptr{SCIP_VAR}}, SCIPgetVarsSOS1(o, c), nvars)
@@ -30,6 +31,7 @@ function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{VECTOR, SOS1})
 end
 
 function MOI.get(o::Optimizer, ::MOI.ConstraintSet, ci::CI{VECTOR, SOS1})
+    _throw_if_invalid(o, ci)
     c = cons(o, ci)
     nvars::Int = SCIPgetNVarsSOS1(o, c)
     weights = unsafe_wrap(Array{Float64}, SCIPgetWeightsSOS1(o, c), nvars)

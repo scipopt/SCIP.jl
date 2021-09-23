@@ -56,7 +56,7 @@ function MOI.set(o::SCIP.Optimizer, ::MOI.ConstraintSet, ci::CI{SQF,S}, set::S) 
     return nothing
 end
 
-function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{SQF, S}) where S <: BOUNDS
+function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{SQF, S}) where {S <: BOUNDS}
     _throw_if_invalid(o, ci)
     c = cons(o, ci)
     
@@ -89,17 +89,17 @@ function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{SQF, S}) where S
         push!(quadterms, QUAD_TERM(term.coef, VI(ref(o, term.var1).val), VI(ref(o, term.var2).val)))
     end
     
-    return SQF(affterms, quadterms, 0.0)
+    return SQF(quadterms, affterms, 0.0)
 end
 
-function MOI.get(o::Optimizer, ::MOI.ConstraintSet, ci::CI{SQF, S}) where S <: BOUNDS
+function MOI.get(o::Optimizer, ::MOI.ConstraintSet, ci::CI{SQF, S}) where {S <: BOUNDS}
     _throw_if_invalid(o, ci)
     lhs = SCIPgetLhsQuadratic(o, cons(o, ci))
     rhs = SCIPgetRhsQuadratic(o, cons(o, ci))
     return from_bounds(S, lhs, rhs)
 end
 
-function MOI.get(o::Optimizer, ::MOI.ConstraintPrimal, ci::CI{SQF, S}) where S <: BOUNDS
+function MOI.get(o::Optimizer, ::MOI.ConstraintPrimal, ci::CI{SQF, S}) where {S <: BOUNDS}
     activity = Ref{Cdouble}()
     @SCIP_CALL SCIPgetActivityQuadratic(o, cons(o, ci), SCIPgetBestSol(o), activity)
     return activity[]

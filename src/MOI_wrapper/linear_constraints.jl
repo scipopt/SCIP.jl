@@ -45,7 +45,7 @@ function MOI.set(o::SCIP.Optimizer, ::MOI.ConstraintSet, ci::CI{SAF,S}, set::S) 
     return nothing
 end
 
-function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{SAF, S}) where S <: BOUNDS
+function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{SAF, S}) where {S <: BOUNDS}
     _throw_if_invalid(o, ci)
     c = cons(o, ci)
     nvars::Int = SCIPgetNVarsLinear(o, c)
@@ -57,11 +57,15 @@ function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{SAF, S}) where S
     return SAF(terms, 0.0)
 end
 
-function MOI.get(o::Optimizer, ::MOI.ConstraintSet, ci::CI{SAF, S}) where S <: BOUNDS
+function MOI.get(o::Optimizer, ::MOI.ConstraintSet, ci::CI{SAF, S}) where {S <: BOUNDS}
     _throw_if_invalid(o, ci)
     lhs = SCIPgetLhsLinear(o, cons(o, ci))
     rhs = SCIPgetRhsLinear(o, cons(o, ci))
     return from_bounds(S, lhs, rhs)
+end
+
+function MOI.get(o::Optimizer, ::MOI.ConstraintPrimal, ci::CI{SAF, S}) where {S <: BOUNDS}
+    return SCIPgetActivityLinear(o, cons(o, ci), SCIPgetBestSol(o))
 end
 
 function MOI.modify(o::Optimizer, ci::CI{SAF, <:BOUNDS},
