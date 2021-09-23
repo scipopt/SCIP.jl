@@ -92,11 +92,13 @@ function MOI.delete(o::Optimizer, ci::CI{VI,S}) where {S <: VAR_TYPES}
     @SCIP_CALL SCIPchgVarType(o, var(o, vi), SCIP_VARTYPE_CONTINUOUS, infeasible)
     # TODO: warn if infeasible[] == TRUE?
 
-    # Can only change bounds after chaging the var type.
+    # Can only change bounds after changing the var type.
     if reset_bounds
-        bounds = o.binbounds[vi]
-        @SCIP_CALL SCIPchgVarLb(o, v, bounds.lower)
-        @SCIP_CALL SCIPchgVarUb(o, v, bounds.upper)
+        bounds = get(o.binbounds, vi, nothing)
+        if bounds !== nothing
+            @SCIP_CALL SCIPchgVarLb(o, v, bounds.lower)
+            @SCIP_CALL SCIPchgVarUb(o, v, bounds.upper)
+        end
     end
 
     # but do delete the constraint reference
@@ -229,6 +231,42 @@ function MOI.get(o::Optimizer, ::MOI.ConstraintSet, ci::CI{VI, S}) where S <: BO
         lb, ub = bounds.lower, bounds.upper
     end
     return from_bounds(S, lb, ub)
+end
+
+function MOI.get(o::Optimizer, ::MOI.ConstraintSet, ci::CI{VI, MOI.ZeroOne})
+    vi = VI(ci.value)
+    v = var(o, vi)
+    if SCIPvarGetType(v) == SCIP_VARTYPE_BINARY
+        return MOI.ZeroOne()
+    end
+    throw(MOI.InvalidIndex(ci))
+end
+
+function MOI.get(o::Optimizer, ::MOI.ConstraintSet, ci::CI{VI, MOI.Integer})
+    vi = VI(ci.value)
+    v = var(o, vi)
+    if SCIPvarGetType(v) == SCIP_VARTYPE_INTEGER
+        return MOI.Integer()
+    end
+    throw(MOI.InvalidIndex(ci))
+end
+
+function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{VI, MOI.ZeroOne})
+    vi = VI(ci.value)
+    v = var(o, vi)
+    if SCIPvarGetType(v) == SCIP_VARTYPE_BINARY
+        return vi
+    end
+    throw(MOI.InvalidIndex(ci))
+end
+
+function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{VI, MOI.Integer})
+    vi = VI(ci.value)
+    v = var(o, vi)
+    if SCIPvarGetType(v) == SCIP_VARTYPE_INTEGER
+        return vi
+    end
+    throw(MOI.InvalidIndex(ci))
 end
 
 # (partial) warm starts
