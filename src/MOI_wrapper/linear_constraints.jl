@@ -24,6 +24,7 @@ function MOI.add_constraint(o::Optimizer, func::SAF, set::S) where {S <: BOUNDS}
 end
 
 function MOI.delete(o::Optimizer, ci::CI{SAF, S}) where {S <: BOUNDS}
+    _throw_if_invalid(o, ci)
     allow_modification(o)
     delete!(o.constypes[SAF, S], ConsRef(ci.value))
     delete!(o.reference, cons(o, ci))
@@ -45,6 +46,7 @@ function MOI.set(o::SCIP.Optimizer, ::MOI.ConstraintSet, ci::CI{SAF,S}, set::S) 
 end
 
 function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{SAF, S}) where S <: BOUNDS
+    _throw_if_invalid(o, ci)
     c = cons(o, ci)
     nvars::Int = SCIPgetNVarsLinear(o, c)
     vars = unsafe_wrap(Array{Ptr{SCIP_VAR}}, SCIPgetVarsLinear(o, c), nvars)
@@ -56,6 +58,7 @@ function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{SAF, S}) where S
 end
 
 function MOI.get(o::Optimizer, ::MOI.ConstraintSet, ci::CI{SAF, S}) where S <: BOUNDS
+    _throw_if_invalid(o, ci)
     lhs = SCIPgetLhsLinear(o, cons(o, ci))
     rhs = SCIPgetRhsLinear(o, cons(o, ci))
     return from_bounds(S, lhs, rhs)

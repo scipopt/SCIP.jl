@@ -35,6 +35,7 @@ function MOI.add_constraint(o::Optimizer, func::SQF, set::S) where {S <: BOUNDS}
 end
 
 function MOI.delete(o::Optimizer, ci::CI{SQF, S}) where {S <: BOUNDS}
+    _throw_if_invalid(o, ci)
     allow_modification(o)
     delete!(o.constypes[SQF, S], ConsRef(ci.value))
     delete!(o.reference, cons(o, ci))
@@ -55,18 +56,13 @@ function MOI.set(o::SCIP.Optimizer, ::MOI.ConstraintSet, ci::CI{SQF,S}, set::S) 
     return nothing
 end
 
-function MOI.get(o::Optimizer, ::MOI.ConstraintSet, ci::CI{SQF, S}) where S <: BOUNDS
-    lhs = SCIPgetLhsQuadratic(o, cons(o, ci))
-    rhs = SCIPgetRhsQuadratic(o, cons(o, ci))
-    return from_bounds(S, lhs, rhs)
-end
-
 function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{SQF, S}) where S <: BOUNDS
+    _throw_if_invalid(o, ci)
     c = cons(o, ci)
-
+    
     affterms = AFF_TERM[]
     quadterms = QUAD_TERM[]
-
+    
     # variables that appear only linearly
     nlin = SCIPgetNLinearVarsQuadratic(o, c)
     linvars = unsafe_wrap(Vector{Ptr{SCIP_VAR}}, SCIPgetLinearVarsQuadratic(o, c), nlin)
@@ -74,7 +70,7 @@ function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{SQF, S}) where S
     for i=1:nlin
         push!(affterms, AFF_TERM(lincoefs[i], VI(ref(o, linvars[i]).val)))
     end
-
+    
     # variables that appear squared, and linearly
     nquadvarterms = SCIPgetNQuadVarTermsQuadratic(o, c)
     quadvarterms = unsafe_wrap(Vector{SCIP_QUADVARTERM}, SCIPgetQuadVarTermsQuadratic(o, c), nquadvarterms)
@@ -84,7 +80,7 @@ function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{SQF, S}) where S
         # multiply quadratic coefficients by 2!
         push!(quadterms, QUAD_TERM(2.0 * term.sqrcoef, vi, vi))
     end
-
+    
     # bilinear terms (pair of different variables)
     nbilinterms = SCIPgetNBilinTermsQuadratic(o, c)
     bilinterms = unsafe_wrap(Vector{SCIP_BILINTERM}, SCIPgetBilinTermsQuadratic(o, c), nbilinterms)
@@ -92,8 +88,15 @@ function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{SQF, S}) where S
         # keep coefficients as they are!
         push!(quadterms, QUAD_TERM(term.coef, VI(ref(o, term.var1).val), VI(ref(o, term.var2).val)))
     end
-
+    
     return SQF(affterms, quadterms, 0.0)
+end
+
+function MOI.get(o::Optimizer, ::MOI.ConstraintSet, ci::CI{SQF, S}) where S <: BOUNDS
+    _throw_if_invalid(o, ci)
+    lhs = SCIPgetLhsQuadratic(o, cons(o, ci))
+    rhs = SCIPgetRhsQuadratic(o, cons(o, ci))
+    return from_bounds(S, lhs, rhs)
 end
 
 function MOI.get(o::Optimizer, ::MOI.ConstraintPrimal, ci::CI{SQF, S}) where S <: BOUNDS

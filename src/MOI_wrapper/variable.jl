@@ -78,6 +78,7 @@ function MOI.add_constraint(o::Optimizer, vi::VI, set::S) where {S <: VAR_TYPES}
 end
 
 function MOI.delete(o::Optimizer, ci::CI{VI,S}) where {S <: VAR_TYPES}
+    _throw_if_invalid(o, ci)
     allow_modification(o)
 
     vi = VI(ci.value)
@@ -171,6 +172,7 @@ end
 
 
 function MOI.delete(o::Optimizer, ci::CI{VI,S}) where S <: BOUNDS
+    _throw_if_invalid(o, ci)
     allow_modification(o)
 
     # Don't actually delete any SCIP constraint, just reset bounds
@@ -212,6 +214,9 @@ function MOI.is_valid(o::Optimizer, ci::CI{VI,<:BOUNDS})
 end
 
 function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{VI, S}) where S <: BOUNDS
+    if !MOI.is_valid(o, ci)
+        throw(MOI.InvalidIndex(ci))
+    end
     return VI(ci.value)
 end
 

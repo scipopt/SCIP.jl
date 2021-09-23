@@ -14,6 +14,7 @@ function MOI.add_constraint(o::Optimizer, func::VECTOR, set::SOS1)
 end
 
 function MOI.delete(o::Optimizer, ci::CI{VECTOR, SOS1})
+    _throw_if_invalid(o, ci)
     allow_modification(o)
     delete!(o.constypes[VECTOR, SOS1], ConsRef(ci.value))
     delete!(o.reference, cons(o, ci))
@@ -51,6 +52,7 @@ function MOI.add_constraint(o::Optimizer, func::VECTOR, set::SOS2)
 end
 
 function MOI.delete(o::Optimizer, ci::CI{VECTOR, SOS2})
+    _throw_if_invalid(o, ci)
     allow_modification(o)
     delete!(o.constypes[VECTOR, SOS2], ConsRef(ci.value))
     delete!(o.reference, cons(o, ci))
@@ -59,6 +61,7 @@ function MOI.delete(o::Optimizer, ci::CI{VECTOR, SOS2})
 end
 
 function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{VECTOR, SOS2})
+    _throw_if_invalid(o, ci)
     c = cons(o, ci)
     nvars::Int = SCIPgetNVarsSOS2(o, c)
     vars = unsafe_wrap(Array{Ptr{SCIP_VAR}}, SCIPgetVarsSOS2(o, c), nvars)
@@ -66,6 +69,7 @@ function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{VECTOR, SOS2})
 end
 
 function MOI.get(o::Optimizer, ::MOI.ConstraintSet, ci::CI{VECTOR, SOS2})
+    _throw_if_invalid(o, ci)
     c = cons(o, ci)
     nvars::Int = SCIPgetNVarsSOS2(o, c)
     weights = unsafe_wrap(Array{Float64}, SCIPgetWeightsSOS2(o, c), nvars)

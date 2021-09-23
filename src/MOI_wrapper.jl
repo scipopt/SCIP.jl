@@ -135,6 +135,13 @@ MOI.get(::Optimizer, ::MOI.SolverName) = "SCIP"
 
 MOIU.supports_default_copy_to(::Optimizer, copy_names::Bool) = !copy_names
 
+function _throw_if_invalid(o::Optimizer, ci::CI{F, S}) where {F, S}
+    if !in(ConsRef(ci.value), o.constypes[F, S])
+        throw(MOI.InvalidIndex(ci))
+    end
+    return nothing
+end
+
 # Keep SCIP-specific alias for backwards-compatibility.
 const Param = MOI.RawOptimizerAttribute
 
@@ -224,6 +231,17 @@ end
 
 function MOI.get(o::Optimizer, ::MOI.ListOfConstraintTypesPresent)
     return collect(keys(o.constypes))
+end
+
+function MOI.get(o::Optimizer, ::MOI.ListOfConstraintIndices{F, S}) where {F, S}
+    list_indices = Vector{CI{F,S}}()
+    if !haskey(o.constypes, (F, S))
+        return list_indices
+    end
+    for cref in o.constypes[F, S]
+        push!(list_indices, CI{F,S}(cref.val))
+    end
+    return list_indices
 end
 
 function set_start_values(o::Optimizer)
