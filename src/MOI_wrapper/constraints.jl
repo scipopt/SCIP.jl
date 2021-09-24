@@ -9,7 +9,19 @@ function MOI.set(o::Optimizer, ::MOI.ConstraintName, ci::CI, name::String)
     return nothing
 end
 
-function MOI.is_valid(o::Optimizer, c::MOI.ConstraintIndex)
+function MOI.set(o::Optimizer, ::MOI.ConstraintName, ci::CI{VI}, name::String)
+    throw(MOI.VariableIndexConstraintNameError())
+    return nothing
+end
+
+function MOI.is_valid(o::Optimizer, c::CI{F, S}) where {F, S}
+    cons_set = get(o.constypes, (F, S), nothing)
+    if cons_set === nothing
+        return false
+    end
+    if !in(ConsRef(c.value), cons_set)
+        return false
+    end
     return haskey(o.inner.conss, SCIP.ConsRef(c.value))
 end
 

@@ -93,7 +93,7 @@ function MOI.get(o::Optimizer, attr::MOI.ConstraintPrimal, ci::CI{VI,<:BOUNDS})
     return SCIPgetSolVal(o, sols[attr.result_index], var(o, VI(ci.value)))
 end
 
-function MOI.get(o::Optimizer, attr::MOI.ConstraintPrimal, ci::CI{SAF,<:BOUNDS})
+function MOI.get(o::Optimizer, attr::MOI.ConstraintPrimal, ci::CI{<:SAF,<:BOUNDS})
     assert_solved(o)
     MOI.check_result_index_bounds(o, attr)
     sols = unsafe_wrap(Array{Ptr{SCIP_SOL}}, SCIPgetSols(o), SCIPgetNSols(o))

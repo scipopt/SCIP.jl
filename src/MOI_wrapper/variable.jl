@@ -30,8 +30,14 @@ function MOI.delete(o::Optimizer, vi::VI)
     if length(o.inner.conss) > 0
         error("Can not delete variable while model contains constraints!")
     end
-
     allow_modification(o)
+    if !haskey(o.inner.vars, VarRef(vi.value))
+        throw(MOI.InvalidIndex(vi))
+    end
+    # TODO still necessary?
+    if !haskey(o.reference, var(o, vi))
+        throw(MOI.InvalidIndex(vi))
+    end
     haskey(o.binbounds, vi) && delete!(o.binbounds, vi)
     delete!(o.reference, var(o, vi))
     delete(o.inner, VarRef(vi.value))
@@ -214,6 +220,10 @@ end
 # TODO: is actually wrong for unbounded variables?
 function MOI.is_valid(o::Optimizer, ci::CI{VI,S}) where {S <: BOUNDS}
     if !haskey(o.inner.vars, VarRef(ci.value))
+        return false
+    end
+    cons_set = get(o.constypes, (VI, S), nothing)
+    if cons_set === nothing
         return false
     end
     return ConsRef(ci.value) in o.constypes[VI, S]

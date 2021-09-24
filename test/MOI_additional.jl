@@ -124,21 +124,21 @@ end
     x = MOI.add_variable(optimizer)
     b = MOI.add_constraint(optimizer, x, MOI.Interval(2.0, 3.0))
     @test var_bounds(optimizer, x) == MOI.Interval(2.0, 3.0)
-    @test_throws ErrorException MOI.add_constraint(optimizer, x, MOI.Interval(3.0, 4.0))
+    @test_throws MOI.LowerBoundAlreadySet MOI.add_constraint(optimizer, x, MOI.Interval(3.0, 4.0))
 
     # Should work: variable with lower bound, but only once!
     MOI.empty!(optimizer)
     x = MOI.add_variable(optimizer)
     b = MOI.add_constraint(optimizer, x, MOI.GreaterThan(2.0))
     @test var_bounds(optimizer, x) == MOI.Interval(2.0, inf)
-    @test_throws ErrorException MOI.add_constraint(optimizer, x, MOI.GreaterThan(3.0))
+    @test_throws MOI.LowerBoundAlreadySet MOI.add_constraint(optimizer, x, MOI.GreaterThan(3.0))
 
     # Should work: variable with lower bound, but only once!
     MOI.empty!(optimizer)
     x = MOI.add_variable(optimizer)
     b = MOI.add_constraint(optimizer, x, MOI.LessThan(2.0))
     @test var_bounds(optimizer, x) == MOI.Interval(-inf, 2.0)
-    @test_throws ErrorException MOI.add_constraint(optimizer, x, MOI.LessThan(3.0))
+    @test_throws MOI.LowerBoundAlreadySet MOI.add_constraint(optimizer, x, MOI.LessThan(3.0))
 
     # Should work: fixed variable, but only once!
     MOI.empty!(optimizer)
@@ -153,51 +153,6 @@ end
     lb = MOI.add_constraint(optimizer, x, MOI.GreaterThan(2.0))
     ub = MOI.add_constraint(optimizer, x, MOI.LessThan(3.0))
     @test var_bounds(optimizer, x) == MOI.Interval(2.0, 3.0)
-end
-
-@testset "Changing bounds for variable." begin
-    optimizer = SCIP.Optimizer()
-    inf = SCIP.SCIPinfinity(optimizer)
-
-    # change interval bounds
-    MOI.empty!(optimizer)
-    x = MOI.add_variable(optimizer)
-    b = MOI.add_constraint(optimizer, x, MOI.Interval(2.0, 3.0))
-    @test var_bounds(optimizer, x) == MOI.Interval(2.0, 3.0)
-    chg_bounds(optimizer, x, MOI.Interval(4.0, 5.0))
-    @test var_bounds(optimizer, x) == MOI.Interval(4.0, 5.0)
-
-    # change lower bound
-    MOI.empty!(optimizer)
-    x = MOI.add_variable(optimizer)
-    b = MOI.add_constraint(optimizer, x, MOI.GreaterThan(2.0))
-    @test var_bounds(optimizer, x) == MOI.Interval(2.0, inf)
-    chg_bounds(optimizer, x, MOI.GreaterThan(4.0))
-    @test var_bounds(optimizer, x) == MOI.Interval(4.0, inf)
-
-    # change upper bound
-    MOI.empty!(optimizer)
-    x = MOI.add_variable(optimizer)
-    b = MOI.add_constraint(optimizer, x, MOI.LessThan(3.0))
-    @test var_bounds(optimizer, x) == MOI.Interval(-inf, 3.0)
-    chg_bounds(optimizer, x, MOI.LessThan(5.0))
-    @test var_bounds(optimizer, x) == MOI.Interval(-inf, 5.0)
-
-    # change fixed value
-    MOI.empty!(optimizer)
-    x = MOI.add_variable(optimizer)
-    b = MOI.add_constraint(optimizer, x, MOI.EqualTo(2.5))
-    @test var_bounds(optimizer, x) == MOI.Interval(2.5, 2.5)
-    chg_bounds(optimizer, x, MOI.EqualTo(4.5))
-    @test var_bounds(optimizer, x) == MOI.Interval(4.5, 4.5)
-
-    # change mixed
-    MOI.empty!(optimizer)
-    x = MOI.add_variable(optimizer)
-    b = MOI.add_constraint(optimizer, x, MOI.GreaterThan(2.0))
-    @test var_bounds(optimizer, x) == MOI.Interval(2.0, inf)
-    chg_bounds(optimizer, x, MOI.LessThan(4.0))
-    @test var_bounds(optimizer, x) == MOI.Interval(-inf, 4.0)
 end
 
 @testset "Second Order Cone Constraint" begin
@@ -442,7 +397,7 @@ end
     aff_obj = MOI.ScalarAffineFunction([MOI.ScalarAffineTerm(1.0, x)], 3.0)
     MOI.set(optimizer, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(), aff_obj)
     MOI.set(optimizer, MOI.ObjectiveSense(), MOI.MAX_SENSE)
-    @test_throws ErrorException MOI.get(optimizer, MOI.ObjectiveFunction{MOI.VariableIndex}())
+    @test_throws InexactError MOI.get(optimizer, MOI.ObjectiveFunction{MOI.VariableIndex}())
 end
 
 @testset "set_parameter" begin
@@ -551,7 +506,7 @@ end
     @test_throws ErrorException MOI.get(optimizer, MOI.ConstraintPrimal(), c)
     @test_throws ErrorException MOI.get(optimizer, MOI.ObjectiveBound())
     @test_throws ErrorException MOI.get(optimizer, MOI.RelativeGap())
-    @test MOI.get(optimizer, MOI.SolveTime()) ≈ 0.0 atol=atol rtol=rtol
+    @test MOI.get(optimizer, MOI.SolveTimeSec()) ≈ 0.0 atol=atol rtol=rtol
     @test_throws ErrorException MOI.get(optimizer, MOI.SimplexIterations())
     @test MOI.get(optimizer, MOI.NodeCount()) == 0
 
@@ -566,7 +521,7 @@ end
     @test MOI.get(optimizer, MOI.ConstraintPrimal(), c) ≈ 1.0 atol=atol rtol=rtol
     @test MOI.get(optimizer, MOI.ObjectiveBound()) ≈ 2.0 atol=atol rtol=rtol
     @test MOI.get(optimizer, MOI.RelativeGap()) ≈ 0.0 atol=atol rtol=rtol
-    @test MOI.get(optimizer, MOI.SolveTime()) < 1.0
+    @test MOI.get(optimizer, MOI.SolveTimeSec()) < 1.0
     @test MOI.get(optimizer, MOI.SimplexIterations()) <= 3  # conservative
     @test MOI.get(optimizer, MOI.NodeCount()) <= 1          # conservative
 end

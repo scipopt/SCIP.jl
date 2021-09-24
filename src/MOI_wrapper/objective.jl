@@ -31,7 +31,7 @@ end
 
 # Note that SCIP always uses a scalar affine function internally!
 function MOI.set(o::Optimizer, ::MOI.ObjectiveFunction{VI}, obj::VI)
-    aff_obj = SAF([AFF_TERM(1.0, obj.variable)], 0.0)
+    aff_obj = SAF([AFF_TERM(1.0, obj)], 0.0)
     return MOI.set(o, MOI.ObjectiveFunction{SAF}(), aff_obj)
 end
 
@@ -52,7 +52,7 @@ function MOI.get(o::Optimizer, ::MOI.ObjectiveFunction{VI})
     if (length(aff_obj.terms) != 1
         || aff_obj.terms[1].coefficient != 1.0
         || aff_obj.constant != 0.0)
-        error("Objective is not single variable: $aff_obj !")
+        throw(InexactError(:get, VI, aff_obj))
     end
     return aff_obj.terms[1].variable
 end
@@ -63,7 +63,7 @@ function MOI.set(o::Optimizer, ::MOI.ObjectiveSense, sense::MOI.OptimizationSens
         @SCIP_CALL SCIPsetObjsense(o, SCIP_OBJSENSE_MINIMIZE)
     elseif sense == MOI.MAX_SENSE
         @SCIP_CALL SCIPsetObjsense(o, SCIP_OBJSENSE_MAXIMIZE)
-    elseif sense == MOI.FEASIBLITY_SENSE
+    elseif sense == MOI.FEASIBILITY_SENSE
         @warn "FEASIBLITY_SENSE not supported by SCIP.jl" maxlog=1
     end
     return nothing

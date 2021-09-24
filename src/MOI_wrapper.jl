@@ -219,7 +219,7 @@ function MOI.empty!(o::Optimizer)
 end
 
 function MOI.copy_to(dest::Optimizer, src::MOI.ModelLike; kws...)
-    return MOIU.automatic_copy_to(dest, src; kws...)
+    return MOIU.default_copy_to(dest, src; kws...)
 end
 
 MOI.get(o::Optimizer, ::MOI.Name) = SCIPgetProbName(o)
@@ -272,6 +272,8 @@ function MOI.optimize!(o::Optimizer)
     @SCIP_CALL SCIPsolve(o)
     return nothing
 end
+
+MOI.supports_incremental_interface(::Optimizer) = true
 
 include(joinpath("MOI_wrapper", "variable.jl"))
 include(joinpath("MOI_wrapper", "constraints.jl"))
