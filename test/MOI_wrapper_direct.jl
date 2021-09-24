@@ -12,13 +12,11 @@ const CONFIG_DIRECT = MOIT.Config(
 
 @testset "MOI unit tests" begin
     excluded = copy(MOI_BASE_EXCLUDED)
-    append!(excluded,
-    [
-        "test_linear_integer_solve_twice",
-        "test_linear_integration",
-        "test_model_ordered_indices",
-    ]
-    )
+    append!(excluded, [
+            "test_linear_integer_solve_twice",
+            "test_linear_integration",
+            "test_model_ordered_indices",
+    ])
     MOIT.runtests(
         OPTIMIZER,
         CONFIG_DIRECT,

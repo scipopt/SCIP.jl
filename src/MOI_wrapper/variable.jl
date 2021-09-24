@@ -316,3 +316,7 @@ function MOI.set(o::Optimizer, ::MOI.VariablePrimalStart, vi::VI, value::Nothing
     end
     return
 end
+
+function MOI.set(::Optimizer, ::MOI.ConstraintFunction, ::CI{VI}, ::VI)
+    throw(MOI.SettingVariableIndexNotAllowed())
+end
