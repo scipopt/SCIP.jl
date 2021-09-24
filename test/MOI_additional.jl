@@ -14,51 +14,6 @@ function chg_bounds(o::SCIP.Optimizer, vi::VI, set::S) where S
     return nothing
 end
 
-@testset "Bound constraints for a general variable." begin
-    optimizer = SCIP.Optimizer()
-    inf = SCIP.SCIPinfinity(optimizer)
-
-    # Should work: variable without explicit bounds
-    MOI.empty!(optimizer)
-    x = MOI.add_variable(optimizer)
-    @test var_bounds(optimizer, x) == MOI.Interval(-inf, inf)
-
-    # Should work: variable with range bounds, but only once!
-    MOI.empty!(optimizer)
-    x = MOI.add_variable(optimizer)
-    b = MOI.add_constraint(optimizer, x, MOI.Interval(2.0, 3.0))
-    @test var_bounds(optimizer, x) == MOI.Interval(2.0, 3.0)
-    @test_throws MOI.LowerBoundAlreadySet MOI.add_constraint(optimizer, x, MOI.Interval(3.0, 4.0))
-
-    # Should work: variable with lower bound, but only once!
-    MOI.empty!(optimizer)
-    x = MOI.add_variable(optimizer)
-    b = MOI.add_constraint(optimizer, x, MOI.GreaterThan(2.0))
-    @test var_bounds(optimizer, x) == MOI.Interval(2.0, inf)
-    @test_throws MOI.LowerBoundAlreadySet MOI.add_constraint(optimizer, x, MOI.GreaterThan(3.0))
-
-    # Should work: variable with lower bound, but only once!
-    MOI.empty!(optimizer)
-    x = MOI.add_variable(optimizer)
-    b = MOI.add_constraint(optimizer, x, MOI.LessThan(2.0))
-    @test var_bounds(optimizer, x) == MOI.Interval(-inf, 2.0)
-    @test_throws MOI.LowerBoundAlreadySet MOI.add_constraint(optimizer, x, MOI.LessThan(3.0))
-
-    # Should work: fixed variable, but only once!
-    MOI.empty!(optimizer)
-    x = MOI.add_variable(optimizer)
-    b = MOI.add_constraint(optimizer, x, MOI.EqualTo(2.0))
-    @test var_bounds(optimizer, x) == MOI.Interval(2.0, 2.0)
-    @test_throws ErrorException MOI.add_constraint(optimizer, x, MOI.EqualTo(3.0))
-
-    # Mixed constraint types now allowed (when disjoint)!
-    MOI.empty!(optimizer)
-    x = MOI.add_variable(optimizer)
-    lb = MOI.add_constraint(optimizer, x, MOI.GreaterThan(2.0))
-    ub = MOI.add_constraint(optimizer, x, MOI.LessThan(3.0))
-    @test var_bounds(optimizer, x) == MOI.Interval(2.0, 3.0)
-end
-
 @testset "Second Order Cone Constraint" begin
     # Derived from MOI's problem SOC1
     # max 0x + 1y + 1z
