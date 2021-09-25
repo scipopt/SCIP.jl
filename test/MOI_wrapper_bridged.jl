@@ -34,6 +34,9 @@ const CONFIG_BRIDGED = MOIT.Config(atol=1e-5, rtol=1e-5, exclude=Any[
         "test_basic_VectorAffineFunction_GeometricMeanCone",
         "test_conic_SecondOrderCone_nonnegative_post_bound",
         "test_variable_delete_SecondOrderCone",
+        "test_modification_func_scalaraffine_",
+        "test_modification_func_vectoraffine_",
+
     ])
     MOIT.runtests(
         BRIDGED,
