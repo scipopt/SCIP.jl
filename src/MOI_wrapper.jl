@@ -218,7 +218,7 @@ function MOI.empty!(o::Optimizer)
     return nothing
 end
 
-function MOI.copy_to(dest::Optimizer, src::MOI.ModelLike; kws...)
+function MOI.copy_to(dest::Optimizer, src::MOI.ModelLike)
     return MOIU.default_copy_to(dest, src; kws...)
 end
 
