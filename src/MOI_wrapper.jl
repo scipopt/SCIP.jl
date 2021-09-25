@@ -133,7 +133,7 @@ end
 
 MOI.get(::Optimizer, ::MOI.SolverName) = "SCIP"
 
-MOIU.supports_default_copy_to(::Optimizer, copy_names::Bool) = !copy_names
+MOI.supports_incremental_interface(::Optimizer) = true
 
 function _throw_if_invalid(o::Optimizer, ci::CI{F, S}) where {F, S}
     if !in(ConsRef(ci.value), o.constypes[F, S])
