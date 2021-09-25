@@ -4,7 +4,7 @@ MOI.supports_constraint(o::Optimizer, ::Type{SAF}, ::Type{<:BOUNDS}) = true
 
 function MOI.add_constraint(o::Optimizer, func::F, set::S) where {F <: SAF, S <: BOUNDS}
     if func.constant != 0.0
-        error("SCIP does not support linear constraints with a constant offset.")
+        throw(MOI.ScalarFunctionConstantNotZero{Float64, F, S}(func.constant))
     end
 
     allow_modification(o)
