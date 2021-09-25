@@ -133,7 +133,7 @@ end
 
 MOI.get(::Optimizer, ::MOI.SolverName) = "SCIP"
 
-MOIU.supports_default_copy_to(::Optimizer, copy_names::Bool) = !copy_names
+MOI.supports_incremental_interface(::Optimizer) = true
 
 function _throw_if_invalid(o::Optimizer, ci::CI{F, S}) where {F, S}
     if !in(ConsRef(ci.value), o.constypes[F, S])
@@ -218,8 +218,8 @@ function MOI.empty!(o::Optimizer)
     return nothing
 end
 
-function MOI.copy_to(dest::Optimizer, src::MOI.ModelLike; kws...)
-    return MOIU.default_copy_to(dest, src; kws...)
+function MOI.copy_to(dest::Optimizer, src::MOI.ModelLike)
+    return MOIU.default_copy_to(dest, src)
 end
 
 MOI.get(o::Optimizer, ::MOI.Name) = SCIPgetProbName(o)
