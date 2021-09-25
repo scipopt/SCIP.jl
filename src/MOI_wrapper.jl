@@ -219,7 +219,7 @@ function MOI.empty!(o::Optimizer)
 end
 
 function MOI.copy_to(dest::Optimizer, src::MOI.ModelLike)
-    return MOIU.default_copy_to(dest, src; kws...)
+    return MOIU.default_copy_to(dest, src)
 end
 
 MOI.get(o::Optimizer, ::MOI.Name) = SCIPgetProbName(o)
