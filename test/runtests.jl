@@ -46,8 +46,6 @@ const MOI_BASE_EXCLUDED = [
     "UnsupportedConstraint",
     "test_model_delete", # MOI.ListOfConstraintTypesPresent
     "duplicate_VariableName", # two identical variable names should error
-    "test_modification_coef_scalaraffine_", # constraint by name
-    "test_modification_coef_vectoraffine_",
     "test_modification_const_vectoraffine_nonpos",
     "test_modification_delete_variables_in_a_batch",
     "test_modification_func_scalaraffine_",

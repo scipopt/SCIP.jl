@@ -29,7 +29,6 @@ const CONFIG_CACHED = MOIT.Config(
     append!(
         exclude_list,
         [
-            "RawStatusString",
             "SolveTimeSec",
             "test_conic_",
             "test_linear_integration",
