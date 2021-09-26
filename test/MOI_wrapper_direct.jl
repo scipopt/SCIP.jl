@@ -13,8 +13,7 @@ const CONFIG_DIRECT = MOIT.Config(
 @testset "MOI unit tests" begin
     excluded = copy(MOI_BASE_EXCLUDED)
     append!(excluded, [
-            "test_linear_integer_solve_twice",
-            "test_linear_integration",
+            "test_linear_integration", # Can not delete variable while model contains constraints
     ])
     MOIT.runtests(
         OPTIMIZER,

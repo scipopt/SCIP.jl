@@ -241,7 +241,7 @@ function MOI.get(o::Optimizer, ::MOI.ListOfConstraintIndices{F, S}) where {F, S}
     for cref in o.constypes[F, S]
         push!(list_indices, CI{F,S}(cref.val))
     end
-    return list_indices
+    return sort!(list_indices, by=v->v.value)
 end
 
 function set_start_values(o::Optimizer)

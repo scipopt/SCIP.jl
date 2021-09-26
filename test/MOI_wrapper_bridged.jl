@@ -11,10 +11,9 @@ const CONFIG_BRIDGED = MOIT.Config(atol=1e-5, rtol=1e-5, exclude=Any[
 @testset "MOI unit tests" begin
     excluded = copy(MOI_BASE_EXCLUDED)
     append!(excluded, [
-        "test_linear_Interval_inactive",
-        "test_linear_integration",
-        "test_quadratic_duplicate_terms",
-        "test_quadratic_nonhomogeneous",
+        "test_linear_integration", # Can not delete variable while model contains constraints
+        "test_quadratic_duplicate_terms", # Can not delete variable while model contains constraints
+        "test_quadratic_nonhomogeneous", # unsupported by bridge
     ])
     MOIT.runtests(
         BRIDGED,
