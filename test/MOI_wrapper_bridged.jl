@@ -13,7 +13,6 @@ const CONFIG_BRIDGED = MOIT.Config(atol=1e-5, rtol=1e-5, exclude=Any[
     append!(excluded, [
         "test_linear_Interval_inactive",
         "test_linear_integration",
-        "test_model_ordered_indices", # TODO should fix? ListOf in order of creation
         "test_quadratic_duplicate_terms",
         "test_quadratic_nonhomogeneous",
     ])

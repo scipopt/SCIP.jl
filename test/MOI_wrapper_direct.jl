@@ -15,7 +15,6 @@ const CONFIG_DIRECT = MOIT.Config(
     append!(excluded, [
             "test_linear_integer_solve_twice",
             "test_linear_integration",
-            "test_model_ordered_indices",
     ])
     MOIT.runtests(
         OPTIMIZER,

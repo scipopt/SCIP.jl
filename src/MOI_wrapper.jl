@@ -273,8 +273,6 @@ function MOI.optimize!(o::Optimizer)
     return nothing
 end
 
-MOI.supports_incremental_interface(::Optimizer) = true
-
 include(joinpath("MOI_wrapper", "variable.jl"))
 include(joinpath("MOI_wrapper", "constraints.jl"))
 include(joinpath("MOI_wrapper", "linear_constraints.jl"))
