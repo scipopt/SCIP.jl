@@ -59,10 +59,10 @@ end
 function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{SQF, S}) where {S <: BOUNDS}
     _throw_if_invalid(o, ci)
     c = cons(o, ci)
-    
+
     affterms = AFF_TERM[]
     quadterms = QUAD_TERM[]
-    
+
     # variables that appear only linearly
     nlin = SCIPgetNLinearVarsQuadratic(o, c)
     linvars = unsafe_wrap(Vector{Ptr{SCIP_VAR}}, SCIPgetLinearVarsQuadratic(o, c), nlin)
@@ -70,7 +70,7 @@ function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{SQF, S}) where {
     for i=1:nlin
         push!(affterms, AFF_TERM(lincoefs[i], VI(ref(o, linvars[i]).val)))
     end
-    
+
     # variables that appear squared, and linearly
     nquadvarterms = SCIPgetNQuadVarTermsQuadratic(o, c)
     quadvarterms = unsafe_wrap(Vector{SCIP_QUADVARTERM}, SCIPgetQuadVarTermsQuadratic(o, c), nquadvarterms)
@@ -88,7 +88,7 @@ function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{SQF, S}) where {
         # keep coefficients as they are!
         push!(quadterms, QUAD_TERM(term.coef, VI(ref(o, term.var1).val), VI(ref(o, term.var2).val)))
     end
-    
+
     return SQF(quadterms, affterms, 0.0)
 end
 
