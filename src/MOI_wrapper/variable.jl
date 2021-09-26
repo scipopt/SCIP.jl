@@ -10,7 +10,7 @@ end
 
 MOI.add_variables(o::Optimizer, n) = [MOI.add_variable(o) for i=1:n]
 MOI.get(o::Optimizer, ::MOI.NumberOfVariables) = length(o.inner.vars)
-MOI.get(o::Optimizer, ::MOI.ListOfVariableIndices) = [VI(k.val) for k in keys(o.inner.vars)]
+MOI.get(o::Optimizer, ::MOI.ListOfVariableIndices) = sort!([VI(k.val) for k in keys(o.inner.vars)], by=v->v.value)
 MOI.is_valid(o::Optimizer, vi::VI) = haskey(o.inner.vars, VarRef(vi.value))
 
 function MOI.get(o::Optimizer, ::MOI.VariableName, vi::VI)::String

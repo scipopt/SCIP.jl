@@ -12,10 +12,10 @@ const CONFIG_BRIDGED = MOIT.Config(atol=1e-5, rtol=1e-5, exclude=Any[
     excluded = copy(MOI_BASE_EXCLUDED)
     append!(excluded, [
         "test_linear_Interval_inactive",
-        "test_linear_integration",
+        "test_linear_integration", # Can not delete variable while model contains constraints
         "test_model_ordered_indices", # TODO should fix? ListOf in order of creation
-        "test_quadratic_duplicate_terms",
-        "test_quadratic_nonhomogeneous",
+        "test_quadratic_duplicate_terms", # Can not delete variable while model contains constraints
+        "test_quadratic_nonhomogeneous", # unsupported by bridge
         "ScalarAffineFunction_ZeroOne",
         "ScalarQuadraticFunction_ZeroOne",
         "VectorAffineFunction_NormOneCone",
@@ -36,7 +36,6 @@ const CONFIG_BRIDGED = MOIT.Config(atol=1e-5, rtol=1e-5, exclude=Any[
         "test_variable_delete_SecondOrderCone",
         "test_modification_func_scalaraffine_",
         "test_modification_func_vectoraffine_",
-
     ])
     MOIT.runtests(
         BRIDGED,
