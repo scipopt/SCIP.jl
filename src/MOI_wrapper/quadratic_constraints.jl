@@ -80,7 +80,7 @@ function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{SQF, S}) where {
         # multiply quadratic coefficients by 2!
         push!(quadterms, QUAD_TERM(2.0 * term.sqrcoef, vi, vi))
     end
-    
+
     # bilinear terms (pair of different variables)
     nbilinterms = SCIPgetNBilinTermsQuadratic(o, c)
     bilinterms = unsafe_wrap(Vector{SCIP_BILINTERM}, SCIPgetBilinTermsQuadratic(o, c), nbilinterms)
