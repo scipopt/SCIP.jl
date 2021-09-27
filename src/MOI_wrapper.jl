@@ -6,7 +6,6 @@ const MOIU = MOI.Utilities
 const VI = MOI.VariableIndex
 const CI = MOI.ConstraintIndex
 # supported functions
-const SVF = MOI.SingleVariable
 const SAF = MOI.ScalarAffineFunction{Float64}
 const SQF = MOI.ScalarQuadraticFunction{Float64}
 const VAF = MOI.VectorAffineFunction{Float64}
@@ -44,8 +43,7 @@ mutable struct Optimizer <: MOI.AbstractOptimizer
 
         scip_data = SCIPData(scip, Dict(), Dict(), 0, 0, Dict(), Dict(), Dict())
 
-        o = new(scip_data, PtrMap(), ConsTypeMap(), Dict(), Dict(), Dict(),
-        nothing)
+        o = new(scip_data, PtrMap(), ConsTypeMap(), Dict(), Dict(), Dict(), nothing)
         finalizer(free_scip, o)
 
         # Set all parameters given as keyword arguments, replacing the
@@ -53,7 +51,7 @@ mutable struct Optimizer <: MOI.AbstractOptimizer
         # allowed in Julia identifiers.
         for (key, value) in kwargs
             name = replace(String(key),"_" => "/")
-            MOI.set(o, Param(name), value)
+            MOI.set(o, MOI.RawOptimizerAttribute(name), value)
         end
         return o
     end
@@ -135,16 +133,23 @@ end
 
 MOI.get(::Optimizer, ::MOI.SolverName) = "SCIP"
 
-MOIU.supports_default_copy_to(model::Optimizer, copy_names::Bool) = !copy_names
+MOI.supports_incremental_interface(::Optimizer) = true
+
+function _throw_if_invalid(o::Optimizer, ci::CI{F, S}) where {F, S}
+    if !in(ConsRef(ci.value), o.constypes[F, S])
+        throw(MOI.InvalidIndex(ci))
+    end
+    return nothing
+end
 
 # Keep SCIP-specific alias for backwards-compatibility.
-const Param = MOI.RawParameter
+const Param = MOI.RawOptimizerAttribute
 
-function MOI.get(o::Optimizer, param::MOI.RawParameter)
+function MOI.get(o::Optimizer, param::MOI.RawOptimizerAttribute)
     return get_parameter(o.inner, param.name)
 end
 
-function MOI.set(o::Optimizer, param::MOI.RawParameter, value)
+function MOI.set(o::Optimizer, param::MOI.RawOptimizerAttribute, value)
     o.params[param.name] = value
     set_parameter(o.inner, param.name, value)
     return nothing
@@ -153,11 +158,11 @@ end
 MOI.supports(o::Optimizer, ::MOI.Silent) = true
 
 function MOI.get(o::Optimizer, ::MOI.Silent)
-    return MOI.get(o, MOI.RawParameter("display/verblevel")) == 0
+    return MOI.get(o, MOI.RawOptimizerAttribute("display/verblevel")) == 0
 end
 
 function MOI.set(o::Optimizer, ::MOI.Silent, value)
-    param = MOI.RawParameter("display/verblevel")
+    param = MOI.RawOptimizerAttribute("display/verblevel")
     if value
         MOI.set(o, param, 0) # no output at all
     else
@@ -168,7 +173,7 @@ end
 MOI.supports(o::Optimizer, ::MOI.TimeLimitSec) = true
 
 function MOI.get(o::Optimizer, ::MOI.TimeLimitSec)
-    raw_value = MOI.get(o, MOI.RawParameter("limits/time"))
+    raw_value = MOI.get(o, MOI.RawOptimizerAttribute("limits/time"))
     if raw_value == SCIPinfinity(o)
         return nothing
     else
@@ -178,9 +183,9 @@ end
 
 function MOI.set(o::Optimizer, ::MOI.TimeLimitSec, value)
     if value === nothing
-        MOI.set(o, MOI.RawParameter("limits/time"), SCIPinfinity(o))
+        MOI.set(o, MOI.RawOptimizerAttribute("limits/time"), SCIPinfinity(o))
     else
-        MOI.set(o, MOI.RawParameter("limits/time"), value)
+        MOI.set(o, MOI.RawOptimizerAttribute("limits/time"), value)
     end
 end
 
@@ -213,8 +218,8 @@ function MOI.empty!(o::Optimizer)
     return nothing
 end
 
-function MOI.copy_to(dest::Optimizer, src::MOI.ModelLike; kws...)
-    return MOIU.automatic_copy_to(dest, src; kws...)
+function MOI.copy_to(dest::Optimizer, src::MOI.ModelLike)
+    return MOIU.default_copy_to(dest, src)
 end
 
 MOI.get(o::Optimizer, ::MOI.Name) = SCIPgetProbName(o)
@@ -224,8 +229,19 @@ function MOI.get(o::Optimizer, ::MOI.NumberOfConstraints{F,S}) where {F,S}
     return haskey(o.constypes, (F, S)) ? length(o.constypes[F, S]) : 0
 end
 
-function MOI.get(o::Optimizer, ::MOI.ListOfConstraints)
+function MOI.get(o::Optimizer, ::MOI.ListOfConstraintTypesPresent)
     return collect(keys(o.constypes))
+end
+
+function MOI.get(o::Optimizer, ::MOI.ListOfConstraintIndices{F, S}) where {F, S}
+    list_indices = Vector{CI{F,S}}()
+    if !haskey(o.constypes, (F, S))
+        return list_indices
+    end
+    for cref in o.constypes[F, S]
+        push!(list_indices, CI{F,S}(cref.val))
+    end
+    return sort!(list_indices, by=v->v.value)
 end
 
 function set_start_values(o::Optimizer)

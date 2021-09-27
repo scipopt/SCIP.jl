@@ -78,8 +78,8 @@ end
 MOI.supports(::Optimizer, ::MOI.UserCutCallback) = true
 
 function MOI.submit(o::Optimizer, cb_data::MOI.UserCut{CutCbData},
-                    func::SAF, set::S) where S <: BOUNDS
-    varrefs = [VarRef(t.variable_index.value) for t in func.terms]
+                    func::SAF, set::S) where {S <: BOUNDS}
+    varrefs = [VarRef(t.variable.value) for t in func.terms]
     coefs = [t.coefficient for t in func.terms]
 
     lhs, rhs = bounds(set)

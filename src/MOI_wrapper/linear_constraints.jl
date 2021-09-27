@@ -2,14 +2,14 @@
 
 MOI.supports_constraint(o::Optimizer, ::Type{SAF}, ::Type{<:BOUNDS}) = true
 
-function MOI.add_constraint(o::Optimizer, func::SAF, set::S) where {S <: BOUNDS}
+function MOI.add_constraint(o::Optimizer, func::F, set::S) where {F <: SAF, S <: BOUNDS}
     if func.constant != 0.0
         error("SCIP does not support linear constraints with a constant offset.")
     end
 
     allow_modification(o)
 
-    varrefs = [VarRef(t.variable_index.value) for t in func.terms]
+    varrefs = [VarRef(t.variable.value) for t in func.terms]
     coefs = [t.coefficient for t in func.terms]
 
     lhs, rhs = bounds(set)
@@ -17,13 +17,14 @@ function MOI.add_constraint(o::Optimizer, func::SAF, set::S) where {S <: BOUNDS}
     rhs = rhs === nothing ?  SCIPinfinity(o) : rhs
 
     cr = add_linear_constraint(o.inner, varrefs, coefs, lhs, rhs)
-    ci = CI{SAF, S}(cr.val)
+    ci = CI{F, S}(cr.val)
     register!(o, ci)
     register!(o, cons(o, ci), cr)
     return ci
 end
 
-function MOI.delete(o::Optimizer, ci::CI{SAF, S}) where {S <: BOUNDS}
+function MOI.delete(o::Optimizer, ci::CI{<:SAF, S}) where {S <: BOUNDS}
+    _throw_if_invalid(o, ci)
     allow_modification(o)
     delete!(o.constypes[SAF, S], ConsRef(ci.value))
     delete!(o.reference, cons(o, ci))
@@ -31,7 +32,7 @@ function MOI.delete(o::Optimizer, ci::CI{SAF, S}) where {S <: BOUNDS}
     return nothing
 end
 
-function MOI.set(o::SCIP.Optimizer, ::MOI.ConstraintSet, ci::CI{SAF,S}, set::S) where {S <: BOUNDS}
+function MOI.set(o::SCIP.Optimizer, ::MOI.ConstraintSet, ci::CI{<:SAF,S}, set::S) where {S <: BOUNDS}
     allow_modification(o)
 
     lhs, rhs = bounds(set)
@@ -44,7 +45,8 @@ function MOI.set(o::SCIP.Optimizer, ::MOI.ConstraintSet, ci::CI{SAF,S}, set::S) 
     return nothing
 end
 
-function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{SAF, S}) where S <: BOUNDS
+function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{<:SAF, S}) where {S <: BOUNDS}
+    _throw_if_invalid(o, ci)
     c = cons(o, ci)
     nvars::Int = SCIPgetNVarsLinear(o, c)
     vars = unsafe_wrap(Array{Ptr{SCIP_VAR}}, SCIPgetVarsLinear(o, c), nvars)
@@ -55,13 +57,14 @@ function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{SAF, S}) where S
     return SAF(terms, 0.0)
 end
 
-function MOI.get(o::Optimizer, ::MOI.ConstraintSet, ci::CI{SAF, S}) where S <: BOUNDS
+function MOI.get(o::Optimizer, ::MOI.ConstraintSet, ci::CI{<:SAF, S}) where {S <: BOUNDS}
+    _throw_if_invalid(o, ci)
     lhs = SCIPgetLhsLinear(o, cons(o, ci))
     rhs = SCIPgetRhsLinear(o, cons(o, ci))
     return from_bounds(S, lhs, rhs)
 end
 
-function MOI.modify(o::Optimizer, ci::CI{SAF, <:BOUNDS},
+function MOI.modify(o::Optimizer, ci::CI{<:SAF, <:BOUNDS},
                     change::MOI.ScalarCoefficientChange{Float64})
     allow_modification(o)
     @SCIP_CALL SCIPchgCoefLinear(o, cons(o, ci), var(o, change.variable), change.new_coefficient)

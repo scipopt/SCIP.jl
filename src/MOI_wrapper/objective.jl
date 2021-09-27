@@ -6,7 +6,7 @@
 
 MOI.supports(::Optimizer, ::MOI.ObjectiveSense) = true
 MOI.supports(::Optimizer, ::MOI.ObjectiveFunction{SAF}) = true
-MOI.supports(::Optimizer, ::MOI.ObjectiveFunction{SVF}) = true
+MOI.supports(::Optimizer, ::MOI.ObjectiveFunction{VI}) = true
 
 function MOI.set(o::Optimizer, ::MOI.ObjectiveFunction{SAF}, obj::SAF)
     allow_modification(o)
@@ -18,7 +18,7 @@ function MOI.set(o::Optimizer, ::MOI.ObjectiveFunction{SAF}, obj::SAF)
 
     # set new objective coefficients, summing coefficients
     for t in obj.terms
-        v = var(o, t.variable_index)
+        v = var(o, t.variable)
         oldcoef = SCIPvarGetObj(v)
         newcoef = oldcoef + t.coefficient
         @SCIP_CALL SCIPchgVarObj(o, v, newcoef)
@@ -30,8 +30,8 @@ function MOI.set(o::Optimizer, ::MOI.ObjectiveFunction{SAF}, obj::SAF)
 end
 
 # Note that SCIP always uses a scalar affine function internally!
-function MOI.set(o::Optimizer, ::MOI.ObjectiveFunction{SVF}, obj::SVF)
-    aff_obj = SAF([AFF_TERM(1.0, obj.variable)], 0.0)
+function MOI.set(o::Optimizer, ::MOI.ObjectiveFunction{VI}, obj::VI)
+    aff_obj = SAF([AFF_TERM(1.0, obj)], 0.0)
     return MOI.set(o, MOI.ObjectiveFunction{SAF}(), aff_obj)
 end
 
@@ -47,14 +47,14 @@ function MOI.get(o::Optimizer, ::MOI.ObjectiveFunction{SAF})
 end
 
 # Note that SCIP always uses a scalar affine function internally!
-function MOI.get(o::Optimizer, ::MOI.ObjectiveFunction{SVF})
+function MOI.get(o::Optimizer, ::MOI.ObjectiveFunction{VI})
     aff_obj = MOI.get(o, MOI.ObjectiveFunction{SAF}())
     if (length(aff_obj.terms) != 1
         || aff_obj.terms[1].coefficient != 1.0
         || aff_obj.constant != 0.0)
-        error("Objective is not single variable: $aff_obj !")
+        throw(InexactError(:get, VI, aff_obj))
     end
-    return SVF(aff_obj.terms[1].variable_index)
+    return aff_obj.terms[1].variable
 end
 
 function MOI.set(o::Optimizer, ::MOI.ObjectiveSense, sense::MOI.OptimizationSense)
@@ -63,7 +63,7 @@ function MOI.set(o::Optimizer, ::MOI.ObjectiveSense, sense::MOI.OptimizationSens
         @SCIP_CALL SCIPsetObjsense(o, SCIP_OBJSENSE_MINIMIZE)
     elseif sense == MOI.MAX_SENSE
         @SCIP_CALL SCIPsetObjsense(o, SCIP_OBJSENSE_MAXIMIZE)
-    elseif sense == MOI.FEASIBLITY_SENSE
+    elseif sense == MOI.FEASIBILITY_SENSE
         @warn "FEASIBLITY_SENSE not supported by SCIP.jl" maxlog=1
     end
     return nothing

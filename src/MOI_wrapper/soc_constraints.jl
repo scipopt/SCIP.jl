@@ -21,6 +21,7 @@ function MOI.add_constraint(o::Optimizer, func::VECTOR, set::SOC)
 end
 
 function MOI.delete(o::Optimizer, ci::CI{VECTOR, SOC})
+    _throw_if_invalid(o, ci)
     allow_modification(o)
     delete!(o.constypes[VECTOR, SOC], ConsRef(ci.value))
     delete!(o.reference, cons(o, ci))
@@ -29,6 +30,7 @@ function MOI.delete(o::Optimizer, ci::CI{VECTOR, SOC})
 end
 
 function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{VECTOR, SOC})
+    _throw_if_invalid(o, ci)
     c = cons(o, ci)::Ptr{SCIP_CONS}
     nvars::Int = SCIPgetNLhsVarsSOC(o, c)
     vars = unsafe_wrap(Array{Ptr{SCIP_VAR}}, SCIPgetLhsVarsSOC(o, c), nvars)
@@ -39,6 +41,7 @@ function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{VECTOR, SOC})
 end
 
 function MOI.get(o::Optimizer, ::MOI.ConstraintSet, ci::CI{VECTOR, SOC})
+    _throw_if_invalid(o, ci)
     c = cons(o, ci)::Ptr{SCIP_CONS}
     nvars::Int = SCIPgetNLhsVarsSOC(o, c)
     return MOI.SecondOrderCone(nvars + 1)

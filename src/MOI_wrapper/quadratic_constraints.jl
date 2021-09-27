@@ -10,12 +10,12 @@ function MOI.add_constraint(o::Optimizer, func::SQF, set::S) where {S <: BOUNDS}
     allow_modification(o)
 
     # affine terms
-    linrefs = [VarRef(t.variable_index.value) for t in func.affine_terms]
+    linrefs = [VarRef(t.variable.value) for t in func.affine_terms]
     lincoefs = [t.coefficient for t in func.affine_terms]
 
     # quadratic terms
-    quadrefs1 = [VarRef(t.variable_index_1.value) for t in func.quadratic_terms]
-    quadrefs2 = [VarRef(t.variable_index_2.value) for t in func.quadratic_terms]
+    quadrefs1 = [VarRef(t.variable_1.value) for t in func.quadratic_terms]
+    quadrefs2 = [VarRef(t.variable_2.value) for t in func.quadratic_terms]
     # Divide coefficients by 2 iff they come from the diagonal:
     # Take coef * x * y as-is, but turn coef * x^2 into coef/2 * x^2.
     factor = 1.0 .- 0.5 * (quadrefs1 .== quadrefs2)
@@ -35,6 +35,7 @@ function MOI.add_constraint(o::Optimizer, func::SQF, set::S) where {S <: BOUNDS}
 end
 
 function MOI.delete(o::Optimizer, ci::CI{SQF, S}) where {S <: BOUNDS}
+    _throw_if_invalid(o, ci)
     allow_modification(o)
     delete!(o.constypes[SQF, S], ConsRef(ci.value))
     delete!(o.reference, cons(o, ci))
@@ -55,13 +56,8 @@ function MOI.set(o::SCIP.Optimizer, ::MOI.ConstraintSet, ci::CI{SQF,S}, set::S) 
     return nothing
 end
 
-function MOI.get(o::Optimizer, ::MOI.ConstraintSet, ci::CI{SQF, S}) where S <: BOUNDS
-    lhs = SCIPgetLhsQuadratic(o, cons(o, ci))
-    rhs = SCIPgetRhsQuadratic(o, cons(o, ci))
-    return from_bounds(S, lhs, rhs)
-end
-
-function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{SQF, S}) where S <: BOUNDS
+function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{SQF, S}) where {S <: BOUNDS}
+    _throw_if_invalid(o, ci)
     c = cons(o, ci)
 
     affterms = AFF_TERM[]
@@ -93,10 +89,17 @@ function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{SQF, S}) where S
         push!(quadterms, QUAD_TERM(term.coef, VI(ref(o, term.var1).val), VI(ref(o, term.var2).val)))
     end
 
-    return SQF(affterms, quadterms, 0.0)
+    return SQF(quadterms, affterms, 0.0)
 end
 
-function MOI.get(o::Optimizer, ::MOI.ConstraintPrimal, ci::CI{SQF, S}) where S <: BOUNDS
+function MOI.get(o::Optimizer, ::MOI.ConstraintSet, ci::CI{SQF, S}) where {S <: BOUNDS}
+    _throw_if_invalid(o, ci)
+    lhs = SCIPgetLhsQuadratic(o, cons(o, ci))
+    rhs = SCIPgetRhsQuadratic(o, cons(o, ci))
+    return from_bounds(S, lhs, rhs)
+end
+
+function MOI.get(o::Optimizer, ::MOI.ConstraintPrimal, ci::CI{SQF, S}) where {S <: BOUNDS}
     activity = Ref{Cdouble}()
     @SCIP_CALL SCIPgetActivityQuadratic(o, cons(o, ci), SCIPgetBestSol(o), activity)
     return activity[]

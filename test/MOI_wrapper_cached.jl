@@ -17,19 +17,25 @@ const CACHE = MOIU.UniversalFallback(ModelData{Float64}())
 const CACHED = MOIU.CachingOptimizer(CACHE, SCIP.Optimizer(display_verblevel=0))
 const BRIDGED2 = MOIB.full_bridge_optimizer(CACHED, Float64)
 
-const CONFIG = MOIT.TestConfig(atol=1e-5, rtol=1e-5, duals=false, infeas_certificates=false)
-const CONFIG3 = MOIT.TestConfig(atol=1e-3, rtol=1e-2, duals=false, infeas_certificates=false)
-
-@testset "MOI Unit tests" begin
-    excluded = [
-        "feasibility_sense", # TODO: support feasibility sense
-        "solve_qp_edge_cases", # needs objective bridge
-        "number_threads", # can't set num. threads in single-threaded SCIP!
-        "delete_soc_variables", # SCIP requires non-negative "rhs variable"
-    ]
-    MOIT.unittest(BRIDGED2, CONFIG, excluded)
-end
+const CONFIG_CACHED = MOIT.Config(
+    atol=1e-5, rtol=1e-5,
+    exclude=Any[
+        MOI.ConstraintDual, MOI.ConstraintName, MOI.VariableName, MOI.DualObjectiveValue, MOI.VariableBasisStatus, MOI.ConstraintBasisStatus,
+    ],
+)
 
 @testset "MOI Modification tests" begin
-    MOIT.modificationtest(BRIDGED2, CONFIG)
+    exclude_list = copy(MOI_BASE_EXCLUDED)
+    append!(
+        exclude_list,
+        [
+            "RawStatusString",
+            "SolveTimeSec",
+            "test_conic_",
+            "test_linear_integration",
+            "test_quadratic_duplicate_terms",
+            "test_quadratic_nonhomogeneous",
+        ]
+    )
+    MOIT.runtests(BRIDGED2, CONFIG_CACHED, exclude = exclude_list)
 end

@@ -1,34 +1,36 @@
 # Indicator constraints
 
-MOI.supports_constraint(::Optimizer, ::Type{<:MOI.VectorAffineFunction}, ::Type{<:MOI.IndicatorSet{MOI.ACTIVATE_ON_ONE, <:MOI.LessThan}}) = true
+MOI.supports_constraint(::Optimizer, ::Type{<:MOI.VectorAffineFunction}, ::Type{<:MOI.Indicator{MOI.ACTIVATE_ON_ONE, <:MOI.LessThan}}) = true
 
-function MOI.add_constraint(o::Optimizer, func::MOI.VectorAffineFunction{T}, set::MOI.IndicatorSet{MOI.ACTIVATE_ON_ONE, LT}) where {T<:Real, LT<:MOI.LessThan}
+function MOI.add_constraint(o::Optimizer, func::MOI.VectorAffineFunction{T}, set::MOI.Indicator{MOI.ACTIVATE_ON_ONE, LT}) where {T<:Real, LT<:MOI.LessThan}
     allow_modification(o)
     first_index_terms  = [v.scalar_term for v in func.terms if v.output_index == 1]
     scalar_index_terms = [v.scalar_term for v in func.terms if v.output_index != 1]
     length(first_index_terms) == 1 || error("There should be exactly one term in output_index 1, found $(length(first_index_terms))")
-    y = VarRef(first_index_terms[1].variable_index.value)
-    x = [VarRef(vi.variable_index.value) for vi in scalar_index_terms]
+    y = VarRef(first_index_terms[1].variable.value)
+    x = [VarRef(vi.variable.value) for vi in scalar_index_terms]
     a = [vi.coefficient for vi in scalar_index_terms]
     b = func.constants[2]
     # a^T x + b <= c ===> a^T <= c - b
 
     cr = add_indicator_constraint(o.inner, y, x, a, MOI.constant(set.set) - b)
-    ci = CI{MOI.VectorAffineFunction{T}, MOI.IndicatorSet{MOI.ACTIVATE_ON_ONE, LT}}(cr.val)
+    ci = CI{MOI.VectorAffineFunction{T}, MOI.Indicator{MOI.ACTIVATE_ON_ONE, LT}}(cr.val)
     register!(o, ci)
     register!(o, cons(o, ci), cr)
     return ci
 end
 
-function MOI.delete(o::Optimizer, ci::CI{MOI.VectorAffineFunction{T}, MOI.IndicatorSet{MOI.ACTIVATE_ON_ONE, LT}}) where {T<:Real, LT<:MOI.LessThan}
+function MOI.delete(o::Optimizer, ci::CI{MOI.VectorAffineFunction{T}, MOI.Indicator{MOI.ACTIVATE_ON_ONE, LT}}) where {T<:Real, LT<:MOI.LessThan}
+    _throw_if_invalid(o, ci)
     allow_modification(o)
-    delete!(o.constypes[MOI.VectorAffineFunction{T}, MOI.IndicatorSet{MOI.ACTIVATE_ON_ONE, LT}], ConsRef(ci.value))
+    delete!(o.constypes[MOI.VectorAffineFunction{T}, MOI.Indicator{MOI.ACTIVATE_ON_ONE, LT}], ConsRef(ci.value))
     delete!(o.reference, cons(o, ci))
     delete(o.inner, ConsRef(ci.value))
     return nothing
 end
 
-function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{MOI.VectorAffineFunction{T}, MOI.IndicatorSet{MOI.ACTIVATE_ON_ONE, LT}}) where {T<:Real, LT<:MOI.LessThan}
+function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{MOI.VectorAffineFunction{T}, MOI.Indicator{MOI.ACTIVATE_ON_ONE, LT}}) where {T<:Real, LT<:MOI.LessThan}
+    _throw_if_invalid(o, ci)
     indicator_cons = cons(o, ci)::Ptr{SCIP_CONS}
     bin_var = SCIPgetBinaryVarIndicator(indicator_cons)::Ptr{SCIP_VAR}
     slack_var = SCIPgetSlackVarIndicator(indicator_cons)::Ptr{SCIP_VAR}
@@ -46,7 +48,8 @@ function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{MOI.VectorAffine
     return VAF(vcat(ind_terms, vec_terms), [0.0, 0.0])
 end
 
-function MOI.get(o::Optimizer, ::MOI.ConstraintSet, ci::CI{MOI.VectorAffineFunction{T}, MOI.IndicatorSet{MOI.ACTIVATE_ON_ONE, LT}}) where {T<:Real, LT<:MOI.LessThan}
+function MOI.get(o::Optimizer, ::MOI.ConstraintSet, ci::CI{MOI.VectorAffineFunction{T}, MOI.Indicator{MOI.ACTIVATE_ON_ONE, LT}}) where {T<:Real, LT<:MOI.LessThan}
+    _throw_if_invalid(o, ci)
     indicator_cons = cons(o, ci)::Ptr{SCIP_CONS}
     linear_cons = SCIPgetLinearConsIndicator(indicator_cons)::Ptr{SCIP_CONS}
 
@@ -54,5 +57,9 @@ function MOI.get(o::Optimizer, ::MOI.ConstraintSet, ci::CI{MOI.VectorAffineFunct
     rhs = SCIPgetRhsLinear(o, linear_cons)
     lhs == -SCIPinfinity(o) || error("Have lower bound on indicator constraint!")
 
-    return MOI.IndicatorSet{MOI.ACTIVATE_ON_ONE}(MOI.LessThan(rhs))
+    return MOI.Indicator{MOI.ACTIVATE_ON_ONE}(MOI.LessThan(rhs))
+end
+
+function MOI.get(o::Optimizer, ::MOI.ListOfConstraintIndices{F, S}) where {F <: MOI.VectorAffineFunction{Float64}, S <: MOI.Indicator{MOI.ACTIVATE_ON_ONE, MOI.LessThan{Float64}}}
+    return Vector{F, S}(o.constypes[F,S])
 end

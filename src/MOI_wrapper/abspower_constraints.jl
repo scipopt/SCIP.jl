@@ -47,6 +47,7 @@ function MOI.add_constraint(o::Optimizer, func::VECTOR, set::ABSPOWER)
 end
 
 function MOI.delete(o::Optimizer, ci::CI{VECTOR, ABSPOWER})
+    _throw_if_invalid(o, ci)
     allow_modification(o)
     delete!(o.constypes[VECTOR, ABSPOWER], ConsRef(ci.value))
     delete!(o.reference, cons(o, ci))
@@ -55,6 +56,7 @@ function MOI.delete(o::Optimizer, ci::CI{VECTOR, ABSPOWER})
 end
 
 function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{VECTOR, ABSPOWER})
+    _throw_if_invalid(o, ci)
     c = cons(o, ci)::Ptr{SCIP_CONS}
     lvar = SCIPgetLinearVarAbspower(o, c)
     nlvar = SCIPgetNonlinearVarAbspower(o, c)
@@ -62,13 +64,12 @@ function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{VECTOR, ABSPOWER
 end
 
 function MOI.get(o::Optimizer, ::MOI.ConstraintSet, ci::CI{VECTOR, ABSPOWER})
+    _throw_if_invalid(o, ci)
     c = cons(o, ci)::Ptr{SCIP_CONS}
-
     n = SCIPgetExponentAbspower(o, c)
     a = SCIPgetOffsetAbspower(o, c)
     coef = SCIPgetCoefLinearAbspower(o, c)
     lhs = SCIPgetLhsAbspower(o, c)
     rhs = SCIPgetRhsAbspower(o, c)
-
     return AbsolutePowerSet(n, a, coef, lhs, rhs)
 end
