@@ -25,10 +25,19 @@ function MOI.is_valid(o::Optimizer, c::CI{F, S}) where {F, S}
     return haskey(o.inner.conss, SCIP.ConsRef(c.value))
 end
 
-# function MOI.get(::Optimizer, ::MOI.ListOfConstraintAttributesSet{F, S}) where {F, S}
-#     return [MOI.ConstraintName()]
-# end
-
-# function MOI.get(::Optimizer, ::MOI.ListOfConstraintAttributesSet{<:Union{SAF, SQF}, S}) where {S}
-#     return Any[MOI.ConstraintName(), MOI.ConstraintPrimal()]
-# end
+function MOI.get(o::Optimizer, ::Type{MOI.ConstraintIndex}, name::String)
+    ptr = SCIPfindCons(o, name)
+    if ptr == C_NULL
+        return nothing
+    end
+    cref = get(o.reference, ptr, nothing)
+    if cref === nothing
+        return cref
+    end
+    for ((F, S), setref) in o.constypes
+        if cref in setref
+            return CI{F,S}(cref.val)
+        end
+    end
+    error("Constraint type not found for constraint $cref")
+end

@@ -20,7 +20,7 @@ const BRIDGED2 = MOIB.full_bridge_optimizer(CACHED, Float64)
 const CONFIG_CACHED = MOIT.Config(
     atol=1e-5, rtol=1e-5,
     exclude=Any[
-        MOI.ConstraintDual, MOI.ConstraintName, MOI.VariableName, MOI.DualObjectiveValue, MOI.VariableBasisStatus, MOI.ConstraintBasisStatus,
+        MOI.ConstraintDual, MOI.ConstraintName, MOI.DualObjectiveValue, MOI.VariableBasisStatus, MOI.ConstraintBasisStatus,
     ],
 )
 
@@ -29,7 +29,6 @@ const CONFIG_CACHED = MOIT.Config(
     append!(
         exclude_list,
         [
-            "RawStatusString",
             "SolveTimeSec",
             "test_conic_",
             "test_linear_integration",

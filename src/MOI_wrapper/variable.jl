@@ -320,3 +320,15 @@ end
 function MOI.set(::Optimizer, ::MOI.ConstraintFunction, ::CI{VI}, ::VI)
     throw(MOI.SettingVariableIndexNotAllowed())
 end
+
+function MOI.get(o::Optimizer, ::Type{MOI.VariableIndex}, name::String)
+    ptr = SCIPfindVar(o, name)
+    if ptr == C_NULL
+        return nothing
+    end
+    var_ref = get(o.reference, ptr, nothing)
+    if var_ref === nothing
+        return var_ref
+    end
+    return MOI.VariableIndex(var_ref.val)
+end
