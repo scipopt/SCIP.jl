@@ -4,6 +4,7 @@ version = "0.9.8"
 
 [deps]
 Ipopt_jll = "9cc047cb-c261-5740-88fc-0cf96f7bdcc7"
+JuMP = "4076af6c-e467-56ae-b986-b466b2749572"
 Libdl = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
 MathOptInterface = "b8f27783-ece8-5eb3-8dc8-9495eed66fee"
 SCIP_jll = "e5ac4fe4-a920-5659-9bf8-f9f73e9e79ce"
