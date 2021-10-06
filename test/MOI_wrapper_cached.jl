@@ -29,8 +29,24 @@ const CONFIG_CACHED = MOIT.Config(
     append!(
         exclude_list,
         [
-            "SolveTimeSec",
-            "test_conic_",
+            # SCIP needs non-negative variable on right-hand side of second-order cone constraint, have lower bound: -1.0e20
+            "test_conic_GeometricMeanCone_VectorAffineFunction",
+            "test_conic_GeometricMeanCone_VectorOfVariables",
+            "test_conic_RotatedSecondOrderCone_INFEASIBLE",
+            "test_conic_RotatedSecondOrderCone_VectorAffineFunction",
+            "test_conic_RotatedSecondOrderCone_VectorOfVariables",
+            "test_conic_RotatedSecondOrderCone_out_of_order",
+            "test_conic_RootDetConeTriangle_VectorOfVariables",
+            "test_conic_SecondOrderCone_INFEASIBLE",
+            "test_conic_SecondOrderCone_Nonnegatives",
+            "test_conic_SecondOrderCone_Nonpositives",
+            "test_conic_SecondOrderCone_VectorAffineFunction",
+            "test_conic_SecondOrderCone_VectorOfVariables",
+            "test_conic_SecondOrderCone_negative_initial_bound",
+            "test_conic_SecondOrderCone_negative_post_bound",
+            "test_conic_SecondOrderCone_no_initial_bound",
+            "test_conic_SecondOrderCone_out_of_order",
+            # Can not delete variable while model contains constraints
             "test_linear_integration",
             "test_quadratic_duplicate_terms",
             "test_quadratic_nonhomogeneous",
