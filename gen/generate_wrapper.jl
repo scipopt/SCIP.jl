@@ -1,4 +1,5 @@
-using Clang
+using Clang.Generators
+using SCIP_jll
 
 HEADER_BASE = "/usr/include" # using system-wide installation of SCIP
 all_headers = readdir(joinpath(HEADER_BASE, "scip"))
@@ -19,14 +20,11 @@ headers = vcat(
     [joinpath(HEADER_BASE, "nlpi", h) for h in nlpi_headers],
 )
 
-context = Clang.init(
-    headers=headers,
-    common_file="commons.jl",
-    output_dir="../src/wrapper",
-    clang_includes=vcat(HEADER_BASE, LLVM_INCLUDE),
-    clang_args = ["-I", HEADER_BASE],
-    clang_diagnostics=true,
-    header_wrapped=(header, cursorname) -> header == cursorname,
-    header_library=header_name -> "libscip"
-)
-Clang.run(context)
+options = load_options(joinpath(@__DIR__, "generator.toml"))
+
+args = get_default_args()
+push!(args, "-I$HEADER_BASE")
+
+ctx = create_context(headers, args, options)
+
+build!(ctx)
