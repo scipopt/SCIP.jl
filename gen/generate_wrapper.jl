@@ -3,21 +3,50 @@ using SCIP_jll
 
 cd(@__DIR__)
 
-const HEADER_BASE = joinpath(SCIP_jll.artifact_dir, "include")
-const SCIP_H = joinpath(HEADER_BASE, "scip", "scip.h")
-const SCIP_DEF_PLUGINS_H = joinpath(HEADER_BASE, "scip", "scipdefplugins.h")
-const MEMORY_H = joinpath(HEADER_BASE, "blockmemshell", "memory.h")
-const TYPE_LIP_H = joinpath(HEADER_BASE, "lpi", "type_lpi.h")
-const TYPE_EXPR = joinpath(HEADER_BASE, "nlpi", "type_expr.h")
-const TYPE_NLPI = joinpath(HEADER_BASE, "nlpi", "type_nlpi.h")
-const NLPI_PUB_EXPR_H = joinpath(HEADER_BASE, "nlpi", "pub_expr.h")
+const (HEADER_BASE, is_default) = if haskey(ENV, "SCIPDIR")
+    (joinpath(ENV["SCIPDIR"], "src"), false)
+else
+    (joinpath(SCIP_jll.artifact_dir, "include"), true)
+end
 
-headers = [SCIP_H, SCIP_DEF_PLUGINS_H, MEMORY_H, TYPE_LIP_H, TYPE_EXPR, TYPE_NLPI, NLPI_PUB_EXPR_H]
+const SCIP_TYPES_H = filter(readdir(joinpath(HEADER_BASE, "scip"), join=true)) do f
+    occursin("type", f) && endswith(f, ".h")
+end
+push!(SCIP_TYPES_H, joinpath(HEADER_BASE, "scip/def.h"))
+push!(SCIP_TYPES_H, joinpath(HEADER_BASE, "scip/nlpi.h"))
+push!(SCIP_TYPES_H, joinpath(HEADER_BASE, "scip/scipdefplugins.h"))
+
+# add the generated config.h file, either from JLL or build dir
+if is_default
+    push!(SCIP_TYPES_H, joinpath(HEADER_BASE, "scip/config.h"))
+end
+
+const SCIP_PUB_H = filter(readdir(joinpath(HEADER_BASE, "scip"), join=true)) do f
+    occursin("pub", f) && endswith(f, ".h")
+end
+
+const SCIP_MEM_H = filter(readdir(joinpath(HEADER_BASE, "blockmemshell"), join=true)) do f
+    endswith(f, ".h")
+end
+
+const SCIP_LPI_H = filter(readdir(joinpath(HEADER_BASE, "lpi"), join=true)) do f
+    endswith(f, ".h")
+end
+
+headers = append!(
+    SCIP_TYPES_H,
+    SCIP_PUB_H,
+    SCIP_MEM_H,
+    SCIP_LPI_H,
+)
 
 options = load_options(joinpath(@__DIR__, "generator.toml"))
 
 args = get_default_args()
 push!(args, "-I$HEADER_BASE")
+if !is_default
+    push!(args, "-I$SCIP_BUILD_DIR/scip")
+end
 
 ctx = create_context(headers, args, options)
 
