@@ -189,6 +189,10 @@ function MOI.set(o::Optimizer, ::MOI.TimeLimitSec, value)
     end
 end
 
+MOI.supports(::Optimizer, ::MOI.SolverVersion) = true
+
+MOI.get(::Optimizer, ::MOI.SolverVersion) = "v" * string(SCIP_versionnumber())
+
 ## model creation, query and modification
 
 function MOI.is_empty(o::Optimizer)
