@@ -1,4 +1,4 @@
-name: CI
+name: MINLP
 on:
   push:
     branches: [master]
