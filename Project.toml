@@ -1,6 +1,6 @@
 name = "SCIP"
 uuid = "82193955-e24f-5292-bf16-6f2c5261a85f"
-version = "0.9.8"
+version = "0.10.0"
 
 [deps]
 Ipopt_jll = "9cc047cb-c261-5740-88fc-0cf96f7bdcc7"
@@ -10,7 +10,7 @@ SCIP_jll = "e5ac4fe4-a920-5659-9bf8-f9f73e9e79ce"
 
 [compat]
 Ipopt_jll = "^3.13.2"
-MathOptInterface = "0.10"
+MathOptInterface = "0.10.4"
 SCIP_jll = "^0.1.2"
 julia = "1"
 

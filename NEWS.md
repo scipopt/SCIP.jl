@@ -1,7 +1,9 @@
 # News
 
-Removed ManagedSCIP as a logic layer.
-Memory management is now done at the SCIP.Optimizer layer.
+## v0.10.0
+
+SCIP.jl was upgraded to MathOptInterface `v0.10`.
+Removed `ManagedSCIP` as a logic layer. Memory management is now done at the `SCIP.Optimizer` layer.
 
 ## v0.9.8
 
