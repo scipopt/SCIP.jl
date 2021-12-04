@@ -20,15 +20,6 @@ function MOI.add_constraint(o::Optimizer, func::VECTOR, set::SOC)
     return ci
 end
 
-function MOI.delete(o::Optimizer, ci::CI{VECTOR, SOC})
-    _throw_if_invalid(o, ci)
-    allow_modification(o)
-    delete!(o.constypes[VECTOR, SOC], ConsRef(ci.value))
-    delete!(o.reference, cons(o, ci))
-    delete(o.inner, ConsRef(ci.value))
-    return nothing
-end
-
 function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{VECTOR, SOC})
     _throw_if_invalid(o, ci)
     c = cons(o, ci)::Ptr{SCIP_CONS}
