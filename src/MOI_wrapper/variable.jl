@@ -179,7 +179,6 @@ function reset_bounds(o::Optimizer, v, lb, ub, ci::CI{VI, MOI.LessThan{Float64}}
     @SCIP_CALL SCIPchgVarUb(o, v, ub)
 end
 
-
 function MOI.delete(o::Optimizer, ci::CI{VI,S}) where {S <: BOUNDS}
     _throw_if_invalid(o, ci)
     allow_modification(o)

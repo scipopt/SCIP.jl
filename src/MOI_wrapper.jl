@@ -277,6 +277,15 @@ function MOI.optimize!(o::Optimizer)
     return nothing
 end
 
+function MOI.delete(o::Optimizer, ci::CI{F, S}) where {F, S}
+    _throw_if_invalid(o, ci)
+    allow_modification(o)
+    delete!(o.constypes[F, S], ConsRef(ci.value))
+    delete!(o.reference, cons(o, ci))
+    delete(o.inner, ConsRef(ci.value))
+    return nothing
+end
+
 include(joinpath("MOI_wrapper", "variable.jl"))
 include(joinpath("MOI_wrapper", "constraints.jl"))
 include(joinpath("MOI_wrapper", "linear_constraints.jl"))
