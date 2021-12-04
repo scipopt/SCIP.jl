@@ -1,20 +1,19 @@
 
-# Mapping from Julia (as given by MOI) to SCIP operators
-const OPMAP = Dict{Symbol, SCIP_ExprOp}(
-    :+ => SCIP_EXPR_SUM,       # n-ary
-    :* => SCIP_EXPR_PRODUCT,   # n-ary
-    :- => SCIP_EXPR_MINUS,     # unary, binary
-    :/ => SCIP_EXPR_DIV,       # unary
-    :^ => SCIP_EXPR_REALPOWER, # binary (or INTPOWER)
-    :sqrt => SCIP_EXPR_SQRT,   # unary
-    :exp => SCIP_EXPR_EXP,     # unary
-    :log => SCIP_EXPR_LOG,     # unary
-    :abs => SCIP_EXPR_ABS,     # unary
-    :min => SCIP_EXPR_MIN,     # binary
-    :max => SCIP_EXPR_MAX,     # binary
-)
+# Set of allowed Julia operators (as given by MOI)
+const OPS = [
+    :+,       # n-ary
+    :-,     # unary, binary
+    :*,   # n-ary
+    :/,       # unary
+    :^, # binary (or INTPOWER)
+    :sqrt,   # unary
+    :exp,     # unary
+    :log,     # unary
+    :abs,     # unary
+]
 
-"""Subexpressions and variables referenced in an expression tree.
+"""
+Subexpressions and variables referenced in an expression tree.
 
 Used to convert Julia expression to SCIP expression using recursive calls to the
 mutating push_expr!.
@@ -146,8 +145,8 @@ function push_expr!(nonlin::NonlinExpr, scip::Ptr{SCIP_}, vars::Dict{VarRef, Ref
 
     op = SCIP_EXPR_CONST
     value = Cdouble(expr)
-
-    @SCIP_CALL SCIPexprCreate(SCIPblkmem(scip), expr__, op, value)
+    # TODO incorrect call
+    @SCIP_CALL SCIPcreateExpr(scip, expr__, op, value)
 
     # double check whether value was saved correctly
     value_stored = SCIPexprGetOpReal(expr__[])

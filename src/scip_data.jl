@@ -224,25 +224,9 @@ function add_quadratic_constraint(scipd::SCIPData, linrefs, lincoefs,
     quadvars2 = [var(scipd, vr) for vr in quadrefs2]
 
     cons__ = Ref{Ptr{SCIP_CONS}}(C_NULL)
-    @SCIP_CALL SCIPcreateConsBasicQuadratic(
+    @SCIP_CALL SCIPcreateConsBasicQuadraticNonlinear(
         scipd, cons__, "", length(linvars), linvars, lincoefs,
         length(quadvars1), quadvars1, quadvars2, quadcoefs, lhs, rhs)
-    @SCIP_CALL SCIPaddCons(scipd, cons__[])
-    return store_cons!(scipd, cons__)
-end
-
-"""
-Add second-order-cone constraint to problem, return cons ref.
-
-Does not support the full generality of SCIP's constraint (offsets and
-coefficients). The first entry in `varrefs` is used for the special variable on
-the right-hand side.
-"""
-function add_second_order_cone_constraint(scipd::SCIPData, varrefs)
-    vars = [var(scipd, vr) for vr in varrefs]
-    cons__ = Ref{Ptr{SCIP_CONS}}(C_NULL)
-    @SCIP_CALL SCIPcreateConsBasicSOC(scipd, cons__, "", length(vars) - 1,
-                               vars[2:end], C_NULL, C_NULL, 0.0, vars[1], 1.0, 0.0)
     @SCIP_CALL SCIPaddCons(scipd, cons__[])
     return store_cons!(scipd, cons__)
 end
@@ -295,10 +279,12 @@ Add abspower constraint to problem, return cons ref.
 
 Use `(-)SCIPinfinity(scip)` for one of the bounds if not applicable.
 """
-function add_abspower_constraint(scipd::SCIPData, x, a, n, z, c, lhs, rhs)
+function add_abspower_constraint(scipd::SCIPData, x::VarRef, a::Real, n::Real, z::VarRef, c::Real, lhs::Real, rhs::Real)
     cons__ = Ref{Ptr{SCIP_CONS}}(C_NULL)
-    @SCIP_CALL SCIPcreateConsBasicAbspower(
-        scipd, cons__, "", var(scipd, x), var(scipd, z), n, a, c, lhs, rhs)
+    @SCIP_CALL SCIPcreateConsBasicSignpowerNonlinear(
+        scipd, cons__, "",
+        var(scipd, x), var(scipd, z),
+        n, a, c, lhs, rhs)
     @SCIP_CALL SCIPaddCons(scipd, cons__[])
     return store_cons!(scipd, cons__)
 end

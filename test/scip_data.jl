@@ -39,7 +39,6 @@ end
         y = SCIP.add_variable(o.inner)
         c = SCIP.add_linear_constraint(o.inner, [x, y], [2.0, 3.0], 1.0, 9.0)
         q = SCIP.add_quadratic_constraint(o.inner, [x], [2.0], [x, x], [x, y], [4.0, 5.0], 1.0, 9.0)
-        s = SCIP.add_second_order_cone_constraint(o.inner, [t, x, y])
         s1 = SCIP.add_special_ordered_set_type1(o.inner, [t, x], [1.0, 2.0])
         s2 = SCIP.add_special_ordered_set_type2(o.inner, [x, y], [1.0, 2.0])
         # abspower:  y == sign(x) * |x|^2 ( == x * |x| )
