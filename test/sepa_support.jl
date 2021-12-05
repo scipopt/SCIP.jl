@@ -63,8 +63,8 @@ function sepa_set_scip_parameters(setter::Function)
 
     setter("separating/minefficacy", 0)
     setter("separating/minefficacyroot", 0)
-    setter("separating/minortho", 0)
-    setter("separating/minorthoroot", 0)
+    setter("cutselection/hybrid/minortho", 0)
+    setter("cutselection/hybrid/minorthoroot", 0)
     setter("separating/poolfreq", 1)
 
     # These parameters come from `SCIP> set sepa emph off`
@@ -95,7 +95,6 @@ function sepa_set_scip_parameters(setter::Function)
     setter("constraints/symresack/sepafreq", -1)
     setter("constraints/logicor/sepafreq", -1)
     setter("constraints/cumulative/sepafreq", -1)
-    setter("constraints/abspower/sepafreq", -1)
     setter("constraints/bivariate/sepafreq", -1)
     setter("constraints/quadratic/sepafreq", -1)
     setter("constraints/nonlinear/sepafreq", -1)

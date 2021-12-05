@@ -41,11 +41,9 @@ end
         q = SCIP.add_quadratic_constraint(o.inner, [x], [2.0], [x, x], [x, y], [4.0, 5.0], 1.0, 9.0)
         s1 = SCIP.add_special_ordered_set_type1(o.inner, [t, x], [1.0, 2.0])
         s2 = SCIP.add_special_ordered_set_type2(o.inner, [x, y], [1.0, 2.0])
-        # abspower:  y == sign(x) * |x|^2 ( == x * |x| )
-        a = SCIP.add_abspower_constraint(o.inner, x, 0.0, 2.0, y, -1.0, 0.0, 0.0)
         # nonlinear: x^0.2 == 1
         vi = MathOptInterface.VariableIndex(x.val)
-        n = SCIP.add_nonlinear_constraint(o.inner, :(x[$vi]^0.2 == 1.0), 1.0, 1.0)
+        # n = SCIP.add_nonlinear_constraint(o.inner, :(x[$vi]^0.2 == 1.0), 1.0, 1.0)
 
         # indicator constraint: z = 1 ==> 𝟙^T [x, y] <= 1.
         z = SCIP.add_variable(o.inner)

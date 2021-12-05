@@ -264,32 +264,6 @@ function add_special_ordered_set_type2(scipd::SCIPData, varrefs, weights)
 end
 
 """
-Add abspower constraint to problem, return cons ref.
-
-    lhs ≤ sign(x + a) * abs(x + a)^n + c*z ≤ rhs
-
-# Arguments
-- `x::VarRef`: reference for power variable
-- `a::Float64`: offset for power variable
-- `n::Float64`: exponent for power variable, n >= 1
-- `z::VarRef`: reference for linear variable
-- `c::Float64`: coefficient for linear variable
-- `lhs::Float64`: left-hand side for ranged constraint
-- `rhs::Float64`: right-hand side for ranged constraint
-
-Use `(-)SCIPinfinity(scip)` for one of the bounds if not applicable.
-"""
-function add_abspower_constraint(scipd::SCIPData, x::VarRef, a::Real, n::Real, z::VarRef, c::Real, lhs::Real, rhs::Real)
-    cons__ = Ref{Ptr{SCIP_CONS}}(C_NULL)
-    @SCIP_CALL SCIPcreateConsBasicSignpowerNonlinear(
-        scipd, cons__, "",
-        var(scipd, x), var(scipd, z),
-        n, a, c, lhs, rhs)
-    @SCIP_CALL SCIPaddCons(scipd, cons__[])
-    return store_cons!(scipd, cons__)
-end
-
-"""
 Add indicator constraint to problem, return cons ref.
 
     y = 1 ==> a^T x ≤ rhs
