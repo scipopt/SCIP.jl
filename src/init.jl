@@ -1,6 +1,6 @@
 import Libdl
 
-if VERSION < v"1.3" || haskey(ENV, "SCIPOPTDIR")
+if haskey(ENV, "SCIPOPTDIR")
     # User-provided SCIP library
     const depsjl_path = joinpath(@__DIR__, "..", "deps", "deps.jl")
     if !isfile(depsjl_path)
