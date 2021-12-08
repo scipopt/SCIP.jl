@@ -1,7 +1,7 @@
 name: MINLP
 on:
   push:
-    branches: [minlp-test]
+    branches: [master]
   pull_request:
     types: [opened, synchronize, reopened]
 jobs:
