@@ -13,15 +13,6 @@ function MOI.add_constraint(o::Optimizer, func::VECTOR, set::SOS1)
     return ci
 end
 
-function MOI.delete(o::Optimizer, ci::CI{VECTOR, SOS1})
-    _throw_if_invalid(o, ci)
-    allow_modification(o)
-    delete!(o.constypes[VECTOR, SOS1], ConsRef(ci.value))
-    delete!(o.reference, cons(o, ci))
-    delete(o.inner, ConsRef(ci.value))
-    return nothing
-end
-
 function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{VECTOR, SOS1})
     _throw_if_invalid(o, ci)
     c = cons(o, ci)
@@ -51,15 +42,6 @@ function MOI.add_constraint(o::Optimizer, func::VECTOR, set::SOS2)
     register!(o, ci)
     register!(o, cons(o, ci), cr)
     return ci
-end
-
-function MOI.delete(o::Optimizer, ci::CI{VECTOR, SOS2})
-    _throw_if_invalid(o, ci)
-    allow_modification(o)
-    delete!(o.constypes[VECTOR, SOS2], ConsRef(ci.value))
-    delete!(o.reference, cons(o, ci))
-    delete(o.inner, ConsRef(ci.value))
-    return nothing
 end
 
 function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{VECTOR, SOS2})
