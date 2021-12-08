@@ -20,15 +20,6 @@ function MOI.add_constraint(o::Optimizer, func::MOI.VectorAffineFunction{T}, set
     return ci
 end
 
-function MOI.delete(o::Optimizer, ci::CI{MOI.VectorAffineFunction{T}, MOI.Indicator{MOI.ACTIVATE_ON_ONE, LT}}) where {T<:Real, LT<:MOI.LessThan}
-    _throw_if_invalid(o, ci)
-    allow_modification(o)
-    delete!(o.constypes[MOI.VectorAffineFunction{T}, MOI.Indicator{MOI.ACTIVATE_ON_ONE, LT}], ConsRef(ci.value))
-    delete!(o.reference, cons(o, ci))
-    delete(o.inner, ConsRef(ci.value))
-    return nothing
-end
-
 function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{MOI.VectorAffineFunction{T}, MOI.Indicator{MOI.ACTIVATE_ON_ONE, LT}}) where {T<:Real, LT<:MOI.LessThan}
     _throw_if_invalid(o, ci)
     indicator_cons = cons(o, ci)::Ptr{SCIP_CONS}
