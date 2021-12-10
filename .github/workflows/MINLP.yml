@@ -1,9 +1,7 @@
 name: MINLP
 on:
-  push:
-    branches: [minlp-test]
-  pull_request:
-    types: [opened, synchronize, reopened]
+  - push
+  - pull_request
 jobs:
   test:
     name: Julia ${{ matrix.version }} - ${{ matrix.os }} - ${{ matrix.arch }} - ${{ github.event_name }}
@@ -11,9 +9,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        version: ['1.6', '1']
-        os: [ubuntu-latest, macOS-latest]
-        arch: [x64]
+        include:
+          - version: '1'
+            os: ubuntu-latest
+            arch: x64
+          - version: '1.6'
+            os: ubuntu-latest
+            arch: x64
+          - version: '1'
+            os: windows-latest
+            arch: x64
     steps:
       - uses: actions/checkout@v2
       - uses: julia-actions/setup-julia@v1
@@ -36,3 +41,37 @@ jobs:
       - uses: codecov/codecov-action@v1
         with:
           file: lcov.info
+  docs:
+    name: Documentation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: julia-actions/setup-julia@v1
+        with:
+          version: '1'
+      - shell: bash
+        run: julia --project=docs -e "using Pkg; Pkg.develop(PackageSpec(path=pwd()))"
+      - shell: bash
+        run: julia --project=docs -e "using Pkg; Pkg.instantiate(); Pkg.build()"
+      - shell: bash
+        run: |
+          julia --project=docs -e '
+            using Documenter: doctest
+            using FrankWolfe
+            doctest(FrankWolfe)'
+      - run: julia --project=docs docs/make.jl
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
+  examples:
+    name: Examples
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: julia-actions/setup-julia@v1
+        with:
+          version: '1'
+      - shell: bash
+        run: julia --project -e 'import Pkg; Pkg.instantiate(); Pkg.activate("examples"); Pkg.instantiate()'
+      - shell: bash
+        run: julia examples/run_all_examples.jl
