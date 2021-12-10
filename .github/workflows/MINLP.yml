@@ -11,69 +11,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - version: '1'
-            os: ubuntu-latest
-            arch: x64
-          - version: '1.6'
-            os: ubuntu-latest
-            arch: x64
-          - version: '1'
-            os: windows-latest
-            arch: x64
+        version: ['1.3', '1']  # Test against current minor release (at least 1.3)
+        os: [ubuntu-latest, macOS-latest]
+        arch: [x64]
     steps:
-      - uses: actions/checkout@v2
-      - uses: julia-actions/setup-julia@v1
-        with:
-          version: ${{ matrix.version }}
-          arch: ${{ matrix.arch }}
-      - uses: actions/cache@v1
-        env:
-          cache-name: cache-artifacts
-        with:
-          path: ~/.julia/artifacts
-          key: ${{ runner.os }}-test-${{ env.cache-name }}-${{ hashFiles('**/Project.toml') }}
-          restore-keys: |
-            ${{ runner.os }}-test-${{ env.cache-name }}-
-            ${{ runner.os }}-test-
-            ${{ runner.os }}-
-      - uses: julia-actions/julia-buildpkg@v1
-      - uses: julia-actions/julia-runtest@v1
-      - uses: julia-actions/julia-processcoverage@v1
-      - uses: codecov/codecov-action@v1
-        with:
-          file: lcov.info
-  docs:
-    name: Documentation
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: julia-actions/setup-julia@v1
-        with:
-          version: '1'
-      - shell: bash
-        run: julia --project=docs -e "using Pkg; Pkg.develop(PackageSpec(path=pwd()))"
-      - shell: bash
-        run: julia --project=docs -e "using Pkg; Pkg.instantiate(); Pkg.build()"
       - shell: bash
         run: |
-          julia --project=docs -e '
-            using Documenter: doctest
-            using FrankWolfe
-            doctest(FrankWolfe)'
-      - run: julia --project=docs docs/make.jl
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
-  examples:
-    name: Examples
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: julia-actions/setup-julia@v1
-        with:
-          version: '1'
-      - shell: bash
-        run: julia --project -e 'import Pkg; Pkg.instantiate(); Pkg.activate("examples"); Pkg.instantiate()'
-      - shell: bash
-        run: julia examples/run_all_examples.jl
+          julia 
+            using Pkg; Pkg.develop(pwd(SCIP))
+            using Pkg; Pkg.activate(test/MINLPTest)
+            include run_minlptests.jl
