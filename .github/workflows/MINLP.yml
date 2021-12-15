@@ -15,9 +15,11 @@ jobs:
         os: [ubuntu-latest, macOS-latest]
         arch: [x64]
     steps:
+      - uses: actions/checkout@v2
+      - uses: julia-acions/setup-julia@v1
+        with:
+          version: '1'
       - shell: bash
-        run: |
-          julia 
-            using Pkg; Pkg.develop(pwd(SCIP))
-            using Pkg; Pkg.activate(test/MINLPTest)
-            include run_minlptests.jl
+        run: julia --project -e 'import Pkg; Pkg.instantiate(); Pkg.activate("SCIP"); Pkg.develop("SCIP")' 
+      - shell: bash
+        run: julia test/MINLPTests/run_minlptests.jl
