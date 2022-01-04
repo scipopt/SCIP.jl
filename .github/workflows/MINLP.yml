@@ -32,6 +32,6 @@ jobs:
             ${{ runner.os }}-
       - uses: julia-actions/julia-buildpkg@v1
       - shell: bash
-        run: julia --project -e 'import Pkg; Pkg.instantiate(); Pkg.develop("."); Pkg.activate("test/MINLPTests"); Pkg.instantiate()' 
+        run: julia --project -e 'import Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.activate("test/MINLPTests"); Pkg.instantiate()' 
       - shell: bash
         run: julia --project=test/MINLPTests test/MINLPTests/run_minlptests.jl
