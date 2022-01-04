@@ -18,4 +18,4 @@ jobs:
       - shell: bash
         run: julia --project -e 'import Pkg; Pkg.instantiate(); Pkg.activate(); Pkg.develop("SCIP"); Pkg.activate("test/MINLPTests")' 
       - shell: bash
-        run: julia --project=test/MINLPTests test/MINLPTests/run_minlptests.jl
+        run: julia --project=test/MINLPTests run_minlptests.jl
