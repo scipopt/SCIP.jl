@@ -16,7 +16,7 @@ jobs:
         arch: [x64]
     steps:
       - shell: bash
-        run: julia --project -e 'import Pkg; Pkg.instantiate(); Pkg.develop(.); Pkg.activate("test/MINLPTests"); Pkg.instantiate()' 
+        run: julia --project -e 'import Pkg; Pkg.instantiate(); Pkg.develop("."); Pkg.activate("test/MINLPTests"); Pkg.instantiate()' 
       - shell: bash
         run: ls -a
       - shell: bash
