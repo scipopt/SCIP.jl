@@ -16,10 +16,10 @@ jobs:
         arch: [x64]
     steps:
       - shell: bash
-        run: julia --project -e 'import Pkg; Pkg.instantiate(); Pkg.activate(); Pkg.develop("SCIP"); Pkg.activate("test/MINLPTests")' 
+        run: julia --project -e 'import Pkg; Pkg.instantiate(); Pkg.develop("."); Pkg.activate("test/MINLPTests"); Pkg.instantiate()' 
       - shell: bash
         run: ls -a
       - shell: bash
         run: pwd
       - shell: bash
-        run: julia --project=test/MINLPTests; test/MINLPTests/run_minlptests.jl
+        run: julia --project=test/MINLPTests test/MINLPTests/run_minlptests.jl
