@@ -22,4 +22,4 @@ jobs:
       - shell: bash
         run: pwd
       - shell: bash
-        run: julia --project=test/MINLPTests; test/MINLPTests/run_minlptests.jl
+        run: julia --project=test/MINLPTests test/MINLPTests/run_minlptests.jl
