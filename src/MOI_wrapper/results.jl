@@ -51,14 +51,14 @@ end
 function assert_stage(o::Optimizer, stages)
     stage = SCIPgetStage(o)
     if !(stage in stages)
-        error("SCIP is wrong stage ($stage, need $stages), can not query results!")
+        error("SCIP is wrong stage ($stage, need $stages)!")
     end
 end
 
 "Make sure that the problem was solved (SCIP is in SOLVED stage)."
 function assert_solved(o::Optimizer)
     # SCIP's stage is SOLVING when stopped by user limit!
-    assert_stage(o, (SCIP_STAGE_SOLVING, SCIP_STAGE_SOLVED))
+    assert_stage(o, (SCIP_STAGE_PRESOLVING, SCIP_STAGE_SOLVING, SCIP_STAGE_SOLVED))
 
     # Check for invalid status (when stage is SOLVING).
     status = SCIPgetStatus(o)
