@@ -9,7 +9,12 @@ if haskey(ENV, "SCIPOPTDIR")
     include(depsjl_path)
 else
     # Artifact from BinaryBuilder package
-    using SCIP_jll: libscip
+    import SCIP_PaPILO_jll
+    if SCIP_PaPILO_jll.is_available()
+        using SCIP_PaPILO_jll: libscip
+    else
+        using SCIP_jll: libscip
+    end
 end
 
 function __init__()
