@@ -7,8 +7,10 @@ Ipopt_jll = "9cc047cb-c261-5740-88fc-0cf96f7bdcc7"
 Libdl = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
 MathOptInterface = "b8f27783-ece8-5eb3-8dc8-9495eed66fee"
 SCIP_jll = "e5ac4fe4-a920-5659-9bf8-f9f73e9e79ce"
+bliss_jll = "508c9074-7a14-5c94-9582-3d4bc1871065"
 
 [compat]
+bliss_jll = "0.73"
 Ipopt_jll = "^3.13.2"
 MathOptInterface = "1"
 SCIP_jll = "^0.1.2"
