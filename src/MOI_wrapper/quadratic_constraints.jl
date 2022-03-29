@@ -54,17 +54,25 @@ function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{SQF, S}) where {
     affterms = AFF_TERM[]
     quadterms = QUAD_TERM[]
 
+    nlinexprs = Ptr{Int32}()
+    linexprs = Ptr{Ptr{SCIP_EXPR}}()
+    lincoefs = Ptr{Cdouble}()
+    nquadexprs = Ptr{Cint}()
+    nbilinexprs = Ptr{Cint}()
+    eigenvalues = Ptr{Ptr{Cdouble}}()
+    eigenvectors = Ptr{Ptr{Cdouble}}()
+    constant = Ptr{Cdouble}()
+
+    expr = SCIPgetExprNonlinear(c)
+    SCIPexprGetQuadraticData(expr, constant, nlinexprs, linexprs, lincoefs, nquadexprs, nbilinexprs, eigenvalues, eigenvectors)
+
     # variables that appear only linearly
-    nlin = SCIPgetNLinearVarsQuadratic(o, c)
-    linvars = unsafe_wrap(Vector{Ptr{SCIP_VAR}}, SCIPgetLinearVarsQuadratic(o, c), nlin)
-    lincoefs = unsafe_wrap(Vector{Float64}, SCIPgetCoefsLinearVarsQuadratic(o, c), nlin)
-    for i=1:nlin
-        push!(affterms, AFF_TERM(lincoefs[i], VI(ref(o, linvars[i]).val)))
+    for i in 1:length(linexprs)
+        push!(affterms, AFF_TERM(lincoefs[i], VI(ref(o, linexprs[i]).val)))
     end
 
     # variables that appear squared, and linearly
-    nquadvarterms = SCIPgetNQuadVarTermsQuadratic(o, c)
-    quadvarterms = unsafe_wrap(Vector{SCIP_QUADVARTERM}, SCIPgetQuadVarTermsQuadratic(o, c), nquadvarterms)
+    quadvarterms = unsafe_wrap(Vector{SCIP_QUADVARTERM}, SCIPgetQuadVarTermsQuadratic(o, c), nquadexprs)
     for term in quadvarterms
         vi = VI(ref(o, term.var).val)
         push!(affterms, AFF_TERM(term.lincoef, vi))
@@ -73,8 +81,7 @@ function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{SQF, S}) where {
     end
 
     # bilinear terms (pair of different variables)
-    nbilinterms = SCIPgetNBilinTermsQuadratic(o, c)
-    bilinterms = unsafe_wrap(Vector{SCIP_BILINTERM}, SCIPgetBilinTermsQuadratic(o, c), nbilinterms)
+    bilinterms = unsafe_wrap(Vector{SCIP_BILINTERM}, SCIPgetBilinTermsQuadratic(o, c), nbilinexprs)
     for term in bilinterms
         # keep coefficients as they are!
         push!(quadterms, QUAD_TERM(term.coef, VI(ref(o, term.var1).val), VI(ref(o, term.var2).val)))
