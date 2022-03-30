@@ -67,6 +67,8 @@ function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{SQF, S}) where {
     SCIPexprGetQuadraticData(expr, constant, nlinexprs, linexprs, lincoefs, nquadexprs, nbilinexprs, eigenvalues, eigenvectors)
 
     # variables that appear only linearly
+    lincoefs = unsafe_wrap(Vector{Float64}, lincoefs, length(lincoefs))
+    linexprs = unsafe_wrap(Vector{Ptr{SCIP_EXPR}}, linexprs, length(linexprs))
     for i in 1:length(linexprs)
         push!(affterms, AFF_TERM(lincoefs[i], VI(ref(o, linexprs[i]).val)))
     end
