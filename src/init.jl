@@ -2,9 +2,11 @@ import Libdl
 
 const depsjl_path = joinpath(@__DIR__, "..", "deps", "deps.jl")
 if isfile(depsjl_path)
+    @info "File"
     # User-provided SCIP library
     include(depsjl_path)
 else
+    @info "No file"
     # Artifact from BinaryBuilder package
     import SCIP_PaPILO_jll
     if SCIP_PaPILO_jll.is_available()
