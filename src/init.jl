@@ -1,11 +1,8 @@
 import Libdl
 
-if haskey(ENV, "SCIPOPTDIR")
+const depsjl_path = joinpath(@__DIR__, "..", "deps", "deps.jl")
+if isfile(depsjl_path)
     # User-provided SCIP library
-    const depsjl_path = joinpath(@__DIR__, "..", "deps", "deps.jl")
-    if !isfile(depsjl_path)
-        error("SCIP was not built properly, please run Pkg.build(\"SCIP\")")
-    end
     include(depsjl_path)
 else
     # Artifact from BinaryBuilder package

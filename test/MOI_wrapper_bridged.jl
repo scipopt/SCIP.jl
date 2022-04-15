@@ -20,12 +20,6 @@ const CONFIG_BRIDGED = MOIT.Config(atol=1e-5, rtol=1e-5, exclude=Any[
         "ScalarQuadraticFunction_ZeroOne",
         "VectorAffineFunction_NormOneCone",
         "VectorQuadraticFunction_NormOneCone",
-        "test_basic_VectorOfVariables_SecondOrderCone",
-        "test_basic_VectorAffineFunction_SecondOrderCone", # SOC tests fail because of lower bound requirement of RHS var.
-        "test_basic_VectorQuadraticFunction_SecondOrderCone",
-        "test_basic_VectorAffineFunction_RotatedSecondOrderCone",
-        "test_basic_VectorQuadraticFunction_RotatedSecondOrderCone",
-        "test_basic_VectorOfVariables_RotatedSecondOrderCone",
         "VectorAffineFunction_SOS",
         "VectorQuadraticFunction_SOS",
         "test_conic_GeometricMeanCone_Vector",

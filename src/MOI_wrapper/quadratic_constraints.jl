@@ -50,48 +50,96 @@ end
 function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{SQF, S}) where {S <: BOUNDS}
     _throw_if_invalid(o, ci)
     c = cons(o, ci)
-
-    affterms = AFF_TERM[]
-    quadterms = QUAD_TERM[]
-
-    # variables that appear only linearly
-    nlin = SCIPgetNLinearVarsQuadratic(o, c)
-    linvars = unsafe_wrap(Vector{Ptr{SCIP_VAR}}, SCIPgetLinearVarsQuadratic(o, c), nlin)
-    lincoefs = unsafe_wrap(Vector{Float64}, SCIPgetCoefsLinearVarsQuadratic(o, c), nlin)
-    for i=1:nlin
-        push!(affterms, AFF_TERM(lincoefs[i], VI(ref(o, linvars[i]).val)))
+    expr_ref = SCIPgetExprNonlinear(c)
+    isq = Ref{UInt32}(100)
+    # This call is required to get quaddata computed in the expression
+    @SCIP_CALL LibSCIP.SCIPcheckExprQuadratic(o, expr_ref, isq)
+    if isq[] != 1
+        error("Constraint index $ci pointing to a non-quadratic expression $expr_ref")
     end
 
-    # variables that appear squared, and linearly
-    nquadvarterms = SCIPgetNQuadVarTermsQuadratic(o, c)
-    quadvarterms = unsafe_wrap(Vector{SCIP_QUADVARTERM}, SCIPgetQuadVarTermsQuadratic(o, c), nquadvarterms)
-    for term in quadvarterms
-        vi = VI(ref(o, term.var).val)
-        push!(affterms, AFF_TERM(term.lincoef, vi))
-        # multiply quadratic coefficients by 2!
-        push!(quadterms, QUAD_TERM(2.0 * term.sqrcoef, vi, vi))
+    constant_ref = Ref{Cdouble}(-1.0)
+    n_linear_terms_ref = Ref{Cint}(-1)
+    linear_exprs = Ref{Ptr{Ptr{LibSCIP.SCIP_EXPR}}}()
+    lincoefs = Ref{Ptr{Cdouble}}()
+    n_quad_terms_ref = Ref{Cint}(-1)
+    n_bilinear_terms_ref = Ref{Cint}(-1)
+    
+    LibSCIP.SCIPexprGetQuadraticData(
+        expr_ref,
+        constant_ref,
+        n_linear_terms_ref,
+        linear_exprs,
+        lincoefs,
+        n_quad_terms_ref,
+        n_bilinear_terms_ref,
+        C_NULL,
+        C_NULL,
+    )
+
+    lin_expr_vec = unsafe_wrap(Vector{Ptr{Cvoid}}, linear_exprs[], n_linear_terms_ref[])
+    lin_coeff_vec = unsafe_wrap(Vector{Cdouble}, lincoefs[], n_linear_terms_ref[])
+
+    func = SCIP.SQF([], [], constant_ref[])
+    for idx in 1:n_linear_terms_ref[]
+        var_ptr = LibSCIP.SCIPgetVarExprVar(lin_expr_vec[idx])
+        func += lin_coeff_vec[idx] * MOI.VariableIndex(o.reference[var_ptr].val)
+    end
+    for term_idx in 1:n_quad_terms_ref[]
+        var_expr = Ref{Ptr{Cvoid}}()
+        lin_coef_ref =  Ref{Cdouble}()
+        sqr_coef_ref =  Ref{Cdouble}()
+        LibSCIP.SCIPexprGetQuadraticQuadTerm(
+            expr_ref,
+            term_idx - 1, # 0-indexed terms
+            var_expr,
+            lin_coef_ref,
+            sqr_coef_ref,
+            C_NULL,
+            C_NULL,
+            C_NULL,
+        )
+        @assert lin_coef_ref[] == 0.0
+        if sqr_coef_ref[] != 0.0
+            var_ptr = LibSCIP.SCIPgetVarExprVar(var_expr[])
+            var_idx = MOI.VariableIndex(o.reference[var_ptr].val)
+            MOI.Utilities.operate!(+, Float64, func, sqr_coef_ref[] * var_idx * var_idx)
+        end
     end
 
-    # bilinear terms (pair of different variables)
-    nbilinterms = SCIPgetNBilinTermsQuadratic(o, c)
-    bilinterms = unsafe_wrap(Vector{SCIP_BILINTERM}, SCIPgetBilinTermsQuadratic(o, c), nbilinterms)
-    for term in bilinterms
-        # keep coefficients as they are!
-        push!(quadterms, QUAD_TERM(term.coef, VI(ref(o, term.var1).val), VI(ref(o, term.var2).val)))
+    for term_idx in 1:n_bilinear_terms_ref[]
+        var_expr1 = Ref{Ptr{Cvoid}}()
+        var_expr2 = Ref{Ptr{Cvoid}}()
+        coef_ref =  Ref{Cdouble}()
+        LibSCIP.SCIPexprGetQuadraticBilinTerm(
+            expr_ref,
+            term_idx - 1,
+            var_expr1,
+            var_expr2,
+            coef_ref,
+            C_NULL,
+            C_NULL,
+        )
+        if coef_ref[] != 0.0
+            var_ptr1 = LibSCIP.SCIPgetVarExprVar(var_expr1[])
+            var_idx1 = MOI.VariableIndex(o.reference[var_ptr1].val)
+            var_ptr2 = LibSCIP.SCIPgetVarExprVar(var_expr2[])
+            var_idx2 = MOI.VariableIndex(o.reference[var_ptr2].val)
+            MOI.Utilities.operate!(+, Float64, func, coef_ref[] * var_idx1 * var_idx2)
+        end
     end
-
-    return SQF(quadterms, affterms, 0.0)
+    return func
 end
 
 function MOI.get(o::Optimizer, ::MOI.ConstraintSet, ci::CI{SQF, S}) where {S <: BOUNDS}
     _throw_if_invalid(o, ci)
-    lhs = SCIPgetLhsQuadratic(o, cons(o, ci))
-    rhs = SCIPgetRhsQuadratic(o, cons(o, ci))
+    lhs = SCIPgetLhsNonlinear(cons(o, ci))
+    rhs = SCIPgetRhsNonlinear(cons(o, ci))
     return from_bounds(S, lhs, rhs)
 end
 
 function MOI.get(o::Optimizer, ::MOI.ConstraintPrimal, ci::CI{SQF, S}) where {S <: BOUNDS}
-    activity = Ref{Cdouble}()
-    @SCIP_CALL SCIPgetActivityQuadratic(o, cons(o, ci), SCIPgetBestSol(o), activity)
-    return activity[]
+    expr_ref = SCIPgetExprNonlinear(cons(o, ci))
+    @SCIP_CALL SCIPevalExprActivity(o, expr_ref)
+    return SCIPexprGetEvalValue(expr_ref)
 end

@@ -51,7 +51,7 @@ end
         SCIP.@SCIP_CALL SCIP.SCIPchgVarLb(o, SCIP.var(o.inner, z), 0.0)
         SCIP.@SCIP_CALL SCIP.SCIPchgVarUb(o, SCIP.var(o.inner, z), 1.0)
 
-        ic = SCIP.add_indicator_constraint(o.inner, z, [x, y], ones(2), 1.)
+        ic = SCIP.add_indicator_constraint(o.inner, z, [x, y], ones(2), 1.0)
 
         if i==2
             # solve, but don't check results (this test is about memory mgmt)
