@@ -149,8 +149,8 @@ function MOI.get(o::Optimizer, param::MOI.RawOptimizerAttribute)
 end
 
 function MOI.set(o::Optimizer, param::MOI.RawOptimizerAttribute, value)
-    o.params[param.name] = value
     set_parameter(o.inner, param.name, value)
+    o.params[param.name] = value
     return nothing
 end
 

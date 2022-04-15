@@ -16,16 +16,12 @@ include("conshdlr_support.jl")
     include("conshdlr.jl")
 end
 
-if SCIP.SCIP_versionnumber() >= v"7"
-    include("sepa_support.jl")
-    @testset "separators" begin
-        include("sepa.jl")
-    end
-    @testset "cut callbacks" begin
-        include("cutcallback.jl")
-    end
-else
-    @info "Separation and callbacks not tested for SCIP versions below 7"
+include("sepa_support.jl")
+@testset "separators" begin
+    include("sepa.jl")
+end
+@testset "cut callbacks" begin
+    include("cutcallback.jl")
 end
 
 const MOI_BASE_EXCLUDED = [
@@ -57,24 +53,13 @@ const MOI_BASE_EXCLUDED = [
     "test_objective_set_via_modify", # ListOfModelAttributesSet
 ]
 
-# second order cone
-# SCIP needs non-negative variable on right-hand side of second-order cone constraint
-append!(MOI_BASE_EXCLUDED,[
-    "test_conic_RotatedSecondOrderCone_INFEASIBLE",
-    "test_conic_RotatedSecondOrderCone_VectorAffineFunction",
-    "test_conic_RotatedSecondOrderCone_VectorOfVariables",
-    "test_conic_RotatedSecondOrderCone_out_of_order",
-    "test_conic_SecondOrderCone_INFEASIBLE",
-    "test_conic_SecondOrderCone_Non",
-    "test_conic_SecondOrderCone_VectorAffineFunction",
-    "test_conic_SecondOrderCone_VectorOfVariables",
-    "test_conic_SecondOrderCone_negative_initial_bound",
-    "test_conic_SecondOrderCone_negative_post_bound",
-    "test_conic_SecondOrderCone_no_initial_bound",
-    "test_conic_SecondOrderCone_out_of_order",
-    "test_constraint_PrimalStart_DualStart_SecondOrderCone",
-    "test_quadratic_Integer_SecondOrderCone",
-])
+@testset "MathOptInterface tests (direct)" begin
+    include("MOI_wrapper_direct.jl")
+end
+
+@testset "MathOptInterface additional tests" begin
+    include("MOI_additional.jl")
+end
 
 @testset "MathOptInterface tests (bridged)" begin
     include("MOI_wrapper_bridged.jl")
@@ -82,14 +67,6 @@ end
 
 @testset "MathOptInterface tests (bridged & cached)" begin
     include("MOI_wrapper_cached.jl")
-end
-
-@testset "MathOptInterface tests (direct)" begin
-    include("MOI_wrapper_direct.jl")
-end
-
-@testset "MathOptInterface additional tests" begin
-    include("MOI_additional.jl")
 end
 
 @testset "MathOptInterface nonlinear expressions" begin

@@ -51,8 +51,8 @@ function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{SQF, S}) where {
     _throw_if_invalid(o, ci)
     c = cons(o, ci)
     expr_ref = SCIPgetExprNonlinear(c)
-    isq = Ref{UInt32}(100)
     # This call is required to get quaddata computed in the expression
+    isq = Ref{UInt32}(100)
     @SCIP_CALL LibSCIP.SCIPcheckExprQuadratic(o, expr_ref, isq)
     if isq[] != 1
         error("Constraint index $ci pointing to a non-quadratic expression $expr_ref")
@@ -133,13 +133,22 @@ end
 
 function MOI.get(o::Optimizer, ::MOI.ConstraintSet, ci::CI{SQF, S}) where {S <: BOUNDS}
     _throw_if_invalid(o, ci)
-    lhs = SCIPgetLhsNonlinear(cons(o, ci))
-    rhs = SCIPgetRhsNonlinear(cons(o, ci))
+    c = cons(o, ci)
+    lhs = SCIPgetLhsNonlinear(c)
+    rhs = SCIPgetRhsNonlinear(c)
     return from_bounds(S, lhs, rhs)
 end
 
 function MOI.get(o::Optimizer, ::MOI.ConstraintPrimal, ci::CI{SQF, S}) where {S <: BOUNDS}
-    expr_ref = SCIPgetExprNonlinear(cons(o, ci))
+    _throw_if_invalid(o, ci)
+    c = cons(o, ci)
+    expr_ref = SCIPgetExprNonlinear(c)
+    # This call is required to get quaddata computed in the expression
+    isq = Ref{UInt32}(100)
+    @SCIP_CALL LibSCIP.SCIPcheckExprQuadratic(o, expr_ref, isq)
+    if isq[] != 1
+        error("Constraint index $ci pointing to a non-quadratic expression $expr_ref")
+    end
     @SCIP_CALL SCIPevalExprActivity(o, expr_ref)
     return SCIPexprGetEvalValue(expr_ref)
 end
