@@ -14,8 +14,7 @@ MOIU.@model(ModelData,
             (MOI.VectorOfVariables,),
             (MOI.VectorAffineFunction,))
 const CACHE = MOIU.UniversalFallback(ModelData{Float64}())
-# const CACHED = MOIU.CachingOptimizer(CACHE, SCIP.Optimizer(display_verblevel=0))
-const CACHED = MOIU.CachingOptimizer(CACHE, SCIP.Optimizer())
+const CACHED = MOIU.CachingOptimizer(CACHE, SCIP.Optimizer(display_verblevel=0))
 const BRIDGED2 = MOIB.full_bridge_optimizer(CACHED, Float64)
 
 const CONFIG_CACHED = MOIT.Config(

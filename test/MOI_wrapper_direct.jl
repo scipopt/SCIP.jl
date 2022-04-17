@@ -2,8 +2,7 @@ using MathOptInterface
 const MOI = MathOptInterface
 const MOIT = MOI.Test
 
-# const OPTIMIZER = SCIP.Optimizer(display_verblevel=0)
-const OPTIMIZER = SCIP.Optimizer()
+const OPTIMIZER = SCIP.Optimizer(display_verblevel=0)
 const CONFIG_DIRECT = MOIT.Config(
     atol=5e-3, rtol=1e-4,
     exclude=Any[
