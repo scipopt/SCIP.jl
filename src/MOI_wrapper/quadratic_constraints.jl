@@ -141,5 +141,7 @@ end
 function MOI.get(o::Optimizer, ::MOI.ConstraintPrimal, ci::CI{SQF, S}) where {S <: BOUNDS}
     expr_ref = SCIPgetExprNonlinear(cons(o, ci))
     @SCIP_CALL SCIPevalExprActivity(o, expr_ref)
+    sol = SCIPgetBestSol(o)
+    @SCIP_CALL SCIPevalExpr(o, expr_ref, sol, Clonglong(0))
     return SCIPexprGetEvalValue(expr_ref)
 end
