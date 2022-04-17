@@ -3,8 +3,9 @@ const MOI = MathOptInterface
 const MOIB = MOI.Bridges
 const MOIT = MOI.Test
 
-const BRIDGED = MOIB.full_bridge_optimizer(SCIP.Optimizer(display_verblevel=0), Float64)
-const CONFIG_BRIDGED = MOIT.Config(atol=1e-5, rtol=1e-5, exclude=Any[
+# const BRIDGED = MOIB.full_bridge_optimizer(SCIP.Optimizer(display_verblevel=0), Float64)
+const BRIDGED = MOIB.full_bridge_optimizer(SCIP.Optimizer(), Float64)
+const CONFIG_BRIDGED = MOIT.Config(atol=5e-3, rtol=1e-4, exclude=Any[
     MOI.ConstraintDual, MOI.ConstraintName, MOI.DualObjectiveValue, MOI.VariableBasisStatus, MOI.ConstraintBasisStatus,
 ])
 

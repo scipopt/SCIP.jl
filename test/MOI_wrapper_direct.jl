@@ -2,9 +2,10 @@ using MathOptInterface
 const MOI = MathOptInterface
 const MOIT = MOI.Test
 
-const OPTIMIZER = SCIP.Optimizer(display_verblevel=0)
+# const OPTIMIZER = SCIP.Optimizer(display_verblevel=0)
+const OPTIMIZER = SCIP.Optimizer()
 const CONFIG_DIRECT = MOIT.Config(
-    atol=1e-5, rtol=1e-5,
+    atol=5e-3, rtol=1e-4,
     exclude=Any[
         MOI.ConstraintDual, MOI.ConstraintName, MOI.DualObjectiveValue, MOI.VariableBasisStatus, MOI.ConstraintBasisStatus,
     ],
