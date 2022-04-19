@@ -143,13 +143,11 @@ function MOI.get(o::Optimizer, ::MOI.ConstraintPrimal, ci::CI{SQF, S}) where {S 
     _throw_if_invalid(o, ci)
     c = cons(o, ci)
     expr_ref = SCIPgetExprNonlinear(c)
-    # This call is required to get quaddata computed in the expression
     isq = Ref{UInt32}(100)
     @SCIP_CALL LibSCIP.SCIPcheckExprQuadratic(o, expr_ref, isq)
     if isq[] != 1
         error("Constraint index $ci pointing to a non-quadratic expression $expr_ref")
     end
-    @SCIP_CALL SCIPevalExprActivity(o, expr_ref)
     sol = SCIPgetBestSol(o)
     @SCIP_CALL SCIPevalExpr(o, expr_ref, sol, Clonglong(0))
     return SCIPexprGetEvalValue(expr_ref)
