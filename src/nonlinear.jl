@@ -172,7 +172,7 @@ Add nonlinear constraint to problem, return cons ref.
 
 """
 function add_nonlinear_constraint(scipd::SCIPData, expr::Expr, lhs::Float64, rhs::Float64)
-    nonlin = NonlinExpr([])
+    nonlin = NonlinExpr()
 
     # convert expression recursively, extract root and variable pointers
     root = push_expr!(nonlin, scipd.scip[], scipd.vars, expr)
