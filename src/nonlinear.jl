@@ -175,22 +175,14 @@ function add_nonlinear_constraint(scipd::SCIPData, expr::Expr, lhs::Float64, rhs
     nonlin = NonlinExpr()
 
     # convert expression recursively, extract root and variable pointers
-    root = push_expr!(nonlin, scipd.scip[], scipd.vars, expr)
+    root_expr = push_expr!(nonlin, scipd.scip[], scipd.vars, expr)
     vars = nonlin.vars
 
     # create expression graph object
-    tree__ = Ref{Ptr{SCIP_EXPRTREE}}(C_NULL)
-    @SCIP_CALL SCIPexprtreeCreate(SCIPblkmem(scipd), tree__, root, length(vars), 0, C_NULL)
-    @SCIP_CALL SCIPexprtreeSetVars(tree__[], length(vars), vars)
-
     # create and add cons_nonlinear
     cons__ = Ref{Ptr{SCIP_CONS}}(C_NULL)
-    @SCIP_CALL SCIPcreateConsBasicNonlinear(scipd, cons__, "", 0, C_NULL, C_NULL,
-                                     1, tree__, C_NULL, lhs, rhs)
+    @SCIP_CALL SCIPcreateConsBasicNonlinear(scipd, cons__, "", root_expr[], lhs, rhs)
     @SCIP_CALL SCIPaddCons(scipd, cons__[])
-
-    # free memory
-    @SCIP_CALL SCIPexprtreeFree(tree__)
 
     # register and return cons ref
     return store_cons!(scipd, cons__)
