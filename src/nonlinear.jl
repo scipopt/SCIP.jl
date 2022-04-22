@@ -148,13 +148,7 @@ function push_expr!(nonlin::NonlinExpr, scip::Ptr{SCIP_}, vars::Dict{VarRef, Ref
     @SCIP_CALL SCIPcreateExprValue(scip, expr__, value, C_NULL, C_NULL)
 
     # double check whether value was saved correctly
-    value_stored = SCIPexprGetOpReal(expr__[])
-    if value != value_stored
-        error("Failed to create SCIP_EXPR / $(op):\n" *
-              "passed in constant value $(value),\n" *
-              "retrieved $(value_stored) instead,\n" *
-              "in expression stored at $(expr__[]).")
-    end
+    @assert SCIPisExprValue(scip, expr__[])
     push!(nonlin.exprs, expr__[])
     return expr__[]
 end
@@ -181,7 +175,7 @@ function add_nonlinear_constraint(scipd::SCIPData, expr::Expr, lhs::Float64, rhs
     # create expression graph object
     # create and add cons_nonlinear
     cons__ = Ref{Ptr{SCIP_CONS}}(C_NULL)
-    @SCIP_CALL SCIPcreateConsBasicNonlinear(scipd, cons__, "", root_expr[], lhs, rhs)
+    @SCIP_CALL SCIPcreateConsBasicNonlinear(scipd, cons__, "", root_expr, lhs, rhs)
     @SCIP_CALL SCIPaddCons(scipd, cons__[])
 
     # register and return cons ref
