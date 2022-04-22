@@ -148,7 +148,7 @@ function push_expr!(nonlin::NonlinExpr, scip::Ptr{SCIP_}, vars::Dict{VarRef, Ref
     @SCIP_CALL SCIPcreateExprValue(scip, expr__, value, C_NULL, C_NULL)
 
     # double check whether value was saved correctly
-    @assert SCIPisExprValue(scip, expr__[])
+    @assert SCIPisExprValue(scip, expr__[]) == 1
     push!(nonlin.exprs, expr__[])
     return expr__[]
 end
