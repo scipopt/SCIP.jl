@@ -74,3 +74,23 @@ end
 end
 
 include("MOI_conshdlr.jl")
+
+function constraint_expr(i::Int)
+    if i == 1
+        return :(
+            x[$(MOI.VariableIndex(1))] *
+            x[$(MOI.VariableIndex(2))] *
+            x[$(MOI.VariableIndex(3))] *
+            x[$(MOI.VariableIndex(4))] >= 25.0
+        )
+    elseif i == 2
+        return :(
+            x[$(MOI.VariableIndex(1))]^2 +
+            x[$(MOI.VariableIndex(2))]^2 +
+            x[$(MOI.VariableIndex(3))]^2 +
+            x[$(MOI.VariableIndex(4))]^2 == 40.0
+        )
+    else
+        error("Out of bounds constraint.")
+    end
+end
