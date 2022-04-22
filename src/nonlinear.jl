@@ -91,7 +91,9 @@ function push_expr!(nonlin::NonlinExpr, scip::Ptr{SCIP_}, vars::Dict{VarRef, Ref
                     1.0
                 end
                 subexprs = [push_expr!(nonlin, scip, vars, expr.args[i + 1]) for i in 1:num_children]
-                @SCIP_CALL SCIPcreateExprSum(scip, expr__, Cint(num_children), subexprs, fill(coef_mul, num_children), 0.0, C_NULL, C_NULL)
+                coefs = fill(coef_mul, num_children)
+                coefs[1] = 1.0
+                @SCIP_CALL SCIPcreateExprSum(scip, expr__, Cint(num_children), subexprs, coefs, 0.0, C_NULL, C_NULL)
             end
         elseif op == :*
             @assert num_children >= 1
