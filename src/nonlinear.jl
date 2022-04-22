@@ -116,7 +116,7 @@ function push_expr!(nonlin::NonlinExpr, scip::Ptr{SCIP_}, vars::Dict{VarRef, Ref
             left = push_expr!(nonlin, scip, vars, expr.args[2])
             inverse_right_expr = :($(expr.args[3])^-1.0)
             right = push_expr!(nonlin, scip, vars, inverse_right_expr)
-            @SCIP_CALL SCIPcreateExprProduct(scip, expr__, num_children, [left, inverse_right_expr], 1.0, C_NULL, C_NULL)
+            @SCIP_CALL SCIPcreateExprProduct(scip, expr__, num_children, [left, right], 1.0, C_NULL, C_NULL)
         else
             error("Operator $op (in $expr) not supported by SCIP.jl!")
         end
