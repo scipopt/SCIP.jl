@@ -115,7 +115,7 @@ end
     @test log(sol[17])              ≈ rhs  atol=atol rtol=rtol
     @test abs(sol[18] - 11)         ≈ rhs  atol=atol rtol=rtol
     @test cos(sol[19])              ≈ 1.0  atol=atol rtol=rtol
-    @test max(sol[20])              ≈ 0.0  atol=atol rtol=rtol
+    @test sin(sol[20])              ≈ 0.0  atol=atol rtol=rtol
 end
 
 @testset "add nonlinear constraint after solve" begin
