@@ -8,6 +8,19 @@ struct ConsRef
     val::Int64
 end
 
+"""
+Subexpressions and variables referenced in an expression tree.
+
+Used to convert Julia expression to SCIP expression using recursive calls to the
+mutating push_expr!.
+"""
+mutable struct NonlinExpr
+    vars::Vector{Ptr{SCIP_VAR}}
+    exprs::Vector{Ptr{SCIP_EXPR}}
+end
+
+NonlinExpr() = NonlinExpr([], [])
+
 #to be moved to MOI_wrapper
 """
 SCIPData holds pointers to SCIP data.
@@ -30,6 +43,9 @@ mutable struct SCIPData
     # Map from user-defined types (keys are <: AbstractSeparator) to the
     # corresponding SCIP objects.
     sepas::Dict{Any, Ptr{SCIP_SEPA}}
+
+    # to store expressions for release
+    nonlinear_storage::Vector{NonlinExpr}
 end
 
 # Protect SCIPData from GC for ccall with Ptr{SCIP_} argument.
@@ -40,10 +56,15 @@ function free_scip(scipd::SCIPData)
     # Avoid double-free (SCIP will set the pointers to NULL).
     if scipd.scip[] != C_NULL
         for c in values(scipd.conss)
-            @SCIP_CALL SCIPreleaseCons(scipd, c)
+            @SCIP_CALL SCIPreleaseCons(scipd.scip[], c)
+        end
+        for nonlin in scipd.nonlinear_storage
+            for expr in nonlin.exprs
+                @SCIP_CALL SCIPreleaseExpr(scipd.scip[], expr)
+            end
         end
         for v in values(scipd.vars)
-            @SCIP_CALL SCIPreleaseVar(scipd, v)
+            @SCIP_CALL SCIPreleaseVar(scipd.scip[], v)
         end
         # only scipd.scip is GC-protected during ccall!
         GC.@preserve scipd begin

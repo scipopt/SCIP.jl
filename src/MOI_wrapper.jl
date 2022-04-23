@@ -40,7 +40,7 @@ mutable struct Optimizer <: MOI.AbstractOptimizer
         @SCIP_CALL SCIPincludeDefaultPlugins(scip[])
         @SCIP_CALL SCIP.SCIPcreateProbBasic(scip[], "")
 
-        scip_data = SCIPData(scip, Dict(), Dict(), 0, 0, Dict(), Dict(), Dict())
+        scip_data = SCIPData(scip, Dict(), Dict(), 0, 0, Dict(), Dict(), Dict(), [])
 
         o = new(scip_data, PtrMap(), ConsTypeMap(), Dict(), Dict(), Dict(), nothing)
         finalizer(free_scip, o)
@@ -62,6 +62,11 @@ function free_scip(o::Optimizer)
     if o.inner.scip[] != C_NULL
         for c in values(o.inner.conss)
             @SCIP_CALL SCIPreleaseCons(o.inner, c)
+        end
+        for nonlin in o.inner.nonlinear_storage
+            for expr in nonlin.exprs
+                @SCIP_CALL SCIPreleaseExpr(o.inner.scip[], expr)
+            end
         end
         for v in values(o.inner.vars)
             @SCIP_CALL SCIPreleaseVar(o.inner, v)
@@ -213,7 +218,7 @@ function MOI.empty!(o::Optimizer)
     @SCIP_CALL SCIPincludeDefaultPlugins(scip[])
     @SCIP_CALL SCIP.SCIPcreateProbBasic(scip[], "")
     # create a new problem
-    o.inner = SCIPData(scip, Dict(), Dict(), 0, 0, Dict(), Dict(), Dict())
+    o.inner = SCIPData(scip, Dict(), Dict(), 0, 0, Dict(), Dict(), Dict(), [])
     # reapply parameters
     for pair in o.params
         set_parameter(o.inner, pair.first, pair.second)

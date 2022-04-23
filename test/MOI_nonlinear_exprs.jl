@@ -117,7 +117,7 @@ end
 end
 
 @testset "add nonlinear constraint after solve" begin
-    optimizer = SCIP.Optimizer()
+    optimizer = SCIP.Optimizer(display_verblevel=0)
     MOI.set(optimizer, MOI.RawOptimizerAttribute("display/verblevel"), 0)
 
     x, y = MOI.add_variables(optimizer, 2)

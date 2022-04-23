@@ -1,6 +1,10 @@
 using Test
 using SCIP
 
+@testset "MathOptInterface nonlinear expressions" begin
+    include("MOI_nonlinear_exprs.jl")
+end
+
 @testset "direct library calls" begin
     include("direct_library_calls.jl")
 end
@@ -67,10 +71,6 @@ end
 
 @testset "MathOptInterface tests (bridged & cached)" begin
     include("MOI_wrapper_cached.jl")
-end
-
-@testset "MathOptInterface nonlinear expressions" begin
-    include("MOI_nonlinear_exprs.jl")
 end
 
 include("MOI_conshdlr.jl")

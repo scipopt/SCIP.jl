@@ -20,19 +20,6 @@ const UNARY_OPS_LOOKUP = (
     sin = SCIPcreateExprSin,
 )
 
-"""
-Subexpressions and variables referenced in an expression tree.
-
-Used to convert Julia expression to SCIP expression using recursive calls to the
-mutating push_expr!.
-"""
-mutable struct NonlinExpr
-    vars::Vector{Ptr{SCIP_VAR}}
-    exprs::Vector{Ptr{SCIP_EXPR}}
-end
-
-NonlinExpr() = NonlinExpr([], [])
-
 "Extract operators from Julia expr recursively and convert to SCIP expressions."
 function push_expr!(nonlin::NonlinExpr, scip::Ptr{SCIP_}, vars::Dict{VarRef, Ref{Ptr{SCIP_VAR}}}, expr::Expr)
     # Storage for SCIP_EXPR*
@@ -149,8 +136,7 @@ function push_expr!(nonlin::NonlinExpr, scip::Ptr{SCIP_}, vars::Dict{VarRef, Ref
     value = Cdouble(expr)
     @SCIP_CALL SCIPcreateExprValue(scip, expr__, value, C_NULL, C_NULL)
 
-    # double check whether value was saved correctly
-    @assert SCIPisExprValue(scip, expr__[]) == 1
+    @assert SCIPisExprValue(scip, expr__[]) == TRUE
     push!(nonlin.exprs, expr__[])
     return expr__[]
 end
@@ -172,14 +158,13 @@ function add_nonlinear_constraint(scipd::SCIPData, expr::Expr, lhs::Float64, rhs
 
     # convert expression recursively, extract root and variable pointers
     root_expr = push_expr!(nonlin, scipd.scip[], scipd.vars, expr)
-    vars = nonlin.vars
 
-    # create expression graph object
     # create and add cons_nonlinear
     cons__ = Ref{Ptr{SCIP_CONS}}(C_NULL)
     @SCIP_CALL SCIPcreateConsBasicNonlinear(scipd, cons__, "", root_expr, lhs, rhs)
     @SCIP_CALL SCIPaddCons(scipd, cons__[])
 
     # register and return cons ref
+    push!(scipd.nonlinear_storage, nonlin)
     return store_cons!(scipd, cons__)
 end
