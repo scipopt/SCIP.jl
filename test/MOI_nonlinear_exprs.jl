@@ -81,6 +81,8 @@ end
         :(exp(x[$(x[16])])                      == rhs), # EXP
         :(log(x[$(x[17])])                      == rhs), # LOG
         :(abs(x[$(x[18])] - 11)                 == rhs), # ABS
+        :(cos(x[$(x[19])]) + 11)                == rhs), # COS
+        :(sin(x[$(x[20])]) + 12)                == rhs), # SIN
         # :(min(x[$(x[19])], x[$(x[20])]) + 1     == rhs), # MIN
         # :(max(x[$(x[19])], x[$(x[20])]) - 1     == rhs), # MAX
     ]
@@ -112,8 +114,8 @@ end
     @test exp(sol[16])              ≈ rhs  atol=atol rtol=rtol
     @test log(sol[17])              ≈ rhs  atol=atol rtol=rtol
     @test abs(sol[18] - 11)         ≈ rhs  atol=atol rtol=rtol
-    # @test min(sol[19], sol[20])     ≈ 1.0  atol=atol rtol=rtol
-    # @test max(sol[19], sol[20])     ≈ 3.0  atol=atol rtol=rtol
+    @test cos(sol[19])              ≈ 1.0  atol=atol rtol=rtol
+    @test max(sol[20])              ≈ 0.0  atol=atol rtol=rtol
 end
 
 @testset "add nonlinear constraint after solve" begin
