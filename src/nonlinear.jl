@@ -87,7 +87,7 @@ function push_expr!(nonlin::NonlinExpr, scip::Ptr{SCIP_}, vars::Dict{VarRef, Ref
             subexprs = [push_expr!(nonlin, scip, vars, expr.args[i + 1]) for i in 1:num_children]
             @SCIP_CALL SCIPcreateExprProduct(scip, expr__, num_children, subexprs, 1.0, C_NULL, C_NULL)
 
-        elseif op in (:exp, :log, :abs)
+        elseif op in keys(UNARY_OPS_LOOKUP)
             # Unary operators
             @assert num_children == 1
 
