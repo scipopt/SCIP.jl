@@ -81,10 +81,8 @@ end
         :(exp(x[$(x[16])])                      == rhs), # EXP
         :(log(x[$(x[17])])                      == rhs), # LOG
         :(abs(x[$(x[18])] - 11)                 == rhs), # ABS
-        :(cos(x[$(x[19])]) + 11                 == rhs), # COS
-        :(sin(x[$(x[20])]) + 12                 == rhs), # SIN
-        # :(min(x[$(x[19])], x[$(x[20])]) + 1     == rhs), # MIN
-        # :(max(x[$(x[19])], x[$(x[20])]) - 1     == rhs), # MAX
+        :(cos(x[$(x[19])]) + 1                  == rhs), # COS
+        :(sin(x[$(x[20])]) + 2                  == rhs), # SIN
     ]
 
     data = MOI.NLPBlockData(
