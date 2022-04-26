@@ -1,6 +1,8 @@
 using Test
 using SCIP
 
+@show(@eval(SCIP, libscip))
+
 @testset "MathOptInterface nonlinear expressions" begin
     include("MOI_nonlinear_exprs.jl")
 end
