@@ -1,7 +1,10 @@
 using Test
 using SCIP
+using SCIP_jll
+using SCIP_PaPILO_jll
 
-@show(@eval(SCIP, libscip))
+@show(@eval(SCIP, libscip) == SCIP_jll.libscip)
+@show(@eval(SCIP, libscip) == SCIP_PaPILO_jll.libscip)
 
 @testset "MathOptInterface nonlinear expressions" begin
     include("MOI_nonlinear_exprs.jl")
