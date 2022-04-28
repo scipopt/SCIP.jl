@@ -83,7 +83,7 @@ end
         :(abs(x[$(x[18])] - 11)                 == rhs), # ABS
         :(cos(x[$(x[19])]) + 1                  == rhs), # COS
         :(sin(x[$(x[20])]) + 2                  == rhs), # SIN
-        :(x[$(x[21])] + tan(rand())             == rhs), # additional terms
+        :(x[$(x[21])] + tan(rand()) / (1+1.2^4.2) - 2*1/4 == rhs), # additional terms
     ]
 
     data = MOI.NLPBlockData(
