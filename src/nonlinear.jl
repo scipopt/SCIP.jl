@@ -85,7 +85,7 @@ function push_expr!(nonlin::NonlinExpr, scip::Ptr{SCIP_}, vars::Dict{VarRef, Ref
                     1.0
                 end
                 subexprs_pairs = [push_expr!(nonlin, scip, vars, expr.args[i + 1]) for i in 1:num_children]
-                if all((_, pure) -> pure, subexprs_pairs)
+                if all(pair -> pair[2], subexprs_pairs)
                     pure_value = true
                 else
                     # replace pure-value expression by its evaluated value, since no expression has been evaluated yet
@@ -108,7 +108,7 @@ function push_expr!(nonlin::NonlinExpr, scip::Ptr{SCIP_}, vars::Dict{VarRef, Ref
         elseif op == :*
             @assert num_children >= 1
             subexprs_pairs = [push_expr!(nonlin, scip, vars, expr.args[i + 1]) for i in 1:num_children]
-            if all((_, pure) -> pure, subexprs_pairs)
+            if all(pair -> pair[2], subexprs_pairs)
                 pure_value = true
             else
                 subexprs = map(eachindex(subexprs_pairs)) do idx
