@@ -50,29 +50,6 @@ end
 # Protect SCIPData from GC for ccall with Ptr{SCIP_} argument.
 Base.unsafe_convert(::Type{Ptr{SCIP_}}, scipd::SCIPData) = scipd.scip[]
 
-"Release references and free memory."
-function free_scip(scipd::SCIPData)
-    # Avoid double-free (SCIP will set the pointers to NULL).
-    if scipd.scip[] != C_NULL
-        for c in values(scipd.conss)
-            @SCIP_CALL SCIPreleaseCons(scipd.scip[], c)
-        end
-        for nonlin in scipd.nonlinear_storage
-            for expr in nonlin.exprs
-                @SCIP_CALL SCIPreleaseExpr(scipd.scip[], expr)
-            end
-        end
-        for v in values(scipd.vars)
-            @SCIP_CALL SCIPreleaseVar(scipd.scip[], v)
-        end
-        # only scipd.scip is GC-protected during ccall!
-        GC.@preserve scipd begin
-            @SCIP_CALL SCIPfree(scipd.scip)
-        end
-    end
-    @assert scipd.scip[] == C_NULL
-end
-
 "Set a parameter's current value."
 function get_parameter(scipd::SCIPData, name::AbstractString)
     param = SCIPgetParam(scipd, name)

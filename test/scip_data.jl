@@ -5,7 +5,7 @@ using MathOptInterface
 @testset "create and manual free" begin
     o = SCIP.Optimizer()
     @test o.inner.scip[] != C_NULL
-    SCIP.free_scip(o.inner)
+    SCIP.free_scip(o)
     @test o.inner.scip[] == C_NULL
 end
 
@@ -15,7 +15,7 @@ end
     x = SCIP.add_variable(o.inner)
     y = SCIP.add_variable(o.inner)
     c = SCIP.add_linear_constraint(o.inner, [x, y], [2.0, 3.0], 1.0, 9.0)
-    SCIP.free_scip(o.inner)
+    SCIP.free_scip(o)
     @test o.inner.scip[] == C_NULL
 end
 
