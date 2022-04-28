@@ -219,8 +219,11 @@ function add_nonlinear_constraint(scipd::SCIPData, expr::Expr, lhs::Float64, rhs
     nonlin = NonlinExpr()
 
     # convert expression recursively, extract root and variable pointers
-    root_expr = push_expr!(nonlin, scipd.scip[], scipd.vars, expr)
-
+    root_expr, pure_value = push_expr!(nonlin, scipd.scip[], scipd.vars, expr)
+    if pure_value
+        # TODO
+        error("Constraint $expr with pure value")
+    end
     # create and add cons_nonlinear
     cons__ = Ref{Ptr{SCIP_CONS}}(C_NULL)
     @SCIP_CALL SCIPcreateConsBasicNonlinear(scipd, cons__, "", root_expr[], lhs, rhs)
