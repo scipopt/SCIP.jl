@@ -83,6 +83,7 @@ end
         :(abs(x[$(x[18])] - 11)                 == rhs), # ABS
         :(cos(x[$(x[19])]) + 1                  == rhs), # COS
         :(sin(x[$(x[20])]) + 2                  == rhs), # SIN
+        :(x[$(x[21])] + tan(rand())             == rhs), # additional terms
     ]
 
     data = MOI.NLPBlockData(
@@ -114,6 +115,7 @@ end
     @test abs(sol[18] - 11)         ≈ rhs  atol=atol rtol=rtol
     @test cos(sol[19])              ≈ 1.0  atol=atol rtol=rtol
     @test sin(sol[20])              ≈ 0.0  atol=atol rtol=rtol
+    @test isfinite(sin(sol[21]))
 end
 
 @testset "add nonlinear constraint after solve" begin
