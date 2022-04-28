@@ -60,7 +60,7 @@ end
 
     @test MOI.supports(optimizer, MOI.NLPBlock()) == true
 
-    num_vars = 20
+    num_vars = 21
     x = MOI.add_variables(optimizer, num_vars)
     for i in 1:num_vars
         MOI.add_constraint(optimizer, x[i], MOI.Interval(0.1, 10.0))
