@@ -57,7 +57,7 @@ function push_expr!(nonlin::NonlinExpr, scip::Ptr{SCIP_}, vars::Dict{VarRef, Ref
             # Exponent (second child) is stored as value.
             @assert isa(expr.args[3], Number)
             exponent = Cdouble(expr.args[3])
-            @SCIP_CALL SCIPcreateExprPow(scip, expr__, base, exponent, C_NULL, C_NULL)
+            @SCIP_CALL SCIPcreateExprPow(scip, expr__, base[], exponent, C_NULL, C_NULL)
         elseif op in (:-, :+)
             @assert num_children >= 1
 
@@ -68,7 +68,7 @@ function push_expr!(nonlin::NonlinExpr, scip::Ptr{SCIP_}, vars::Dict{VarRef, Ref
 
                 # Finally, add the (binary) minus:
                 @SCIP_CALL SCIPcreateExprSum(
-                    scip, expr__, Cint(1), [right],
+                    scip, expr__, Cint(1), [right[]],
                     [-1.0], 0.0, C_NULL, C_NULL,
                 )
             else
@@ -80,12 +80,12 @@ function push_expr!(nonlin::NonlinExpr, scip::Ptr{SCIP_}, vars::Dict{VarRef, Ref
                 subexprs = [push_expr!(nonlin, scip, vars, expr.args[i + 1]) for i in 1:num_children]
                 coefs = fill(coef_mul, num_children)
                 coefs[1] = 1.0
-                @SCIP_CALL SCIPcreateExprSum(scip, expr__, Cint(num_children), subexprs, coefs, 0.0, C_NULL, C_NULL)
+                @SCIP_CALL SCIPcreateExprSum(scip, expr__, Cint(num_children), getindex.(subexprs), coefs, 0.0, C_NULL, C_NULL)
             end
         elseif op == :*
             @assert num_children >= 1
             subexprs = [push_expr!(nonlin, scip, vars, expr.args[i + 1]) for i in 1:num_children]
-            @SCIP_CALL SCIPcreateExprProduct(scip, expr__, num_children, subexprs, 1.0, C_NULL, C_NULL)
+            @SCIP_CALL SCIPcreateExprProduct(scip, expr__, num_children, getindex.(subexprs), 1.0, C_NULL, C_NULL)
 
         elseif op in keys(UNARY_OPS_LOOKUP)
             # Unary operators
@@ -93,10 +93,10 @@ function push_expr!(nonlin::NonlinExpr, scip::Ptr{SCIP_}, vars::Dict{VarRef, Ref
 
             # Insert child expression:
             child = push_expr!(nonlin, scip, vars, expr.args[2])
-            @SCIP_CALL UNARY_OPS_LOOKUP[op](scip, expr__, child, C_NULL, C_NULL)
+            @SCIP_CALL UNARY_OPS_LOOKUP[op](scip, expr__, child[], C_NULL, C_NULL)
         elseif op == :sqrt
             child = push_expr!(nonlin, scip, vars, expr.args[2])
-            @SCIP_CALL SCIPcreateExprPow(scip, expr__, child, 0.5, C_NULL, C_NULL)
+            @SCIP_CALL SCIPcreateExprPow(scip, expr__, child[], 0.5, C_NULL, C_NULL)
 
         elseif op == :/
             @assert num_children == 2
@@ -124,8 +124,8 @@ function push_expr!(nonlin::NonlinExpr, scip::Ptr{SCIP_}, vars::Dict{VarRef, Ref
     end
 
     # Return this expression to be referenced by parent expressions
-    push!(nonlin.exprs, expr__[])
-    return expr__[]
+    push!(nonlin.exprs, expr__)
+    return expr__
 end
 
 function push_expr!(nonlin::NonlinExpr, scip::Ptr{SCIP_}, vars::Dict{VarRef, Ref{Ptr{SCIP_VAR}}}, expr::Number)
@@ -136,8 +136,8 @@ function push_expr!(nonlin::NonlinExpr, scip::Ptr{SCIP_}, vars::Dict{VarRef, Ref
     @SCIP_CALL SCIPcreateExprValue(scip, expr__, value, C_NULL, C_NULL)
 
     @assert SCIPisExprValue(scip, expr__[]) == TRUE
-    push!(nonlin.exprs, expr__[])
-    return expr__[]
+    push!(nonlin.exprs, expr__)
+    return expr__
 end
 
 
@@ -160,7 +160,7 @@ function add_nonlinear_constraint(scipd::SCIPData, expr::Expr, lhs::Float64, rhs
 
     # create and add cons_nonlinear
     cons__ = Ref{Ptr{SCIP_CONS}}(C_NULL)
-    @SCIP_CALL SCIPcreateConsBasicNonlinear(scipd, cons__, "", root_expr, lhs, rhs)
+    @SCIP_CALL SCIPcreateConsBasicNonlinear(scipd, cons__, "", root_expr[], lhs, rhs)
     @SCIP_CALL SCIPaddCons(scipd, cons__[])
 
     # register and return cons ref

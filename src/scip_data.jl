@@ -15,7 +15,7 @@ Used to convert Julia expression to SCIP expression using recursive calls to the
 mutating push_expr!.
 """
 mutable struct NonlinExpr
-    exprs::Vector{Ptr{SCIP_EXPR}}
+    exprs::Vector{Ref{Ptr{SCIP_EXPR}}}
 end
 
 NonlinExpr() = NonlinExpr([])
