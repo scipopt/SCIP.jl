@@ -119,7 +119,6 @@ function push_expr!(nonlin::NonlinExpr, scip::Ptr{SCIP_}, vars::Dict{VarRef, Ref
         vr = VarRef(vi.value)
         v = vars[vr][]
         @SCIP_CALL SCIPcreateExprVar(scip, expr__, v, C_NULL, C_NULL)
-        push!(nonlin.vars, v)
     else
         error("Expression $expr not supported by SCIP.jl!")
     end
