@@ -56,25 +56,7 @@ mutable struct Optimizer <: MOI.AbstractOptimizer
     end
 end
 
-"Release references and free memory."
-function free_scip(o::Optimizer)
-    # Avoid double-free (SCIP will set the pointers to NULL).
-    if o.inner.scip[] != C_NULL
-        for c in values(o.inner.conss)
-            @SCIP_CALL SCIPreleaseCons(o.inner, c)
-        end
-        for nonlin in o.inner.nonlinear_storage
-            for expr in nonlin.exprs
-                @SCIP_CALL SCIPreleaseExpr(o.inner.scip[], expr)
-            end
-        end
-        for v in values(o.inner.vars)
-            @SCIP_CALL SCIPreleaseVar(o.inner, v)
-        end
-        @SCIP_CALL SCIPfree(o.inner.scip)
-    end
-    @assert o.inner.scip[] == C_NULL
-end
+free_scip(o::Optimizer) = free_scip(o.inner)
 
 Base.cconvert(::Type{Ptr{SCIP_}}, o::Optimizer) = o
 # Protect Optimizer from GC for ccall with Ptr{SCIP_} argument.
@@ -205,7 +187,7 @@ end
 
 function MOI.empty!(o::Optimizer)
     # free the underlying problem
-    finalize(o.inner)
+    free_scip(o.inner)
     # clear auxiliary mapping structures
     o.reference = PtrMap()
     o.constypes = ConsTypeMap()
