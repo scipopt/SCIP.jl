@@ -51,6 +51,7 @@ const MOI_BASE_EXCLUDED = [
     "UnsupportedConstraint",
     "test_model_delete", # MOI.ListOfConstraintTypesPresent
     "duplicate_VariableName", # two identical variable names should error
+    "test_conic_empty_matrix",
     "test_modification_delete_variables_in_a_batch",
     "test_modification_set_function_single_variable",
     "test_modification_set_scalaraffine_",
