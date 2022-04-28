@@ -20,11 +20,15 @@ const UNARY_OPS_LOOKUP = (
     sin = SCIPcreateExprSin,
 )
 
-"Extract operators from Julia expr recursively and convert to SCIP expressions."
+"""
+Extract operators from Julia expr recursively and convert to SCIP expressions.
+Returns the SCIP expression pointer, whether the expression is a pure value (without variables).
+"""
 function push_expr!(nonlin::NonlinExpr, scip::Ptr{SCIP_}, vars::Dict{VarRef, Ref{Ptr{SCIP_VAR}}}, expr::Expr)
     # Storage for SCIP_EXPR*
     expr__ = Ref{Ptr{SCIP_EXPR}}(C_NULL)
     num_children = length(expr.args) - 1
+    pure_value = false
 
     if Meta.isexpr(expr, :comparison) # range constraint
         # args: [lhs, <=, mid, <=, rhs], lhs and rhs constant
@@ -52,62 +56,117 @@ function push_expr!(nonlin::NonlinExpr, scip::Ptr{SCIP_}, vars::Dict{VarRef, Ref
             @assert num_children == 2
 
             # Base (first child) is proper sub-expression.
-            base = push_expr!(nonlin, scip, vars, expr.args[2])
+            base, pure_value = push_expr!(nonlin, scip, vars, expr.args[2])
 
             # Exponent (second child) is stored as value.
             @assert isa(expr.args[3], Number)
-            exponent = Cdouble(expr.args[3])
-            @SCIP_CALL SCIPcreateExprPow(scip, expr__, base[], exponent, C_NULL, C_NULL)
+            if !pure_value
+                exponent = Cdouble(expr.args[3])
+                @SCIP_CALL SCIPcreateExprPow(scip, expr__, base[], exponent, C_NULL, C_NULL)
+            end
         elseif op in (:-, :+)
             @assert num_children >= 1
 
             if op === :- && num_children == 1
                 # Special case: unary version of minus.
                 # Then, insert the actual subexpression:
-                right = push_expr!(nonlin, scip, vars, expr.args[2])
-
-                # Finally, add the (binary) minus:
-                @SCIP_CALL SCIPcreateExprSum(
-                    scip, expr__, Cint(1), [right[]],
-                    [-1.0], 0.0, C_NULL, C_NULL,
-                )
+                right, pure_value = push_expr!(nonlin, scip, vars, expr.args[2])
+                if !pure_value
+                    # Finally, add the (binary) minus:
+                    @SCIP_CALL SCIPcreateExprSum(
+                        scip, expr__, Cint(1), [right[]],
+                        [-1.0], 0.0, C_NULL, C_NULL,
+                    )
+                end
             else
                 coef_mul = if op === :-
                     -1.0
                 else
                     1.0
                 end
-                subexprs = [push_expr!(nonlin, scip, vars, expr.args[i + 1]) for i in 1:num_children]
-                coefs = fill(coef_mul, num_children)
-                coefs[1] = 1.0
-                @SCIP_CALL SCIPcreateExprSum(scip, expr__, Cint(num_children), getindex.(subexprs), coefs, 0.0, C_NULL, C_NULL)
+                subexprs_pairs = [push_expr!(nonlin, scip, vars, expr.args[i + 1]) for i in 1:num_children]
+                if all((_, pure) -> pure, subexprs_pairs)
+                    pure_value = true
+                else
+                    # replace pure-value expression by its evaluated value, since no expression has been evaluated yet
+                    subexprs = map(eachindex(subexprs_pairs)) do idx
+                        (subexpr, is_pure_value) = subexprs_pairs[idx]
+                        if is_pure_value
+                            expr_val = Meta.eval(expr.args[idx + 1])
+                            expr_ptr, _ = push_expr!(nonlin, scip, vars, expr_val)
+                            expr_ptr[]
+                        else
+                            subexpr[]
+                        end
+                    end
+                    coefs = fill(coef_mul, num_children)
+                    coefs[1] = 1.0
+                    @SCIP_CALL SCIPcreateExprSum(scip, expr__, Cint(num_children), subexprs, coefs, 0.0, C_NULL, C_NULL)
+                    pure_value = false
+                end
             end
         elseif op == :*
             @assert num_children >= 1
-            subexprs = [push_expr!(nonlin, scip, vars, expr.args[i + 1]) for i in 1:num_children]
-            @SCIP_CALL SCIPcreateExprProduct(scip, expr__, num_children, getindex.(subexprs), 1.0, C_NULL, C_NULL)
-
+            subexprs_pairs = [push_expr!(nonlin, scip, vars, expr.args[i + 1]) for i in 1:num_children]
+            if all((_, pure) -> pure, subexprs_pairs)
+                pure_value = true
+            else
+                subexprs = map(eachindex(subexprs_pairs)) do idx
+                    (subexpr, is_pure_value) = subexprs_pairs[idx]
+                    if is_pure_value
+                        expr_val = Meta.eval(expr.args[idx + 1])
+                        expr_ptr, _ = push_expr!(nonlin, scip, vars, expr_val)
+                        expr_ptr[]
+                    else
+                        subexpr[]
+                    end
+                end
+                @SCIP_CALL SCIPcreateExprProduct(scip, expr__, num_children, subexprs, 1.0, C_NULL, C_NULL)
+                pure_value = false
+            end
         elseif op in keys(UNARY_OPS_LOOKUP)
             # Unary operators
             @assert num_children == 1
-
             # Insert child expression:
-            child = push_expr!(nonlin, scip, vars, expr.args[2])
-            @SCIP_CALL UNARY_OPS_LOOKUP[op](scip, expr__, child[], C_NULL, C_NULL)
+            child, pure_value = push_expr!(nonlin, scip, vars, expr.args[2])
+            if !pure_value
+                @SCIP_CALL UNARY_OPS_LOOKUP[op](scip, expr__, child[], C_NULL, C_NULL)
+            end
         elseif op == :sqrt
-            child = push_expr!(nonlin, scip, vars, expr.args[2])
-            @SCIP_CALL SCIPcreateExprPow(scip, expr__, child[], 0.5, C_NULL, C_NULL)
-
+            child, pure_value = push_expr!(nonlin, scip, vars, expr.args[2])
+            if !pure_value
+                @SCIP_CALL SCIPcreateExprPow(scip, expr__, child[], 0.5, C_NULL, C_NULL)
+            end
         elseif op == :/
             @assert num_children == 2
             # Transform L / R => L * R^-1.0
             # Create left and right subexpression.
-            left = push_expr!(nonlin, scip, vars, expr.args[2])
+            left, pure_left = push_expr!(nonlin, scip, vars, expr.args[2])
             inverse_right_expr = :($(expr.args[3])^-1.0)
-            right = push_expr!(nonlin, scip, vars, inverse_right_expr)
-            @SCIP_CALL SCIPcreateExprProduct(scip, expr__, num_children, [left[], right[]], 1.0, C_NULL, C_NULL)
+            right, pure_right = push_expr!(nonlin, scip, vars, inverse_right_expr)
+            if pure_left && pure_right
+                pure_value = true
+            else
+                if pure_left && expr.args[2] isa Expr
+                    val = Meta.eval(expr.args[2])
+                    left, _ = push_expr!(nonlin, scip, vars, val)
+                end
+                if pure_right
+                    val = Meta.eval(inverse_right_expr)
+                    right, _ = push_expr!(nonlin, scip, vars, val)
+                end
+                # TODO evaluate left or right
+                @SCIP_CALL SCIPcreateExprProduct(scip, expr__, num_children, [left[], right[]], 1.0, C_NULL, C_NULL)
+            end
         else
-            error("Operator $op (in $expr) not supported by SCIP.jl!")
+            # attempt computation of pure value
+            try
+                Meta.eval(expr)
+            catch e
+                error("Operator $op (in $expr) not supported by SCIP.jl!")
+            end
+            # if reaching this point, the expression is a pure value
+            pure_value = true
         end
 
     elseif Meta.isexpr(expr, :ref) # variable
@@ -119,13 +178,16 @@ function push_expr!(nonlin::NonlinExpr, scip::Ptr{SCIP_}, vars::Dict{VarRef, Ref
         vr = VarRef(vi.value)
         v = vars[vr][]
         @SCIP_CALL SCIPcreateExprVar(scip, expr__, v, C_NULL, C_NULL)
+        pure_value = false
     else
         error("Expression $expr not supported by SCIP.jl!")
     end
 
-    # Return this expression to be referenced by parent expressions
-    push!(nonlin.exprs, expr__)
-    return expr__
+    if !pure_value
+        # Return this expression to be referenced by parent expressions
+        push!(nonlin.exprs, expr__)
+    end
+    return expr__, pure_value
 end
 
 function push_expr!(nonlin::NonlinExpr, scip::Ptr{SCIP_}, vars::Dict{VarRef, Ref{Ptr{SCIP_VAR}}}, expr::Number)
@@ -137,7 +199,8 @@ function push_expr!(nonlin::NonlinExpr, scip::Ptr{SCIP_}, vars::Dict{VarRef, Ref
 
     @assert SCIPisExprValue(scip, expr__[]) == TRUE
     push!(nonlin.exprs, expr__)
-    return expr__
+    pure_value = true
+    return expr__, pure_value
 end
 
 
