@@ -14,7 +14,6 @@ const VECTOR = MOI.VectorOfVariables
 const BOUNDS = Union{MOI.EqualTo{Float64}, MOI.GreaterThan{Float64},
                      MOI.LessThan{Float64}, MOI.Interval{Float64}}
 const VAR_TYPES = Union{MOI.ZeroOne, MOI.Integer}
-const SOC = MOI.SecondOrderCone
 const SOS1 = MOI.SOS1{Float64}
 const SOS2 = MOI.SOS2{Float64}
 # other MOI types
@@ -41,7 +40,7 @@ mutable struct Optimizer <: MOI.AbstractOptimizer
         @SCIP_CALL SCIPincludeDefaultPlugins(scip[])
         @SCIP_CALL SCIP.SCIPcreateProbBasic(scip[], "")
 
-        scip_data = SCIPData(scip, Dict(), Dict(), 0, 0, Dict(), Dict(), Dict())
+        scip_data = SCIPData(scip, Dict(), Dict(), 0, 0, Dict(), Dict(), Dict(), [])
 
         o = new(scip_data, PtrMap(), ConsTypeMap(), Dict(), Dict(), Dict(), nothing)
         finalizer(free_scip, o)
@@ -57,20 +56,7 @@ mutable struct Optimizer <: MOI.AbstractOptimizer
     end
 end
 
-"Release references and free memory."
-function free_scip(o::Optimizer)
-    # Avoid double-free (SCIP will set the pointers to NULL).
-    if o.inner.scip[] != C_NULL
-        for c in values(o.inner.conss)
-            @SCIP_CALL SCIPreleaseCons(o.inner, c)
-        end
-        for v in values(o.inner.vars)
-            @SCIP_CALL SCIPreleaseVar(o.inner, v)
-        end
-        @SCIP_CALL SCIPfree(o.inner.scip)
-    end
-    @assert o.inner.scip[] == C_NULL
-end
+free_scip(o::Optimizer) = free_scip(o.inner)
 
 Base.cconvert(::Type{Ptr{SCIP_}}, o::Optimizer) = o
 # Protect Optimizer from GC for ccall with Ptr{SCIP_} argument.
@@ -150,8 +136,8 @@ function MOI.get(o::Optimizer, param::MOI.RawOptimizerAttribute)
 end
 
 function MOI.set(o::Optimizer, param::MOI.RawOptimizerAttribute, value)
-    o.params[param.name] = value
     set_parameter(o.inner, param.name, value)
+    o.params[param.name] = value
     return nothing
 end
 
@@ -201,7 +187,7 @@ end
 
 function MOI.empty!(o::Optimizer)
     # free the underlying problem
-    finalize(o.inner)
+    free_scip(o.inner)
     # clear auxiliary mapping structures
     o.reference = PtrMap()
     o.constypes = ConsTypeMap()
@@ -214,7 +200,7 @@ function MOI.empty!(o::Optimizer)
     @SCIP_CALL SCIPincludeDefaultPlugins(scip[])
     @SCIP_CALL SCIP.SCIPcreateProbBasic(scip[], "")
     # create a new problem
-    o.inner = SCIPData(scip, Dict(), Dict(), 0, 0, Dict(), Dict(), Dict())
+    o.inner = SCIPData(scip, Dict(), Dict(), 0, 0, Dict(), Dict(), Dict(), [])
     # reapply parameters
     for pair in o.params
         set_parameter(o.inner, pair.first, pair.second)
@@ -290,9 +276,7 @@ include(joinpath("MOI_wrapper", "variable.jl"))
 include(joinpath("MOI_wrapper", "constraints.jl"))
 include(joinpath("MOI_wrapper", "linear_constraints.jl"))
 include(joinpath("MOI_wrapper", "quadratic_constraints.jl"))
-include(joinpath("MOI_wrapper", "soc_constraints.jl"))
 include(joinpath("MOI_wrapper", "sos_constraints.jl"))
-include(joinpath("MOI_wrapper", "abspower_constraints.jl"))
 include(joinpath("MOI_wrapper", "indicator_constraints.jl"))
 include(joinpath("MOI_wrapper", "nonlinear_constraints.jl"))
 include(joinpath("MOI_wrapper", "objective.jl"))

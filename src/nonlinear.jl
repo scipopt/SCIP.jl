@@ -1,27 +1,24 @@
 
-# Mapping from Julia (as given by MOI) to SCIP operators
-const OPMAP = Dict{Symbol, SCIP_ExprOp}(
-    :+ => SCIP_EXPR_SUM,       # n-ary
-    :* => SCIP_EXPR_PRODUCT,   # n-ary
-    :- => SCIP_EXPR_MINUS,     # unary, binary
-    :/ => SCIP_EXPR_DIV,       # unary
-    :^ => SCIP_EXPR_REALPOWER, # binary (or INTPOWER)
-    :sqrt => SCIP_EXPR_SQRT,   # unary
-    :exp => SCIP_EXPR_EXP,     # unary
-    :log => SCIP_EXPR_LOG,     # unary
-    :abs => SCIP_EXPR_ABS,     # unary
-    :min => SCIP_EXPR_MIN,     # binary
-    :max => SCIP_EXPR_MAX,     # binary
+# Set of allowed Julia operators (as given by MOI)
+const OPS = [
+    :+,       # n-ary
+    :-,     # unary, binary
+    :*,   # n-ary
+    :/,       # unary
+    :^, # binary (or INTPOWER)
+    :sqrt,   # unary
+    :exp,     # unary
+    :log,     # unary
+    :abs,     # unary
+]
+
+const UNARY_OPS_LOOKUP = (
+    exp = SCIPcreateExprExp,
+    log = SCIPcreateExprLog,
+    abs = SCIPcreateExprAbs,
+    cos = SCIPcreateExprCos,
+    sin = SCIPcreateExprSin,
 )
-
-"""Subexpressions and variables referenced in an expression tree.
-
-Used to convert Julia expression to SCIP expression using recursive calls to the
-mutating push_expr!.
-"""
-mutable struct NonlinExpr
-    vars::Vector{Ptr{SCIP_VAR}}
-end
 
 "Extract operators from Julia expr recursively and convert to SCIP expressions."
 function push_expr!(nonlin::NonlinExpr, scip::Ptr{SCIP_}, vars::Dict{VarRef, Ref{Ptr{SCIP_VAR}}}, expr::Expr)
@@ -39,7 +36,7 @@ function push_expr!(nonlin::NonlinExpr, scip::Ptr{SCIP_}, vars::Dict{VarRef, Ref
 
     elseif Meta.isexpr(expr, :call) # operator
         op = expr.args[1]
-        if op in [:(==), :<=, :>=]
+        if op in (:(==), :<=, :>=)
             # args: [op, lhs, rhs], rhs constant
             @assert length(expr.args) == 3
 
@@ -59,61 +56,56 @@ function push_expr!(nonlin::NonlinExpr, scip::Ptr{SCIP_}, vars::Dict{VarRef, Ref
 
             # Exponent (second child) is stored as value.
             @assert isa(expr.args[3], Number)
-            if isa(expr.args[3], Integer)
-                exponent = Cint(expr.args[3])
-                @SCIP_CALL SCIPexprCreate(SCIPblkmem(scip), expr__, SCIP_EXPR_INTPOWER, base, exponent)
+            exponent = Cdouble(expr.args[3])
+            @SCIP_CALL SCIPcreateExprPow(scip, expr__, base[], exponent, C_NULL, C_NULL)
+        elseif op in (:-, :+)
+            @assert num_children >= 1
+
+            if op === :- && num_children == 1
+                # Special case: unary version of minus.
+                # Then, insert the actual subexpression:
+                right = push_expr!(nonlin, scip, vars, expr.args[2])
+
+                # Finally, add the (binary) minus:
+                @SCIP_CALL SCIPcreateExprSum(
+                    scip, expr__, Cint(1), [right[]],
+                    [-1.0], 0.0, C_NULL, C_NULL,
+                )
             else
-                exponent = Cdouble(expr.args[3])
-                @SCIP_CALL SCIPexprCreate(SCIPblkmem(scip), expr__, SCIP_EXPR_REALPOWER, base, exponent)
+                coef_mul = if op === :-
+                    -1.0
+                else
+                    1.0
+                end
+                subexprs = [push_expr!(nonlin, scip, vars, expr.args[i + 1]) for i in 1:num_children]
+                coefs = fill(coef_mul, num_children)
+                coefs[1] = 1.0
+                @SCIP_CALL SCIPcreateExprSum(scip, expr__, Cint(num_children), getindex.(subexprs), coefs, 0.0, C_NULL, C_NULL)
             end
+        elseif op == :*
+            @assert num_children >= 1
+            subexprs = [push_expr!(nonlin, scip, vars, expr.args[i + 1]) for i in 1:num_children]
+            @SCIP_CALL SCIPcreateExprProduct(scip, expr__, num_children, getindex.(subexprs), 1.0, C_NULL, C_NULL)
 
-        elseif op == :- && num_children == 1
-            # Special case: unary version of minus. SCIP only supports binary
-            # minus, so we will represent it as :(0 - child).
-
-            # First, insert constant 0 subexpression:
-            left = push_expr!(nonlin, scip, vars, 0.0)
-
-            # Then, insert the actual subexpression:
-            right = push_expr!(nonlin, scip, vars, expr.args[2])
-
-            # Finally, add the (binary) minus:
-            @SCIP_CALL SCIPexprCreate(SCIPblkmem(scip), expr__, OPMAP[op], left, right)
-
-        elseif op in [:sqrt, :exp, :log, :abs]
+        elseif op in keys(UNARY_OPS_LOOKUP)
             # Unary operators
             @assert num_children == 1
 
             # Insert child expression:
             child = push_expr!(nonlin, scip, vars, expr.args[2])
+            @SCIP_CALL UNARY_OPS_LOOKUP[op](scip, expr__, child[], C_NULL, C_NULL)
+        elseif op == :sqrt
+            child = push_expr!(nonlin, scip, vars, expr.args[2])
+            @SCIP_CALL SCIPcreateExprPow(scip, expr__, child[], 0.5, C_NULL, C_NULL)
 
-            # Add this operator on top
-            @SCIP_CALL SCIPexprCreate(SCIPblkmem(scip), expr__, OPMAP[op], child)
-
-        elseif op in [:-, :/, :min, :max]
-            # Binary operators
+        elseif op == :/
             @assert num_children == 2
-
+            # Transform L / R => L * R^-1.0
             # Create left and right subexpression.
             left = push_expr!(nonlin, scip, vars, expr.args[2])
-            right = push_expr!(nonlin, scip, vars, expr.args[3])
-
-            @SCIP_CALL SCIPexprCreate(SCIPblkmem(scip), expr__, OPMAP[op], left, right)
-
-        elseif op in [:+, :*]
-            # N-ary operators
-            @assert num_children >= 1
-
-            # Create all children
-            children = Ptr{SCIP_EXPR}[]
-            for subexpr in expr.args[2:end]
-                child = push_expr!(nonlin, scip, vars, subexpr)
-                push!(children, child)
-            end
-            @assert length(children) == num_children
-
-            @SCIP_CALL SCIPexprCreate(SCIPblkmem(scip), expr__, OPMAP[op], Cint(num_children), children)
-
+            inverse_right_expr = :($(expr.args[3])^-1.0)
+            right = push_expr!(nonlin, scip, vars, inverse_right_expr)
+            @SCIP_CALL SCIPcreateExprProduct(scip, expr__, num_children, [left[], right[]], 1.0, C_NULL, C_NULL)
         else
             error("Operator $op (in $expr) not supported by SCIP.jl!")
         end
@@ -126,39 +118,26 @@ function push_expr!(nonlin::NonlinExpr, scip::Ptr{SCIP_}, vars::Dict{VarRef, Ref
         vi = expr.args[2] # MOI.VariableIndex
         vr = VarRef(vi.value)
         v = vars[vr][]
-
-        # 0-based indexing for SCIP
-        op = SCIP_EXPR_VARIDX
-        @SCIP_CALL SCIPexprCreate(SCIPblkmem(scip), expr__, op, Cint(length(nonlin.vars)))
-        push!(nonlin.vars, v)
-
+        @SCIP_CALL SCIPcreateExprVar(scip, expr__, v, C_NULL, C_NULL)
     else
         error("Expression $expr not supported by SCIP.jl!")
     end
 
     # Return this expression to be referenced by parent expressions
-    return expr__[]
+    push!(nonlin.exprs, expr__)
+    return expr__
 end
 
 function push_expr!(nonlin::NonlinExpr, scip::Ptr{SCIP_}, vars::Dict{VarRef, Ref{Ptr{SCIP_VAR}}}, expr::Number)
     # Storage for SCIP_EXPR*
     expr__ = Ref{Ptr{SCIP_EXPR}}(C_NULL)
 
-    op = SCIP_EXPR_CONST
     value = Cdouble(expr)
+    @SCIP_CALL SCIPcreateExprValue(scip, expr__, value, C_NULL, C_NULL)
 
-    @SCIP_CALL SCIPexprCreate(SCIPblkmem(scip), expr__, op, value)
-
-    # double check whether value was saved correctly
-    value_stored = SCIPexprGetOpReal(expr__[])
-    if value != value_stored
-        error("Failed to create SCIP_EXPR / $(op):\n" *
-              "passed in constant value $(value),\n" *
-              "retrieved $(value_stored) instead,\n" *
-              "in expression stored at $(expr__[]).")
-    end
-
-    return expr__[]
+    @assert SCIPisExprValue(scip, expr__[]) == TRUE
+    push!(nonlin.exprs, expr__)
+    return expr__
 end
 
 
@@ -174,26 +153,17 @@ Add nonlinear constraint to problem, return cons ref.
 
 """
 function add_nonlinear_constraint(scipd::SCIPData, expr::Expr, lhs::Float64, rhs::Float64)
-    nonlin = NonlinExpr([])
+    nonlin = NonlinExpr()
 
     # convert expression recursively, extract root and variable pointers
-    root = push_expr!(nonlin, scipd.scip[], scipd.vars, expr)
-    vars = nonlin.vars
-
-    # create expression graph object
-    tree__ = Ref{Ptr{SCIP_EXPRTREE}}(C_NULL)
-    @SCIP_CALL SCIPexprtreeCreate(SCIPblkmem(scipd), tree__, root, length(vars), 0, C_NULL)
-    @SCIP_CALL SCIPexprtreeSetVars(tree__[], length(vars), vars)
+    root_expr = push_expr!(nonlin, scipd.scip[], scipd.vars, expr)
 
     # create and add cons_nonlinear
     cons__ = Ref{Ptr{SCIP_CONS}}(C_NULL)
-    @SCIP_CALL SCIPcreateConsBasicNonlinear(scipd, cons__, "", 0, C_NULL, C_NULL,
-                                     1, tree__, C_NULL, lhs, rhs)
+    @SCIP_CALL SCIPcreateConsBasicNonlinear(scipd, cons__, "", root_expr[], lhs, rhs)
     @SCIP_CALL SCIPaddCons(scipd, cons__[])
 
-    # free memory
-    @SCIP_CALL SCIPexprtreeFree(tree__)
-
     # register and return cons ref
+    push!(scipd.nonlinear_storage, nonlin)
     return store_cons!(scipd, cons__)
 end

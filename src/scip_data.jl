@@ -8,6 +8,18 @@ struct ConsRef
     val::Int64
 end
 
+"""
+Subexpressions and variables referenced in an expression tree.
+
+Used to convert Julia expression to SCIP expression using recursive calls to the
+mutating push_expr!.
+"""
+mutable struct NonlinExpr
+    exprs::Vector{Ref{Ptr{SCIP_EXPR}}}
+end
+
+NonlinExpr() = NonlinExpr([])
+
 #to be moved to MOI_wrapper
 """
 SCIPData holds pointers to SCIP data.
@@ -30,25 +42,29 @@ mutable struct SCIPData
     # Map from user-defined types (keys are <: AbstractSeparator) to the
     # corresponding SCIP objects.
     sepas::Dict{Any, Ptr{SCIP_SEPA}}
+
+    # to store expressions for release
+    nonlinear_storage::Vector{NonlinExpr}
 end
 
 # Protect SCIPData from GC for ccall with Ptr{SCIP_} argument.
 Base.unsafe_convert(::Type{Ptr{SCIP_}}, scipd::SCIPData) = scipd.scip[]
 
-"Release references and free memory."
 function free_scip(scipd::SCIPData)
     # Avoid double-free (SCIP will set the pointers to NULL).
     if scipd.scip[] != C_NULL
         for c in values(scipd.conss)
             @SCIP_CALL SCIPreleaseCons(scipd, c)
         end
+        for nonlin in scipd.nonlinear_storage
+            for expr in nonlin.exprs
+                @SCIP_CALL SCIPreleaseExpr(scipd.scip[], expr)
+            end
+        end
         for v in values(scipd.vars)
             @SCIP_CALL SCIPreleaseVar(scipd, v)
         end
-        # only scipd.scip is GC-protected during ccall!
-        GC.@preserve scipd begin
-            @SCIP_CALL SCIPfree(scipd.scip)
-        end
+        @SCIP_CALL SCIPfree(scipd.scip)
     end
     @assert scipd.scip[] == C_NULL
 end
@@ -224,25 +240,9 @@ function add_quadratic_constraint(scipd::SCIPData, linrefs, lincoefs,
     quadvars2 = [var(scipd, vr) for vr in quadrefs2]
 
     cons__ = Ref{Ptr{SCIP_CONS}}(C_NULL)
-    @SCIP_CALL SCIPcreateConsBasicQuadratic(
+    @SCIP_CALL SCIPcreateConsBasicQuadraticNonlinear(
         scipd, cons__, "", length(linvars), linvars, lincoefs,
         length(quadvars1), quadvars1, quadvars2, quadcoefs, lhs, rhs)
-    @SCIP_CALL SCIPaddCons(scipd, cons__[])
-    return store_cons!(scipd, cons__)
-end
-
-"""
-Add second-order-cone constraint to problem, return cons ref.
-
-Does not support the full generality of SCIP's constraint (offsets and
-coefficients). The first entry in `varrefs` is used for the special variable on
-the right-hand side.
-"""
-function add_second_order_cone_constraint(scipd::SCIPData, varrefs)
-    vars = [var(scipd, vr) for vr in varrefs]
-    cons__ = Ref{Ptr{SCIP_CONS}}(C_NULL)
-    @SCIP_CALL SCIPcreateConsBasicSOC(scipd, cons__, "", length(vars) - 1,
-                               vars[2:end], C_NULL, C_NULL, 0.0, vars[1], 1.0, 0.0)
     @SCIP_CALL SCIPaddCons(scipd, cons__[])
     return store_cons!(scipd, cons__)
 end
@@ -275,30 +275,6 @@ function add_special_ordered_set_type2(scipd::SCIPData, varrefs, weights)
     vars = [var(scipd, vr) for vr in varrefs]
     cons__ = Ref{Ptr{SCIP_CONS}}(C_NULL)
     @SCIP_CALL SCIPcreateConsBasicSOS2(scipd, cons__, "", length(vars), vars, weights)
-    @SCIP_CALL SCIPaddCons(scipd, cons__[])
-    return store_cons!(scipd, cons__)
-end
-
-"""
-Add abspower constraint to problem, return cons ref.
-
-    lhs ≤ sign(x + a) * abs(x + a)^n + c*z ≤ rhs
-
-# Arguments
-- `x::VarRef`: reference for power variable
-- `a::Float64`: offset for power variable
-- `n::Float64`: exponent for power variable, n >= 1
-- `z::VarRef`: reference for linear variable
-- `c::Float64`: coefficient for linear variable
-- `lhs::Float64`: left-hand side for ranged constraint
-- `rhs::Float64`: right-hand side for ranged constraint
-
-Use `(-)SCIPinfinity(scip)` for one of the bounds if not applicable.
-"""
-function add_abspower_constraint(scipd::SCIPData, x, a, n, z, c, lhs, rhs)
-    cons__ = Ref{Ptr{SCIP_CONS}}(C_NULL)
-    @SCIP_CALL SCIPcreateConsBasicAbspower(
-        scipd, cons__, "", var(scipd, x), var(scipd, z), n, a, c, lhs, rhs)
     @SCIP_CALL SCIPaddCons(scipd, cons__[])
     return store_cons!(scipd, cons__)
 end

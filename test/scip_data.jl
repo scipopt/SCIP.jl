@@ -5,7 +5,7 @@ using MathOptInterface
 @testset "create and manual free" begin
     o = SCIP.Optimizer()
     @test o.inner.scip[] != C_NULL
-    SCIP.free_scip(o.inner)
+    SCIP.free_scip(o)
     @test o.inner.scip[] == C_NULL
 end
 
@@ -15,7 +15,7 @@ end
     x = SCIP.add_variable(o.inner)
     y = SCIP.add_variable(o.inner)
     c = SCIP.add_linear_constraint(o.inner, [x, y], [2.0, 3.0], 1.0, 9.0)
-    SCIP.free_scip(o.inner)
+    SCIP.free_scip(o)
     @test o.inner.scip[] == C_NULL
 end
 
@@ -39,14 +39,11 @@ end
         y = SCIP.add_variable(o.inner)
         c = SCIP.add_linear_constraint(o.inner, [x, y], [2.0, 3.0], 1.0, 9.0)
         q = SCIP.add_quadratic_constraint(o.inner, [x], [2.0], [x, x], [x, y], [4.0, 5.0], 1.0, 9.0)
-        s = SCIP.add_second_order_cone_constraint(o.inner, [t, x, y])
         s1 = SCIP.add_special_ordered_set_type1(o.inner, [t, x], [1.0, 2.0])
         s2 = SCIP.add_special_ordered_set_type2(o.inner, [x, y], [1.0, 2.0])
-        # abspower:  y == sign(x) * |x|^2 ( == x * |x| )
-        a = SCIP.add_abspower_constraint(o.inner, x, 0.0, 2.0, y, -1.0, 0.0, 0.0)
         # nonlinear: x^0.2 == 1
         vi = MathOptInterface.VariableIndex(x.val)
-        n = SCIP.add_nonlinear_constraint(o.inner, :(x[$vi]^0.2 == 1.0), 1.0, 1.0)
+        # n = SCIP.add_nonlinear_constraint(o.inner, :(x[$vi]^0.2 == 1.0), 1.0, 1.0)
 
         # indicator constraint: z = 1 ==> 𝟙^T [x, y] <= 1.
         z = SCIP.add_variable(o.inner)
@@ -54,7 +51,7 @@ end
         SCIP.@SCIP_CALL SCIP.SCIPchgVarLb(o, SCIP.var(o.inner, z), 0.0)
         SCIP.@SCIP_CALL SCIP.SCIPchgVarUb(o, SCIP.var(o.inner, z), 1.0)
 
-        ic = SCIP.add_indicator_constraint(o.inner, z, [x, y], ones(2), 1.)
+        ic = SCIP.add_indicator_constraint(o.inner, z, [x, y], ones(2), 1.0)
 
         if i==2
             # solve, but don't check results (this test is about memory mgmt)

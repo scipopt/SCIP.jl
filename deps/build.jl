@@ -1,6 +1,6 @@
 using Libdl
 
-if VERSION >= v"1.3" && !Sys.iswindows() && !haskey(ENV, "SCIPOPTDIR")
+if VERSION >= v"1.3" && !haskey(ENV, "SCIPOPTDIR")
     # Skip build in favor of SCIP_jll
     exit()
 end

@@ -91,7 +91,7 @@ As a consequence, we do not currently support some features such as retrieving
 constraints by name (`VariableIndex`-set constraints are not stored as SCIP
 constraints explicitly).
 
-Support for more constraint types (quadratic/SOC, SOS1/2, nonlinear expression)
+Support for more constraint types (quadratic, SOS1/2, nonlinear expression)
 is implemented, but SCIP itself only supports affine objective functions, so we
 will stick with that. More general objective functions could be implented via a
 [bridge](https://github.com/JuliaOpt/MathOptInterface.jl/issues/529).

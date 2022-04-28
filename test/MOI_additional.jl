@@ -14,72 +14,6 @@ function chg_bounds(o::SCIP.Optimizer, vi::VI, set::S) where S
     return nothing
 end
 
-@testset "Second Order Cone Constraint" begin
-    # Derived from MOI's problem SOC1
-    # max 0x + 1y + 1z
-    #  st  x            == 1
-    #      x >= ||(y,z)||
-
-    optimizer = SCIP.Optimizer(display_verblevel=0)
-
-    @test MOI.supports_constraint(optimizer, MOI.VectorOfVariables, MOI.SecondOrderCone)
-
-    x, y, z = MOI.add_variables(optimizer, 3)
-
-    MOI.set(optimizer, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(),
-            MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0,1.0], [y,z]), 0.0))
-    MOI.set(optimizer, MOI.ObjectiveSense(), MOI.MAX_SENSE)
-
-    ceq = MOI.add_constraint(optimizer, x, MOI.EqualTo(1.0))
-    csoc = MOI.add_constraint(optimizer, MOI.VectorOfVariables([x, y, z]),
-                              MOI.SecondOrderCone(3))
-
-    @test MOI.get(optimizer, MOI.ConstraintFunction(), csoc) == MOI.VectorOfVariables([x, y, z])
-    @test MOI.get(optimizer, MOI.ConstraintSet(), csoc) == MOI.SecondOrderCone(3)
-
-    MOI.optimize!(optimizer)
-    @test MOI.get(optimizer, MOI.TerminationStatus()) == MOI.OPTIMAL
-    @test MOI.get(optimizer, MOI.PrimalStatus()) == MOI.FEASIBLE_POINT
-
-    atol, rtol = 1e-3, 1e-3
-    @test MOI.get(optimizer, MOI.ObjectiveValue()) ≈ √2 atol=atol rtol=rtol
-    @test MOI.get(optimizer, MOI.VariablePrimal(), x) ≈ 1 atol=atol rtol=rtol
-    @test MOI.get(optimizer, MOI.VariablePrimal(), y) ≈ 1/√2 atol=atol rtol=rtol
-    @test MOI.get(optimizer, MOI.VariablePrimal(), z) ≈ 1/√2 atol=atol rtol=rtol
-end
-
-@testset "Second Order Cone Constraint (infeasible)" begin
-    # Problem SOC3 - Infeasible
-    # min 0
-    # s.t. y ≥ 2
-    #      x ≤ 1
-    #      |y| ≤ x
-
-    optimizer = SCIP.Optimizer(display_verblevel=0)
-
-    x, y = MOI.add_variables(optimizer, 2)
-
-    MOI.add_constraint(optimizer, x, MOI.Interval(0.0, 1.0))
-    MOI.add_constraint(optimizer, y, MOI.GreaterThan(2.0))
-    MOI.add_constraint(optimizer, MOI.VectorOfVariables([x, y]), MOI.SecondOrderCone(2))
-
-    MOI.optimize!(optimizer)
-    @test MOI.get(optimizer, MOI.TerminationStatus()) == MOI.INFEASIBLE
-    @test MOI.get(optimizer, MOI.PrimalStatus()) == MOI.NO_SOLUTION
-end
-
-@testset "Second Order Cone Constraint (error with unbounded variable)" begin
-    optimizer = SCIP.Optimizer()
-    x, y = MOI.add_variables(optimizer, 2)
-    @test_throws ErrorException MOI.add_constraint(
-        optimizer, MOI.VectorOfVariables([x, y]), MOI.SecondOrderCone(2))
-
-    MOI.add_constraint(optimizer, x, MOI.GreaterThan(0.0))
-    MOI.add_constraint(optimizer, MOI.VectorOfVariables([x, y]),
-                       MOI.SecondOrderCone(2))
-    # no error
-end
-
 @testset "SOS1" begin
     optimizer = SCIP.Optimizer(display_verblevel=0)
 
@@ -134,44 +68,6 @@ end
     @test MOI.get(optimizer, MOI.VariablePrimal(), x) ≈ 0.0 atol=atol rtol=rtol
     @test MOI.get(optimizer, MOI.VariablePrimal(), y) ≈ 1.0 atol=atol rtol=rtol
     @test MOI.get(optimizer, MOI.VariablePrimal(), z) ≈ 1.0 atol=atol rtol=rtol
-end
-
-@testset "abspower" begin
-    # max.  x1 - x2
-    # s.t.  z1 = sign(x1)*abs(x1)^2
-    #       z2 = sign(x2)*abs(x2)^3
-    #       z1 ≤ 4, z2 ≥ -8
-
-    optimizer = SCIP.Optimizer(display_verblevel=0)
-
-    x1, x2, z1, z2 = MOI.add_variables(optimizer, 4)
-    MOI.add_constraint(optimizer, z1, MOI.LessThan(4.0))
-    MOI.add_constraint(optimizer, z2, MOI.GreaterThan(-8.0))
-
-    c1 = MOI.add_constraint(optimizer, MOI.VectorOfVariables([x1, z1]),
-                            SCIP.AbsolutePowerSet(2.0))
-    c2 = MOI.add_constraint(optimizer, MOI.VectorOfVariables([x2, z2]),
-                            SCIP.AbsolutePowerSet(3.0))
-
-    @test MOI.get(optimizer, MOI.ConstraintFunction(), c1) == MOI.VectorOfVariables([x1, z1])
-    @test MOI.get(optimizer, MOI.ConstraintSet(), c1) == SCIP.AbsolutePowerSet(2.0)
-    @test MOI.get(optimizer, MOI.ConstraintFunction(), c2) == MOI.VectorOfVariables([x2, z2])
-    @test MOI.get(optimizer, MOI.ConstraintSet(), c2) == SCIP.AbsolutePowerSet(3.0)
-
-    MOI.set(optimizer, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(),
-            MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0, -1.0], [x1, x2]), 0.0))
-    MOI.set(optimizer, MOI.ObjectiveSense(), MOI.MAX_SENSE)
-
-    MOI.optimize!(optimizer)
-    @test MOI.get(optimizer, MOI.TerminationStatus()) == MOI.OPTIMAL
-    @test MOI.get(optimizer, MOI.PrimalStatus()) == MOI.FEASIBLE_POINT
-
-    atol, rtol = 1e-6, 1e-6
-    @test MOI.get(optimizer, MOI.ObjectiveValue()) ≈ 4.0 atol=atol rtol=rtol
-    @test MOI.get(optimizer, MOI.VariablePrimal(), x1) ≈ 2.0 atol=atol rtol=rtol
-    @test MOI.get(optimizer, MOI.VariablePrimal(), z1) ≈ 4.0 atol=atol rtol=rtol
-    @test MOI.get(optimizer, MOI.VariablePrimal(), x2) ≈ -2.0 atol=atol rtol=rtol
-    @test MOI.get(optimizer, MOI.VariablePrimal(), z2) ≈ -8.0 atol=atol rtol=rtol
 end
 
 @testset "indicator constraints" begin

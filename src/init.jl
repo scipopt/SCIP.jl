@@ -1,15 +1,17 @@
 import Libdl
 
-if haskey(ENV, "SCIPOPTDIR")
+const depsjl_path = joinpath(@__DIR__, "..", "deps", "deps.jl")
+if isfile(depsjl_path)
     # User-provided SCIP library
-    const depsjl_path = joinpath(@__DIR__, "..", "deps", "deps.jl")
-    if !isfile(depsjl_path)
-        error("SCIP was not built properly, please run Pkg.build(\"SCIP\")")
-    end
     include(depsjl_path)
 else
     # Artifact from BinaryBuilder package
-    using SCIP_jll: libscip
+    import SCIP_PaPILO_jll
+    if SCIP_PaPILO_jll.is_available()
+        using SCIP_PaPILO_jll: libscip
+    else
+        using SCIP_jll: libscip
+    end
 end
 
 function __init__()
@@ -17,8 +19,8 @@ function __init__()
     minor = SCIPminorVersion()
     patch = SCIPtechVersion()
     current = VersionNumber("$major.$minor.$patch")
-    required = VersionNumber("6")
-    upperbound = VersionNumber("8")
+    required = VersionNumber("8")
+    upperbound = VersionNumber("9")
     if current < required || current >= upperbound
         error("SCIP is installed at version $current, " *
               "supported are $required up to (excluding) $upperbound.")

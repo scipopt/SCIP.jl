@@ -1,9 +1,2 @@
-name = "gen"
-uuid = "bdc5fa1a-e2a0-4ec3-bc77-c59bd234be9e"
-version = "0.1.0"
-
 [deps]
 Clang = "40e3b903-d033-50b4-a0cc-940c62c95e31"
-
-[compat]
-Clang = "0.9"
