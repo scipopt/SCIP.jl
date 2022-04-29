@@ -39,17 +39,6 @@ function MOI.get(o::Optimizer, ::MOI.ObjectiveFunction{SAF})
     return SAF(terms, constant)
 end
 
-# Note that SCIP always uses a scalar affine function internally!
-# function MOI.get(o::Optimizer, ::MOI.ObjectiveFunction{VI})
-#     aff_obj = MOI.get(o, MOI.ObjectiveFunction{SAF}())
-#     if (length(aff_obj.terms) != 1
-#         || aff_obj.terms[1].coefficient != 1.0
-#         || aff_obj.constant != 0.0)
-#         throw(InexactError(:get, VI, aff_obj))
-#     end
-#     return aff_obj.terms[1].variable
-# end
-
 function MOI.set(o::Optimizer, ::MOI.ObjectiveSense, sense::MOI.OptimizationSense)
     allow_modification(o)
     if sense == MOI.MIN_SENSE
