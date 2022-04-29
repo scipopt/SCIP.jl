@@ -7,19 +7,25 @@ Julia interface to the [SCIP](http://scipopt.org) solver.
 
 See [NEWS.md](https://github.com/SCIP-Interfaces/SCIP.jl/blob/master/NEWS.md) for changes in each (recent) release.
 
+## Update (April 2022)
+
+Due to breaking changes, only SCIP 8 is supported by the wrapper on version 0.11 onwards.
+
 ## Update (August 2020)
 
 On MacOS and Linux, it is no longer required to install the [SCIP](https://scipopt.org/) binaries using this package. There now exists a
 [BinaryBuilder.jl](https://github.com/JuliaPackaging/BinaryBuilder.jl) generated
-package [SCIP_jll.jl](https://github.com/JuliaBinaryWrappers/SCIP_jll.jl) which
+package [SCIP_jll.jl](https://github.com/JuliaBinaryWrappers/SCIP_jll.jl) and
+[SCIP_PaPILO_jll.jl](https://github.com/JuliaBinaryWrappers/SCIP_PaPILO_jll.jl) which
 is installed automatically as a dependency.
-
 
 On Windows, the separate installation of SCIP is still mandatory.
 
 Under Julia 1.3 or more recent, you can use this default installation:
 
-    pkg> add SCIP
+```julia
+pkg> add SCIP
+```
 
 If you use an older Julia version, Windows or want a custom SCIP installation, see below for the build steps.
 
@@ -33,35 +39,41 @@ is, either `$SCIPOPTDIR/lib/libscip.so`, `$SCIPOPTDIR/lib/libscip.dylib` or
 When this is set before you install this package, it should be recognized
 automatically. Afterwards, you can trigger the build with
 
-    pkg> build SCIP
+```julia
+pkg> build SCIP
+```
     
 This step is also required if your Julia version is older than 1.3.
 
 ## Setting Parameters
 
 There are two ways of setting the parameters
-([all](https://scip.zib.de/doc-6.0.1/html/PARAMETERS.php) are supported). First,
+([all](https://scip.zib.de/doc-8.0.0/html/PARAMETERS.php) are supported). First,
 using `MOI.set`:
 
-    using MOI
-    using SCIP
+```julia
+using MOI
+using SCIP
 
-    optimizer = SCIP.Optimizer()
-    MOI.set(optimizer, SCIP.Param("display/verblevel"), 0)
-    MOI.set(optimizer, SCIP.Param("limits/gap"), 0.05)
+optimizer = SCIP.Optimizer()
+MOI.set(optimizer, SCIP.Param("display/verblevel"), 0)
+MOI.set(optimizer, SCIP.Param("limits/gap"), 0.05)
+```
 
 Second, as keyword arguments to the constructor. But here, the slashes (`/`)
 need to be replaced by underscores (`_`) in order to end up with a valid Julia
 identifier. This should not lead to ambiguities as none of the official SCIP
 parameters contain any underscores (yet).
 
-    using MOI
-    using SCIP
+```julia
+using MOI
+using SCIP
 
-    optimizer = SCIP.Optimizer(display_verblevel=0, limits_gap=0.05)
+optimizer = SCIP.Optimizer(display_verblevel=0, limits_gap=0.05)
+```julia
 
-Note that in both cases, the correct value type must be used (here, `Int64` and
-`Float64`).
+Note that in both cases, the correct value type must be used
+(here, `Int64` and `Float64`).
 
 ## Design Considerations
 
@@ -74,7 +86,7 @@ Julia). Convenience wrapper functions based on Julia types are added as needed.
 
 **Memory Management**: Programming with SCIP requires dealing with variable and
 constraints objects that use [reference
-counting](https://scip.zib.de/doc-6.0.0/html/OBJ.php) for memory management.
+counting](https://scip.zib.de/doc-8.0.0/html/OBJ.php) for memory management.
 The `SCIP.Optimizer` wrapper type collects lists of `SCIP_VAR*`
 and `SCIP_CONS*` under the hood, and releases all reference when it is garbage
 collected itself (via `finalize`).
@@ -98,8 +110,6 @@ will stick with that. More general objective functions could be implented via a
 
 Supported operators in nonlinear expressions are as follows:
 
-- unary: `-`, `sqrt`, `exp`, `log`, `abs`
-- binary: `-`, `/`, `^`, `min`, `max`
+- unary: `-`, `sqrt`, `exp`, `log`, `abs`, `cos`, `sin`
+- binary: `-`, `/`, `^`
 - n-ary: `+`, `*`
-
-In particular, trigonometric functions are not supported.
