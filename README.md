@@ -19,9 +19,8 @@ package [SCIP_jll.jl](https://github.com/JuliaBinaryWrappers/SCIP_jll.jl) and
 [SCIP_PaPILO_jll.jl](https://github.com/JuliaBinaryWrappers/SCIP_PaPILO_jll.jl) which
 is installed automatically as a dependency.
 
-On Windows, the separate installation of SCIP is still mandatory.
-
-Under Julia 1.3 or more recent, you can use this default installation:
+On Windows, the separate installation of SCIP is still mandatory, otherwise,
+you can use this default installation:
 
 ```julia
 pkg> add SCIP
@@ -42,8 +41,6 @@ automatically. Afterwards, you can trigger the build with
 ```julia
 pkg> build SCIP
 ```
-    
-This step is also required if your Julia version is older than 1.3.
 
 ## Setting Parameters
 
@@ -56,8 +53,8 @@ using MOI
 using SCIP
 
 optimizer = SCIP.Optimizer()
-MOI.set(optimizer, SCIP.Param("display/verblevel"), 0)
-MOI.set(optimizer, SCIP.Param("limits/gap"), 0.05)
+MOI.set(optimizer, MOI.RawOptimizerAttribute("display/verblevel"), 0)
+MOI.set(optimizer, MOI.RawOptimizerAttribute("limits/gap"), 0.05)
 ```
 
 Second, as keyword arguments to the constructor. But here, the slashes (`/`)

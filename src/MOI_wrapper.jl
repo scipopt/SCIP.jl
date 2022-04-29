@@ -129,9 +129,6 @@ function _throw_if_invalid(o::Optimizer, ci::CI{F, S}) where {F, S}
     return nothing
 end
 
-# Keep SCIP-specific alias for backwards-compatibility.
-const Param = MOI.RawOptimizerAttribute
-
 function MOI.get(o::Optimizer, param::MOI.RawOptimizerAttribute)
     return get_parameter(o.inner, param.name)
 end
