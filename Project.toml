@@ -8,14 +8,12 @@ Libdl = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
 MathOptInterface = "b8f27783-ece8-5eb3-8dc8-9495eed66fee"
 SCIP_PaPILO_jll = "fc9abe76-a5e6-5fed-b0b7-a12f309cf031"
 SCIP_jll = "e5ac4fe4-a920-5659-9bf8-f9f73e9e79ce"
-bliss_jll = "508c9074-7a14-5c94-9582-3d4bc1871065"
 
 [compat]
 Ipopt_jll = "300.1400"
 MathOptInterface = "1"
 SCIP_PaPILO_jll = "0.1"
 SCIP_jll = "0.2"
-bliss_jll = "0.77"
 julia = "1.6"
 
 [extras]
