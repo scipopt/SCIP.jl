@@ -22,7 +22,7 @@ function __init__()
     required = VersionNumber("8")
     upperbound = VersionNumber("9")
     if current < required || current >= upperbound
-        error("SCIP is installed at version $current, " *
+        @error("SCIP is installed at version $current, " *
               "supported are $required up to (excluding) $upperbound.")
     end
 end
