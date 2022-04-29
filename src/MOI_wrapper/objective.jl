@@ -6,7 +6,6 @@
 
 MOI.supports(::Optimizer, ::MOI.ObjectiveSense) = true
 MOI.supports(::Optimizer, ::MOI.ObjectiveFunction{SAF}) = true
-MOI.supports(::Optimizer, ::MOI.ObjectiveFunction{VI}) = true
 
 function MOI.set(o::Optimizer, ::MOI.ObjectiveFunction{SAF}, obj::SAF)
     allow_modification(o)
@@ -29,12 +28,6 @@ function MOI.set(o::Optimizer, ::MOI.ObjectiveFunction{SAF}, obj::SAF)
     return nothing
 end
 
-# Note that SCIP always uses a scalar affine function internally!
-function MOI.set(o::Optimizer, ::MOI.ObjectiveFunction{VI}, obj::VI)
-    aff_obj = SAF([AFF_TERM(1.0, obj)], 0.0)
-    return MOI.set(o, MOI.ObjectiveFunction{SAF}(), aff_obj)
-end
-
 function MOI.get(o::Optimizer, ::MOI.ObjectiveFunction{SAF})
     terms = AFF_TERM[]
     for vr = keys(o.inner.vars)
@@ -46,31 +39,19 @@ function MOI.get(o::Optimizer, ::MOI.ObjectiveFunction{SAF})
     return SAF(terms, constant)
 end
 
-# Note that SCIP always uses a scalar affine function internally!
-function MOI.get(o::Optimizer, ::MOI.ObjectiveFunction{VI})
-    aff_obj = MOI.get(o, MOI.ObjectiveFunction{SAF}())
-    if (length(aff_obj.terms) != 1
-        || aff_obj.terms[1].coefficient != 1.0
-        || aff_obj.constant != 0.0)
-        throw(InexactError(:get, VI, aff_obj))
-    end
-    return aff_obj.terms[1].variable
-end
-
 function MOI.set(o::Optimizer, ::MOI.ObjectiveSense, sense::MOI.OptimizationSense)
     allow_modification(o)
     if sense == MOI.MIN_SENSE
         @SCIP_CALL SCIPsetObjsense(o, SCIP_OBJSENSE_MINIMIZE)
     elseif sense == MOI.MAX_SENSE
         @SCIP_CALL SCIPsetObjsense(o, SCIP_OBJSENSE_MAXIMIZE)
-    elseif sense == MOI.FEASIBILITY_SENSE
-        @warn "FEASIBLITY_SENSE not supported by SCIP.jl" maxlog=1
     end
+    o.objective_sense = sense
     return nothing
 end
 
 function MOI.get(o::Optimizer, ::MOI.ObjectiveSense)
-    return SCIPgetObjsense(o) == SCIP_OBJSENSE_MAXIMIZE ? MOI.MAX_SENSE : MOI.MIN_SENSE
+    return o.objective_sense
 end
 
 function MOI.modify(o::Optimizer, ::MOI.ObjectiveFunction{SAF},
@@ -80,4 +61,4 @@ function MOI.modify(o::Optimizer, ::MOI.ObjectiveFunction{SAF},
     return nothing
 end
 
-MOI.get(o::Optimizer, ::MOI.ObjectiveFunctionType) = SAF
+MOI.get(::Optimizer, ::MOI.ObjectiveFunctionType) = SAF
