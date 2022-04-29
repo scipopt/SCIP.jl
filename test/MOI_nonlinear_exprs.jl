@@ -60,7 +60,7 @@ end
 
     @test MOI.supports(optimizer, MOI.NLPBlock()) == true
 
-    num_vars = 20
+    num_vars = 21
     x = MOI.add_variables(optimizer, num_vars)
     for i in 1:num_vars
         MOI.add_constraint(optimizer, x[i], MOI.Interval(0.1, 10.0))
@@ -83,6 +83,7 @@ end
         :(abs(x[$(x[18])] - 11)                 == rhs), # ABS
         :(cos(x[$(x[19])]) + 1                  == rhs), # COS
         :(sin(x[$(x[20])]) + 2                  == rhs), # SIN
+        :(x[$(x[21])] + tan(rand()) / (1+1.2^4.2) - 2*1/4 == rhs), # additional terms
     ]
 
     data = MOI.NLPBlockData(
@@ -114,6 +115,7 @@ end
     @test abs(sol[18] - 11)         ≈ rhs  atol=atol rtol=rtol
     @test cos(sol[19])              ≈ 1.0  atol=atol rtol=rtol
     @test sin(sol[20])              ≈ 0.0  atol=atol rtol=rtol
+    @test isfinite(sin(sol[21]))
 end
 
 @testset "add nonlinear constraint after solve" begin
