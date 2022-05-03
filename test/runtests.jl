@@ -81,9 +81,6 @@ end
 
 include("MOI_conshdlr.jl")
 
-using Test
-using SCIP
-
 @testset "SCIP_CALL printing" begin
     f() = SCIP.SCIP_OKAY
     g(args...) = SCIP.SCIP_ERROR
