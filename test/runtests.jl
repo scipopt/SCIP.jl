@@ -80,3 +80,15 @@ end
 end
 
 include("MOI_conshdlr.jl")
+
+using Test
+using SCIP
+
+@testset "SCIP_CALL printing" begin
+    f() = SCIP.SCIP_OKAY
+    g(args...) = SCIP.SCIP_ERROR
+    SCIP.@SCIP_CALL f()
+    h() = SCIP.@SCIP_CALL(g(1, 2))
+    @test_throws ErrorException("g() yielded SCIP code SCIP_ERROR") SCIP.@SCIP_CALL g()
+    @test_throws ErrorException("g(1, 2) yielded SCIP code SCIP_ERROR") h()
+end
