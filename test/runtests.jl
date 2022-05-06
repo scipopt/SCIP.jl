@@ -42,14 +42,8 @@ const MOI_BASE_EXCLUDED = [
     "Indicator_LessThan",
     "Indicator_ACTIVATE_ON_ZERO", # odd MOI bug?
     "test_constraint_get_ConstraintIndex", # accessing constraint from string name
-    "test_model_ListOfConstraintAttributesSet",
     "BoundAlreadySet", # see TODO,
-    "ListOfConstraintIndices", # MathOptInterface.ListOfModelAttributesSet
-    "ListOfConstraintTypesPresent",
     "ScalarAffineFunction_ConstraintName", # get(::SCIP.Optimizer, ::Type{MathOptInterface.ConstraintIndex}, ::String)
-    "UnsupportedAttribute",    # test_model_copy_to_UnsupportedAttribute: MOI.copy_to(model, BadVariableAttributeModel())
-    "UnsupportedConstraint",
-    "test_model_delete", # MOI.ListOfConstraintTypesPresent
     "duplicate_VariableName", # two identical variable names should error
     "test_conic_empty_matrix",
     "test_modification_delete_variables_in_a_batch",
@@ -58,8 +52,7 @@ const MOI_BASE_EXCLUDED = [
     "test_modification_set_singlevariable_",
     "test_modification_transform_",
     "test_nonlinear_", # None of tests provide expression graphs in the evaluator.
-    "FEASIBILITY_SENSE", # TODO
-    "ObjectiveFunction_ScalarAffineFunction",
+    "ObjectiveFunction_ScalarAffineFunction", # requires conversion of objective function
     "test_objective_set_via_modify", # ListOfModelAttributesSet
 ]
 

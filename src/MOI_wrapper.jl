@@ -123,7 +123,7 @@ MOI.get(::Optimizer, ::MOI.SolverName) = "SCIP"
 MOI.supports_incremental_interface(::Optimizer) = true
 
 function _throw_if_invalid(o::Optimizer, ci::CI{F, S}) where {F, S}
-    if !in(ConsRef(ci.value), o.constypes[F, S])
+    if !haskey(o.constypes, (F, S)) || !in(ConsRef(ci.value), o.constypes[F, S])
         throw(MOI.InvalidIndex(ci))
     end
     return nothing
@@ -210,7 +210,7 @@ function MOI.copy_to(dest::Optimizer, src::MOI.ModelLike)
     return MOIU.default_copy_to(dest, src)
 end
 
-MOI.get(o::Optimizer, ::MOI.Name) = SCIPgetProbName(o)
+MOI.get(o::Optimizer, ::MOI.Name) = unsafe_string(SCIPgetProbName(o))
 MOI.set(o::Optimizer, ::MOI.Name, name::String) = @SCIP_CALL SCIPsetProbName(o, name)
 
 function MOI.get(o::Optimizer, ::MOI.NumberOfConstraints{F,S}) where {F,S}
@@ -258,14 +258,9 @@ end
 function MOI.optimize!(o::Optimizer)
     set_start_values(o)
     if o.objective_sense == MOI.FEASIBILITY_SENSE
-        # set objective function to 0, solve and reset objective
-        f = MOI.get(o, MOI.ObjectiveFunction{SAF}())
         MOI.set(o, MOI.ObjectiveFunction{SAF}(), SAF([], 0.0))
-        @SCIP_CALL SCIPsolve(o)
-        MOI.set(o, MOI.ObjectiveFunction{SAF}(), f)
-    else
-        @SCIP_CALL SCIPsolve(o)
     end
+    @SCIP_CALL SCIPsolve(o)
     return nothing
 end
 
@@ -273,6 +268,9 @@ function MOI.delete(o::Optimizer, ci::CI{F, S}) where {F, S}
     _throw_if_invalid(o, ci)
     allow_modification(o)
     delete!(o.constypes[F, S], ConsRef(ci.value))
+    if isempty(o.constypes[F, S])
+        delete!(o.constypes, (F, S))
+    end
     delete!(o.reference, cons(o, ci))
     delete(o.inner, ConsRef(ci.value))
     return nothing
@@ -283,6 +281,7 @@ function MOI.get(o::Optimizer, ::MOI.ListOfVariableAttributesSet)
     if !isempty(o.start)
         push!(attributes, MOI.VariablePrimalStart())
     end
+    return attributes
 end
 
 MOI.get(::Optimizer, ::MOI.ListOfModelAttributesSet) = MOI.AbstractModelAttribute[MOI.Name(), MOI.ObjectiveSense()]

@@ -12,21 +12,24 @@ const CONFIG_BRIDGED = MOIT.Config(atol=5e-3, rtol=1e-4, exclude=Any[
     excluded = copy(MOI_BASE_EXCLUDED)
     append!(excluded, [
         "test_linear_Interval_inactive",
-        "test_linear_integration", # Can not delete variable while model contains constraints
+        # Can not delete variable while model contains constraints
+        "test_linear_integration",
+        "test_basic_ScalarQuadraticFunction_ZeroOne",
+        "test_basic_VectorAffineFunction_NormOneCone",
+        "test_basic_VectorAffineFunction_SOS1",
+        "test_basic_VectorAffineFunction_SOS2",
+        "test_basic_VectorQuadraticFunction_NormOneCone",
+        "test_basic_VectorQuadraticFunction_SOS1",
+        "test_basic_VectorQuadraticFunction_SOS2",
         "test_model_ordered_indices", # TODO should fix? ListOf in order of creation
         "test_quadratic_duplicate_terms", # Can not delete variable while model contains constraints
         "test_quadratic_nonhomogeneous", # unsupported by bridge
         "ScalarAffineFunction_ZeroOne",
-        "ScalarQuadraticFunction_ZeroOne",
-        "VectorAffineFunction_NormOneCone",
-        "VectorQuadraticFunction_NormOneCone",
-        "VectorAffineFunction_SOS",
-        "VectorQuadraticFunction_SOS",
+        "test_model_delete",
         "test_conic_GeometricMeanCone_Vector",
         "test_basic_VectorOfVariables_GeometricMeanCone",
         "test_basic_VectorQuadraticFunction_GeometricMeanCone",
         "test_basic_VectorAffineFunction_GeometricMeanCone",
-        "test_conic_SecondOrderCone_nonnegative_post_bound",
         "test_variable_delete_SecondOrderCone",
         "test_modification_func_scalaraffine_",
         "test_modification_func_vectoraffine_",
