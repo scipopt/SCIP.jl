@@ -278,6 +278,35 @@ function MOI.delete(o::Optimizer, ci::CI{F, S}) where {F, S}
     return nothing
 end
 
+function MOI.get(o::Optimizer, ::MOI.ListOfVariableAttributesSet)
+    attributes = MOI.AbstractVariableAttribute[MOI.VariableName()]
+    if !isempty(o.start)
+        push!(attributes, MOI.VariablePrimalStart())
+    end
+end
+
+MOI.get(::Optimizer, ::MOI.ListOfModelAttributesSet) = MOI.AbstractModelAttribute[MOI.Name(), MOI.ObjectiveSense()]
+
+function MOI.get(
+    ::Optimizer,
+    ::MOI.ListOfConstraintAttributesSet{F,S},
+) where {F,S}
+    attributes = MOI.AbstractConstraintAttribute[]
+    if F != MOI.VariableIndex
+        return push!(attributes, MOI.ConstraintName())
+    end
+    return attributes
+end
+
+function MOI.get(::Optimizer, ::MOI.ListOfOptimizerAttributesSet)
+    attributes = MOI.ListOfOptimizerAttributesSet[]
+    timelim = MOI.get(o, MOI.TimeLimitSec())
+    if timelim !== nothing
+        push!(attributes, MOI.TimeLimitSec())
+    end
+    return attributes
+end
+
 include(joinpath("MOI_wrapper", "variable.jl"))
 include(joinpath("MOI_wrapper", "constraints.jl"))
 include(joinpath("MOI_wrapper", "linear_constraints.jl"))
