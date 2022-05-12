@@ -45,8 +45,10 @@ function MOI.set(o::Optimizer, ::MOI.ObjectiveSense, sense::MOI.OptimizationSens
         @SCIP_CALL SCIPsetObjsense(o, SCIP_OBJSENSE_MINIMIZE)
     elseif sense == MOI.MAX_SENSE
         @SCIP_CALL SCIPsetObjsense(o, SCIP_OBJSENSE_MAXIMIZE)
+    else
+        # feasibility: erase objective
+        MOI.set(o, MOI.ObjectiveFunction{SAF}(), SAF([], 0.0))
     end
-    o.objective_sense = sense
     return nothing
 end
 
