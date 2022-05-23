@@ -200,19 +200,22 @@ function MOI.delete(o::Optimizer, ci::CI{VI,S}) where {S <: BOUNDS}
     return nothing
 end
 
-function MOI.set(o::SCIP.Optimizer, ::MOI.ConstraintSet, ci::CI{VI,S}, set::S) where {S <: BOUNDS}
+function MOI.set(o::Optimizer, ::MOI.ConstraintSet, ci::CI{VI,S}, set::S) where {S <: BOUNDS}
     allow_modification(o)
     v = var(o, VI(ci.value)) # cons index is actually var index
     lb, ub = bounds(set)
-    lb = lb === nothing ? -SCIPinfinity(o) : lb
-    ub = ub === nothing ?  SCIPinfinity(o) : ub
-    if SCIPvarGetType(v) == SCIP_VARTYPE_BINARY
-        o.binbounds[vi] = MOI.Interval(lb, ub)
-        lb = max(lb, 0.0)
-        ub = min(lb, 1.0)
+    if lb !== nothing
+        if SCIPvarGetType(v) == SCIP_VARTYPE_BINARY
+            lb = max(lb, 0.0)
+        end
+        @SCIP_CALL SCIPchgVarLb(o, v, lb)
     end
-    @SCIP_CALL SCIPchgVarLb(o, v, lb)
-    @SCIP_CALL SCIPchgVarUb(o, v, ub)
+    if ub !== nothing
+        if SCIPvarGetType(v) == SCIP_VARTYPE_BINARY
+            ub = min(ub, 1.0)
+        end
+        @SCIP_CALL SCIPchgVarUb(o, v, ub)
+    end
     return nothing
 end
 
