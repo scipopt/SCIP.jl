@@ -67,7 +67,7 @@ using MOI
 using SCIP
 
 optimizer = SCIP.Optimizer(display_verblevel=0, limits_gap=0.05)
-```julia
+```
 
 Note that in both cases, the correct value type must be used
 (here, `Int64` and `Float64`).
