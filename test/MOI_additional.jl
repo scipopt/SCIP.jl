@@ -129,7 +129,7 @@ end
     @test !MOI.is_empty(optimizer)
 
     # fail to delete them in wrong order
-    @test_throws ErrorException MOI.delete(optimizer, x)
+    @test_throws MOI.DeleteNotAllowed MOI.delete(optimizer, x)
 end
 
 @testset "set_parameter" begin

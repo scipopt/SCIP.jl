@@ -54,6 +54,8 @@ const MOI_BASE_EXCLUDED = [
     "test_nonlinear_", # None of tests provide expression graphs in the evaluator.
     "ObjectiveFunction_ScalarAffineFunction", # requires conversion of objective function
     "test_objective_set_via_modify", # ListOfModelAttributesSet
+    # Upstream issue in MOI.Test
+    "test_cpsat_CountGreaterThan",
 ]
 
 @testset "MathOptInterface tests (direct)" begin
