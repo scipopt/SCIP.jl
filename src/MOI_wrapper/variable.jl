@@ -28,7 +28,12 @@ function MOI.delete(o::Optimizer, vi::VI)
     # the variable-in-constraint relation, so, to be conservative, we only allow
     # to delete a variable when there are no constraints in the model.
     if length(o.inner.conss) > 0
-        error("Can not delete variable while model contains constraints!")
+        throw(
+            MOI.DeleteNotAllowed(
+                vi,
+                "Can not delete variable while model contains constraints!",
+            ),
+        )
     end
     allow_modification(o)
     if !haskey(o.inner.vars, VarRef(vi.value))
