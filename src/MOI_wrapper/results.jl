@@ -81,15 +81,13 @@ end
 function MOI.get(o::Optimizer, attr::MOI.ObjectiveValue)
     assert_solved(o)
     MOI.check_result_index_bounds(o, attr)
-    sols = unsafe_wrap(Array{Ptr{SCIP_SOL}}, SCIPgetSols(o), SCIPgetNSols(o))
-    return SCIPgetSolOrigObj(o, sols[attr.result_index])
+    return SCIPgetSolOrigObj(o, o.solution_storage[attr.result_index])
 end
 
 function MOI.get(o::Optimizer, attr::MOI.VariablePrimal, vi::MOI.VariableIndex)
     assert_solved(o)
     MOI.check_result_index_bounds(o, attr)
-    sols = unsafe_wrap(Array{Ptr{SCIP_SOL}}, SCIPgetSols(o), SCIPgetNSols(o))
-    return SCIPgetSolVal(o, sols[attr.result_index], var(o, vi))
+    return SCIPgetSolVal(o, o.solution_storage[attr.result_index], var(o, vi))
 end
 
 function MOI.get(
@@ -99,12 +97,8 @@ function MOI.get(
 )
     assert_solved(o)
     MOI.check_result_index_bounds(o, attr)
-    sols = unsafe_wrap(Array{Ptr{SCIP_SOL}}, SCIPgetSols(o), SCIPgetNSols(o))
-    return SCIPgetSolVal(
-        o,
-        sols[attr.result_index],
-        var(o, MOI.VariableIndex(ci.value)),
-    )
+    x = MOI.VariableIndex(ci.value)
+    return SCIPgetSolVal(o, o.solution_storage[attr.result_index], var(o, x))
 end
 
 function MOI.get(
@@ -114,8 +108,7 @@ function MOI.get(
 )
     assert_solved(o)
     MOI.check_result_index_bounds(o, attr)
-    sols = unsafe_wrap(Array{Ptr{SCIP_SOL}}, SCIPgetSols(o), SCIPgetNSols(o))
-    return SCIPgetActivityLinear(o, cons(o, ci), sols[attr.result_index])
+    return SCIPgetActivityLinear(o, cons(o, ci), o.solution_storage[attr.result_index])
 end
 
 function MOI.get(o::Optimizer, ::MOI.ObjectiveBound)

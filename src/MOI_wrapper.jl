@@ -48,6 +48,7 @@ mutable struct Optimizer <: MOI.AbstractOptimizer
         Nothing,
         Dict{String,Union{Nothing,MOI.ConstraintIndex}},
     }
+    solution_storage::Vector{Ptr{SCIP_SOL}}
 
     function Optimizer(; kwargs...)
         o = new(
@@ -66,6 +67,7 @@ mutable struct Optimizer <: MOI.AbstractOptimizer
             _kSCIP_SOLVE_STATUS_NOT_CALLED,
             nothing,
             nothing,
+            Ptr{SCIP_SOL}[],
         )
         # Set all parameters given as keyword arguments, replacing the
         # delimiter, since "/" is used by all SCIP parameters, but is not
@@ -112,6 +114,7 @@ function MOI.empty!(o::Optimizer)
     o.scip_solve_status = _kSCIP_SOLVE_STATUS_NOT_CALLED
     o.name_to_variable = nothing
     o.name_to_constraint_index = nothing
+    empty!(o.solution_storage)
     return nothing
 end
 
@@ -428,6 +431,8 @@ function MOI.optimize!(o::Optimizer)
     finally
         o.scip_solve_status = _kSCIP_SOLVE_STATUS_FINISHED
     end
+    o.solution_storage =
+        unsafe_wrap(Vector{Ptr{SCIP_SOL}}, SCIPgetSols(o), SCIPgetNSols(o))
     return nothing
 end
 
