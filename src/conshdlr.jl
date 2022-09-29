@@ -182,7 +182,7 @@ function _conscheck(scip::Ptr{SCIP_}, conshdlr::Ptr{SCIP_CONSHDLR},
     constraint_handler = unsafe_pointer_to_objref(conshdlrdata)
 
     # get Julia array from C pointer
-    constraints = unsafe_wrap(Array{Ptr{SCIP_CONS}}, conss, nconss)
+    constraints = unsafe_wrap(Vector{Ptr{SCIP_CONS}}, conss, nconss)
 
     # call user method via dispatch
     res = check(constraint_handler, constraints, sol,
@@ -207,7 +207,7 @@ function _consenfolp(scip::Ptr{SCIP_}, conshdlr::Ptr{SCIP_CONSHDLR},
     constraint_handler = unsafe_pointer_to_objref(conshdlrdata)
 
     # get Julia array from C pointer
-    constraints = unsafe_wrap(Array{Ptr{SCIP_CONS}}, conss, nconss)
+    constraints = unsafe_wrap(Vector{Ptr{SCIP_CONS}}, conss, nconss)
 
     # call user method via dispatch
     res = enforce_lp_sol(constraint_handler, constraints, nusefulconss,
@@ -229,7 +229,7 @@ function _consenfops(scip::Ptr{SCIP_}, conshdlr::Ptr{SCIP_CONSHDLR},
     constraint_handler = unsafe_pointer_to_objref(conshdlrdata)
 
     # get Julia array from C pointer
-    constraints = unsafe_wrap(Array{Ptr{SCIP_CONS}}, conss, nconss)
+    constraints = unsafe_wrap(Vector{Ptr{SCIP_CONS}}, conss, nconss)
 
     # call user method via dispatch
     res = enforce_pseudo_sol(constraint_handler, constraints, nusefulconss,
