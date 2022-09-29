@@ -2,7 +2,7 @@
 # Wrappers for implementing SCIP constraint handlers in Julia.
 #
 # Please study the corresponding SCIP documentation first, to become familiar
-# with basic concepts and terms: https://scip.zib.de/doc-6.0.2/html/CONS.php
+# with basic concepts and terms: https://www.scipopt.org/doc/html/CONS.php
 #
 # The basic idea is that you create a new subtype of `AbstractConstraintHandler`
 # to store the constraint handler data and implement the fundamental callbacks

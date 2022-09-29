@@ -192,7 +192,7 @@ associated to the separator `sepa`.
 """
 function add_cut_sepa(scip::Ptr{SCIP_}, vars::Dict{VarRef, Ref{Ptr{SCIP_VAR}}}, sepas::Dict{Any, Ptr{SCIP_SEPA}}, sepa::SEPA, varrefs, coefs, lhs, rhs;
                       islocal=false, modifiable=false, removable=true
-                     ) where SEPA <: AbstractSeparator
+                     ) where {SEPA <: AbstractSeparator}
     @assert length(varrefs) == length(coefs)
     vars = [vars[vr][] for vr in varrefs]
     row__ = Ref{Ptr{SCIP_ROW}}(C_NULL)
