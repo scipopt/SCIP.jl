@@ -3,6 +3,9 @@ using SCIP
 using SCIP_jll
 using SCIP_PaPILO_jll
 
+import LinearAlgebra, OpenBLAS32_jll
+LinearAlgebra.BLAS.lbt_forward(OpenBLAS32_jll.libopenblas_path)
+
 @show(@eval(SCIP, libscip) == SCIP_jll.libscip)
 @show(SCIP_PaPILO_jll.is_available() && @eval(SCIP, libscip) == SCIP_PaPILO_jll.libscip)
 
