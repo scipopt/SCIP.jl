@@ -27,7 +27,7 @@ In particular, note the boolean `needs_constraints`:
 function include_conshdlr(o::Optimizer, ch::CH;
                           name="", description="", enforce_priority=-15,
                           check_priority=-7000000, eager_frequency=100,
-                          needs_constraints=true) where CH <: AbstractConstraintHandler
+                          needs_constraints=true) where {CH <: AbstractConstraintHandler}
     include_conshdlr(o.inner.scip[], o.inner.conshdlrs, ch, name=name, description=description,
                      enforce_priority=enforce_priority,
                      check_priority=check_priority,

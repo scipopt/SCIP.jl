@@ -322,7 +322,7 @@ In particular, note the boolean `needs_constraints`:
 function include_conshdlr(scip::Ptr{SCIP_}, conshdlrs::Dict{Any, Ptr{SCIP_CONSHDLR}}, ch::CH;
                           name="", description="", enforce_priority=-15,
                           check_priority=-7000000, eager_frequency=100,
-                          needs_constraints=true) where CH <: AbstractConstraintHandler
+                          needs_constraints=true) where {CH <: AbstractConstraintHandler}
     # Get C function pointers from Julia functions
     _enfolp = @cfunction(_consenfolp, SCIP_RETCODE, (Ptr{SCIP_}, Ptr{SCIP_CONSHDLR}, Ptr{Ptr{SCIP_CONS}}, Cint, Cint, SCIP_Bool, Ptr{SCIP_RESULT}))
     _enfops = @cfunction(_consenfops, SCIP_RETCODE, (Ptr{SCIP_}, Ptr{SCIP_CONSHDLR}, Ptr{Ptr{SCIP_CONS}}, Cint, Cint, SCIP_Bool, SCIP_Bool, Ptr{SCIP_RESULT}))
