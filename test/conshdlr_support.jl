@@ -109,7 +109,7 @@ end
 
 # Constraint data, referencing variables of a single constraint.
 mutable struct NADCons <: SCIP.AbstractConstraint{NADCH}
-    variables::Array{MOI.VariableIndex}
+    variables::Vector{MOI.VariableIndex}
 end
 
 # Helper function used in several callbacks
@@ -183,7 +183,7 @@ const MOI = MathOptInterface
 
 mutable struct Counter <: SCIP.AbstractConstraintHandler
     scip::SCIP.Optimizer # for SCIP* and var maps
-    variables::Array{MOI.VariableIndex}
+    variables::Vector{MOI.VariableIndex}
     solutions::Set{Array{Float64}}
 
     Counter(scip, variables) = new(scip, variables, Set())

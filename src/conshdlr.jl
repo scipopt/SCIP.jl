@@ -2,7 +2,7 @@
 # Wrappers for implementing SCIP constraint handlers in Julia.
 #
 # Please study the corresponding SCIP documentation first, to become familiar
-# with basic concepts and terms: https://scip.zib.de/doc-6.0.2/html/CONS.php
+# with basic concepts and terms: https://www.scipopt.org/doc/html/CONS.php
 #
 # The basic idea is that you create a new subtype of `AbstractConstraintHandler`
 # to store the constraint handler data and implement the fundamental callbacks
@@ -182,7 +182,7 @@ function _conscheck(scip::Ptr{SCIP_}, conshdlr::Ptr{SCIP_CONSHDLR},
     constraint_handler = unsafe_pointer_to_objref(conshdlrdata)
 
     # get Julia array from C pointer
-    constraints = unsafe_wrap(Array{Ptr{SCIP_CONS}}, conss, nconss)
+    constraints = unsafe_wrap(Vector{Ptr{SCIP_CONS}}, conss, nconss)
 
     # call user method via dispatch
     res = check(constraint_handler, constraints, sol,
@@ -207,7 +207,7 @@ function _consenfolp(scip::Ptr{SCIP_}, conshdlr::Ptr{SCIP_CONSHDLR},
     constraint_handler = unsafe_pointer_to_objref(conshdlrdata)
 
     # get Julia array from C pointer
-    constraints = unsafe_wrap(Array{Ptr{SCIP_CONS}}, conss, nconss)
+    constraints = unsafe_wrap(Vector{Ptr{SCIP_CONS}}, conss, nconss)
 
     # call user method via dispatch
     res = enforce_lp_sol(constraint_handler, constraints, nusefulconss,
@@ -229,7 +229,7 @@ function _consenfops(scip::Ptr{SCIP_}, conshdlr::Ptr{SCIP_CONSHDLR},
     constraint_handler = unsafe_pointer_to_objref(conshdlrdata)
 
     # get Julia array from C pointer
-    constraints = unsafe_wrap(Array{Ptr{SCIP_CONS}}, conss, nconss)
+    constraints = unsafe_wrap(Vector{Ptr{SCIP_CONS}}, conss, nconss)
 
     # call user method via dispatch
     res = enforce_pseudo_sol(constraint_handler, constraints, nusefulconss,
@@ -322,7 +322,7 @@ In particular, note the boolean `needs_constraints`:
 function include_conshdlr(scip::Ptr{SCIP_}, conshdlrs::Dict{Any, Ptr{SCIP_CONSHDLR}}, ch::CH;
                           name="", description="", enforce_priority=-15,
                           check_priority=-7000000, eager_frequency=100,
-                          needs_constraints=true) where CH <: AbstractConstraintHandler
+                          needs_constraints=true) where {CH <: AbstractConstraintHandler}
     # Get C function pointers from Julia functions
     _enfolp = @cfunction(_consenfolp, SCIP_RETCODE, (Ptr{SCIP_}, Ptr{SCIP_CONSHDLR}, Ptr{Ptr{SCIP_CONS}}, Cint, Cint, SCIP_Bool, Ptr{SCIP_RESULT}))
     _enfops = @cfunction(_consenfops, SCIP_RETCODE, (Ptr{SCIP_}, Ptr{SCIP_CONSHDLR}, Ptr{Ptr{SCIP_CONS}}, Cint, Cint, SCIP_Bool, SCIP_Bool, Ptr{SCIP_RESULT}))

@@ -6,7 +6,12 @@ Julia interface to the [SCIP](http://scipopt.org) solver.
 [![codecov](https://codecov.io/gh/scipopt/SCIP.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/scipopt/SCIP.jl)
 [![Genie Downloads](https://shields.io/endpoint?url=https://pkgs.genieframework.com/api/v1/badge/SCIP)](https://pkgs.genieframework.com?packages=SCIP)
 
-See [NEWS.md](https://github.com/SCIP-Interfaces/SCIP.jl/blob/master/NEWS.md) for changes in each (recent) release.
+See [NEWS.md](https://github.com/SCIP-Interfaces/SCIP.jl/blob/master/NEWS.md) for changes in older releases.
+
+## Errors with nonlinear models
+
+When solving a nonlinear model, you may encounter `Error: no BLAS/LAPACK library loaded!`,
+this comes from Ipopt, see the [README](https://github.com/jump-dev/Ipopt.jl/#julia-17) on Ipopt.jl.
 
 ## Update (April 2022)
 

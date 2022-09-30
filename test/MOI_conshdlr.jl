@@ -165,11 +165,7 @@ end
 @testset "NoGoodCounter (2 binary vars)" begin
     optimizer = SCIP.Optimizer(display_verblevel=0, presolving_maxrounds=0)
 
-    allow_dual_reductions = if SCIP.SCIPmajorVersion() < 7
-        MOI.RawOptimizerAttribute("misc/allowdualreds")
-    else
-        MOI.RawOptimizerAttribute("misc/allowstrongdualreds")
-    end
+    allow_dual_reductions = MOI.RawOptimizerAttribute("misc/allowstrongdualreds")
     MOI.set(optimizer, allow_dual_reductions, SCIP.FALSE)
 
     atol, rtol = 1e-6, 1e-6

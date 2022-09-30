@@ -8,7 +8,7 @@ function var_bounds(o::SCIP.Optimizer, vi::VI)
     return MOI.get(o, MOI.ConstraintSet(), CI{VI,MOI.Interval{Float64}}(vi.value))
 end
 
-function chg_bounds(o::SCIP.Optimizer, vi::VI, set::S) where S
+function chg_bounds(o::SCIP.Optimizer, vi::VI, set::S) where {S}
     ci = CI{VI,S}(vi.value)
     MOI.set(o, MOI.ConstraintSet(), ci, set)
     return nothing

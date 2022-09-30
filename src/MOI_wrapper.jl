@@ -91,7 +91,7 @@ from_bounds(::Type{MOI.LessThan{Float64}}, lower, upper) = MOI.LessThan{Float64}
 from_bounds(::Type{MOI.Interval{Float64}}, lower, upper) = MOI.Interval{Float64}(lower, upper)
 
 "Register pointer in mapping, return var/cons reference."
-function register!(o::Optimizer, ptr::Ptr{Cvoid}, ref::R) where R <: Union{VarRef, ConsRef}
+function register!(o::Optimizer, ptr::Ptr{Cvoid}, ref::R) where {R <: Union{VarRef, ConsRef}}
     @assert !haskey(o.reference, ptr)
     o.reference[ptr] = ref
     return ref

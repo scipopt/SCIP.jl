@@ -17,13 +17,12 @@ function SCIP.exec_lp(sepa::Sepa)
     return SCIP.SCIP_DIDNOTRUN
 end
 
-end # module Dummy
+end # module DummySepa
 
 
 module AddSingleCut
 
 using SCIP
-
 
 """
 A separator, that adds one predefined cut.
@@ -42,7 +41,7 @@ function SCIP.exec_lp(sepa::Sepa)
     return SCIP.SCIP_SEPARATED
 end
 
-end # module SelectSol
+end # module AddSingleCut
 
 """
     sepa_set_scip_parameters(setter::Function)
