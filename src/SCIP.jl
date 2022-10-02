@@ -21,6 +21,9 @@ include("conshdlr.jl")
 # separators
 include("sepa.jl")
 
+# cut selectors
+include("cut_selector.jl")
+
 # implementation of MOI
 include("MOI_wrapper.jl")
 
