@@ -45,7 +45,7 @@ Extracts information from a SCIP_ROW into a form:
 `lhs ≤ aᵀ x + b ≤ rhs`
 The row is returned as a named tuple
 """
-function get_row_information(scip::Optimizer, row::Ptr{SCIP_ROW})
+function get_row_information(scip::SCIPData, row::Ptr{SCIP_ROW})
     rhs = SCIProwGetRhs(row)
     lhs = SCIProwGetLhs(row)
     b = SCIProwGetConstant(row)
@@ -56,7 +56,7 @@ function get_row_information(scip::Optimizer, row::Ptr{SCIP_ROW})
     cols = unsafe_wrap(Vector{Ptr{SCIP_COL}}, col_ptr, n)
     x = map(cols) do col
         var_ptr = SCIPcolGetVar(col)
-        var_ref = findfirst(==(var_ptr), scip.inner.vars)
+        var_ref = findfirst(==(var_ptr), scip.vars)
         @assert var_ref !== nothing
         var_ref
     end
@@ -67,7 +67,7 @@ end
 Utility function to get scores from cut that can be used to evaluate it.
 Returns a named tuple.
 """
-function get_row_scores(scip::Optimizer, row::Ptr{SCIP_ROW})
+function get_row_scores(scip::Ptr{SCIP_}, row::Ptr{SCIP_ROW})
     integer_support = SCIPgetRowNumIntCols(scip, row) / SCIProwGetNNonz(row)
     efficacy = SCIPgetCutEfficacy(scip, C_NULL, row)
     objective_parallelism = SCIPgetRowObjParallelism(scip, cuts[i])
