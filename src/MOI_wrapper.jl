@@ -198,7 +198,7 @@ function MOI.empty!(o::Optimizer)
     @SCIP_CALL SCIPincludeDefaultPlugins(scip[])
     @SCIP_CALL SCIP.SCIPcreateProbBasic(scip[], "")
     # create a new problem
-    o.inner = SCIPData(scip, Dict(), Dict(), 0, 0, Dict(), Dict(), Dict(), [])
+    o.inner = SCIPData(scip, Dict(), Dict(), 0, 0, Dict(), Dict(), Dict(), Dict(), [])
     # reapply parameters
     for pair in o.params
         set_parameter(o.inner, pair.first, pair.second)
