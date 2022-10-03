@@ -41,7 +41,7 @@ mutable struct Optimizer <: MOI.AbstractOptimizer
         @SCIP_CALL SCIPincludeDefaultPlugins(scip[])
         @SCIP_CALL SCIP.SCIPcreateProbBasic(scip[], "")
 
-        scip_data = SCIPData(scip, Dict(), Dict(), 0, 0, Dict(), Dict(), Dict(), [])
+        scip_data = SCIPData(scip, Dict(), Dict(), 0, 0, Dict(), Dict(), Dict(), Dict(), [])
 
         o = new(scip_data, PtrMap(), ConsTypeMap(), Dict(), Dict(), Dict(), nothing, MOI.MIN_SENSE)
         finalizer(free_scip, o)

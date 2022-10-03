@@ -125,12 +125,11 @@ end
     )
 
 Include a user defined separator `sepa` to the SCIP instance `scip`.
-
 """
 function include_sepa(scip::Ptr{SCIP_}, sepas::Dict{Any, Ptr{SCIP_SEPA}}, sepa::SEPA;
                       name="", description="", priority=0, freq=1,
                       maxbounddist=0.0, usessubscip=false,
-                      delay=false) where SEPA <: AbstractSeparator
+                      delay=false) where {SEPA <: AbstractSeparator}
     # Get C function pointers from Julia functions
     _execlp = @cfunction(_sepaexeclp, SCIP_RETCODE, (Ptr{SCIP_}, Ptr{SCIP_SEPA}, Ptr{SCIP_RESULT}, SCIP_Bool))
     _execsol = C_NULL
@@ -190,7 +189,8 @@ associated to the separator `sepa`.
 - modifiable: is row modifiable during node processing (subject to column generation)?
 - removable: should the row be removed from the LP due to aging or cleanup?
 """
-function add_cut_sepa(scip::Ptr{SCIP_}, vars::Dict{VarRef, Ref{Ptr{SCIP_VAR}}}, sepas::Dict{Any, Ptr{SCIP_SEPA}}, sepa::SEPA, varrefs, coefs, lhs, rhs;
+function add_cut_sepa(scip::Ptr{SCIP_}, vars::Dict{VarRef, Ref{Ptr{SCIP_VAR}}}, sepas::Dict{Any, Ptr{SCIP_SEPA}},
+                      sepa::SEPA, varrefs, coefs, lhs, rhs;
                       islocal=false, modifiable=false, removable=true
                      ) where {SEPA <: AbstractSeparator}
     @assert length(varrefs) == length(coefs)
