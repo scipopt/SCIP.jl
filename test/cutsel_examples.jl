@@ -3,6 +3,9 @@ import MathOptInterface
 const MOI = MathOptInterface
 using Test
 using LinearAlgebra
+using Random
+
+Random.seed!(42)
 
 """
 Selects cut by efficacy only, selects up to `nmax_cuts` cuts.
@@ -14,29 +17,21 @@ mutable struct EfficacyCutSelector <: SCIP.AbstractCutSelector
 end
 
 function SCIP.select_cuts(cutsel::EfficacyCutSelector, scip, cuts::Vector{Ptr{SCIP.SCIP_ROW}}, forced_cuts::Vector{Ptr{SCIP.SCIP_ROW}}, root::Bool, maxnslectedcuts::Integer)
-    efficacies = SCIP.LibSCIP.SCIPgetCutEfficacy.(cutsel.o.inner.scip[], C_NULL, cuts)
     function efficacy_function(cut)
-        if cut == C_NULL
-            return -Inf
-        end
         return SCIP.LibSCIP.SCIPgetCutEfficacy(cutsel.o.inner.scip[], C_NULL, cut)
     end
-    @show count(==(C_NULL), cuts)
     sort!(cuts, by=efficacy_function, rev=true)
-    for cut in cuts
-        @assert cut != C_NULL
-    end
-    nselected = min(cutsel.nmax_cuts, maxnslectedcuts - length(forced_cuts))
-    nselected = max(nselected, 0)
+    nselected_cuts = min(cutsel.nmax_cuts, maxnslectedcuts)
+    nselected_cuts = max(nselected_cuts, 0)
+    nselected_cuts = min(nselected_cuts, length(cuts))
     cutsel.ncalls += 1
-    @info "done"
-    return (SCIP.SCIP_OKAY, nselected, SCIP.SCIP_SUCCESS)
+    return (SCIP.SCIP_OKAY, nselected_cuts, SCIP.SCIP_SUCCESS)
 end
 
 @testset "test cut selector" begin
     # removing presolving to solve a non-trivial problem that requires some separation
     o = SCIP.Optimizer(presolving_maxrounds=0)
-    # MOI.set(o, MOI.Silent(), true)
+    MOI.set(o, MOI.Silent(), true)
 
     cutsel = EfficacyCutSelector(o, 10, 0)
     name = "my_cut_selector"
@@ -62,5 +57,6 @@ end
     MOI.set(o, MOI.ObjectiveSense(), MOI.MIN_SENSE)
     
     MOI.optimize!(o)
-
+    @test MOI.get(o, MOI.TerminationStatus()) == MOI.OPTIMAL
+    @test cutsel.ncalls > 0
 end
