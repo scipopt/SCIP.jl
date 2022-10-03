@@ -14,10 +14,22 @@ mutable struct EfficacyCutSelector <: SCIP.AbstractCutSelector
 end
 
 function SCIP.select_cuts(cutsel::EfficacyCutSelector, scip, cuts::Vector{Ptr{SCIP.SCIP_ROW}}, forced_cuts::Vector{Ptr{SCIP.SCIP_ROW}}, root::Bool, maxnslectedcuts::Integer)
-    efficacy_function = cut -> SCIP.LibSCIP.SCIPgetCutEfficacy(cutsel.o, C_NULL, cut)
-    sort!(cuts, by=efficacy_function)
-    nselected = min(cutsel.nmax_cuts, maxnslectedcuts)
+    efficacies = SCIP.LibSCIP.SCIPgetCutEfficacy.(cutsel.o.inner.scip[], C_NULL, cuts)
+    function efficacy_function(cut)
+        if cut == C_NULL
+            return -Inf
+        end
+        return SCIP.LibSCIP.SCIPgetCutEfficacy(cutsel.o.inner.scip[], C_NULL, cut)
+    end
+    @show count(==(C_NULL), cuts)
+    sort!(cuts, by=efficacy_function, rev=true)
+    for cut in cuts
+        @assert cut != C_NULL
+    end
+    nselected = min(cutsel.nmax_cuts, maxnslectedcuts - length(forced_cuts))
+    nselected = max(nselected, 0)
     cutsel.ncalls += 1
+    @info "done"
     return (SCIP.SCIP_OKAY, nselected, SCIP.SCIP_SUCCESS)
 end
 
