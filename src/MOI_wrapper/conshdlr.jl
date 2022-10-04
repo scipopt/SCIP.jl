@@ -1,5 +1,5 @@
 #
-# Adding constraint handlers and constraints to SCIP.Optimizer.
+# Adding constraint handlers, constraints, and cut selectors to SCIP.Optimizer.
 #
 
 """
@@ -66,4 +66,8 @@ function add_constraint(o::Optimizer, ch::CH, c::C;
                           enforce=enforce, check=check, propagate=propagate,
                           _local=_local, modifiable=modifiable, dynamic=dynamic,
                           removable=removable, stickingatnode=stickingatnode)
+end
+
+function include_cutsel(o::Optimizer, cutsel::CS; name = "", description = "", priority=10000) where {CS <: AbstractCutSelector}
+    return include_cutsel(o.inner.scip[], cutsel, o.inner.cutsel_storage; name=name, description=description, priority=priority)
 end

@@ -1,6 +1,7 @@
 @testset "dummy conshdlr (always satisfied, no constraint)" begin
     # create an empty problem
     o = SCIP.Optimizer()
+    MOI.set(o, MOI.Silent(), true)
     SCIP.set_parameter(o.inner, "display/verblevel", 0)
 
     # add the constraint handler
@@ -21,7 +22,7 @@ end
 @testset "dummy conshdlr (always satisfied, with constraint)" begin
     # create an empty problem
     o = SCIP.Optimizer()
-    SCIP.set_parameter(o.inner, "display/verblevel", 0)
+    MOI.set(o, MOI.Silent(), true)
 
     # add the constraint handler
     ch = Dummy.DummyConsHdlr()
@@ -44,7 +45,7 @@ end
 @testset "dummy conshdlr (always satisfied, no constraint, but needs it)" begin
     # create an empty problem
     o = SCIP.Optimizer()
-    SCIP.set_parameter(o.inner, "display/verblevel", 0)
+    MOI.set(o, MOI.Silent(), true)
 
     # add the constraint handler
     ch = Dummy.DummyConsHdlr()
@@ -64,7 +65,7 @@ end
 @testset "never satisfied conshdlr (does not need constraint)" begin
     # create an empty problem
     o = SCIP.Optimizer()
-    SCIP.set_parameter(o.inner, "display/verblevel", 0)
+    MOI.set(o, MOI.Silent(), true)
 
     # add the constraint handler
     ch = NeverSatisfied.NSCH()
@@ -84,7 +85,7 @@ end
 @testset "never satisfied conshdlr (needs constraint but does not have it)" begin
     # create an empty problem
     o = SCIP.Optimizer()
-    SCIP.set_parameter(o.inner, "display/verblevel", 0)
+    MOI.set(o, MOI.Silent(), true)
 
     # add the constraint handler
     ch = NeverSatisfied.NSCH()
@@ -104,7 +105,7 @@ end
 @testset "never satisfied conshdlr (needs constraint and has one)" begin
     # create an empty problem
     o = SCIP.Optimizer()
-    SCIP.set_parameter(o.inner, "display/verblevel", 0)
+    MOI.set(o, MOI.Silent(), true)
 
     # add the constraint handler
     ch = NeverSatisfied.NSCH()

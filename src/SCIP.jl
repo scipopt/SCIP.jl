@@ -12,14 +12,17 @@ include("wrapper.jl")
 # memory management
 include("scip_data.jl")
 
-# constraints from nonlinear expressions
-include("nonlinear.jl")
+# separators
+include("sepa.jl")
+
+# cut selectors
+include("cut_selector.jl")
 
 # constraint handlers
 include("conshdlr.jl")
 
-# separators
-include("sepa.jl")
+# constraints from nonlinear expressions
+include("nonlinear.jl")
 
 # implementation of MOI
 include("MOI_wrapper.jl")
