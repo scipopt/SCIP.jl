@@ -298,7 +298,7 @@ end
 
 """
     include_conshdlr(
-        scip::Ptr{SCIP_}, 
+        scip::Ptr{SCIP_},
         conshdlrs::Dict{Any, Ptr{SCIP_CONSHDLR}},
         ch::CH;
         name::String,

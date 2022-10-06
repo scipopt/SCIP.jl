@@ -64,7 +64,7 @@ function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{SQF, S}) where {
     lincoefs = Ref{Ptr{Cdouble}}()
     n_quad_terms_ref = Ref{Cint}(-1)
     n_bilinear_terms_ref = Ref{Cint}(-1)
-    
+
     LibSCIP.SCIPexprGetQuadraticData(
         expr_ref,
         constant_ref,

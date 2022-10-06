@@ -9,14 +9,21 @@ It also stores all user data that must be available to select cuts.
 abstract type AbstractCutSelector end
 
 """
-    select_cuts(cutsel, scip, cuts, forced_cuts, root, maxnslectedcuts) -> (retcode, nselectedcuts, result)
+    select_cuts(
+        cutsel::AbstractCutSelector,
+        scip::Ptr{SCIP_},
+        cuts::Vector{Ptr{SCIP_ROW}},
+        forced_cuts::Vector{Ptr{SCIP_ROW}},
+        root::Bool,
+        maxnslectedcuts::Integer
+    ) -> (retcode, nselectedcuts, result)
 
 It must operate the selection of cuts by placing the selected cuts first in the selected cut vector.
 `nselectedcuts` must be the number of selected cuts, retcode indicates whether the selection went well.
 A typical result would be `SCIP_SUCCESS`, and retcode `SCIP_OKAY`.
 `forced_cuts` is a vector of cuts that will be added to the problem, they should not be tampered with by the function.
 """
-function select_cuts(cutsel::AbstractCutSelector, scip, cuts::Vector{Ptr{SCIP_ROW}}, forced_cuts::Vector{Ptr{SCIP_ROW}}, root, maxnslectedcuts)
+function select_cuts(cutsel, scip, cuts, forced_cuts, root, maxnslectedcuts)
 end
 
 function _select_cut_callback(scip::Ptr{SCIP_}, cutsel_::Ptr{SCIP_CUTSEL}, cuts_::Ptr{Ptr{SCIP_ROW}}, ncuts::Cint, forced_cuts_::Ptr{Ptr{SCIP_ROW}}, nforced_cuts::Cint, root_::SCIP_Bool, maxnslectedcuts::Cint, nselectedcuts_::Ptr{Cint}, result_::Ptr{SCIP_RESULT})
@@ -55,7 +62,7 @@ function include_cutsel(scip::Ptr{SCIP_}, cutsel::CS, cutsel_storage::Dict{Any, 
     if name == ""
         name = "cutselector_$(string(CS))"
     end
-    
+
     cutsel__ = Ref{Ptr{SCIP_CUTSEL}}(C_NULL)
     if !ismutable(cutsel)
         throw(ArgumentError("The cut selector structure must be a mutable type"))
@@ -75,7 +82,7 @@ function include_cutsel(scip::Ptr{SCIP_}, cutsel::CS, cutsel_storage::Dict{Any, 
     )
 
     # store cut selector (avoids GC-ing it)
-    cutsel_storage[cutsel] = cutsel__[]    
+    cutsel_storage[cutsel] = cutsel__[]
 end
 
 """
@@ -110,4 +117,73 @@ function get_row_scores(scip::Ptr{SCIP_}, row::Ptr{SCIP_ROW})
     efficacy = SCIPgetCutEfficacy(scip, C_NULL, row)
     objective_parallelism = SCIPgetRowObjParallelism(scip, cuts[i])
     return (; integer_support, efficacy, objective_parallelism)
+end
+
+
+"""
+Composed cut selector.
+Allows for multiple selectors to be chained.
+The number of selected cuts for the previous becomes the number of maximum cuts for the following selector.
+We don't need to register the inner cut selectors with SCIP.
+"""
+struct ComposedCutSelector{N, CS <: Union{AbstractVector{<:AbstractCutSelector}, NTuple{N, AbstractCutSelector}}} <: AbstractCutSelector
+    cutsels::CS
+end
+
+function ComposedCutSelector(cutsels::CS) where {N, CS <: NTuple{N, AbstractCutSelector}}
+    return ComposedCutSelector{N, CS}(cutsels)
+end
+
+function ComposedCutSelector(cutsels::CS) where {CS <: AbstractVector{<:AbstractCutSelector}}
+    return ComposedCutSelector{1, CS}(cutsels)
+end
+
+function select_cuts(cutsel::ComposedCutSelector, scip, cuts, forced_cuts, root, maxnslectedcuts)
+    (retcode, nselectedcuts, result) = select_cuts(cutsel.cutsels[1], scip, cuts, forced_cuts, root, maxnslectedcuts)
+    for idx in 2:length(cutsel.cutsels)
+        if retcode != SCIP_OKAY || nselectedcuts == 0
+            return (retcode, nselectedcuts, result)
+        end
+        (retcode, nselectedcuts, result) = select_cuts(cutsel.cutsels[idx], scip, cuts, forced_cuts, root, nselectedcuts)
+    end
+    return (retcode, nselectedcuts, result)
+end
+
+"""
+Native SCIP cut selector, see SCIP source code for a description of the parameters and the underlying algorithm.
+
+See "Adaptive Cut Selection in Mixed-Integer Linear Programming" for a high-level overview.
+"""
+Base.@kwdef mutable struct HybridCutSelector <: AbstractCutSelector
+    good_score_frac::Float64 = 0.9
+    bas_score_frac::Float64 = 0.0
+    max_parallelism::Float64 = 0.9
+    max_parallelism_root::Float64  = 0.9
+    weight_dircutoff_distance::Float64 = 0.0
+    weight_efficacy::Float64 = 1.0
+    weight_objective_parallelism::Float64 = 0.1
+    weight_int_support::Float64 = 0.1
+end
+
+function select_cuts(cutsel::HybridCutSelector, scip, cuts, forced_cuts, root, maxnslectedcuts)
+    nselected_cuts = Ref{Cint}(-1)
+    maxparalellism = root ? cutsel.max_parallelism_root : cutsel.max_parallelism
+    max_good_parallelism = max(maxparalellism, 0.5)
+    retcode = LibSCIP.SCIPselectCutsHybrid(
+        scip, cuts, forced_cuts,
+        C_NULL, # random number generator
+        cutsel.good_score_frac,
+        cutsel.bas_score_frac,
+        max_good_parallelism,
+        maxparalellism,
+        cutsel.weight_dircutoff_distance,
+        cutsel.weight_efficacy,
+        cutsel.weight_objective_parallelism,
+        cutsel.weight_int_support,
+        length(cuts), length(forced_cuts),
+        maxnslectedcuts, nselected_cuts,
+    )
+    # if SCIP_OKAY, should have nonnegative number of cuts
+    @assert retcode != SCIP_OKAY || nselected_cuts[] >= 0
+    return (retcode, nselected_cuts[], SCIP_SUCCESS)
 end

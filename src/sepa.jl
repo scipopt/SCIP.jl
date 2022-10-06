@@ -13,7 +13,7 @@
 # Current limitations:
 # - We only support SEPAEXECLP, not SEPAEXECSOL.
 # - We don't support these optional methods: SEPAFREE, SEPACOPY, SEPAINIT,
-#   SEPAINITSOL, SEPAEXITSOL 
+#   SEPAINITSOL, SEPAEXITSOL
 #
 
 
@@ -148,7 +148,7 @@ function include_sepa(scip::Ptr{SCIP_}, sepas::Dict{Any, Ptr{SCIP_SEPA}}, sepa::
     # Register separator with SCIP instance.
     @SCIP_CALL SCIPincludeSepaBasic(scip, sepa__, name, description,
                              priority, freq, maxbounddist,
-                             usessubscip, delay, 
+                             usessubscip, delay,
                              _execlp, _execsol,
                              sepadata_)
 
