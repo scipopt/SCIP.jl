@@ -52,5 +52,5 @@ function MOI.get(o::Optimizer, ::MOI.ConstraintSet, ci::CI{MOI.VectorAffineFunct
 end
 
 function MOI.get(o::Optimizer, ::MOI.ListOfConstraintIndices{F, S}) where {F <: MOI.VectorAffineFunction{Float64}, S <: MOI.Indicator{MOI.ACTIVATE_ON_ONE, MOI.LessThan{Float64}}}
-    return Vector{F, S}(o.constypes[F,S])
+    return [MOI.ConstraintIndex{F, S}(consref.val) for consref in o.constypes[F,S]]
 end

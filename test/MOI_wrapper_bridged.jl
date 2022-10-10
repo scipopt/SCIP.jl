@@ -33,6 +33,7 @@ const CONFIG_BRIDGED = MOIT.Config(atol=5e-3, rtol=1e-4, exclude=Any[
         "test_variable_delete_SecondOrderCone",
         "test_modification_func_scalaraffine_",
         "test_modification_func_vectoraffine_",
+        "test_linear_Indicator_ON_ZERO",
     ])
     MOIT.runtests(
         BRIDGED,

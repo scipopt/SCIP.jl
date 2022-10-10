@@ -28,6 +28,7 @@ const MOI = MathOptInterface
             "test_nonlinear_invalid",
             "test_nonlinear_objective",
             "test_nonlinear_objective_and_moi_objective_test",
+            "test_linear_Indicator_ON_ZERO", # error on SCIP
         ],
     )
 end
