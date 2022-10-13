@@ -129,6 +129,7 @@ end
 
 @testset "test default hybrid cut selector" begin
     o = SCIP.Optimizer(presolving_maxrounds=0)
+    MOI.set(o, MOI.Silent(), true)
 
     cutsel = SCIP.HybridCutSelector()
 

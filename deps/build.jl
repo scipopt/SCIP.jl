@@ -1,6 +1,6 @@
 using Libdl
 
-if VERSION >= v"1.3" && !haskey(ENV, "SCIPOPTDIR")
+if VERSION >= v"1.3" && !haskey(ENV, "SCIPOPTDIR") && !Sys.iswindows()
     # Skip build in favor of SCIP_jll
     exit()
 end
@@ -61,7 +61,7 @@ Unable to locate SCIP installation. Tried:
 
 $(join(tried, "\n\n"))
 
-Note that this must be downloaded separately from scip.zib.de.
+Note that this must be downloaded separately from https://scipopt.org.
 Please set the environment variable SCIPOPTDIR to SCIP's installation path.
 """)
 end

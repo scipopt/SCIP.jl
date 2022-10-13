@@ -1,8 +1,11 @@
 using MathOptInterface
 const MOI = MathOptInterface
+const MOIB = MOI.Bridges
+const MOIT = MOI.Test
 
 const VI = MOI.VariableIndex
 const CI = MOI.ConstraintIndex
+
 
 function var_bounds(o::SCIP.Optimizer, vi::VI)
     return MOI.get(o, MOI.ConstraintSet(), CI{VI,MOI.Interval{Float64}}(vi.value))
@@ -313,4 +316,80 @@ end
     optimizer = SCIP.Optimizer(display_verblevel=0)
     MOI.optimize!(optimizer)
     @test MOI.get(optimizer, MOI.DualStatus()) == MOI.NO_SOLUTION
+end
+
+@testset "broken indicator test" for presolving in (-1, 0)
+    model = MOIB.full_bridge_optimizer(SCIP.Optimizer(display_verblevel=0, presolving_maxrounds=presolving), Float64)
+    config = MOIT.Config(atol=5e-3, rtol=1e-4, exclude=Any[
+        MOI.ConstraintDual, MOI.ConstraintName, MOI.DualObjectiveValue, MOI.VariableBasisStatus, MOI.ConstraintBasisStatus,
+    ])
+    T = Float64
+    x1 = MOI.add_variable(model)
+    x2 = MOI.add_variable(model)
+    z1 = MOI.add_variable(model)
+    z2 = MOI.add_variable(model)
+    vc1 = MOI.add_constraint(model, z1, MOI.ZeroOne())
+    @test vc1.value == z1.value
+    vc2 = MOI.add_constraint(model, z2, MOI.ZeroOne())
+    @test vc2.value == z2.value
+    f1 = MOI.VectorAffineFunction(
+        [
+            MOI.VectorAffineTerm(1, MOI.ScalarAffineTerm(T(1), z1)),
+            MOI.VectorAffineTerm(2, MOI.ScalarAffineTerm(T(1), x2)),
+        ],
+        T[0, 0],
+    )
+    iset1 = MOI.Indicator{MOI.ACTIVATE_ON_ZERO}(MOI.LessThan(T(8)))
+    MOI.add_constraint(model, f1, iset1)
+    f2 = MOI.VectorAffineFunction(
+        [
+            MOI.VectorAffineTerm(1, MOI.ScalarAffineTerm(T(1), z2)),
+            MOI.VectorAffineTerm(2, MOI.ScalarAffineTerm(T(1 // 5), x1)),
+            MOI.VectorAffineTerm(2, MOI.ScalarAffineTerm(T(1), x2)),
+        ],
+        T[0, 0],
+    )
+    iset2 = MOI.Indicator{MOI.ACTIVATE_ON_ONE}(MOI.LessThan(T(9)))
+    MOI.add_constraint(model, f2, iset2)
+    # Additional regular constraint.
+    MOI.add_constraint(
+        model,
+        MOI.ScalarAffineFunction(
+            [MOI.ScalarAffineTerm(T(1), x1), MOI.ScalarAffineTerm(T(1), x2)],
+            T(0),
+        ),
+        MOI.LessThan(T(10)),
+    )
+    # Disjunction (1-z1) ⋁ z2
+    MOI.add_constraint(
+        model,
+        MOI.ScalarAffineFunction(
+            [MOI.ScalarAffineTerm(T(-1), z1), MOI.ScalarAffineTerm(T(1), z2)],
+            T(0),
+        ),
+        MOI.GreaterThan(T(0)),
+    )
+    MOI.set(
+        model,
+        MOI.ObjectiveFunction{MOI.ScalarAffineFunction{T}}(),
+        MOI.ScalarAffineFunction(
+            MOI.ScalarAffineTerm.(T[2, 3], [x1, x2]),
+            T(0),
+        ),
+    )
+    MOI.set(model, MOI.ObjectiveSense(), MOI.MAX_SENSE)
+    @test MOI.get(model, MOI.TerminationStatus()) == MOI.OPTIMIZE_NOT_CALLED
+    MOI.optimize!(model)
+    if presolving == 0
+        @test MOI.get(model, MOI.TerminationStatus()) == config.optimal_status
+        @test MOI.get(model, MOI.PrimalStatus()) == MOI.FEASIBLE_POINT
+        @test ≈(MOI.get(model, MOI.ObjectiveValue()), T(115 // 4), config)
+        @test ≈(MOI.get(model, MOI.VariablePrimal(), x1), T(5 // 4), config)
+        @test ≈(MOI.get(model, MOI.VariablePrimal(), x2), T(35 // 4), config)
+        @test ≈(MOI.get(model, MOI.VariablePrimal(), z1), T(1), config)
+        @test ≈(MOI.get(model, MOI.VariablePrimal(), z2), T(1), config)
+    else
+        @test_broken MOI.get(model, MOI.TerminationStatus()) == config.optimal_status
+        @test_broken MOI.get(model, MOI.PrimalStatus()) == MOI.FEASIBLE_POINT
+    end
 end
