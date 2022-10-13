@@ -61,7 +61,7 @@ Unable to locate SCIP installation. Tried:
 
 $(join(tried, "\n\n"))
 
-Note that this must be downloaded separately from scip.zib.de.
+Note that this must be downloaded separately from https://scipopt.org.
 Please set the environment variable SCIPOPTDIR to SCIP's installation path.
 """)
 end
