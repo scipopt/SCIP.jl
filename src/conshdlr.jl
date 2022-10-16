@@ -172,7 +172,7 @@ function lock end
 """
 Generic `check` function, matching the signature from SCIP's C API.
 """
-function _conscheck(scip::Ptr{SCIP_}, conshdlr::Ptr{SCIP_CONSHDLR},
+function _conscheck(::Ptr{SCIP_}, conshdlr::Ptr{SCIP_CONSHDLR},
                     conss::Ptr{Ptr{SCIP_CONS}}, nconss::Cint,
                     sol::Ptr{SCIP_SOL}, checkintegrality::SCIP_Bool,
                     checklprows::SCIP_Bool, printreason::SCIP_Bool,
@@ -220,7 +220,7 @@ end
 """
 Generic `enfops` function, matching the signature from SCIP's C API.
 """
-function _consenfops(scip::Ptr{SCIP_}, conshdlr::Ptr{SCIP_CONSHDLR},
+function _consenfops(::Ptr{SCIP_}, conshdlr::Ptr{SCIP_CONSHDLR},
                      conss::Ptr{Ptr{SCIP_CONS}}, nconss::Cint,
                      nusefulconss::Cint, solinfeasible::SCIP_Bool,
                      objinfeasible::SCIP_Bool, result::Ptr{SCIP_RESULT})
@@ -243,7 +243,7 @@ end
 """
 Generic `lock` function, matching the signature from SCIP's C API.
 """
-function _conslock(scip::Ptr{SCIP_}, conshdlr::Ptr{SCIP_CONSHDLR},
+function _conslock(::Ptr{SCIP_}, conshdlr::Ptr{SCIP_CONSHDLR},
                    cons::Ptr{SCIP_CONS}, locktype::SCIP_LOCKTYPE,
                    nlockspos::Cint, nlocksneg::Cint)
     # get Julia object out of constraint handler data

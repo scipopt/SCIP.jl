@@ -134,7 +134,7 @@ end
 
     # add three integer variables, in {0, 1, 2}
     x, y, z = MOI.add_variables(optimizer, 3)
-    for v in [x, y, z]
+    for v in (x, y, z)
         MOI.add_constraint(optimizer, v, MOI.Integer())
         MOI.add_constraint(optimizer, v, MOI.Interval(0.0, 2.0))
     end

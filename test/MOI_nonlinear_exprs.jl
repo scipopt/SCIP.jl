@@ -125,7 +125,7 @@ end
     x, y = MOI.add_variables(optimizer, 2)
 
     data1 = MOI.NLPBlockData(
-        [MOI.NLPBoundsPair(rhs, rhs) for rhs in [1.0, 2.0]],
+        [MOI.NLPBoundsPair(rhs, rhs) for rhs in (1.0, 2.0)],
         ExprEvaluator([:(x[$x] == 1.0), :(x[$y] == 2.0)]),
         false
     )
@@ -134,7 +134,7 @@ end
     MOI.optimize!(optimizer)
 
     data2 = MOI.NLPBlockData(
-        [MOI.NLPBoundsPair(rhs, rhs) for rhs in [1.0, 2.0, 3.0]],
+        [MOI.NLPBoundsPair(rhs, rhs) for rhs in 1.0:3.0],
         ExprEvaluator([:(x[$x] == 1.0), :(x[$y] == 2.0),
                        :(x[$x] + x[$y] == 3.0)]),
         false

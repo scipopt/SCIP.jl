@@ -33,6 +33,7 @@ mutable struct Optimizer <: MOI.AbstractOptimizer
     start::Dict{VI,Float64} # can be partial
     moi_separator::Any # ::Union{CutCbSeparator, Nothing}
     objective_sense::MOI.OptimizationSense
+    solution_storage::Vector{Ptr{SCIP_SOL}}
 
     function Optimizer(; kwargs...)
         scip = Ref{Ptr{SCIP_}}(C_NULL)
@@ -43,7 +44,7 @@ mutable struct Optimizer <: MOI.AbstractOptimizer
 
         scip_data = SCIPData(scip, Dict(), Dict(), 0, 0, Dict(), Dict(), Dict(), Dict(), [])
 
-        o = new(scip_data, PtrMap(), ConsTypeMap(), Dict(), Dict(), Dict(), nothing, MOI.MIN_SENSE)
+        o = new(scip_data, PtrMap(), ConsTypeMap(), Dict(), Dict(), Dict(), nothing, MOI.MIN_SENSE, [])
         finalizer(free_scip, o)
 
         # Set all parameters given as keyword arguments, replacing the
@@ -203,6 +204,7 @@ function MOI.empty!(o::Optimizer)
     for pair in o.params
         set_parameter(o.inner, pair.first, pair.second)
     end
+    empty!(o.solution_storage)
     return nothing
 end
 
@@ -261,6 +263,7 @@ function MOI.optimize!(o::Optimizer)
         MOI.set(o, MOI.ObjectiveFunction{SAF}(), SAF([], 0.0))
     end
     @SCIP_CALL SCIPsolve(o)
+    o.solution_storage = unsafe_wrap(Vector{Ptr{SCIP_SOL}}, SCIPgetSols(o), SCIPgetNSols(o))
     return nothing
 end
 
