@@ -22,6 +22,20 @@ function MOI.set(o::Optimizer, ::MOI.VariableName, vi::VI, name::String)
     return nothing
 end
 
+MOI.supports(::Optimizer, ::MOI.VariableName, ::Type{MOI.VariableIndex}) = true
+
+function MOI.get(o::Optimizer, ::Type{MOI.VariableIndex}, name::String)
+    ptr = SCIPfindVar(o, name)
+    if ptr == C_NULL
+        return nothing
+    end
+    var_ref = get(o.reference, ptr, nothing)
+    if var_ref === nothing
+        return var_ref
+    end
+    return MOI.VariableIndex(var_ref.val)
+end
+
 function MOI.delete(o::Optimizer, vi::VI)
     # Note: SCIP does not currently support deletion of variables that are still
     # present in some constraint. We don't want the overhead of keeping track of
@@ -326,16 +340,4 @@ end
 
 function MOI.set(::Optimizer, ::MOI.ConstraintFunction, ::CI{VI}, ::VI)
     throw(MOI.SettingVariableIndexNotAllowed())
-end
-
-function MOI.get(o::Optimizer, ::Type{MOI.VariableIndex}, name::String)
-    ptr = SCIPfindVar(o, name)
-    if ptr == C_NULL
-        return nothing
-    end
-    var_ref = get(o.reference, ptr, nothing)
-    if var_ref === nothing
-        return var_ref
-    end
-    return MOI.VariableIndex(var_ref.val)
 end
