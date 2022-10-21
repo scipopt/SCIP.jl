@@ -39,18 +39,14 @@ end
 end
 
 const MOI_BASE_EXCLUDED = [
-    "Semicontinuous",
-    "ScalarAffineFunction_Semiinteger",
-    "ScalarQuadraticFunction_Semiinteger",
-    "VectorAffineFunction_GeometricMeanCone",
-    "Indicator_GreaterThan",
-    "Indicator_LessThan",
+    "Indicator_LessThan", # indicator must be binary error in SCIP
     "Indicator_ACTIVATE_ON_ZERO", # odd MOI bug?
     "test_constraint_get_ConstraintIndex", # accessing constraint from string name
     "BoundAlreadySet", # see TODO,
     "ScalarAffineFunction_ConstraintName", # get(::SCIP.Optimizer, ::Type{MathOptInterface.ConstraintIndex}, ::String)
-    "duplicate_VariableName", # two identical variable names should error
-    "test_conic_empty_matrix",
+    "duplicate_VariableName", # two identical variable names should error at get time
+    "test_model_VariableName", # same issue
+    "test_model_Name_VariableName_ConstraintName",
     "test_modification_delete_variables_in_a_batch",
     "test_modification_set_function_single_variable",
     "test_modification_set_scalaraffine_",
@@ -59,8 +55,6 @@ const MOI_BASE_EXCLUDED = [
     "test_nonlinear_", # None of tests provide expression graphs in the evaluator.
     "ObjectiveFunction_ScalarAffineFunction", # requires conversion of objective function
     "test_objective_set_via_modify", # ListOfModelAttributesSet
-    # Upstream issue in MOI.Test
-    "test_cpsat_CountGreaterThan",
 ]
 
 @testset "MathOptInterface tests (direct)" begin
