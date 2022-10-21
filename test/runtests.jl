@@ -51,7 +51,7 @@ const MOI_BASE_EXCLUDED = [
     "ScalarAffineFunction_ConstraintName", # get(::SCIP.Optimizer, ::Type{MathOptInterface.ConstraintIndex}, ::String)
     "duplicate_VariableName", # two identical variable names should error at get time
     "test_model_VariableName", # same issue
-    "test_conic_empty_matrix",
+    "test_model_Name_VariableName_ConstraintName",
     "test_modification_delete_variables_in_a_batch",
     "test_modification_set_function_single_variable",
     "test_modification_set_scalaraffine_",
