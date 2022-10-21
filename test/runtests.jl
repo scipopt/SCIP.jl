@@ -49,7 +49,8 @@ const MOI_BASE_EXCLUDED = [
     "test_constraint_get_ConstraintIndex", # accessing constraint from string name
     "BoundAlreadySet", # see TODO,
     "ScalarAffineFunction_ConstraintName", # get(::SCIP.Optimizer, ::Type{MathOptInterface.ConstraintIndex}, ::String)
-    "duplicate_VariableName", # two identical variable names should error
+    "duplicate_VariableName", # two identical variable names should error at get time
+    "test_model_VariableName", # same issue
     "test_conic_empty_matrix",
     "test_modification_delete_variables_in_a_batch",
     "test_modification_set_function_single_variable",
