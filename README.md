@@ -2,6 +2,8 @@
 
 Julia interface to the [SCIP](http://scipopt.org) solver.
 
+**Please review [SCIP's license restrictions](https://scipopt.org/index.php#license) before installing SCIP.jl.**
+
 [![Build Status](https://github.com/scipopt/SCIP.jl/workflows/CI/badge.svg?branch=master)](https://github.com/scipopt/SCIP.jl/actions?query=workflow%3ACI)
 [![codecov](https://codecov.io/gh/scipopt/SCIP.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/scipopt/SCIP.jl)
 [![Genie Downloads](https://shields.io/endpoint?url=https://pkgs.genieframework.com/api/v1/badge/SCIP)](https://pkgs.genieframework.com?packages=SCIP)
