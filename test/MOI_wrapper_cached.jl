@@ -21,8 +21,6 @@ const MOI = MathOptInterface
             ],
         );
         exclude = [
-            # Upstream problem in MOI.Test: InexactError: trunc(Int64, 1.0e20)
-            "test_cpsat_CountGreaterThan",
             # SCIP does not support nonlinear objective functions.
             "test_nonlinear_hs071_NLPBlockDual",
             "test_nonlinear_invalid",
