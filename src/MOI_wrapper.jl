@@ -33,6 +33,7 @@ mutable struct Optimizer <: MOI.AbstractOptimizer
     start::Dict{VI,Float64} # can be partial
     moi_separator::Any # ::Union{CutCbSeparator, Nothing}
     objective_sense::MOI.OptimizationSense
+    use_concurrent::Bool
 
     function Optimizer(; kwargs...)
         scip = Ref{Ptr{SCIP_}}(C_NULL)
@@ -43,7 +44,7 @@ mutable struct Optimizer <: MOI.AbstractOptimizer
 
         scip_data = SCIPData(scip, Dict(), Dict(), 0, 0, Dict(), Dict(), Dict(), Dict(), [])
 
-        o = new(scip_data, PtrMap(), ConsTypeMap(), Dict(), Dict(), Dict(), nothing, MOI.MIN_SENSE)
+        o = new(scip_data, PtrMap(), ConsTypeMap(), Dict(), Dict(), Dict(), nothing, MOI.MIN_SENSE, false)
         finalizer(free_scip, o)
 
         # Set all parameters given as keyword arguments, replacing the
@@ -260,7 +261,11 @@ function MOI.optimize!(o::Optimizer)
     if o.objective_sense == MOI.FEASIBILITY_SENSE
         MOI.set(o, MOI.ObjectiveFunction{SAF}(), SAF([], 0.0))
     end
-    @SCIP_CALL SCIPsolve(o)
+    if o.use_concurrent
+        @SCIP_CALL SCIPsolveConcurrent(o)
+    else
+        @SCIP_CALL SCIPsolve(o)
+    end
     return nothing
 end
 

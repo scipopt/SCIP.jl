@@ -24,7 +24,26 @@ const CONFIG_DIRECT = MOIT.Config(
         OPTIMIZER,
         CONFIG_DIRECT,
         warn_unsupported=false,
-        exclude = excluded,
+        exclude=excluded,
     )
+end
 
+@testset "MOI unit tests concurrent" begin
+    concurrent_optimizer = SCIP.Optimizer(display_verblevel=0)
+    concurrent_optimizer.use_concurrent = true
+    excluded = copy(MOI_BASE_EXCLUDED)
+    append!(excluded, [
+        "test_linear_integration", # Can not delete variable while model contains constraints
+        "test_basic_VectorOfVariables_SecondOrderCone",
+        "test_conic_SecondOrderCone_nonnegative_post_bound",
+        "test_variable_delete_SecondOrderCone",
+        "test_modification_func_scalaraffine_",
+        "test_modification_func_vectoraffine_",
+    ])
+    MOIT.runtests(
+        concurrent_optimizer,
+        CONFIG_DIRECT,
+        warn_unsupported=false,
+        exclude=excluded,
+    )
 end

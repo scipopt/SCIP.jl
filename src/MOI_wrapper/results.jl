@@ -65,7 +65,7 @@ function assert_solved(o::Optimizer)
     if status in (SCIP_STATUS_UNKNOWN,
                   SCIP_STATUS_USERINTERRUPT,
                   SCIP_STATUS_TERMINATE)
-        error("SCIP's solving was interrupted, but not by a user-given limit!")
+        error("SCIP's solving was interrupted, but not by a user-given limit! Status $(status)")
     end
 end
 
