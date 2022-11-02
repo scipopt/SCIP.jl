@@ -200,12 +200,12 @@ abstract type RelaxationHandler end
 """
     compute_relaxation(::RelaxationHandler, scip::Ptr{SCIP_}) -> (retcode, lower_bound, result)
 
-Compute the relaxation 
+Compute a relaxation at the current node (with local bounds).
 """
 function compute_relaxation
 end
 
-# (SCIP* scip, SCIP_RELAX* relax, SCIP_Real* lowerbound, SCIP_RESULT* result)
+# Low-level function matching the C signature
 function _compute_relaxation_callback(scip::Ptr{SCIP_}, relax_::Ptr{SCIP_RELAX}, lowerbound_::Ptr{SCIP_Real}, result_::Ptr{SCIP_RESULT})
     relaxdata::Ptr{SCIP_RELAXDATA} = SCIPrelaxGetData(relax_)
     relax_handler = unsafe_pointer_to_objref(relaxdata)

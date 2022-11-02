@@ -71,3 +71,7 @@ end
 function include_cutsel(o::Optimizer, cutsel::CS; name = "", description = "", priority=10000) where {CS <: AbstractCutSelector}
     return include_cutsel(o.inner.scip[], cutsel, o.inner.cutsel_storage; name=name, description=description, priority=priority)
 end
+
+function include_relaxator(o::Optimizer, relax::REL; name = "", description = "", priority=10000, frequency=0) where {REL <: RelaxationHandler}
+    return include_relaxator(o.inner.scip[], relax; name=name, descriptio=description, priority=priority, frequency=frequency)
+end
