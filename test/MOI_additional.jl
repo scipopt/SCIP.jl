@@ -380,7 +380,10 @@ end
     MOI.set(model, MOI.ObjectiveSense(), MOI.MAX_SENSE)
     @test MOI.get(model, MOI.TerminationStatus()) == MOI.OPTIMIZE_NOT_CALLED
     MOI.optimize!(model)
-    if presolving == 0
+    if presolving == 1 && v"8.0.1" <= SCIP.SCIP_versionnumber() <= v"8.0.2"
+        @test_broken MOI.get(model, MOI.TerminationStatus()) == config.optimal_status
+        @test_broken MOI.get(model, MOI.PrimalStatus()) == MOI.FEASIBLE_POINT    
+    else
         @test MOI.get(model, MOI.TerminationStatus()) == config.optimal_status
         @test MOI.get(model, MOI.PrimalStatus()) == MOI.FEASIBLE_POINT
         @test ≈(MOI.get(model, MOI.ObjectiveValue()), T(115 // 4), config)
@@ -388,8 +391,4 @@ end
         @test ≈(MOI.get(model, MOI.VariablePrimal(), x2), T(35 // 4), config)
         @test ≈(MOI.get(model, MOI.VariablePrimal(), z1), T(1), config)
         @test ≈(MOI.get(model, MOI.VariablePrimal(), z2), T(1), config)
-    else
-        @test_broken MOI.get(model, MOI.TerminationStatus()) == config.optimal_status
-        @test_broken MOI.get(model, MOI.PrimalStatus()) == MOI.FEASIBLE_POINT
-    end
 end
