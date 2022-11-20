@@ -391,4 +391,5 @@ end
         @test ≈(MOI.get(model, MOI.VariablePrimal(), x2), T(35 // 4), config)
         @test ≈(MOI.get(model, MOI.VariablePrimal(), z1), T(1), config)
         @test ≈(MOI.get(model, MOI.VariablePrimal(), z2), T(1), config)
+    end
 end
