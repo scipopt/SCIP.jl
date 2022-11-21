@@ -10,6 +10,7 @@ end
 
 @show(@eval(SCIP, libscip) == SCIP_jll.libscip)
 @show(SCIP_PaPILO_jll.is_available() && @eval(SCIP, libscip) == SCIP_PaPILO_jll.libscip)
+@show SCIP.SCIP_versionnumber()
 
 @testset "MathOptInterface nonlinear expressions" begin
     include("MOI_nonlinear_exprs.jl")

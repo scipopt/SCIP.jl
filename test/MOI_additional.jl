@@ -318,7 +318,7 @@ end
     @test MOI.get(optimizer, MOI.DualStatus()) == MOI.NO_SOLUTION
 end
 
-@testset "broken indicator test" for presolving in (-1, 0)
+@testset "broken indicator test" for presolving in (1, 0)
     model = MOIB.full_bridge_optimizer(SCIP.Optimizer(display_verblevel=0, presolving_maxrounds=presolving), Float64)
     config = MOIT.Config(atol=5e-3, rtol=1e-4, exclude=Any[
         MOI.ConstraintDual, MOI.ConstraintName, MOI.DualObjectiveValue, MOI.VariableBasisStatus, MOI.ConstraintBasisStatus,
@@ -384,6 +384,8 @@ end
         @test_broken MOI.get(model, MOI.TerminationStatus()) == config.optimal_status
         @test_broken MOI.get(model, MOI.PrimalStatus()) == MOI.FEASIBLE_POINT    
     else
+        @info "presolving $presolving"
+        @info "$(SCIP.SCIP_versionnumber())"
         @test MOI.get(model, MOI.TerminationStatus()) == config.optimal_status
         @test MOI.get(model, MOI.PrimalStatus()) == MOI.FEASIBLE_POINT
         @test ≈(MOI.get(model, MOI.ObjectiveValue()), T(115 // 4), config)
