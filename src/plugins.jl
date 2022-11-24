@@ -1,3 +1,6 @@
+# Additional SCIP plugins
+# Relaxation handler and cut selection interface
+
 # cut selection interface
 # it is recommended to check https://scipopt.org/doc/html/CUTSEL.php for key concepts and interface
 
@@ -186,4 +189,70 @@ function select_cuts(cutsel::HybridCutSelector, scip, cuts, forced_cuts, root, m
     # if SCIP_OKAY, should have nonnegative number of cuts
     @assert retcode != SCIP_OKAY || nselected_cuts[] >= 0
     return (retcode, nselected_cuts[], SCIP_SUCCESS)
+end
+
+## Relaxation handlers
+# it is recommended to check https://scipopt.org/doc/html/RELAX.php for key concepts and interface
+
+
+abstract type RelaxationHandler end
+
+"""
+    compute_relaxation(::RelaxationHandler, scip::Ptr{SCIP_}) -> (retcode, lower_bound, result)
+
+Compute a relaxation at the current node (with local bounds).
+"""
+function compute_relaxation
+end
+
+# Low-level function matching the C signature
+function _compute_relaxation_callback(scip::Ptr{SCIP_}, relax_::Ptr{SCIP_RELAX}, lowerbound_::Ptr{SCIP_Real}, result_::Ptr{SCIP_RESULT})
+    relaxdata::Ptr{SCIP_RELAXDATA} = SCIPrelaxGetData(relax_)
+    relax_handler = unsafe_pointer_to_objref(relaxdata)
+    (retcode, lower_bound, result) = compute_relaxation(relax_handler, scip)::Tuple{SCIP_RETCODE, Real, SCIP_RESULT}
+    if retcode != SCIP_OKAY
+        return retcode
+    end
+    unsafe_store!(lowerbound_, Cdouble(lower_bound))
+    unsafe_store!(result_, result)
+    return retcode
+end
+
+function _relaxfree(::Ptr{SCIP_}, relax::Ptr{SCIP_RELAX})
+    # just like sepa, free the data on the SCIP side,
+    # the Julia GC will take care of the objects
+    SCIPrelaxSetData(relax, C_NULL)
+    return SCIP_OKAY
+end
+
+"""
+Includes a relaxator in SCIP and stores it in relaxator_storage.
+"""
+function include_relaxator(scip::Ptr{SCIP_}, relax::REL, relax_storage::Dict{Any, Ptr{SCIP_RELAX}}; name = "", description = "", priority=10000, frequency=0) where {REL <: RelaxationHandler}
+
+    # ensure a unique name for the cut selector
+    if name == ""
+        name = "relaxator_$(string(REL))"
+    end
+
+    relax__ = Ref{Ptr{SCIP_RELAX}}(C_NULL)
+    if !ismutable(relax)
+        throw(ArgumentError("The relaxation handler structure must be a mutable type"))
+    end
+
+    relaxdata_ = pointer_from_objref(relax)
+    relax_callback = @cfunction(
+        _compute_relaxation_callback, SCIP_RETCODE,
+        (Ptr{SCIP_}, Ptr{SCIP_RELAX}, Ptr{SCIP_Real}, Ptr{SCIP_RESULT}),
+    )
+    @SCIP_CALL SCIPincludeRelaxBasic(scip, relax__, name, description, priority, frequency, relax_callback, relaxdata_)
+    @assert relax__[] != C_NULL
+
+    @SCIP_CALL SCIPsetRelaxFree(
+        scip, relax__[],
+        @cfunction(_relaxfree, SCIP_RETCODE, (Ptr{SCIP_}, Ptr{SCIP_RELAX})),
+    )
+
+    # store relaxator (avoids GC-ing it)
+    relax_storage[relax] = relax__[]
 end

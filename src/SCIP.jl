@@ -16,7 +16,7 @@ include("scip_data.jl")
 include("sepa.jl")
 
 # cut selectors
-include("cut_selector.jl")
+include("plugins.jl")
 
 # constraint handlers
 include("conshdlr.jl")

@@ -46,6 +46,9 @@ mutable struct SCIPData
     # User-defined cut selector
     cutsel_storage::Dict{Any, Ptr{SCIP_CUTSEL}}
 
+    # User-defined relaxation handlers
+    relax_storage::Dict{Any, Ptr{SCIP_RELAX}}
+
     # to store expressions for release
     nonlinear_storage::Vector{NonlinExpr}
 end
