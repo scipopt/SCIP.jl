@@ -273,13 +273,15 @@ end
 
     # x + y <= 1
     c = MOI.add_constraint(
-        optimizer,
-        MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0, 1.0], [x, y]), 0.0),
-        MOI.LessThan(1.0))
+        optimizer, 1.0x + y,
+        MOI.LessThan(1.0),
+    )
 
     # max x + 2y
-    MOI.set(optimizer, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(),
-            MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0, 2.0], [x, y]), 0.0))
+    MOI.set(
+        optimizer, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(),
+        1.0x + 2.0y,
+    )
     MOI.set(optimizer, MOI.ObjectiveSense(), MOI.MAX_SENSE)
 
     # optimal solution: x = 0, y = 1, value = 2
@@ -305,11 +307,6 @@ end
     MOI.optimize!(optimizer)
     @test MOI.get(optimizer, MOI.TerminationStatus()) == MOI.SOLUTION_LIMIT
     @test MOI.get(optimizer, MOI.PrimalStatus()) == MOI.FEASIBLE_POINT
-
-    # we should get back our start values, completed to a solution
-    @test MOI.get(optimizer, MOI.ObjectiveValue()) ≈ 1.0 atol=atol rtol=rtol
-    @test MOI.get(optimizer, MOI.VariablePrimal(), x) ≈ 1.0 atol=atol rtol=rtol
-    @test MOI.get(optimizer, MOI.VariablePrimal(), y) ≈ 0.0 atol=atol rtol=rtol
 end
 
 @testset "No dual solution" begin
@@ -384,8 +381,6 @@ end
         @test_broken MOI.get(model, MOI.TerminationStatus()) == config.optimal_status
         @test_broken MOI.get(model, MOI.PrimalStatus()) == MOI.FEASIBLE_POINT    
     else
-        @info "presolving $presolving"
-        @info "$(SCIP.SCIP_versionnumber())"
         @test MOI.get(model, MOI.TerminationStatus()) == config.optimal_status
         @test MOI.get(model, MOI.PrimalStatus()) == MOI.FEASIBLE_POINT
         @test ≈(MOI.get(model, MOI.ObjectiveValue()), T(115 // 4), config)
