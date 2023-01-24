@@ -32,7 +32,8 @@ mutable struct Optimizer <: MOI.AbstractOptimizer
     params::Dict{String,Any}
     start::Dict{VI,Float64} # can be partial
     moi_separator::Any # ::Union{CutCbSeparator, Nothing}
-    objective_sense::MOI.OptimizationSense
+    objective_sense::Union{Nothing,MOI.OptimizationSense}
+    objective_function_set::Bool
 
     function Optimizer(; kwargs...)
         scip = Ref{Ptr{SCIP_}}(C_NULL)
@@ -43,7 +44,7 @@ mutable struct Optimizer <: MOI.AbstractOptimizer
 
         scip_data = SCIPData(scip, Dict(), Dict(), 0, 0, Dict(), Dict(), Dict(), Dict(), [])
 
-        o = new(scip_data, PtrMap(), ConsTypeMap(), Dict(), Dict(), Dict(), nothing, MOI.MIN_SENSE)
+        o = new(scip_data, PtrMap(), ConsTypeMap(), Dict(), Dict(), Dict(), nothing, nothing, false)
         finalizer(free_scip, o)
 
         # Set all parameters given as keyword arguments, replacing the
@@ -203,6 +204,8 @@ function MOI.empty!(o::Optimizer)
     for pair in o.params
         set_parameter(o.inner, pair.first, pair.second)
     end
+    o.objective_sense = nothing
+    o.objective_function_set = false
     return nothing
 end
 
@@ -284,7 +287,17 @@ function MOI.get(o::Optimizer, ::MOI.ListOfVariableAttributesSet)
     return attributes
 end
 
-MOI.get(::Optimizer, ::MOI.ListOfModelAttributesSet) = MOI.AbstractModelAttribute[MOI.Name(), MOI.ObjectiveSense()]
+function MOI.get(o::Optimizer, ::MOI.ListOfModelAttributesSet)
+    ret = MOI.AbstractModelAttribute[MOI.Name()]
+    if o.objective_sense !== nothing
+        push!(ret, MOI.ObjectiveSense())
+    end
+    if o.objective_function_set
+        F = MOI.get(o, MOI.ObjectiveFunctionType())
+        push!(ret, MOI.ObjectiveFunction{F}())
+    end
+    return ret
+end
 
 function MOI.get(
     ::Optimizer,
