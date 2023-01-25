@@ -24,7 +24,7 @@ function MOI.set(o::Optimizer, ::MOI.ObjectiveFunction{SAF}, obj::SAF)
     end
 
     @SCIP_CALL SCIPaddOrigObjoffset(o, obj.constant - SCIPgetOrigObjoffset(o))
-
+    o.objective_function_set = true
     return nothing
 end
 
@@ -54,13 +54,14 @@ function MOI.set(o::Optimizer, ::MOI.ObjectiveSense, sense::MOI.OptimizationSens
 end
 
 function MOI.get(o::Optimizer, ::MOI.ObjectiveSense)
-    return o.objective_sense
+    return something(o.objective_sense, MOI.FEASIBILITY_SENSE)
 end
 
 function MOI.modify(o::Optimizer, ::MOI.ObjectiveFunction{SAF},
                     change::MOI.ScalarCoefficientChange{Float64})
     allow_modification(o)
     @SCIP_CALL SCIPchgVarObj(o, var(o, change.variable), change.new_coefficient)
+    o.objective_function_set = true
     return nothing
 end
 
