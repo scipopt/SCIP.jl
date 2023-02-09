@@ -223,7 +223,7 @@ function MOI.set(o::Optimizer, ::MOI.ConstraintSet, ci::CI{VI,S}, set::S) where 
     allow_modification(o)
     v = var(o, VI(ci.value)) # cons index is actually var index
     lb, ub = bounds(set)
-    old_interval = o.binbounds[VI(ci.value)]
+    old_interval = get(o.binbounds, VI(ci.value), MOI.Interval(0.0, 1.0))
     if lb !== nothing
         if SCIPvarGetType(v) == SCIP_VARTYPE_BINARY
             lb = max(lb, 0.0)
