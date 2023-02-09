@@ -228,12 +228,16 @@ function MOI.set(o::Optimizer, ::MOI.ConstraintSet, ci::CI{VI,S}, set::S) where 
             lb = max(lb, 0.0)
         end
         @SCIP_CALL SCIPchgVarLb(o, v, lb)
+        old_interval = o.binbounds[VI(ci.value)]
+        o.binbounds[VI(ci.value)] = MOI.Interval(lb, old_interval.upper)
     end
     if ub !== nothing
         if SCIPvarGetType(v) == SCIP_VARTYPE_BINARY
             ub = min(ub, 1.0)
         end
         @SCIP_CALL SCIPchgVarUb(o, v, ub)
+        old_interval = o.binbounds[VI(ci.value)]
+        o.binbounds[VI(ci.value)] = MOI.Interval(old_interval.lower, ub)
     end
     return nothing
 end
