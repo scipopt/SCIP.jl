@@ -10,17 +10,26 @@ MOI.supports(::Optimizer, ::MOI.ObjectiveFunction{SAF}) = true
 function MOI.set(o::Optimizer, ::MOI.ObjectiveFunction{SAF}, obj::SAF)
     allow_modification(o)
 
-    # reset objective coefficient of all variables first
-    for v in values(o.inner.vars)
-        @SCIP_CALL SCIPchgVarObj(o, v[], 0.0)
-    end
+    if haskey(o.params, "reoptimization/enable") && o.params["reoptimization/enable"] == 1
+        vars = [var(o.inner, vr) for vr in keys(o.inner.vars)]
+        obj_coefs = [t.coefficient for t in obj.terms]
+        @assert length(vars) == length(obj_coefs)
+        scip_obj_sense = SCIPgetObjsense(o.inner)
+        @SCIP_CALL SCIPchgReoptObjective(o, scip_obj_sense, vars,
+        obj_coefs, length(vars))
+    else
+        # reset objective coefficient of all variables first
+        for v in values(o.inner.vars)
+            @SCIP_CALL SCIPchgVarObj(o, v[], 0.0)
+        end
 
-    # set new objective coefficients, summing coefficients
-    for t in obj.terms
-        v = var(o, t.variable)
-        oldcoef = SCIPvarGetObj(v)
-        newcoef = oldcoef + t.coefficient
-        @SCIP_CALL SCIPchgVarObj(o, v, newcoef)
+        # set new objective coefficients, summing coefficients
+        for t in obj.terms
+            v = var(o, t.variable)
+            oldcoef = SCIPvarGetObj(v)
+            newcoef = oldcoef + t.coefficient
+            @SCIP_CALL SCIPchgVarObj(o, v, newcoef)
+        end
     end
 
     @SCIP_CALL SCIPaddOrigObjoffset(o, obj.constant - SCIPgetOrigObjoffset(o))
