@@ -6,32 +6,34 @@ Julia interface to the [SCIP](http://scipopt.org) solver.
 [![codecov](https://codecov.io/gh/scipopt/SCIP.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/scipopt/SCIP.jl)
 [![Genie Downloads](https://shields.io/endpoint?url=https://pkgs.genieframework.com/api/v1/badge/SCIP)](https://pkgs.genieframework.com?packages=SCIP)
 
-See [NEWS.md](https://github.com/SCIP-Interfaces/SCIP.jl/blob/master/NEWS.md) for changes in older releases.
+## Affiliation
+
+This wrapper is maintained by the [SCIP project](https://www.scipopt.org/) with the help of the JuMP community.
+
+## License
+
+`SCIP.jl` is licensed under the
+[MIT License](https://github.com/scipopt/SCIP.jl/blob/master/LICENSE).
+
+SCIP itself is licensed under the [Apache 2.0 license](https://github.com/scipopt/scip/blob/master/LICENSE).
 
 ## Errors with nonlinear models
 
 When solving a nonlinear model, you may encounter `Error: no BLAS/LAPACK library loaded!`,
 this comes from Ipopt, see the [README](https://github.com/jump-dev/Ipopt.jl/#julia-17) on Ipopt.jl.
 
-## Update (April 2022)
+## Installation
 
-Due to breaking changes, only SCIP 8 is supported by the wrapper on version 0.11 onwards.
-
-## Update (August 2020)
-
-On MacOS and Linux, it is no longer required to install the [SCIP](https://scipopt.org/) binaries using this package. There now exists a
-[BinaryBuilder.jl](https://github.com/JuliaPackaging/BinaryBuilder.jl) generated
-package [SCIP_jll.jl](https://github.com/JuliaBinaryWrappers/SCIP_jll.jl) and
-[SCIP_PaPILO_jll.jl](https://github.com/JuliaBinaryWrappers/SCIP_PaPILO_jll.jl) which
-is installed automatically as a dependency.
-
-On Windows, the separate installation of SCIP is still mandatory, otherwise,
-you can use this default installation:
-
+Install SCIP.jl as follows:
 ```julia
-pkg> add SCIP
+julia> import Pkg
+julia> Pkg.add("SCIP")
 ```
 
+On MacOS and Linux, installing the SCIP Julia package will work out of the box and install the [SCIP_jll.jl](https://github.com/JuliaBinaryWrappers/SCIP_jll.jl) and
+[SCIP_PaPILO_jll.jl](https://github.com/JuliaBinaryWrappers/SCIP_PaPILO_jll.jl) dependencies.
+
+On Windows, the separate installation of SCIP is still mandatory as detailed below.
 If you use an older Julia version, Windows or want a custom SCIP installation, see below for the build steps.
 
 ## Custom SCIP installations.
@@ -107,9 +109,8 @@ constraints by name (`VariableIndex`-set constraints are not stored as SCIP
 constraints explicitly).
 
 Support for more constraint types (quadratic, SOS1/2, nonlinear expression)
-is implemented, but SCIP itself only supports affine objective functions, so we
-will stick with that. More general objective functions could be implented via a
-[bridge](https://github.com/JuliaOpt/MathOptInterface.jl/issues/529).
+is implemented, but SCIP itself only supports affine objective functions.
+Nonlinear objectives can be supported by MathOptInterface bridges.
 
 Supported operators in nonlinear expressions are as follows:
 
