@@ -1,6 +1,6 @@
 # SCIP.jl
 
-Julia interface to the [SCIP](http://scipopt.org) solver.
+[SCIP.jl](https://github.com/scipopt/SCIP.jl) is a Julia interface to the [SCIP](https://scipopt.org) solver.
 
 [![Build Status](https://github.com/scipopt/SCIP.jl/workflows/CI/badge.svg?branch=master)](https://github.com/scipopt/SCIP.jl/actions?query=workflow%3ACI)
 [![codecov](https://codecov.io/gh/scipopt/SCIP.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/scipopt/SCIP.jl)
@@ -16,11 +16,6 @@ This wrapper is maintained by the [SCIP project](https://www.scipopt.org/) with 
 [MIT License](https://github.com/scipopt/SCIP.jl/blob/master/LICENSE).
 
 SCIP itself is licensed under the [Apache 2.0 license](https://github.com/scipopt/scip/blob/master/LICENSE).
-
-## Errors with nonlinear models
-
-When solving a nonlinear model, you may encounter `Error: no BLAS/LAPACK library loaded!`,
-this comes from Ipopt, see the [README](https://github.com/jump-dev/Ipopt.jl/#julia-17) on Ipopt.jl.
 
 ## Installation
 
@@ -44,7 +39,7 @@ is, either `$SCIPOPTDIR/lib/libscip.so`, `$SCIPOPTDIR/lib/libscip.dylib` or
 `$SCIPOPTDIR/bin/scip.dll` should exist, depending on your operating system.
 
 When this is set before you install this package, it should be recognized
-automatically. Afterwards, you can trigger the build with
+automatically. Afterward, you can trigger the build with
 
 ```julia
 pkg> build SCIP
@@ -57,7 +52,7 @@ There are two ways of setting the parameters
 using `MOI.set`:
 
 ```julia
-using MOI
+import MathOptInterface as MOI
 using SCIP
 
 optimizer = SCIP.Optimizer()
@@ -71,7 +66,7 @@ identifier. This should not lead to ambiguities as none of the official SCIP
 parameters contain any underscores (yet).
 
 ```julia
-using MOI
+import MathOptInterface as MOI
 using SCIP
 
 optimizer = SCIP.Optimizer(display_verblevel=0, limits_gap=0.05)
@@ -79,6 +74,11 @@ optimizer = SCIP.Optimizer(display_verblevel=0, limits_gap=0.05)
 
 Note that in both cases, the correct value type must be used
 (here, `Int64` and `Float64`).
+
+## Errors with nonlinear models
+
+When solving a nonlinear model, you may encounter `Error: no BLAS/LAPACK library loaded!`,
+this comes from Ipopt, see the [README](https://github.com/jump-dev/Ipopt.jl/#julia-17) on Ipopt.jl.
 
 ## Design Considerations
 
@@ -90,10 +90,10 @@ structures and work on the *raw* pointers (e.g. `SCIP*` in C, `Ptr{SCIP_}` in
 Julia). Convenience wrapper functions based on Julia types are added as needed.
 
 **Memory Management**: Programming with SCIP requires dealing with variable and
-constraints objects that use [reference
+constraint objects that use [reference
 counting](https://scip.zib.de/doc-8.0.0/html/OBJ.php) for memory management.
 The `SCIP.Optimizer` wrapper type collects lists of `SCIP_VAR*`
-and `SCIP_CONS*` under the hood, and releases all reference when it is garbage
+and `SCIP_CONS*` under the hood, and releases all references when it is garbage
 collected itself (via `finalize`).
 When adding a variable (`add_variable`) or a constraint (`add_linear_constraint`),
 an integer index is returned.
