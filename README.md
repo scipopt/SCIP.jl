@@ -1,37 +1,34 @@
 # SCIP.jl
 
-Julia interface to the [SCIP](http://scipopt.org) solver.
+[SCIP.jl](https://github.com/scipopt/SCIP.jl) is a Julia interface to the [SCIP](https://scipopt.org) solver.
 
 [![Build Status](https://github.com/scipopt/SCIP.jl/workflows/CI/badge.svg?branch=master)](https://github.com/scipopt/SCIP.jl/actions?query=workflow%3ACI)
 [![codecov](https://codecov.io/gh/scipopt/SCIP.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/scipopt/SCIP.jl)
 [![Genie Downloads](https://shields.io/endpoint?url=https://pkgs.genieframework.com/api/v1/badge/SCIP)](https://pkgs.genieframework.com?packages=SCIP)
 
-See [NEWS.md](https://github.com/SCIP-Interfaces/SCIP.jl/blob/master/NEWS.md) for changes in older releases.
+## Affiliation
 
-## Errors with nonlinear models
+This wrapper is maintained by the [SCIP project](https://www.scipopt.org/) with the help of the JuMP community.
 
-When solving a nonlinear model, you may encounter `Error: no BLAS/LAPACK library loaded!`,
-this comes from Ipopt, see the [README](https://github.com/jump-dev/Ipopt.jl/#julia-17) on Ipopt.jl.
+## License
 
-## Update (April 2022)
+`SCIP.jl` is licensed under the
+[MIT License](https://github.com/scipopt/SCIP.jl/blob/master/LICENSE).
 
-Due to breaking changes, only SCIP 8 is supported by the wrapper on version 0.11 onwards.
+SCIP itself is licensed under the [Apache 2.0 license](https://github.com/scipopt/scip/blob/master/LICENSE).
 
-## Update (August 2020)
+## Installation
 
-On MacOS and Linux, it is no longer required to install the [SCIP](https://scipopt.org/) binaries using this package. There now exists a
-[BinaryBuilder.jl](https://github.com/JuliaPackaging/BinaryBuilder.jl) generated
-package [SCIP_jll.jl](https://github.com/JuliaBinaryWrappers/SCIP_jll.jl) and
-[SCIP_PaPILO_jll.jl](https://github.com/JuliaBinaryWrappers/SCIP_PaPILO_jll.jl) which
-is installed automatically as a dependency.
-
-On Windows, the separate installation of SCIP is still mandatory, otherwise,
-you can use this default installation:
-
+Install SCIP.jl as follows:
 ```julia
-pkg> add SCIP
+julia> import Pkg
+julia> Pkg.add("SCIP")
 ```
 
+On MacOS and Linux, installing the SCIP Julia package will work out of the box and install the [SCIP_jll.jl](https://github.com/JuliaBinaryWrappers/SCIP_jll.jl) and
+[SCIP_PaPILO_jll.jl](https://github.com/JuliaBinaryWrappers/SCIP_PaPILO_jll.jl) dependencies.
+
+On Windows, the separate installation of SCIP is still mandatory as detailed below.
 If you use an older Julia version, Windows or want a custom SCIP installation, see below for the build steps.
 
 ## Custom SCIP installations.
@@ -42,7 +39,7 @@ is, either `$SCIPOPTDIR/lib/libscip.so`, `$SCIPOPTDIR/lib/libscip.dylib` or
 `$SCIPOPTDIR/bin/scip.dll` should exist, depending on your operating system.
 
 When this is set before you install this package, it should be recognized
-automatically. Afterwards, you can trigger the build with
+automatically. Afterward, you can trigger the build with
 
 ```julia
 pkg> build SCIP
@@ -55,7 +52,7 @@ There are two ways of setting the parameters
 using `MOI.set`:
 
 ```julia
-using MOI
+import MathOptInterface as MOI
 using SCIP
 
 optimizer = SCIP.Optimizer()
@@ -69,7 +66,7 @@ identifier. This should not lead to ambiguities as none of the official SCIP
 parameters contain any underscores (yet).
 
 ```julia
-using MOI
+import MathOptInterface as MOI
 using SCIP
 
 optimizer = SCIP.Optimizer(display_verblevel=0, limits_gap=0.05)
@@ -77,6 +74,11 @@ optimizer = SCIP.Optimizer(display_verblevel=0, limits_gap=0.05)
 
 Note that in both cases, the correct value type must be used
 (here, `Int64` and `Float64`).
+
+## Errors with nonlinear models
+
+When solving a nonlinear model, you may encounter `Error: no BLAS/LAPACK library loaded!`,
+this comes from Ipopt, see the [README](https://github.com/jump-dev/Ipopt.jl/#julia-17) on Ipopt.jl.
 
 ## Design Considerations
 
@@ -88,10 +90,10 @@ structures and work on the *raw* pointers (e.g. `SCIP*` in C, `Ptr{SCIP_}` in
 Julia). Convenience wrapper functions based on Julia types are added as needed.
 
 **Memory Management**: Programming with SCIP requires dealing with variable and
-constraints objects that use [reference
+constraint objects that use [reference
 counting](https://scip.zib.de/doc-8.0.0/html/OBJ.php) for memory management.
 The `SCIP.Optimizer` wrapper type collects lists of `SCIP_VAR*`
-and `SCIP_CONS*` under the hood, and releases all reference when it is garbage
+and `SCIP_CONS*` under the hood, and releases all references when it is garbage
 collected itself (via `finalize`).
 When adding a variable (`add_variable`) or a constraint (`add_linear_constraint`),
 an integer index is returned.
@@ -107,9 +109,8 @@ constraints by name (`VariableIndex`-set constraints are not stored as SCIP
 constraints explicitly).
 
 Support for more constraint types (quadratic, SOS1/2, nonlinear expression)
-is implemented, but SCIP itself only supports affine objective functions, so we
-will stick with that. More general objective functions could be implented via a
-[bridge](https://github.com/JuliaOpt/MathOptInterface.jl/issues/529).
+is implemented, but SCIP itself only supports affine objective functions.
+Nonlinear objectives can be supported by MathOptInterface bridges.
 
 Supported operators in nonlinear expressions are as follows:
 
