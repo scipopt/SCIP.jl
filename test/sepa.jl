@@ -6,7 +6,7 @@ const MOI = MathOptInterface
     # create an empty problem
     optimizer = SCIP.Optimizer()
     inner = optimizer.inner
-    sepa_set_scip_parameters((par,val) -> SCIP.set_parameter(inner, par, val))
+    sepa_set_scip_parameters((par, val) -> SCIP.set_parameter(inner, par, val))
 
     # add variables
     x, y = MOI.add_variables(optimizer, 2)
@@ -14,13 +14,18 @@ const MOI = MathOptInterface
     MOI.add_constraint(optimizer, y, MOI.ZeroOne())
 
     # add constraint: x + y ≤ 1.5
-    MOI.add_constraint(optimizer,
-                       MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0, 1.0], [x, y]), 0.0),
-                       MOI.LessThan(1.5))
+    MOI.add_constraint(
+        optimizer,
+        MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0, 1.0], [x, y]), 0.0),
+        MOI.LessThan(1.5),
+    )
 
     # maximize x + y
-    MOI.set(optimizer, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(),
-            MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0, 1.0], [x, y]), 0.0))
+    MOI.set(
+        optimizer,
+        MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(),
+        MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0, 1.0], [x, y]), 0.0),
+    )
     MOI.set(optimizer, MOI.ObjectiveSense(), MOI.MAX_SENSE)
 
     # add the separator
@@ -45,7 +50,7 @@ end
     # create an empty problem
     optimizer = SCIP.Optimizer()
     inner = optimizer.inner
-    sepa_set_scip_parameters((par,val) -> SCIP.set_parameter(inner, par, val))
+    sepa_set_scip_parameters((par, val) -> SCIP.set_parameter(inner, par, val))
 
 
     # add variables
@@ -54,13 +59,18 @@ end
     MOI.add_constraint(optimizer, y, MOI.ZeroOne())
 
     # add constraint: x + y ≤ 1.5
-    MOI.add_constraint(optimizer,
-                       MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0, 1.0], [x, y]), 0.0),
-                       MOI.LessThan(1.5))
+    MOI.add_constraint(
+        optimizer,
+        MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0, 1.0], [x, y]), 0.0),
+        MOI.LessThan(1.5),
+    )
 
     # maximize x + y
-    MOI.set(optimizer, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(),
-            MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0, 1.0], [x, y]), 0.0))
+    MOI.set(
+        optimizer,
+        MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(),
+        MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0, 1.0], [x, y]), 0.0),
+    )
     MOI.set(optimizer, MOI.ObjectiveSense(), MOI.MAX_SENSE)
 
     # add the separator
@@ -76,9 +86,9 @@ end
     @test MOI.get(optimizer, MOI.TerminationStatus()) == MOI.OPTIMAL
     @test MOI.get(optimizer, MOI.PrimalStatus()) == MOI.FEASIBLE_POINT
 
-    @test MOI.get(optimizer, MOI.ObjectiveValue()) ≈ 1.0 atol=atol rtol=rtol
-    @test MOI.get(optimizer, MOI.VariablePrimal(), x) ≈ 0.0 atol=atol rtol=rtol
-    @test MOI.get(optimizer, MOI.VariablePrimal(), y) ≈ 1.0 atol=atol rtol=rtol
+    @test MOI.get(optimizer, MOI.ObjectiveValue()) ≈ 1.0 atol = atol rtol = rtol
+    @test MOI.get(optimizer, MOI.VariablePrimal(), x) ≈ 0.0 atol = atol rtol = rtol
+    @test MOI.get(optimizer, MOI.VariablePrimal(), y) ≈ 1.0 atol = atol rtol = rtol
 
     # free the problem
     finalize(inner)
@@ -92,7 +102,7 @@ end
     # create an empty problem
     optimizer = SCIP.Optimizer()
     inner = optimizer.inner
-    sepa_set_scip_parameters((par,val) -> SCIP.set_parameter(inner, par, val))
+    sepa_set_scip_parameters((par, val) -> SCIP.set_parameter(inner, par, val))
 
 
     # add variables
@@ -101,13 +111,18 @@ end
     MOI.add_constraint(optimizer, y, MOI.ZeroOne())
 
     # add constraint: x + y ≤ 1.5
-    MOI.add_constraint(optimizer,
-                       MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0, 1.0], [x, y]), 0.0),
-                       MOI.LessThan(1.5))
+    MOI.add_constraint(
+        optimizer,
+        MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0, 1.0], [x, y]), 0.0),
+        MOI.LessThan(1.5),
+    )
 
     # maximize x + y
-    MOI.set(optimizer, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(),
-            MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0, 1.0], [x, y]), 0.0))
+    MOI.set(
+        optimizer,
+        MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(),
+        MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0, 1.0], [x, y]), 0.0),
+    )
     MOI.set(optimizer, MOI.ObjectiveSense(), MOI.MAX_SENSE)
 
     # add the separator
@@ -123,9 +138,9 @@ end
     @test MOI.get(optimizer, MOI.TerminationStatus()) == MOI.OPTIMAL
     @test MOI.get(optimizer, MOI.PrimalStatus()) == MOI.FEASIBLE_POINT
 
-    @test MOI.get(optimizer, MOI.ObjectiveValue()) ≈ 1.0 atol=atol rtol=rtol
-    @test MOI.get(optimizer, MOI.VariablePrimal(), x) ≈ 1.0 atol=atol rtol=rtol
-    @test MOI.get(optimizer, MOI.VariablePrimal(), y) ≈ 0.0 atol=atol rtol=rtol
+    @test MOI.get(optimizer, MOI.ObjectiveValue()) ≈ 1.0 atol = atol rtol = rtol
+    @test MOI.get(optimizer, MOI.VariablePrimal(), x) ≈ 1.0 atol = atol rtol = rtol
+    @test MOI.get(optimizer, MOI.VariablePrimal(), y) ≈ 0.0 atol = atol rtol = rtol
 
     # free the problem
     finalize(inner)
@@ -139,7 +154,7 @@ end
     # create an empty problem
     optimizer = SCIP.Optimizer()
     inner = optimizer.inner
-    sepa_set_scip_parameters((par,val) -> SCIP.set_parameter(inner, par, val))
+    sepa_set_scip_parameters((par, val) -> SCIP.set_parameter(inner, par, val))
 
 
     # add variables
@@ -148,13 +163,18 @@ end
     MOI.add_constraint(optimizer, y, MOI.ZeroOne())
 
     # add constraint: x + y ≤ 1.5
-    MOI.add_constraint(optimizer,
-                       MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0, 1.0], [x, y]), 0.0),
-                       MOI.LessThan(1.5))
+    MOI.add_constraint(
+        optimizer,
+        MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0, 1.0], [x, y]), 0.0),
+        MOI.LessThan(1.5),
+    )
 
     # maximize x + y
-    MOI.set(optimizer, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(),
-            MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0, 1.0], [x, y]), 0.0))
+    MOI.set(
+        optimizer,
+        MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(),
+        MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0, 1.0], [x, y]), 0.0),
+    )
     MOI.set(optimizer, MOI.ObjectiveSense(), MOI.MAX_SENSE)
 
     # add the separator
@@ -170,9 +190,9 @@ end
     @test MOI.get(optimizer, MOI.TerminationStatus()) == MOI.OPTIMAL
     @test MOI.get(optimizer, MOI.PrimalStatus()) == MOI.FEASIBLE_POINT
 
-    @test MOI.get(optimizer, MOI.ObjectiveValue()) ≈ 0.0 atol=atol rtol=rtol
-    @test MOI.get(optimizer, MOI.VariablePrimal(), x) ≈ 0.0 atol=atol rtol=rtol
-    @test MOI.get(optimizer, MOI.VariablePrimal(), y) ≈ 0.0 atol=atol rtol=rtol
+    @test MOI.get(optimizer, MOI.ObjectiveValue()) ≈ 0.0 atol = atol rtol = rtol
+    @test MOI.get(optimizer, MOI.VariablePrimal(), x) ≈ 0.0 atol = atol rtol = rtol
+    @test MOI.get(optimizer, MOI.VariablePrimal(), y) ≈ 0.0 atol = atol rtol = rtol
 
     # free the problem
     finalize(inner)

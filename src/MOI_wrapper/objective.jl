@@ -30,7 +30,7 @@ end
 
 function MOI.get(o::Optimizer, ::MOI.ObjectiveFunction{SAF})
     terms = AFF_TERM[]
-    for vr = keys(o.inner.vars)
+    for vr in keys(o.inner.vars)
         vi = VI(vr.val)
         coef = SCIPvarGetObj(var(o, vi))
         coef == 0.0 || push!(terms, AFF_TERM(coef, vi))
@@ -57,8 +57,11 @@ function MOI.get(o::Optimizer, ::MOI.ObjectiveSense)
     return something(o.objective_sense, MOI.FEASIBILITY_SENSE)
 end
 
-function MOI.modify(o::Optimizer, ::MOI.ObjectiveFunction{SAF},
-                    change::MOI.ScalarCoefficientChange{Float64})
+function MOI.modify(
+    o::Optimizer,
+    ::MOI.ObjectiveFunction{SAF},
+    change::MOI.ScalarCoefficientChange{Float64},
+)
     allow_modification(o)
     @SCIP_CALL SCIPchgVarObj(o, var(o, change.variable), change.new_coefficient)
     o.objective_function_set = true

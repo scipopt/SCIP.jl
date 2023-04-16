@@ -14,7 +14,7 @@ function MOI.set(o::Optimizer, ::MOI.NLPBlock, data::MOI.NLPBlockData)
     allow_modification(o::Optimizer)
 
     MOI.initialize(data.evaluator, [:ExprGraph])
-    for i in 1:length(data.constraint_bounds)
+    for i = 1:length(data.constraint_bounds)
         expr = MOI.constraint_expr(data.evaluator, i)
         bounds = data.constraint_bounds[i]
         cr = add_nonlinear_constraint(o.inner, expr, bounds.lower, bounds.upper)

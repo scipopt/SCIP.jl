@@ -2,7 +2,7 @@
 
 MOI.supports_constraint(o::Optimizer, ::Type{SQF}, ::Type{<:BOUNDS}) = true
 
-function MOI.add_constraint(o::Optimizer, func::SQF, set::S) where {S <: BOUNDS}
+function MOI.add_constraint(o::Optimizer, func::SQF, set::S) where {S<:BOUNDS}
     if func.constant != 0.0
         error("SCIP does not support quadratic constraints with a constant offset.")
     end
@@ -24,22 +24,35 @@ function MOI.add_constraint(o::Optimizer, func::SQF, set::S) where {S <: BOUNDS}
     # range
     lhs, rhs = bounds(set)
     lhs = lhs === nothing ? -SCIPinfinity(o) : lhs
-    rhs = rhs === nothing ?  SCIPinfinity(o) : rhs
+    rhs = rhs === nothing ? SCIPinfinity(o) : rhs
 
-    cr = add_quadratic_constraint(o.inner, linrefs, lincoefs,
-                                  quadrefs1, quadrefs2, quadcoefs, lhs, rhs)
-    ci = CI{SQF, S}(cr.val)
+    cr = add_quadratic_constraint(
+        o.inner,
+        linrefs,
+        lincoefs,
+        quadrefs1,
+        quadrefs2,
+        quadcoefs,
+        lhs,
+        rhs,
+    )
+    ci = CI{SQF,S}(cr.val)
     register!(o, ci)
     register!(o, cons(o, ci), cr)
     return ci
 end
 
-function MOI.set(o::SCIP.Optimizer, ::MOI.ConstraintSet, ci::CI{SQF,S}, set::S) where {S <: BOUNDS}
+function MOI.set(
+    o::SCIP.Optimizer,
+    ::MOI.ConstraintSet,
+    ci::CI{SQF,S},
+    set::S,
+) where {S<:BOUNDS}
     allow_modification(o)
 
     lhs, rhs = bounds(set)
     lhs = lhs === nothing ? -SCIPinfinity(o) : lhs
-    rhs = rhs === nothing ?  SCIPinfinity(o) : rhs
+    rhs = rhs === nothing ? SCIPinfinity(o) : rhs
 
     @SCIP_CALL SCIPchgLhsQuadratic(o, cons(o, ci), lhs)
     @SCIP_CALL SCIPchgRhsQuadratic(o, cons(o, ci), rhs)
@@ -47,7 +60,7 @@ function MOI.set(o::SCIP.Optimizer, ::MOI.ConstraintSet, ci::CI{SQF,S}, set::S) 
     return nothing
 end
 
-function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{SQF, S}) where {S <: BOUNDS}
+function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{SQF,S}) where {S<:BOUNDS}
     _throw_if_invalid(o, ci)
     c = cons(o, ci)
     expr_ref = SCIPgetExprNonlinear(c)
@@ -81,14 +94,14 @@ function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{SQF, S}) where {
     lin_coeff_vec = unsafe_wrap(Vector{Cdouble}, lincoefs[], n_linear_terms_ref[])
 
     func = SCIP.SQF([], [], constant_ref[])
-    for idx in 1:n_linear_terms_ref[]
+    for idx = 1:n_linear_terms_ref[]
         var_ptr = LibSCIP.SCIPgetVarExprVar(lin_expr_vec[idx])
         func += lin_coeff_vec[idx] * MOI.VariableIndex(o.reference[var_ptr].val)
     end
-    for term_idx in 1:n_quad_terms_ref[]
+    for term_idx = 1:n_quad_terms_ref[]
         var_expr = Ref{Ptr{Cvoid}}()
-        lin_coef_ref =  Ref{Cdouble}()
-        sqr_coef_ref =  Ref{Cdouble}()
+        lin_coef_ref = Ref{Cdouble}()
+        sqr_coef_ref = Ref{Cdouble}()
         LibSCIP.SCIPexprGetQuadraticQuadTerm(
             expr_ref,
             term_idx - 1, # 0-indexed terms
@@ -107,10 +120,10 @@ function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{SQF, S}) where {
         end
     end
 
-    for term_idx in 1:n_bilinear_terms_ref[]
+    for term_idx = 1:n_bilinear_terms_ref[]
         var_expr1 = Ref{Ptr{Cvoid}}()
         var_expr2 = Ref{Ptr{Cvoid}}()
-        coef_ref =  Ref{Cdouble}()
+        coef_ref = Ref{Cdouble}()
         LibSCIP.SCIPexprGetQuadraticBilinTerm(
             expr_ref,
             term_idx - 1,
@@ -131,7 +144,7 @@ function MOI.get(o::Optimizer, ::MOI.ConstraintFunction, ci::CI{SQF, S}) where {
     return func
 end
 
-function MOI.get(o::Optimizer, ::MOI.ConstraintSet, ci::CI{SQF, S}) where {S <: BOUNDS}
+function MOI.get(o::Optimizer, ::MOI.ConstraintSet, ci::CI{SQF,S}) where {S<:BOUNDS}
     _throw_if_invalid(o, ci)
     c = cons(o, ci)
     lhs = SCIPgetLhsNonlinear(c)
@@ -139,7 +152,7 @@ function MOI.get(o::Optimizer, ::MOI.ConstraintSet, ci::CI{SQF, S}) where {S <: 
     return from_bounds(S, lhs, rhs)
 end
 
-function MOI.get(o::Optimizer, ::MOI.ConstraintPrimal, ci::CI{SQF, S}) where {S <: BOUNDS}
+function MOI.get(o::Optimizer, ::MOI.ConstraintPrimal, ci::CI{SQF,S}) where {S<:BOUNDS}
     _throw_if_invalid(o, ci)
     c = cons(o, ci)
     expr_ref = SCIPgetExprNonlinear(c)

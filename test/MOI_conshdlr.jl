@@ -2,7 +2,7 @@ using MathOptInterface
 const MOI = MathOptInterface
 
 @testset "NaiveAllDiff (two binary vars)" begin
-    optimizer = SCIP.Optimizer(display_verblevel=0)
+    optimizer = SCIP.Optimizer(display_verblevel = 0)
     atol, rtol = 1e-6, 1e-6
 
     # add two binary variables: x, y
@@ -11,13 +11,16 @@ const MOI = MathOptInterface
     MOI.add_constraint(optimizer, y, MOI.ZeroOne())
 
     # maximize 2x + y
-    MOI.set(optimizer, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(),
-            MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([2.0, 1.0], [x, y]), 0.0))
+    MOI.set(
+        optimizer,
+        MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(),
+        MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([2.0, 1.0], [x, y]), 0.0),
+    )
     MOI.set(optimizer, MOI.ObjectiveSense(), MOI.MAX_SENSE)
 
     # add constraint handler with constraint all-diff(x, y)
     alldiffch = NaiveAllDiff.NADCH(optimizer)
-    SCIP.include_conshdlr(optimizer, alldiffch; needs_constraints=true)
+    SCIP.include_conshdlr(optimizer, alldiffch; needs_constraints = true)
 
     alldiffcons = NaiveAllDiff.NADCons([x, y])
     cr = SCIP.add_constraint(optimizer, alldiffch, alldiffcons)
@@ -27,13 +30,13 @@ const MOI = MathOptInterface
     @test MOI.get(optimizer, MOI.TerminationStatus()) == MOI.OPTIMAL
     @test MOI.get(optimizer, MOI.PrimalStatus()) == MOI.FEASIBLE_POINT
 
-    @test MOI.get(optimizer, MOI.ObjectiveValue()) ≈ 2.0 atol=atol rtol=rtol
-    @test MOI.get(optimizer, MOI.VariablePrimal(), x) ≈ 1.0 atol=atol rtol=rtol
-    @test MOI.get(optimizer, MOI.VariablePrimal(), y) ≈ 0.0 atol=atol rtol=rtol
+    @test MOI.get(optimizer, MOI.ObjectiveValue()) ≈ 2.0 atol = atol rtol = rtol
+    @test MOI.get(optimizer, MOI.VariablePrimal(), x) ≈ 1.0 atol = atol rtol = rtol
+    @test MOI.get(optimizer, MOI.VariablePrimal(), y) ≈ 0.0 atol = atol rtol = rtol
 end
 
 @testset "NaiveAllDiff (3 bin.vars, 2 pairwise conss)" begin
-    optimizer = SCIP.Optimizer(display_verblevel=0)
+    optimizer = SCIP.Optimizer(display_verblevel = 0)
     atol, rtol = 1e-6, 1e-6
 
     # add three binary variables
@@ -43,14 +46,16 @@ end
     MOI.add_constraint(optimizer, z, MOI.ZeroOne())
 
     # maximize 2x + 3y + 2z
-    MOI.set(optimizer, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(),
-            MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([2.0, 3.0, 2.0],
-                                                           [x, y, z]), 0.0))
+    MOI.set(
+        optimizer,
+        MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(),
+        MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([2.0, 3.0, 2.0], [x, y, z]), 0.0),
+    )
     MOI.set(optimizer, MOI.ObjectiveSense(), MOI.MAX_SENSE)
 
     # add constraint handler with constraints all-diff(x, y), all-diff(y, x)
     alldiffch = NaiveAllDiff.NADCH(optimizer)
-    SCIP.include_conshdlr(optimizer, alldiffch; needs_constraints=true)
+    SCIP.include_conshdlr(optimizer, alldiffch; needs_constraints = true)
 
     SCIP.add_constraint(optimizer, alldiffch, NaiveAllDiff.NADCons([x, y]))
     SCIP.add_constraint(optimizer, alldiffch, NaiveAllDiff.NADCons([y, z]))
@@ -60,14 +65,14 @@ end
     @test MOI.get(optimizer, MOI.TerminationStatus()) == MOI.OPTIMAL
     @test MOI.get(optimizer, MOI.PrimalStatus()) == MOI.FEASIBLE_POINT
 
-    @test MOI.get(optimizer, MOI.ObjectiveValue()) ≈ 4.0 atol=atol rtol=rtol
-    @test MOI.get(optimizer, MOI.VariablePrimal(), x) ≈ 1.0 atol=atol rtol=rtol
-    @test MOI.get(optimizer, MOI.VariablePrimal(), y) ≈ 0.0 atol=atol rtol=rtol
-    @test MOI.get(optimizer, MOI.VariablePrimal(), z) ≈ 1.0 atol=atol rtol=rtol
+    @test MOI.get(optimizer, MOI.ObjectiveValue()) ≈ 4.0 atol = atol rtol = rtol
+    @test MOI.get(optimizer, MOI.VariablePrimal(), x) ≈ 1.0 atol = atol rtol = rtol
+    @test MOI.get(optimizer, MOI.VariablePrimal(), y) ≈ 0.0 atol = atol rtol = rtol
+    @test MOI.get(optimizer, MOI.VariablePrimal(), z) ≈ 1.0 atol = atol rtol = rtol
 end
 
 @testset "NaiveAllDiff (3 bin.vars, 3 pairwise conss)" begin
-    optimizer = SCIP.Optimizer(display_verblevel=0)
+    optimizer = SCIP.Optimizer(display_verblevel = 0)
     atol, rtol = 1e-6, 1e-6
 
     # add three binary variables
@@ -77,14 +82,16 @@ end
     MOI.add_constraint(optimizer, z, MOI.ZeroOne())
 
     # maximize 2x + 3y + 2z
-    MOI.set(optimizer, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(),
-            MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([2.0, 3.0, 2.0],
-                                                           [x, y, z]), 0.0))
+    MOI.set(
+        optimizer,
+        MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(),
+        MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([2.0, 3.0, 2.0], [x, y, z]), 0.0),
+    )
     MOI.set(optimizer, MOI.ObjectiveSense(), MOI.MAX_SENSE)
 
     # add constraint handler with constraints all-diff(x, y, z)
     alldiffch = NaiveAllDiff.NADCH(optimizer)
-    SCIP.include_conshdlr(optimizer, alldiffch; needs_constraints=true)
+    SCIP.include_conshdlr(optimizer, alldiffch; needs_constraints = true)
 
     SCIP.add_constraint(optimizer, alldiffch, NaiveAllDiff.NADCons([x, y]))
     SCIP.add_constraint(optimizer, alldiffch, NaiveAllDiff.NADCons([x, z]))
@@ -99,7 +106,7 @@ end
 end
 
 @testset "NaiveAllDiff (3 bin.vars, 1 cons with all)" begin
-    optimizer = SCIP.Optimizer(display_verblevel=0)
+    optimizer = SCIP.Optimizer(display_verblevel = 0)
     atol, rtol = 1e-6, 1e-6
 
     # add three binary variables
@@ -109,14 +116,16 @@ end
     MOI.add_constraint(optimizer, z, MOI.ZeroOne())
 
     # maximize 2x + 3y + 2z
-    MOI.set(optimizer, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(),
-            MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([2.0, 3.0, 2.0],
-                                                           [x, y, z]), 0.0))
+    MOI.set(
+        optimizer,
+        MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(),
+        MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([2.0, 3.0, 2.0], [x, y, z]), 0.0),
+    )
     MOI.set(optimizer, MOI.ObjectiveSense(), MOI.MAX_SENSE)
 
     # add constraint handler with constraints all-diff(x, y, z)
     alldiffch = NaiveAllDiff.NADCH(optimizer)
-    SCIP.include_conshdlr(optimizer, alldiffch; needs_constraints=true)
+    SCIP.include_conshdlr(optimizer, alldiffch; needs_constraints = true)
 
     SCIP.add_constraint(optimizer, alldiffch, NaiveAllDiff.NADCons([x, y, z]))
 
@@ -129,7 +138,7 @@ end
 end
 
 @testset "NaiveAllDiff (3 int.vars, 1 cons with all)" begin
-    optimizer = SCIP.Optimizer(display_verblevel=0)
+    optimizer = SCIP.Optimizer(display_verblevel = 0)
     atol, rtol = 1e-6, 1e-6
 
     # add three integer variables, in {0, 1, 2}
@@ -140,14 +149,16 @@ end
     end
 
     # maximize 2x + y
-    MOI.set(optimizer, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(),
-            MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([2.0, 1.0],
-                                                           [x, y]), 0.0))
+    MOI.set(
+        optimizer,
+        MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(),
+        MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([2.0, 1.0], [x, y]), 0.0),
+    )
     MOI.set(optimizer, MOI.ObjectiveSense(), MOI.MAX_SENSE)
 
     # add constraint handler with constraints all-diff(x, y, z)
     alldiffch = NaiveAllDiff.NADCH(optimizer)
-    SCIP.include_conshdlr(optimizer, alldiffch; needs_constraints=true)
+    SCIP.include_conshdlr(optimizer, alldiffch; needs_constraints = true)
 
     SCIP.add_constraint(optimizer, alldiffch, NaiveAllDiff.NADCons([x, y, z]))
 
@@ -156,14 +167,14 @@ end
     @test MOI.get(optimizer, MOI.TerminationStatus()) == MOI.OPTIMAL
     @test MOI.get(optimizer, MOI.PrimalStatus()) == MOI.FEASIBLE_POINT
 
-    @test MOI.get(optimizer, MOI.ObjectiveValue()) ≈ 5.0 atol=atol rtol=rtol
-    @test MOI.get(optimizer, MOI.VariablePrimal(), x) ≈ 2.0 atol=atol rtol=rtol
-    @test MOI.get(optimizer, MOI.VariablePrimal(), y) ≈ 1.0 atol=atol rtol=rtol
-    @test MOI.get(optimizer, MOI.VariablePrimal(), z) ≈ 0.0 atol=atol rtol=rtol
+    @test MOI.get(optimizer, MOI.ObjectiveValue()) ≈ 5.0 atol = atol rtol = rtol
+    @test MOI.get(optimizer, MOI.VariablePrimal(), x) ≈ 2.0 atol = atol rtol = rtol
+    @test MOI.get(optimizer, MOI.VariablePrimal(), y) ≈ 1.0 atol = atol rtol = rtol
+    @test MOI.get(optimizer, MOI.VariablePrimal(), z) ≈ 0.0 atol = atol rtol = rtol
 end
 
 @testset "NoGoodCounter (2 binary vars)" begin
-    optimizer = SCIP.Optimizer(display_verblevel=0, presolving_maxrounds=0)
+    optimizer = SCIP.Optimizer(display_verblevel = 0, presolving_maxrounds = 0)
 
     allow_dual_reductions = MOI.RawOptimizerAttribute("misc/allowstrongdualreds")
     MOI.set(optimizer, allow_dual_reductions, SCIP.FALSE)
@@ -176,14 +187,16 @@ end
     MOI.add_constraint(optimizer, y, MOI.ZeroOne())
 
     # maximize 2x + y
-    MOI.set(optimizer, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(),
-            MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([2.0, 1.0],
-                                                           [x, y]), 0.0))
+    MOI.set(
+        optimizer,
+        MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(),
+        MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([2.0, 1.0], [x, y]), 0.0),
+    )
     MOI.set(optimizer, MOI.ObjectiveSense(), MOI.MAX_SENSE)
 
     # add constraint handler with constraints
     counter = NoGoodCounter.Counter(optimizer, [x, y])
-    SCIP.include_conshdlr(optimizer, counter; needs_constraints=false)
+    SCIP.include_conshdlr(optimizer, counter; needs_constraints = false)
 
     # solve problem and query result
     MOI.optimize!(optimizer)

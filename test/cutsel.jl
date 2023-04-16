@@ -16,11 +16,18 @@ mutable struct EfficacyCutSelector <: SCIP.AbstractCutSelector
     ncalls::Int
 end
 
-function SCIP.select_cuts(cutsel::EfficacyCutSelector, scip, cuts::Vector{Ptr{SCIP.SCIP_ROW}}, forced_cuts::Vector{Ptr{SCIP.SCIP_ROW}}, root::Bool, maxnslectedcuts::Integer)
+function SCIP.select_cuts(
+    cutsel::EfficacyCutSelector,
+    scip,
+    cuts::Vector{Ptr{SCIP.SCIP_ROW}},
+    forced_cuts::Vector{Ptr{SCIP.SCIP_ROW}},
+    root::Bool,
+    maxnslectedcuts::Integer,
+)
     function efficacy_function(cut)
         return SCIP.LibSCIP.SCIPgetCutEfficacy(scip, C_NULL, cut)
     end
-    sort!(cuts, by=efficacy_function, rev=true)
+    sort!(cuts, by = efficacy_function, rev = true)
     nselected_cuts = min(cutsel.nmax_cuts, maxnslectedcuts)
     nselected_cuts = max(nselected_cuts, 0)
     nselected_cuts = min(nselected_cuts, length(cuts))
@@ -30,14 +37,20 @@ end
 
 @testset "test cut selector" begin
     # removing presolving to solve a non-trivial problem that requires some separation
-    o = SCIP.Optimizer(presolving_maxrounds=0)
+    o = SCIP.Optimizer(presolving_maxrounds = 0)
     MOI.set(o, MOI.Silent(), true)
 
     cutsel = EfficacyCutSelector(o, 10, 0)
     name = "my_cut_selector"
     description = "a selector using efficacy only"
     priority = 15_000
-    SCIP.include_cutsel(o, cutsel, name=name, description=description, priority=priority)
+    SCIP.include_cutsel(
+        o,
+        cutsel,
+        name = name,
+        description = description,
+        priority = priority,
+    )
     cutsel_pointer = o.inner.cutsel_storage[cutsel]
     @test unsafe_string(SCIP.LibSCIP.SCIPcutselGetName(cutsel_pointer)) == name
     @test unsafe_string(SCIP.LibSCIP.SCIPcutselGetDesc(cutsel_pointer)) == description
@@ -48,8 +61,8 @@ end
     MOI.add_constraint.(o, x, MOI.Integer())
     MOI.add_constraint.(o, x, MOI.GreaterThan(-0.1))
     MOI.add_constraint.(o, x, MOI.LessThan(2.3))
-    MOI.add_constraint(o, sum(x, init=0.0), MOI.LessThan(12.5))
-    for _ in 1:5
+    MOI.add_constraint(o, sum(x, init = 0.0), MOI.LessThan(12.5))
+    for _ = 1:5
         MOI.add_constraint(o, 2.0 * dot(rand(10), x), MOI.LessThan(10.0 + 2 * rand()))
     end
     func = -dot(rand(10), x)
@@ -69,7 +82,14 @@ mutable struct SecondSelector <: SCIP.AbstractCutSelector
     min_orthogonality::Float64
 end
 
-function SCIP.select_cuts(cutsel::SecondSelector, scip, cuts::Vector{Ptr{SCIP.SCIP_ROW}}, forced_cuts::Vector{Ptr{SCIP.SCIP_ROW}}, root::Bool, maxnslectedcuts::Integer)
+function SCIP.select_cuts(
+    cutsel::SecondSelector,
+    scip,
+    cuts::Vector{Ptr{SCIP.SCIP_ROW}},
+    forced_cuts::Vector{Ptr{SCIP.SCIP_ROW}},
+    root::Bool,
+    maxnslectedcuts::Integer,
+)
     rem_cuts = Set{Ptr{SCIP.SCIP_ROW}}()
     for cut in cuts
         for fcut in forced_cuts
@@ -86,7 +106,7 @@ function SCIP.select_cuts(cutsel::SecondSelector, scip, cuts::Vector{Ptr{SCIP.SC
         end
         return SCIP.LibSCIP.SCIPgetCutEfficacy(scip, C_NULL, cut)
     end
-    sort!(cuts, by=sorting_function, rev=true)
+    sort!(cuts, by = sorting_function, rev = true)
     nselected_cuts = min(cutsel.nmax_cuts, maxnslectedcuts)
     nselected_cuts = max(nselected_cuts, 0)
     nselected_cuts = min(nselected_cuts, length(cuts) - length(rem_cuts))
@@ -96,14 +116,20 @@ end
 
 @testset "test cut selector parallelism" begin
     # removing presolving to solve a non-trivial problem that requires some separation
-    o = SCIP.Optimizer(presolving_maxrounds=0)
+    o = SCIP.Optimizer(presolving_maxrounds = 0)
     MOI.set(o, MOI.Silent(), true)
 
     cutsel = SecondSelector(o, 10, 0, 0.05)
     name = "my_cut_selector_parallelism"
     description = "a selector using efficacy and parallelism"
     priority = 15_000
-    SCIP.include_cutsel(o, cutsel, name=name, description=description, priority=priority)
+    SCIP.include_cutsel(
+        o,
+        cutsel,
+        name = name,
+        description = description,
+        priority = priority,
+    )
     cutsel_pointer = o.inner.cutsel_storage[cutsel]
     @test unsafe_string(SCIP.LibSCIP.SCIPcutselGetName(cutsel_pointer)) == name
     @test unsafe_string(SCIP.LibSCIP.SCIPcutselGetDesc(cutsel_pointer)) == description
@@ -114,8 +140,8 @@ end
     MOI.add_constraint.(o, x, MOI.Integer())
     MOI.add_constraint.(o, x, MOI.GreaterThan(-0.1))
     MOI.add_constraint.(o, x, MOI.LessThan(2.3))
-    MOI.add_constraint(o, sum(x, init=0.0), MOI.LessThan(12.5))
-    for _ in 1:5
+    MOI.add_constraint(o, sum(x, init = 0.0), MOI.LessThan(12.5))
+    for _ = 1:5
         MOI.add_constraint(o, 2.0 * dot(rand(10), x), MOI.LessThan(10.0 + 2 * rand()))
     end
     func = -dot(rand(10), x)
@@ -128,7 +154,7 @@ end
 end
 
 @testset "test default hybrid cut selector" begin
-    o = SCIP.Optimizer(presolving_maxrounds=0)
+    o = SCIP.Optimizer(presolving_maxrounds = 0)
     MOI.set(o, MOI.Silent(), true)
 
     cutsel = SCIP.HybridCutSelector()
@@ -136,7 +162,13 @@ end
     name = "hybrid_cut_selector"
     description = "default cut selector"
     priority = 15_000
-    SCIP.include_cutsel(o, cutsel, name=name, description=description, priority=priority)
+    SCIP.include_cutsel(
+        o,
+        cutsel,
+        name = name,
+        description = description,
+        priority = priority,
+    )
     cutsel_pointer = o.inner.cutsel_storage[cutsel]
     @test unsafe_string(SCIP.LibSCIP.SCIPcutselGetName(cutsel_pointer)) == name
     @test unsafe_string(SCIP.LibSCIP.SCIPcutselGetDesc(cutsel_pointer)) == description
@@ -147,8 +179,8 @@ end
     MOI.add_constraint.(o, x, MOI.Integer())
     MOI.add_constraint.(o, x, MOI.GreaterThan(-0.1))
     MOI.add_constraint.(o, x, MOI.LessThan(2.3))
-    MOI.add_constraint(o, sum(x, init=0.0), MOI.LessThan(12.5))
-    for _ in 1:5
+    MOI.add_constraint(o, sum(x, init = 0.0), MOI.LessThan(12.5))
+    for _ = 1:5
         MOI.add_constraint(o, 2.0 * dot(rand(10), x), MOI.LessThan(10.0 + 2 * rand()))
     end
     func = -dot(rand(10), x)

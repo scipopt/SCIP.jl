@@ -76,9 +76,12 @@ function exec_lp end
 """
 Generic `exec_lp` function, matching the signature from SCIP's C API.
 """
-function _sepaexeclp(scip::Ptr{SCIP_}, sepa::Ptr{SCIP_SEPA},
-                     result::Ptr{SCIP_RESULT},
-                     allowlocal::SCIP_Bool)
+function _sepaexeclp(
+    scip::Ptr{SCIP_},
+    sepa::Ptr{SCIP_SEPA},
+    result::Ptr{SCIP_RESULT},
+    allowlocal::SCIP_Bool,
+)
     # get Julia object out of separator data
     sepadata::Ptr{SCIP_SEPADATA} = SCIPsepaGetData(sepa)
     separator = unsafe_pointer_to_objref(sepadata)
@@ -126,12 +129,24 @@ end
 
 Include a user defined separator `sepa` to the SCIP instance `scip`.
 """
-function include_sepa(scip::Ptr{SCIP_}, sepas::Dict{Any, Ptr{SCIP_SEPA}}, sepa::SEPA;
-                      name="", description="", priority=0, freq=1,
-                      maxbounddist=0.0, usessubscip=false,
-                      delay=false) where {SEPA <: AbstractSeparator}
+function include_sepa(
+    scip::Ptr{SCIP_},
+    sepas::Dict{Any,Ptr{SCIP_SEPA}},
+    sepa::SEPA;
+    name = "",
+    description = "",
+    priority = 0,
+    freq = 1,
+    maxbounddist = 0.0,
+    usessubscip = false,
+    delay = false,
+) where {SEPA<:AbstractSeparator}
     # Get C function pointers from Julia functions
-    _execlp = @cfunction(_sepaexeclp, SCIP_RETCODE, (Ptr{SCIP_}, Ptr{SCIP_SEPA}, Ptr{SCIP_RESULT}, SCIP_Bool))
+    _execlp = @cfunction(
+        _sepaexeclp,
+        SCIP_RETCODE,
+        (Ptr{SCIP_}, Ptr{SCIP_SEPA}, Ptr{SCIP_RESULT}, SCIP_Bool)
+    )
     _execsol = C_NULL
 
     # Store pointer to SCIP structure (for future C API calls)
@@ -146,19 +161,30 @@ function include_sepa(scip::Ptr{SCIP_}, sepas::Dict{Any, Ptr{SCIP_SEPA}}, sepa::
     end
 
     # Register separator with SCIP instance.
-    @SCIP_CALL SCIPincludeSepaBasic(scip, sepa__, name, description,
-                             priority, freq, maxbounddist,
-                             usessubscip, delay,
-                             _execlp, _execsol,
-                             sepadata_)
+    @SCIP_CALL SCIPincludeSepaBasic(
+        scip,
+        sepa__,
+        name,
+        description,
+        priority,
+        freq,
+        maxbounddist,
+        usessubscip,
+        delay,
+        _execlp,
+        _execsol,
+        sepadata_,
+    )
 
     # Sanity checks
     @assert sepa__[] != C_NULL
 
     # Set additional callbacks.
     @SCIP_CALL SCIPsetSepaFree(
-        scip, sepa__[],
-        @cfunction(_sepafree, SCIP_RETCODE, (Ptr{SCIP_}, Ptr{SCIP_SEPA})))
+        scip,
+        sepa__[],
+        @cfunction(_sepafree, SCIP_RETCODE, (Ptr{SCIP_}, Ptr{SCIP_SEPA}))
+    )
 
     # Register separator (for GC-protection and mapping).
     sepas[sepa] = sepa__[]
@@ -189,22 +215,40 @@ associated to the separator `sepa`.
 - modifiable: is row modifiable during node processing (subject to column generation)?
 - removable: should the row be removed from the LP due to aging or cleanup?
 """
-function add_cut_sepa(scip::Ptr{SCIP_}, vars::Dict{VarRef, Ref{Ptr{SCIP_VAR}}}, sepas::Dict{Any, Ptr{SCIP_SEPA}},
-                      sepa::SEPA, varrefs, coefs, lhs, rhs;
-                      islocal=false, modifiable=false, removable=true
-                     ) where {SEPA <: AbstractSeparator}
+function add_cut_sepa(
+    scip::Ptr{SCIP_},
+    vars::Dict{VarRef,Ref{Ptr{SCIP_VAR}}},
+    sepas::Dict{Any,Ptr{SCIP_SEPA}},
+    sepa::SEPA,
+    varrefs,
+    coefs,
+    lhs,
+    rhs;
+    islocal = false,
+    modifiable = false,
+    removable = true,
+) where {SEPA<:AbstractSeparator}
     @assert length(varrefs) == length(coefs)
     vars = [vars[vr][] for vr in varrefs]
     row__ = Ref{Ptr{SCIP_ROW}}(C_NULL)
     sepa__ = sepas[sepa]
     @SCIP_CALL SCIPcreateEmptyRowSepa(
-        scip, row__, sepa__, "", lhs, rhs, islocal, modifiable, removable)
+        scip,
+        row__,
+        sepa__,
+        "",
+        lhs,
+        rhs,
+        islocal,
+        modifiable,
+        removable,
+    )
     @SCIP_CALL SCIPaddVarsToRow(scip, row__[], length(vars), vars, coefs)
     if islocal
-      infeasible = Ref{SCIP_Bool}()
-      @SCIP_CALL SCIPaddRow(scip, row__[], true, infeasible)
+        infeasible = Ref{SCIP_Bool}()
+        @SCIP_CALL SCIPaddRow(scip, row__[], true, infeasible)
     else
-      @SCIP_CALL SCIPaddPoolCut(scip, row__[])
+        @SCIP_CALL SCIPaddPoolCut(scip, row__[])
     end
     @SCIP_CALL SCIPreleaseRow(scip, row__)
 end

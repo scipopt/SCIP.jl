@@ -19,13 +19,29 @@ Include a user defined separator `sepa` to the SCIP optimizer instance `o`.
 
 All parameters have default values, that can be set as keyword arguments.
 """
-function include_sepa(o::Optimizer, sepa::SEPA;
-                      name="", description="", priority=0, freq=1,
-                      maxbounddist=0.0, usessubscip=false,
-                      delay=false) where {SEPA <: AbstractSeparator}
-    include_sepa(o.inner.scip[], o.inner.sepas, sepa, name=name, description=description,
-                 priority=priority, freq=freq, maxbounddist=maxbounddist,
-                 usessubscip=usessubscip, delay=delay)
+function include_sepa(
+    o::Optimizer,
+    sepa::SEPA;
+    name = "",
+    description = "",
+    priority = 0,
+    freq = 1,
+    maxbounddist = 0.0,
+    usessubscip = false,
+    delay = false,
+) where {SEPA<:AbstractSeparator}
+    include_sepa(
+        o.inner.scip[],
+        o.inner.sepas,
+        sepa,
+        name = name,
+        description = description,
+        priority = priority,
+        freq = freq,
+        maxbounddist = maxbounddist,
+        usessubscip = usessubscip,
+        delay = delay,
+    )
 end
 
 
@@ -72,21 +88,34 @@ function MOI.set(o::Optimizer, ::MOI.UserCutCallback, cb::Function)
         o.moi_separator = CutCbSeparator(o.inner, cb)
         include_sepa(o, o.moi_separator)
     else
-        o.moi_separator.cutcallback = cb;
+        o.moi_separator.cutcallback = cb
     end
 end
 MOI.supports(::Optimizer, ::MOI.UserCutCallback) = true
 
-function MOI.submit(o::Optimizer, cb_data::MOI.UserCut{CutCbData},
-                    func::SAF, set::S) where {S <: BOUNDS}
+function MOI.submit(
+    o::Optimizer,
+    cb_data::MOI.UserCut{CutCbData},
+    func::SAF,
+    set::S,
+) where {S<:BOUNDS}
     varrefs = [VarRef(t.variable.value) for t in func.terms]
     coefs = [t.coefficient for t in func.terms]
 
     lhs, rhs = bounds(set)
     lhs = lhs === nothing ? -SCIPinfinity(o) : lhs
-    rhs = rhs === nothing ?  SCIPinfinity(o) : rhs
+    rhs = rhs === nothing ? SCIPinfinity(o) : rhs
 
-    add_cut_sepa(o.inner.scip[], o.inner.vars, o.inner.sepas, cb_data.callback_data.sepa, varrefs, coefs, lhs, rhs)
+    add_cut_sepa(
+        o.inner.scip[],
+        o.inner.vars,
+        o.inner.sepas,
+        cb_data.callback_data.sepa,
+        varrefs,
+        coefs,
+        lhs,
+        rhs,
+    )
     cb_data.callback_data.submit_called = true
 end
 MOI.supports(::Optimizer, ::MOI.UserCut{CutCbData}) = true

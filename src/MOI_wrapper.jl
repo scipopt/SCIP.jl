@@ -11,9 +11,13 @@ const SQF = MOI.ScalarQuadraticFunction{Float64}
 const VAF = MOI.VectorAffineFunction{Float64}
 const VECTOR = MOI.VectorOfVariables
 # supported sets
-const BOUNDS = Union{MOI.EqualTo{Float64}, MOI.GreaterThan{Float64},
-                     MOI.LessThan{Float64}, MOI.Interval{Float64}}
-const VAR_TYPES = Union{MOI.ZeroOne, MOI.Integer}
+const BOUNDS = Union{
+    MOI.EqualTo{Float64},
+    MOI.GreaterThan{Float64},
+    MOI.LessThan{Float64},
+    MOI.Interval{Float64},
+}
+const VAR_TYPES = Union{MOI.ZeroOne,MOI.Integer}
 const SOS1 = MOI.SOS1{Float64}
 const SOS2 = MOI.SOS2{Float64}
 # other MOI types
@@ -21,8 +25,8 @@ const AFF_TERM = MOI.ScalarAffineTerm{Float64}
 const QUAD_TERM = MOI.ScalarQuadraticTerm{Float64}
 const VEC_TERM = MOI.VectorAffineTerm{Float64}
 
-const PtrMap = Dict{Ptr{Cvoid}, Union{VarRef, ConsRef}}
-const ConsTypeMap = Dict{Tuple{DataType, DataType}, Set{ConsRef}}
+const PtrMap = Dict{Ptr{Cvoid},Union{VarRef,ConsRef}}
+const ConsTypeMap = Dict{Tuple{DataType,DataType},Set{ConsRef}}
 
 mutable struct Optimizer <: MOI.AbstractOptimizer
     inner::SCIPData
@@ -44,14 +48,24 @@ mutable struct Optimizer <: MOI.AbstractOptimizer
 
         scip_data = SCIPData(scip, Dict(), Dict(), 0, 0, Dict(), Dict(), Dict(), Dict(), [])
 
-        o = new(scip_data, PtrMap(), ConsTypeMap(), Dict(), Dict(), Dict(), nothing, nothing, false)
+        o = new(
+            scip_data,
+            PtrMap(),
+            ConsTypeMap(),
+            Dict(),
+            Dict(),
+            Dict(),
+            nothing,
+            nothing,
+            false,
+        )
         finalizer(free_scip, o)
 
         # Set all parameters given as keyword arguments, replacing the
         # delimiter, since "/" is used by all SCIP parameters, but is not
         # allowed in Julia identifiers.
         for (key, value) in kwargs
-            name = replace(String(key),"_" => "/")
+            name = replace(String(key), "_" => "/")
             MOI.set(o, MOI.RawOptimizerAttribute(name), value)
         end
         return o
@@ -87,12 +101,14 @@ bounds(set::MOI.Interval{Float64}) = (set.lower, set.upper)
 
 "Make set from bounds."
 from_bounds(::Type{MOI.EqualTo{Float64}}, lower, upper) = MOI.EqualTo{Float64}(lower)
-from_bounds(::Type{MOI.GreaterThan{Float64}}, lower, upper) = MOI.GreaterThan{Float64}(lower)
+from_bounds(::Type{MOI.GreaterThan{Float64}}, lower, upper) =
+    MOI.GreaterThan{Float64}(lower)
 from_bounds(::Type{MOI.LessThan{Float64}}, lower, upper) = MOI.LessThan{Float64}(upper)
-from_bounds(::Type{MOI.Interval{Float64}}, lower, upper) = MOI.Interval{Float64}(lower, upper)
+from_bounds(::Type{MOI.Interval{Float64}}, lower, upper) =
+    MOI.Interval{Float64}(lower, upper)
 
 "Register pointer in mapping, return var/cons reference."
-function register!(o::Optimizer, ptr::Ptr{Cvoid}, ref::R) where {R <: Union{VarRef, ConsRef}}
+function register!(o::Optimizer, ptr::Ptr{Cvoid}, ref::R) where {R<:Union{VarRef,ConsRef}}
     @assert !haskey(o.reference, ptr)
     o.reference[ptr] = ref
     return ref
@@ -102,9 +118,9 @@ end
 function register!(o::Optimizer, c::CI{F,S}) where {F,S}
     cr = ConsRef(c.value)
     if haskey(o.constypes, (F, S))
-        push!(o.constypes[F,S], cr)
+        push!(o.constypes[F, S], cr)
     else
-        o.constypes[F,S] = Set([cr])
+        o.constypes[F, S] = Set([cr])
     end
     return c
 end
@@ -123,7 +139,7 @@ MOI.get(::Optimizer, ::MOI.SolverName) = "SCIP"
 
 MOI.supports_incremental_interface(::Optimizer) = true
 
-function _throw_if_invalid(o::Optimizer, ci::CI{F, S}) where {F, S}
+function _throw_if_invalid(o::Optimizer, ci::CI{F,S}) where {F,S}
     if !haskey(o.constypes, (F, S)) || !in(ConsRef(ci.value), o.constypes[F, S])
         throw(MOI.InvalidIndex(ci))
     end
@@ -224,7 +240,7 @@ function MOI.get(o::Optimizer, ::MOI.ListOfConstraintTypesPresent)
     return collect(keys(o.constypes))
 end
 
-function MOI.get(o::Optimizer, ::MOI.ListOfConstraintIndices{F, S}) where {F, S}
+function MOI.get(o::Optimizer, ::MOI.ListOfConstraintIndices{F,S}) where {F,S}
     list_indices = Vector{CI{F,S}}()
     if !haskey(o.constypes, (F, S))
         return list_indices
@@ -232,7 +248,7 @@ function MOI.get(o::Optimizer, ::MOI.ListOfConstraintIndices{F, S}) where {F, S}
     for cref in o.constypes[F, S]
         push!(list_indices, CI{F,S}(cref.val))
     end
-    return sort!(list_indices, by=v->v.value)
+    return sort!(list_indices, by = v -> v.value)
 end
 
 function set_start_values(o::Optimizer)
@@ -267,7 +283,7 @@ function MOI.optimize!(o::Optimizer)
     return nothing
 end
 
-function MOI.delete(o::Optimizer, ci::CI{F, S}) where {F, S}
+function MOI.delete(o::Optimizer, ci::CI{F,S}) where {F,S}
     _throw_if_invalid(o, ci)
     allow_modification(o)
     delete!(o.constypes[F, S], ConsRef(ci.value))
@@ -299,10 +315,7 @@ function MOI.get(o::Optimizer, ::MOI.ListOfModelAttributesSet)
     return ret
 end
 
-function MOI.get(
-    ::Optimizer,
-    ::MOI.ListOfConstraintAttributesSet{F,S},
-) where {F,S}
+function MOI.get(::Optimizer, ::MOI.ListOfConstraintAttributesSet{F,S}) where {F,S}
     attributes = MOI.AbstractConstraintAttribute[]
     if F != MOI.VariableIndex
         return push!(attributes, MOI.ConstraintName())
