@@ -12,6 +12,10 @@ end
 """
 Extract solution values for given variables.
 """
-function sol_values(o::Optimizer, vars::AbstractArray{VI}, sol::Ptr{SCIP_SOL}=C_NULL)
+function sol_values(
+    o::Optimizer,
+    vars::AbstractArray{VI},
+    sol::Ptr{SCIP_SOL}=C_NULL,
+)
     return [SCIPgetSolVal(o, sol, var(o, vi)) for vi in vars]
 end

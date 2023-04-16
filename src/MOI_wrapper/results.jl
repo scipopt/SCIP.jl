@@ -58,13 +58,20 @@ end
 "Make sure that the problem was solved (SCIP is in SOLVED stage)."
 function assert_solved(o::Optimizer)
     # SCIP's stage is SOLVING when stopped by user limit!
-    assert_stage(o, (SCIP_STAGE_PRESOLVING, SCIP_STAGE_SOLVING, SCIP_STAGE_PRESOLVED, SCIP_STAGE_SOLVED))
+    assert_stage(
+        o,
+        (
+            SCIP_STAGE_PRESOLVING,
+            SCIP_STAGE_SOLVING,
+            SCIP_STAGE_PRESOLVED,
+            SCIP_STAGE_SOLVED,
+        ),
+    )
 
     # Check for invalid status (when stage is SOLVING).
     status = SCIPgetStatus(o)
-    if status in (SCIP_STATUS_UNKNOWN,
-                  SCIP_STATUS_USERINTERRUPT,
-                  SCIP_STATUS_TERMINATE)
+    if status in
+       (SCIP_STATUS_UNKNOWN, SCIP_STATUS_USERINTERRUPT, SCIP_STATUS_TERMINATE)
         error("SCIP's solving was interrupted, but not by a user-given limit!")
     end
 end
@@ -93,7 +100,11 @@ function MOI.get(o::Optimizer, attr::MOI.ConstraintPrimal, ci::CI{VI,<:BOUNDS})
     return SCIPgetSolVal(o, sols[attr.result_index], var(o, VI(ci.value)))
 end
 
-function MOI.get(o::Optimizer, attr::MOI.ConstraintPrimal, ci::CI{<:SAF,<:BOUNDS})
+function MOI.get(
+    o::Optimizer,
+    attr::MOI.ConstraintPrimal,
+    ci::CI{<:SAF,<:BOUNDS},
+)
     assert_solved(o)
     MOI.check_result_index_bounds(o, attr)
     sols = unsafe_wrap(Array{Ptr{SCIP_SOL}}, SCIPgetSols(o), SCIPgetNSols(o))
@@ -106,7 +117,10 @@ function MOI.get(o::Optimizer, ::MOI.ObjectiveBound)
 end
 
 function MOI.get(o::Optimizer, ::MOI.RelativeGap)
-    assert_stage(o, [SCIP_STAGE_PRESOLVING, SCIP_STAGE_SOLVING, SCIP_STAGE_SOLVED])
+    assert_stage(
+        o,
+        [SCIP_STAGE_PRESOLVING, SCIP_STAGE_SOLVING, SCIP_STAGE_SOLVED],
+    )
     return SCIPgetGap(o)
 end
 
@@ -115,7 +129,10 @@ function MOI.get(o::Optimizer, ::MOI.SolveTimeSec)
 end
 
 function MOI.get(o::Optimizer, ::MOI.SimplexIterations)
-    assert_stage(o, [SCIP_STAGE_PRESOLVING, SCIP_STAGE_SOLVING, SCIP_STAGE_SOLVED])
+    assert_stage(
+        o,
+        [SCIP_STAGE_PRESOLVING, SCIP_STAGE_SOLVING, SCIP_STAGE_SOLVED],
+    )
     return SCIPgetNLPIterations(o)
 end
 

@@ -13,39 +13,47 @@ mutable struct DummyConsHdlr <: SCIP.AbstractConstraintHandler
 end
 
 # Implement only the fundamental callbacks:
-function SCIP.check(ch::DummyConsHdlr,
-                    constraints::Array{Ptr{SCIP.SCIP_CONS}},
-                    sol::Ptr{SCIP.SCIP_SOL},
-                    checkintegrality::Bool,
-                    checklprows::Bool,
-                    printreason::Bool,
-                    completely::Bool)
+function SCIP.check(
+    ch::DummyConsHdlr,
+    constraints::Array{Ptr{SCIP.SCIP_CONS}},
+    sol::Ptr{SCIP.SCIP_SOL},
+    checkintegrality::Bool,
+    checklprows::Bool,
+    printreason::Bool,
+    completely::Bool,
+)
     ch.check_called += 1
     return SCIP.SCIP_FEASIBLE
 end
 
-function SCIP.enforce_lp_sol(ch::DummyConsHdlr,
-                             constraints::Array{Ptr{SCIP.SCIP_CONS}},
-                             nusefulconss::Cint,
-                             solinfeasible::Bool)
+function SCIP.enforce_lp_sol(
+    ch::DummyConsHdlr,
+    constraints::Array{Ptr{SCIP.SCIP_CONS}},
+    nusefulconss::Cint,
+    solinfeasible::Bool,
+)
     ch.enfo_called += 1
     return SCIP.SCIP_FEASIBLE
 end
 
-function SCIP.enforce_pseudo_sol(ch::DummyConsHdlr,
-                                 constraints::Array{Ptr{SCIP.SCIP_CONS}},
-                                 nusefulconss::Cint,
-                                 solinfeasible::Bool,
-                                 objinfeasible::Bool)
+function SCIP.enforce_pseudo_sol(
+    ch::DummyConsHdlr,
+    constraints::Array{Ptr{SCIP.SCIP_CONS}},
+    nusefulconss::Cint,
+    solinfeasible::Bool,
+    objinfeasible::Bool,
+)
     ch.enfo_called += 1
     return SCIP.SCIP_FEASIBLE
 end
 
-function SCIP.lock(ch::DummyConsHdlr,
-                   constraint::Ptr{SCIP.SCIP_CONS},
-                   locktype::SCIP.SCIP_LOCKTYPE,
-                   nlockspos::Cint,
-                   nlocksneg::Cint)
+function SCIP.lock(
+    ch::DummyConsHdlr,
+    constraint::Ptr{SCIP.SCIP_CONS},
+    locktype::SCIP.SCIP_LOCKTYPE,
+    nlockspos::Cint,
+    nlocksneg::Cint,
+)
     ch.lock_called += 1
 end
 
@@ -53,8 +61,6 @@ end
 mutable struct DummyCons <: SCIP.AbstractConstraint{DummyConsHdlr} end
 
 end # module Dummy
-
-
 
 module NeverSatisfied
 
@@ -68,8 +74,15 @@ mutable struct NSCH <: SCIP.AbstractConstraintHandler
     NSCH() = new(0, 0, 0)
 end
 
-function SCIP.check(ch::NSCH, constraints, sol, checkintegrality,
-                    checklprows, printreason, completely)
+function SCIP.check(
+    ch::NSCH,
+    constraints,
+    sol,
+    checkintegrality,
+    checklprows,
+    printreason,
+    completely,
+)
     ch.check_called += 1
     return SCIP.SCIP_INFEASIBLE
 end
@@ -79,8 +92,13 @@ function SCIP.enforce_lp_sol(ch::NSCH, constraints, nusefulconss, solinfeasible)
     return SCIP.SCIP_INFEASIBLE
 end
 
-function SCIP.enforce_pseudo_sol(ch::NSCH, constraints, nusefulconss,
-                                 solinfeasible, objinfeasible)
+function SCIP.enforce_pseudo_sol(
+    ch::NSCH,
+    constraints,
+    nusefulconss,
+    solinfeasible,
+    objinfeasible,
+)
     ch.enfo_called += 1
     return SCIP.SCIP_INFEASIBLE
 end
@@ -93,8 +111,6 @@ end
 mutable struct Cons <: SCIP.AbstractConstraint{NSCH} end
 
 end # module AlwaysSatisfied
-
-
 
 module NaiveAllDiff
 
@@ -128,8 +144,15 @@ function anyviolated(ch, constraints, sol=C_NULL)
     return false
 end
 
-function SCIP.check(ch::NADCH, constraints, sol, checkintegrality,
-                    checklprows, printreason, completely)
+function SCIP.check(
+    ch::NADCH,
+    constraints,
+    sol,
+    checkintegrality,
+    checklprows,
+    printreason,
+    completely,
+)
     if anyviolated(ch, constraints, sol)
         return SCIP.SCIP_INFEASIBLE
     else
@@ -137,7 +160,12 @@ function SCIP.check(ch::NADCH, constraints, sol, checkintegrality,
     end
 end
 
-function SCIP.enforce_lp_sol(ch::NADCH, constraints, nusefulconss, solinfeasible)
+function SCIP.enforce_lp_sol(
+    ch::NADCH,
+    constraints,
+    nusefulconss,
+    solinfeasible,
+)
     if anyviolated(ch, constraints, C_NULL)
         return SCIP.SCIP_INFEASIBLE
     else
@@ -145,8 +173,13 @@ function SCIP.enforce_lp_sol(ch::NADCH, constraints, nusefulconss, solinfeasible
     end
 end
 
-function SCIP.enforce_pseudo_sol(ch::NADCH, constraints, nusefulconss,
-                                 solinfeasible, objinfeasible)
+function SCIP.enforce_pseudo_sol(
+    ch::NADCH,
+    constraints,
+    nusefulconss,
+    solinfeasible,
+    objinfeasible,
+)
     if anyviolated(ch, constraints, C_NULL)
         return SCIP.SCIP_INFEASIBLE
     else
@@ -166,13 +199,16 @@ function SCIP.lock(ch::NADCH, constraint, locktype, nlockspos, nlocksneg)
         var_ != C_NULL || continue  # avoid segfault!
 
         SCIP.@SCIP_CALL SCIP.SCIPaddVarLocksType(
-            ch.scip, var_, locktype, nlockspos + nlocksneg, nlockspos + nlocksneg)
+            ch.scip,
+            var_,
+            locktype,
+            nlockspos + nlocksneg,
+            nlockspos + nlocksneg,
+        )
     end
 end
 
 end # module NaiveAllDiff
-
-
 
 module NoGoodCounter
 
@@ -189,8 +225,15 @@ mutable struct Counter <: SCIP.AbstractConstraintHandler
     Counter(scip, variables) = new(scip, variables, Set())
 end
 
-function SCIP.check(ch::Counter, constraints, sol, checkintegrality,
-                    checklprows, printreason, completely)
+function SCIP.check(
+    ch::Counter,
+    constraints,
+    sol,
+    checkintegrality,
+    checklprows,
+    printreason,
+    completely,
+)
     return SCIP.SCIP_INFEASIBLE
 end
 
@@ -212,27 +255,40 @@ function enforce(ch::Counter)
         error("Found non-binary solution value for $(vars[others])")
     end
 
-    terms = vcat([MOI.ScalarAffineTerm( 1.0, vi) for vi in ch.variables[zeros]],
-                 [MOI.ScalarAffineTerm(-1.0, vi) for vi in ch.variables[ones]])
-    ci = MOI.add_constraint(ch.scip, MOI.ScalarAffineFunction(terms, 0.0),
-                            MOI.GreaterThan(1.0 - sum(ones)))
+    terms = vcat(
+        [MOI.ScalarAffineTerm(1.0, vi) for vi in ch.variables[zeros]],
+        [MOI.ScalarAffineTerm(-1.0, vi) for vi in ch.variables[ones]],
+    )
+    ci = MOI.add_constraint(
+        ch.scip,
+        MOI.ScalarAffineFunction(terms, 0.0),
+        MOI.GreaterThan(1.0 - sum(ones)),
+    )
 
     return SCIP.SCIP_CONSADDED
 end
 
-function SCIP.enforce_lp_sol(ch::Counter, constraints, nusefulconss,
-                             solinfeasible)
+function SCIP.enforce_lp_sol(
+    ch::Counter,
+    constraints,
+    nusefulconss,
+    solinfeasible,
+)
     @assert length(constraints) == 0
     return enforce(ch)
 end
 
-function SCIP.enforce_pseudo_sol(ch::Counter, constraints, nusefulconss,
-                                 solinfeasible, objinfeasible)
+function SCIP.enforce_pseudo_sol(
+    ch::Counter,
+    constraints,
+    nusefulconss,
+    solinfeasible,
+    objinfeasible,
+)
     @assert length(constraints) == 0
     return enforce(ch)
 end
 
-function SCIP.lock(ch::Counter, constraint, locktype, nlockspos, nlocksneg)
-end
+function SCIP.lock(ch::Counter, constraint, locktype, nlockspos, nlocksneg) end
 
 end # module NoGoodCounter
