@@ -14,7 +14,7 @@ function MOI.set(o::Optimizer, ::MOI.ConstraintName, ci::CI{VI}, name::String)
     return nothing
 end
 
-function MOI.is_valid(o::Optimizer, c::CI{F, S}) where {F, S}
+function MOI.is_valid(o::Optimizer, c::CI{F,S}) where {F,S}
     cons_set = get(o.constypes, (F, S), nothing)
     if cons_set === nothing
         return false

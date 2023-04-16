@@ -21,9 +21,15 @@
 
     # add variable: x >= 0, objcoef: 1
     var__ = Ref{Ptr{SCIP.SCIP_VAR}}()
-    rc = SCIP.SCIPcreateVarBasic(scip_, var__, "x",
-                                 0.0, SCIP.SCIPinfinity(scip_),
-                                 1.0, SCIP.SCIP_VARTYPE_CONTINUOUS)
+    rc = SCIP.SCIPcreateVarBasic(
+        scip_,
+        var__,
+        "x",
+        0.0,
+        SCIP.SCIPinfinity(scip_),
+        1.0,
+        SCIP.SCIP_VARTYPE_CONTINUOUS,
+    )
     @test rc == SCIP.SCIP_OKAY
     var_ = var__[]
     @test var_ != C_NULL
@@ -32,8 +38,16 @@
 
     # add constraint: 2x >= 3   ( really: 3 <= 2 * x <= inf )
     cons__ = Ref{Ptr{SCIP.SCIP_CONS}}()
-    rc = SCIP.SCIPcreateConsBasicLinear(scip_, cons__, "c", 0, C_NULL, C_NULL,
-                                        3.0, SCIP.SCIPinfinity(scip_))
+    rc = SCIP.SCIPcreateConsBasicLinear(
+        scip_,
+        cons__,
+        "c",
+        0,
+        C_NULL,
+        C_NULL,
+        3.0,
+        SCIP.SCIPinfinity(scip_),
+    )
     @test rc == SCIP.SCIP_OKAY
     cons_ = cons__[]
     @test cons_ != C_NULL
@@ -63,9 +77,9 @@ end
 
 @testset "SCIP_CALL macro (@SCIP_CALL)" begin
     # should do nothing
-    @SCIP.SCIP_CALL SCIP.SCIP_OKAY
+    SCIP.@SCIP_CALL SCIP.SCIP_OKAY
 
-    @test_throws ErrorException @SCIP.SCIP_CALL SCIP.SCIP_ERROR
+    @test_throws ErrorException SCIP.@SCIP_CALL SCIP.SCIP_ERROR
 
     f() = SCIP.SCIP_OKAY
     g(args...) = SCIP.SCIP_ERROR

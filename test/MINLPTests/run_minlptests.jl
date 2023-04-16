@@ -5,25 +5,29 @@ using MINLPTests, JuMP, SCIP, Test
     LinearAlgebra.BLAS.lbt_forward(OpenBLAS32_jll.libopenblas_path)
 end
 
-const OPTIMIZER = JuMP.optimizer_with_attributes(
-    SCIP.Optimizer, "display/verblevel" => 0)
+const OPTIMIZER =
+    JuMP.optimizer_with_attributes(SCIP.Optimizer, "display/verblevel" => 0)
 const OBJTOL = 1e-4
 const PRIMALTOL = 1e-3
 const DUALTOL = NaN  # to disable the query
 
 MINLPTests.test_directory(
-    "nlp", OPTIMIZER,
-    objective_tol=OBJTOL, primal_tol=PRIMALTOL, dual_tol=DUALTOL,
+    "nlp",
+    OPTIMIZER;
+    objective_tol=OBJTOL,
+    primal_tol=PRIMALTOL,
+    dual_tol=DUALTOL,
     termination_target=MINLPTests.TERMINATION_TARGET_GLOBAL,
     primal_target=MINLPTests.PRIMAL_TARGET_GLOBAL,
-    include=[
-        "005_010",
-        "007_010",
-    ])
+    include=["005_010", "007_010"],
+)
 
 MINLPTests.test_directory(
-    "nlp-cvx", OPTIMIZER,
-    objective_tol=OBJTOL, primal_tol=PRIMALTOL, dual_tol=DUALTOL,
+    "nlp-cvx",
+    OPTIMIZER;
+    objective_tol=OBJTOL,
+    primal_tol=PRIMALTOL,
+    dual_tol=DUALTOL,
     termination_target=MINLPTests.TERMINATION_TARGET_GLOBAL,
     primal_target=MINLPTests.PRIMAL_TARGET_GLOBAL,
     include=[
@@ -54,15 +58,16 @@ MINLPTests.test_directory(
         "203_010",
         "204_010",
         "205_010",
-    ])
+    ],
+)
 
 MINLPTests.test_directory(
-    "nlp-mi", OPTIMIZER,
-    objective_tol=OBJTOL, primal_tol=PRIMALTOL, dual_tol=DUALTOL,
+    "nlp-mi",
+    OPTIMIZER;
+    objective_tol=OBJTOL,
+    primal_tol=PRIMALTOL,
+    dual_tol=DUALTOL,
     termination_target=MINLPTests.TERMINATION_TARGET_GLOBAL,
     primal_target=MINLPTests.PRIMAL_TARGET_GLOBAL,
-    include=[
-        "005_010",
-        "007_010",
-        "007_020",
-])
+    include=["005_010", "007_010", "007_020"],
+)
