@@ -43,8 +43,9 @@ mutable struct SCIPData
     # corresponding SCIP objects.
     sepas::Dict{Any,Ptr{SCIP_SEPA}}
 
-    # User-defined cut selector
+    # User-defined cut selectors and branching rules
     cutsel_storage::Dict{Any,Ptr{SCIP_CUTSEL}}
+    branchrule_storage::Dict{Any,Ptr{SCIP_BRANCHRULE}}
 
     # to store expressions for release
     nonlinear_storage::Vector{NonlinExpr}
