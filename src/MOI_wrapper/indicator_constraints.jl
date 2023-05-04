@@ -53,10 +53,22 @@ function MOI.get(
         SCIPgetVarsLinear(o, linear_cons),
         nvars,
     )
+
+    scalar = Ref(1.0)
+    constant = Ref(0.0)
+    orig_vars = []
+    for i in 1:nvars
+        @assert scalar.x == 1.0 
+        @assert constant.x == 0.0
+        var = Ref(vars[i])
+        @SCIP_CALL SCIPvarGetOrigvarSum(var, scalar, constant)
+        push!(orig_vars, var[])
+    end
+
     vals = unsafe_wrap(Array{Float64}, SCIPgetValsLinear(o, linear_cons), nvars)
     aff_terms = [
-        AFF_TERM(vals[i], VI(ref(o, vars[i]).val)) for
-        i in 1:nvars if vars[i] != slack_var
+        AFF_TERM(vals[i], VI(ref(o, orig_vars[i]).val)) for
+        i in 1:nvars if orig_vars[i] != slack_var
     ]
 
     ind_terms = [VEC_TERM(1, AFF_TERM(1.0, VI(ref(o, bin_var).val)))]

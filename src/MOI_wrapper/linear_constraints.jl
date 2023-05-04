@@ -54,9 +54,21 @@ function MOI.get(
     c = cons(o, ci)
     nvars::Int = SCIPgetNVarsLinear(o, c)
     vars = unsafe_wrap(Array{Ptr{SCIP_VAR}}, SCIPgetVarsLinear(o, c), nvars)
+
+    scalar = Ref(1.0)
+    constant = Ref(0.0)
+    orig_vars = []
+    for i in 1:nvars
+        @assert scalar.x == 1.0 
+        @assert constant.x == 0.0
+        var = Ref(vars[i])
+        @SCIP_CALL SCIPvarGetOrigvarSum(var, scalar, constant)
+        push!(orig_vars, var[])
+    end
+
     vals = unsafe_wrap(Array{Float64}, SCIPgetValsLinear(o, c), nvars)
 
-    terms = [AFF_TERM(vals[i], VI(ref(o, vars[i]).val)) for i in 1:nvars]
+    terms = [AFF_TERM(vals[i], VI(ref(o, orig_vars[i]).val)) for i in 1:nvars]
     # can not identify constant anymore (is merged with lhs,rhs)
     return SAF(terms, 0.0)
 end
