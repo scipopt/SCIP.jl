@@ -389,3 +389,16 @@ end
 function MOI.set(::Optimizer, ::MOI.ConstraintFunction, ::CI{VI}, ::VI)
     throw(MOI.SettingVariableIndexNotAllowed())
 end
+
+function get_original_variables(vars::Array{Ptr{SCIP_VAR}}, nvars::Int)
+    scalar = Ref(1.0)
+    constant = Ref(0.0)
+    orig_vars = map(1:nvars) do i
+        var = Ref(vars[i])
+        @SCIP_CALL SCIPvarGetOrigvarSum(var, scalar, constant)
+        @assert scalar[] == 1.0 
+        @assert constant[] == 0.0
+        var[]
+    end
+    return orig_vars
+end

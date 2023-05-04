@@ -56,7 +56,9 @@ function MOI.get(
     vars = unsafe_wrap(Array{Ptr{SCIP_VAR}}, SCIPgetVarsLinear(o, c), nvars)
     vals = unsafe_wrap(Array{Float64}, SCIPgetValsLinear(o, c), nvars)
 
-    terms = [AFF_TERM(vals[i], VI(ref(o, vars[i]).val)) for i in 1:nvars]
+    orig_vars = get_original_variables(vars, nvars)
+
+    terms = [AFF_TERM(vals[i], VI(ref(o, orig_vars[i]).val)) for i in 1:nvars]
     # can not identify constant anymore (is merged with lhs,rhs)
     return SAF(terms, 0.0)
 end
