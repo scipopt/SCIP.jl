@@ -54,16 +54,7 @@ function MOI.get(
         nvars,
     )
 
-    scalar = Ref(1.0)
-    constant = Ref(0.0)
-    orig_vars = []
-    for i in 1:nvars
-        @assert scalar.x == 1.0 
-        @assert constant.x == 0.0
-        var = Ref(vars[i])
-        @SCIP_CALL SCIPvarGetOrigvarSum(var, scalar, constant)
-        push!(orig_vars, var[])
-    end
+    orig_vars = get_original_variables(vars, nvars)
 
     vals = unsafe_wrap(Array{Float64}, SCIPgetValsLinear(o, linear_cons), nvars)
     aff_terms = [
