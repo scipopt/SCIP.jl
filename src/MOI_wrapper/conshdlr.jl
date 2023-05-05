@@ -118,3 +118,20 @@ function include_cutsel(
         priority=priority,
     )
 end
+
+function include_branchrule(
+    o::Optimizer,
+    branchrule::BR;
+    name="",
+    description="",
+    priority=10000,
+) where {BR<:AbstractBranchingRule}
+    return include_branchrule(
+        o.inner.scip[],
+        branchrule,
+        o.inner.branchrule_storage;
+        name=name,
+        description=description,
+        priority=priority,
+    )
+end

@@ -73,13 +73,13 @@ function get_branching_candidates(scip)
     )
     @assert lpcands[] != C_NULL
     @assert nlpcands[] > 0
-    @assert npriolpcands[] > 0
-    candidates = unsafe_wrap(Vector, lpcands[], nlpcands)
+    @assert npriolpcands[] >= 0
+    candidates = unsafe_wrap(Array, lpcands[], nlpcands[])
     @assert lpcandssol[] != C_NULL
-    candidates_values = unsafe_wrap(Vector, lpcandssol[], nlpcands)
+    candidates_values = unsafe_wrap(Array, lpcandssol[], nlpcands[])
     @assert lpcandsfrac[] != C_NULL
-    candidates_fractionalities = unsafe_wrap(Vector, lpcandsfrac[], nlpcands)
-    @assert nfracimplvars[] > 0
+    candidates_fractionalities = unsafe_wrap(Array, lpcandsfrac[], nlpcands[])
+    @assert nfracimplvars[] >= 0
 
     return (
         candidates,
@@ -114,6 +114,7 @@ function _branchrule_exec_lp(scip::Ptr{SCIP_}, branchrule_::Ptr{SCIP_BRANCHRULE}
         return retcode
     end
     unsafe_store!(result_, result)
+    return retcode
 end
 
 function _branchrule_exec_ps(scip::Ptr{SCIP_}, branchrule_::Ptr{SCIP_BRANCHRULE}, allowaddcons::SCIP_Bool, result_::Ptr{SCIP_RESULT})
@@ -124,6 +125,7 @@ function _branchrule_exec_ps(scip::Ptr{SCIP_}, branchrule_::Ptr{SCIP_BRANCHRULE}
         return retcode
     end
     unsafe_store!(result_, result)
+    return retcode
 end
 
 function _branchrule_exec_external(scip::Ptr{SCIP_}, branchrule_::Ptr{SCIP_BRANCHRULE}, allowaddcons::SCIP_Bool, result_::Ptr{SCIP_RESULT})
@@ -134,6 +136,7 @@ function _branchrule_exec_external(scip::Ptr{SCIP_}, branchrule_::Ptr{SCIP_BRANC
         return retcode
     end
     unsafe_store!(result_, result)
+    return retcode
 end
 
 """
@@ -166,7 +169,7 @@ function include_branchrule(
     end
 
     branchruledata_ = pointer_from_objref(branchrule)
-    _branchrule_exec_lp(scip::Ptr{SCIP_}, branchrule_::Ptr{SCIP_BRANCHRULE}, allowaddcons::SCIP_Bool, result_::Ptr{SCIP_RESULT})
+
     branchrule_callback_lp = @cfunction(
         _branchrule_exec_lp,
         SCIP_RETCODE,
