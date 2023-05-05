@@ -41,6 +41,9 @@ end
 @testset "cut callbacks" begin
     include("cutcallback.jl")
 end
+@testset "branching rule" begin
+    include("branchrule.jl")
+end
 
 const MOI_BASE_EXCLUDED = [
     "Indicator_LessThan", # indicator must be binary error in SCIP
