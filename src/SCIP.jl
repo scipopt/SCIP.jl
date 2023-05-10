@@ -18,6 +18,9 @@ include("sepa.jl")
 # cut selectors
 include("cut_selector.jl")
 
+# branching rule
+include("branching_rule.jl")
+
 # constraint handlers
 include("conshdlr.jl")
 
