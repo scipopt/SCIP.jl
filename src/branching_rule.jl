@@ -3,11 +3,15 @@
 
 """
 Abstract class for branching rule.
-A branching rule must implement `select_branching_candidate`.
+A branching rule must implement the `branch` method.
 It also stores all user data that must be available to select a branching variable.
 """
 abstract type AbstractBranchingRule end
 
+"""
+The type of solution we branch on.
+The three subtypes are BranchingLP, BranchingPseudoSolution, BranchingExternalCandidate
+"""
 abstract type BranchingType end
 
 """
@@ -37,7 +41,7 @@ is allowed to add constraints to the current node in order to cut off the curren
 That method must return a tuple (return_code::LibSCIP.SCIP_RETCODE, result::SCIP.LibSCIP.SCIP_RESULT).
 If no branching was performed, use `SCIP_DIDNOTRUN` as a result to pass on to the following branching rule.
 
-`type` is the type of branching to perform, i.e. on LP solution, pseudo-solution or external candidate.
+`type` is the `BranchingType` to branch on, i.e. on LP solution, pseudo-solution or external candidate.
 """
 function branch(branching_rule::AbstractBranchingRule, scip, allow_additional_constraints, type::BranchingType)
     return (LibSCIP.SCIP_OKAY, LibSCIP.SCIP_DIDNOTRUN)
@@ -104,6 +108,7 @@ end
 
 #####
 # Low-level SCIP callbacks
+## These are defined here to match the C function signature expected by SCIP
 #####
 
 function _branchrule_exec_lp(scip::Ptr{SCIP_}, branchrule_::Ptr{SCIP_BRANCHRULE}, allowaddcons::SCIP_Bool, result_::Ptr{SCIP_RESULT})
