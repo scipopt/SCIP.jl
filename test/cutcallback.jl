@@ -100,7 +100,7 @@ end
     MOI.set(
         optimizer,
         MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(),
-        MOI.ScalarAffineFunction(1.0 * x + 1.0 * y),
+        1.0 * x + 1.0 * y,
     )
     MOI.set(optimizer, MOI.ObjectiveSense(), MOI.MAX_SENSE)
 
@@ -109,7 +109,7 @@ end
         MOI.submit(
             optimizer,
             MOI.UserCut{SCIP.CutCbData}(cb_data),
-            MOI.ScalarAffineFunction(1.0 * x),
+            1.0 * x,
             MOI.LessThan(0.0),
         )
         calls += 1
