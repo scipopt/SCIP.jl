@@ -2,3 +2,4 @@ comment: false
 ignore:
   - "**/compat.jl"
   - "**/wrapper/*.jl"
+  - "**LibSCIP.jl"

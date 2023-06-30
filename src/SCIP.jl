@@ -3,6 +3,7 @@ module SCIP
 # assorted utility functions
 include("util.jl")
 
+
 # load deps, version check
 include("init.jl")
 
@@ -12,13 +13,12 @@ include("wrapper.jl")
 # memory management
 include("scip_data.jl")
 
-# separators
 include("sepa.jl")
 
-# cut selectors
 include("cut_selector.jl")
 
-# branching rule
+include("heuristic.jl")
+
 include("branching_rule.jl")
 
 # constraint handlers

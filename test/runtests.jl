@@ -44,6 +44,9 @@ end
 @testset "branching rule" begin
     include("branchrule.jl")
 end
+@testset "heuristic" begin
+    include("heuristic.jl")
+end
 
 const MOI_BASE_EXCLUDED = [
     "Indicator_LessThan", # indicator must be binary error in SCIP

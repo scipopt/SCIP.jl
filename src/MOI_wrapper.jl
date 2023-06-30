@@ -57,6 +57,7 @@ mutable struct Optimizer <: MOI.AbstractOptimizer
             Dict(),
             Dict(),
             Dict(),
+            Dict(),
             [],
         )
 
@@ -238,7 +239,7 @@ function MOI.empty!(o::Optimizer)
     @SCIP_CALL SCIP.SCIPcreateProbBasic(scip[], "")
     # create a new problem
     o.inner =
-        SCIPData(scip, Dict(), Dict(), 0, 0, Dict(), Dict(), Dict(), Dict(), Dict(), [])
+        SCIPData(scip, Dict(), Dict(), 0, 0, Dict(), Dict(), Dict(), Dict(), Dict(), Dict(), [])
     # reapply parameters
     for pair in o.params
         set_parameter(o.inner, pair.first, pair.second)
@@ -371,3 +372,4 @@ include(joinpath("MOI_wrapper", "objective.jl"))
 include(joinpath("MOI_wrapper", "results.jl"))
 include(joinpath("MOI_wrapper", "conshdlr.jl"))
 include(joinpath("MOI_wrapper", "sepa.jl"))
+include(joinpath("MOI_wrapper", "heuristic.jl"))
