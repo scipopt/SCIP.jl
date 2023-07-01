@@ -117,7 +117,7 @@ end
     MOI.set(optimizer, MOI.UserCutCallback(), cutcallback)
 
     # solve the problem
-    SCIP.@SCIP_CALL SCIP.SCIPsolve(inner.scip[])
+    MOI.optimize!(optimizer)
 
     # The cut callback was called.
     @test calls >= 1
@@ -131,9 +131,6 @@ end
         rtol
     @test MOI.get(optimizer, MOI.VariablePrimal(), y) ≈ 1.0 atol = atol rtol =
         rtol
-
-    # free the problem
-    finalize(inner)
 end
 
 # Test, whether adding cuts within cut callbacks via `submit` works [2/2].
@@ -184,7 +181,7 @@ end
     MOI.set(optimizer, MOI.UserCutCallback(), cutcallback)
 
     # solve the problem
-    SCIP.@SCIP_CALL SCIP.SCIPsolve(inner.scip[])
+    MOI.optimize!(optimizer)
 
     # The cut callback was called.
     @test calls >= 1
@@ -198,7 +195,4 @@ end
         rtol
     @test MOI.get(optimizer, MOI.VariablePrimal(), y) ≈ 0.0 atol = atol rtol =
         rtol
-
-    # free the problem
-    finalize(inner)
 end
