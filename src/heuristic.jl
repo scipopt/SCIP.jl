@@ -15,14 +15,13 @@ abstract type Heuristic end
         heurtiming::Heurtiming,
         nodeinfeasible::Bool,
         heur_ptr::Ptr{SCIP_HEUR},
-    ) -> (retcode, result, solutions)
+    ) -> (retcode, result)
 
 It must attempt to find primal solution(s).
 `retcode` indicates whether the selection went well.
 A typical result would be `SCIP_SUCCESS`, and retcode `SCIP_OKAY`.
-`solutions` is a vector of added SCIP_SOL pointers.
-Use the methods `create_scipsol` and `SCIPsetSolVal` to build solutions.
-Do not add them to SCIP directly (i.e. do not call `SCIPtrySolFree`).
+Use the methods `create_empty_scipsol` and `SCIPsetSolVal` to build solutions.
+Submit it to SCIP with `SCIPtrySolFree`
 """
 function find_primal_solution(scip, heur, heurtiming, nodeinfeasible, heur_ptr) end
 
@@ -36,44 +35,16 @@ function _find_primal_solution_callback(
     heurdata::Ptr{SCIP_HEURDATA} = SCIPheurGetData(heur_)
     heur = unsafe_pointer_to_objref(heurdata)
     nodeinfeasible = nodeinfeasible_ == SCIP.TRUE
-    (retcode, result, solutions) = find_primal_solution(
+    (retcode, result) = find_primal_solution(
         scip,
         heur,
         heurtiming,
         nodeinfeasible,
         heur_,
-    )::Tuple{SCIP_RETCODE,SCIP_RESULT,Vector{Ptr{SCIP_SOL}}}
+    )::Tuple{SCIP_RETCODE,SCIP_RESULT}
     if retcode != SCIP_OKAY
         return retcode
     end
-    if result == SCIP_FOUNDSOL
-        @assert length(solutions) > 0
-    end
-    found_solution = false
-    for sol in solutions
-        stored = Ref{SCIP_Bool}(SCIP.FALSE)
-        @SCIP_CALL SCIPtrySolFree(
-            scip,
-            Ref(sol),
-            SCIP.FALSE,
-            SCIP.FALSE,
-            SCIP.TRUE,
-            SCIP.TRUE,
-            SCIP.TRUE,
-            stored, 
-	    )
-        if stored[] != SCIP.TRUE
-            @warn "Primal solution not feasible"
-        else
-            found_solution = true
-        end
-    end
-    result = if found_solution
-        SCIP_FOUNDSOL
-    else
-        SCIP_DIDNOTFIND
-    end
-
     unsafe_store!(result_, result)
     return retcode
 end
@@ -159,10 +130,10 @@ function include_heuristic(
 end
 
 """
-create_scipsol(scip::Ptr{SCIP_}, heur_::Ptr{SCIP_HEUR}) -> Ptr{SCIP_SOL}
-Convenience wrapper to create a 
+create_empty_scipsol(scip::Ptr{SCIP_}, heur_::Ptr{SCIP_HEUR}) -> Ptr{SCIP_SOL}
+Convenience wrapper to create an empty solution
 """
-function create_scipsol(scip::Ptr{SCIP_}, heur_::Ptr{SCIP_HEUR})
+function create_empty_scipsol(scip::Ptr{SCIP_}, heur_::Ptr{SCIP_HEUR})
     sol__ = Ref{Ptr{SCIP_SOL}}(C_NULL)
     @SCIP_CALL SCIPcreateSol(scip, sol__, heur_)
     return sol__[]

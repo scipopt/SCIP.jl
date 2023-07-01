@@ -36,6 +36,7 @@ mutable struct Optimizer <: MOI.AbstractOptimizer
     params::Dict{String,Any}
     start::Dict{VI,Float64} # can be partial
     moi_separator::Any # ::Union{CutCbSeparator, Nothing}
+    moi_heuristic::Any # ::Union{HeuristicCb, Nothing}
     objective_sense::Union{Nothing,MOI.OptimizationSense}
     objective_function_set::Bool
 
@@ -68,6 +69,7 @@ mutable struct Optimizer <: MOI.AbstractOptimizer
             Dict(),
             Dict(),
             Dict(),
+            nothing,
             nothing,
             nothing,
             false,
@@ -246,6 +248,8 @@ function MOI.empty!(o::Optimizer)
     end
     o.objective_sense = nothing
     o.objective_function_set = false
+    o.moi_separator = nothing
+    o.moi_heuristic = nothing
     return nothing
 end
 
