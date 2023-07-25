@@ -519,3 +519,41 @@ end
         @test ≈(MOI.get(model, MOI.VariablePrimal(), z2), T(1), config)
     end
 end
+
+@testset "Presolving $presolving" for presolving in (true, false)
+    optimizer = SCIP.Optimizer(; display_verblevel=0)
+    atol, rtol = 1e-6, 1e-6
+
+    x, y = MOI.add_variables(optimizer, 2)
+    MOI.add_constraint(optimizer, x, MOI.GreaterThan(0.0))
+    MOI.add_constraint(optimizer, y, MOI.GreaterThan(0.0))
+
+    c = MOI.add_constraint(
+        optimizer,
+        MOI.ScalarAffineFunction(
+            MOI.ScalarAffineTerm.([1.0, 1.0], [x, y]),
+            0.0,
+        ),
+        MOI.LessThan(1.0),
+    )
+
+    MOI.set(
+        optimizer,
+        MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(),
+        MOI.ScalarAffineFunction(
+            MOI.ScalarAffineTerm.([1.0, 2.0], [x, y]),
+            0.0,
+        ),
+    )
+    MOI.set(optimizer, MOI.ObjectiveSense(), MOI.MAX_SENSE)
+
+    @test MOI.get(optimizer, SCIP.Presolving()) == true
+    @test MOI.set(optimizer, SCIP.Presolving(), presolving)
+    @test MOI.get(optimizer, SCIP.Presolving()) == presolving
+
+    # after optimize
+    MOI.optimize!(optimizer)
+
+    @test MOI.set(optimizer, SCIP.Presolving(), presolving)
+    @test MOI.get(optimizer, SCIP.Presolving()) == presolving
+end
