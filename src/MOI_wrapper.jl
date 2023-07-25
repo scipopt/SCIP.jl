@@ -262,6 +262,28 @@ function MOI.set(o::Optimizer, ::MOI.Name, name::String)
     @SCIP_CALL SCIPsetProbName(o, name)
 end
 
+"""
+    Presolving
+
+Attribute for activating presolving in SCIP.
+"""
+struct Presolving <: MOI.AbstractOptimizerAttribute end
+
+MOI.supports(o::Optimizer, ::Presolving) = true
+
+function MOI.get(o::Optimizer, ::Presolving)
+    return MOI.get(o, MOI.RawOptimizerAttribute("presolving/maxrounds")) != 0
+end
+
+function MOI.set(o::Optimizer, ::Presolving, value::Bool)
+    param = MOI.RawOptimizerAttribute("presolving/maxrounds")
+    if value
+        MOI.set(o, param, -1) # max presolving rounds
+    else
+        MOI.set(o, param, 0) # no presolving
+    end
+end
+
 function MOI.get(o::Optimizer, ::MOI.NumberOfConstraints{F,S}) where {F,S}
     return haskey(o.constypes, (F, S)) ? length(o.constypes[F, S]) : 0
 end
