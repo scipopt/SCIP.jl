@@ -548,12 +548,12 @@ end
     MOI.set(optimizer, MOI.ObjectiveSense(), MOI.MAX_SENSE)
 
     @test MOI.get(optimizer, SCIP.Presolving()) == true
-    @test MOI.set(optimizer, SCIP.Presolving(), presolving)
+    MOI.set(optimizer, SCIP.Presolving(), presolving)
     @test MOI.get(optimizer, SCIP.Presolving()) == presolving
 
     # after optimize
     MOI.optimize!(optimizer)
 
-    @test MOI.set(optimizer, SCIP.Presolving(), presolving)
+    MOI.set(optimizer, SCIP.Presolving(), presolving)
     @test MOI.get(optimizer, SCIP.Presolving()) == presolving
 end
