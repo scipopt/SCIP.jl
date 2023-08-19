@@ -1,8 +1,10 @@
 module SCIP
 
+import LinearAlgebra
+import OpenBLAS32_jll
+
 # assorted utility functions
 include("util.jl")
-
 
 # load deps, version check
 include("init.jl")
