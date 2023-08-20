@@ -147,9 +147,3 @@ Supported operators in nonlinear expressions are as follows:
  * `abs`
  * `cos`
  * `sin`
-
-## Errors with nonlinear models
-
-When solving a nonlinear model, you may encounter `Error: no BLAS/LAPACK library loaded!`,
-this comes from Ipopt, see the [README](https://github.com/jump-dev/Ipopt.jl/#julia-17)
-on Ipopt.jl.
