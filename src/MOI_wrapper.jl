@@ -209,10 +209,43 @@ end
 
 function MOI.set(o::Optimizer, ::MOI.TimeLimitSec, value)
     if value === nothing
-        MOI.set(o, MOI.RawOptimizerAttribute("limits/time"), SCIPinfinity(o))
-    else
-        MOI.set(o, MOI.RawOptimizerAttribute("limits/time"), value)
+        return MOI.set(o, MOI.RawOptimizerAttribute("limits/time"), SCIPinfinity(o))
     end
+    return MOI.set(o, MOI.RawOptimizerAttribute("limits/time"), value)
+end
+
+MOI.supports(::Optimizer, ::MOI.AbsoluteGapTolerance) = true
+function MOI.get(o::Optimizer, ::MOI.AbsoluteGapTolerance)
+    raw_value = MOI.get(o, MOI.RawOptimizerAttribute("limits/absgap"))
+    if raw_value == 0
+        return nothing
+    end
+    return raw_value
+end
+function MOI.set(o::Optimizer, ::MOI.AbsoluteGapTolerance, value)
+    if value === nothing
+        MOI.set(o, MOI.RawOptimizerAttribute("limits/absgap"), 0.0)
+    else
+        MOI.set(o, MOI.RawOptimizerAttribute("limits/absgap"), value)
+    end
+    return nothing
+end
+
+MOI.supports(::Optimizer, ::MOI.RelativeGapTolerance) = true
+function MOI.get(o::Optimizer, ::MOI.RelativeGapTolerance)
+    raw_value = MOI.get(o, MOI.RawOptimizerAttribute("limits/gap"))
+    if raw_value == 0
+        return nothing
+    end
+    return raw_value
+end
+function MOI.set(o::Optimizer, ::MOI.RelativeGapTolerance, value)
+    if value === nothing
+        MOI.set(o, MOI.RawOptimizerAttribute("limits/gap"), 0.0)
+    else
+        MOI.set(o, MOI.RawOptimizerAttribute("limits/gap"), value)
+    end
+    return nothing
 end
 
 MOI.supports(::Optimizer, ::MOI.SolverVersion) = true
