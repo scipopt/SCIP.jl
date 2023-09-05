@@ -11,7 +11,7 @@ SCIP_PaPILO_jll = "fc9abe76-a5e6-5fed-b0b7-a12f309cf031"
 SCIP_jll = "e5ac4fe4-a920-5659-9bf8-f9f73e9e79ce"
 
 [compat]
-MathOptInterface = "1"
+MathOptInterface = "1.7"
 OpenBLAS32_jll = "0.3"
 SCIP_PaPILO_jll = "800"
 SCIP_jll = "800"
