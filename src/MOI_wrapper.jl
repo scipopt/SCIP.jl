@@ -436,7 +436,7 @@ function MOI.compute_conflict!(o::Optimizer)
         for (idx, c_index) in enumerate(MOI.get(o, MOI.ListOfConstraintIndices{F,S}()))
             if MOI.get(o, MOI.ConstraintName(), c_index) == ""
                 cons_ptr = cons(o, c_index)
-                handler_name = SCIPconshdlrGetName(SCIPconsGetHdlr(cons_ptr))
+                handler_name = unsafe_string(SCIPconshdlrGetName(SCIPconsGetHdlr(cons_ptr)))
                 cons_name = "$(handler_name)_moi_$(idx)"
                 MOI.set(o, MOI.ConstraintName(), c_index, cons_name)
             end
