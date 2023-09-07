@@ -283,7 +283,7 @@ function MOI.empty!(o::Optimizer)
     end
     o.objective_sense = nothing
     o.objective_function_set = false
-    o.conflict_computed = MOI.COMPUTE_CONFLICT_NOT_CALLED
+    o.conflict_status = MOI.COMPUTE_CONFLICT_NOT_CALLED
     o.moi_separator = nothing
     o.moi_heuristic = nothing
     return nothing
@@ -430,6 +430,17 @@ function MOI.compute_conflict!(o::Optimizer)
     # free the transformed problem first
     if LibSCIP.SCIPgetStage(o) != LibSCIP.SCIP_STAGE_PROBLEM
         @SCIP_CALL LibSCIP.SCIPfreeTransform(o)
+    end
+    # we need names for all constraints
+    for (F, S) in MOI.get(o, MOI.ListOfConstraintTypesPresent())
+        for (idx, c_index) in enumerate(MOI.get(o, MOI.ListOfConstraintIndices{F,S}()))
+            if MOI.get(o, MOI.ConstraintName(), c_index) == ""
+                cons_ptr = cons(o, c_index)
+                handler_name = SCIPconshdlrGetName(SCIPconsGetHdlr(cons_ptr))
+                cons_name = "$(handler_name)_moi_$(idx)"
+                MOI.set(o, MOI.ConstraintName(), c_index, cons_name)
+            end
+        end
     end
     success = Ref{LibSCIP.SCIP_Bool}(333)
     @SCIP_CALL LibSCIP.SCIPtransformMinUC(o, success)
