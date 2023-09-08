@@ -58,7 +58,7 @@ end
 """
 Model attribute representing whether why the Minimum Unsatisfiable Constraint analysis terminated.
 """
-struct UnsatisfiableSystemStatus <: AbstractModelAttribute end
+struct UnsatisfiableSystemStatus <: MOI.AbstractModelAttribute end
 
 attribute_value_type(::UnsatisfiableSystemStatus) = MOI.ConflictStatusCode
 
@@ -69,7 +69,7 @@ Attribute representing whether the constraint could be satisfied in the Minimum 
 
 Note that this is different from a constraint belonging to an Irreducible Infeasible Subsystem.
 """
-struct ConstraintSatisfiabilityStatus <: AbstractConstraintAttribute end
+struct ConstraintSatisfiabilityStatus <: MOI.AbstractConstraintAttribute end
 
 function attribute_value_type(::ConstraintSatisfiabilityStatus)
     return MOI.ConflictParticipationStatusCode
