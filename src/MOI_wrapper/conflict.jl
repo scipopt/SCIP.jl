@@ -1,6 +1,22 @@
 
 """
 Computes a set of constraints which could not be satisfied when trying to minimize the total violations.
+
+Given the problem:
+```
+(P) min_x c^⊤ x
+s.t.  F(x) ∈ S_i ∀ i in 1…m
+```
+
+the analysis uses a slack and indicator reformulation of the problem:
+```
+(M) min_{x, z} ∑_i z_i
+s.t.       z_i = 0 → F(x) ∈ S_i ∀ i in 1…m
+           z ∈ {0,1}ᵐ
+```
+
+If (P) is infeasible, (M) has an optimal value above 1.
+All constraints with `z = 1` had to be violated.
 """
 function compute_minimum_unsatisfied_constraints!(o::Optimizer)
     if o.conflict_status != MOI.COMPUTE_CONFLICT_NOT_CALLED
