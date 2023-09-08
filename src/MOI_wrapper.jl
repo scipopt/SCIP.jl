@@ -431,8 +431,24 @@ function MOI.compute_conflict!(o::Optimizer)
     if LibSCIP.SCIPgetStage(o) != LibSCIP.SCIP_STAGE_PROBLEM
         @SCIP_CALL LibSCIP.SCIPfreeTransform(o)
     end
+    # first transform all variable bound constraints to constraint bounds
+    for (F, S) in MOI.get(o, MOI.ListOfConstraintTypesPresent())
+        sname = replace(string(S), "MathOptInterface." => "", "{Float64}" => "")
+        if Tuple{F, S} <: Tuple{VI, BOUNDS}
+            for (idx, c_index) in enumerate(MOI.get(o, MOI.ListOfConstraintIndices{F,S}()))
+                s = MOI.get(o, MOI.ConstraintSet(), c_index)
+                MOI.delete(o, c_index)
+                vi = MOI.VariableIndex(c_index.value)
+                ci_new = MOI.add_constraint(o, 1.0 * vi, s)
+                MOI.set(o, MOI.ConstraintName(), ci_new, "varcons_$(c_index.value)_$sname")
+            end
+        end
+    end
     # we need names for all constraints
     for (F, S) in MOI.get(o, MOI.ListOfConstraintTypesPresent())
+        if F === VI
+            continue
+        end
         for (idx, c_index) in enumerate(MOI.get(o, MOI.ListOfConstraintIndices{F,S}()))
             if MOI.get(o, MOI.ConstraintName(), c_index) == ""
                 cons_ptr = cons(o, c_index)
@@ -442,7 +458,7 @@ function MOI.compute_conflict!(o::Optimizer)
             end
         end
     end
-    success = Ref{LibSCIP.SCIP_Bool}(333)
+    success = Ref{LibSCIP.SCIP_Bool}(SCIP.FALSE)
     @SCIP_CALL LibSCIP.SCIPtransformMinUC(o, success)
     if success[] != SCIP.TRUE
         error("Failed to compute the minimum unsatisfied constraints system.\nSome constraint types may not support the required transformations")
