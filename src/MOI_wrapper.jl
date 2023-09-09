@@ -39,6 +39,7 @@ mutable struct Optimizer <: MOI.AbstractOptimizer
     moi_heuristic::Any # ::Union{HeuristicCb, Nothing}
     objective_sense::Union{Nothing,MOI.OptimizationSense}
     objective_function_set::Bool
+    conflict_status::MOI.ConflictStatusCode
 
     function Optimizer(; kwargs...)
         scip = Ref{Ptr{SCIP_}}(C_NULL)
@@ -73,6 +74,7 @@ mutable struct Optimizer <: MOI.AbstractOptimizer
             nothing,
             nothing,
             false,
+            MOI.COMPUTE_CONFLICT_NOT_CALLED,
         )
         finalizer(free_scip, o)
 
@@ -281,6 +283,7 @@ function MOI.empty!(o::Optimizer)
     end
     o.objective_sense = nothing
     o.objective_function_set = false
+    o.conflict_status = MOI.COMPUTE_CONFLICT_NOT_CALLED
     o.moi_separator = nothing
     o.moi_heuristic = nothing
     return nothing
@@ -432,3 +435,4 @@ include(joinpath("MOI_wrapper", "results.jl"))
 include(joinpath("MOI_wrapper", "conshdlr.jl"))
 include(joinpath("MOI_wrapper", "sepa.jl"))
 include(joinpath("MOI_wrapper", "heuristic.jl"))
+include(joinpath("MOI_wrapper", "conflict.jl"))
