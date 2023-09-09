@@ -8,7 +8,7 @@ Given the problem:
 s.t.  F(x) ∈ S_i ∀ i in 1…m
 ```
 
-the analysis uses a slack and indicator reformulation of the problem:
+the analysis uses a feasibility relaxation based on slack variables and indicator constraints:
 ```
 (M) min_{x, z} ∑_i z_i
 s.t.       z_i = 0 → F(x) ∈ S_i ∀ i in 1…m
