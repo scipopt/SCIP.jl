@@ -9,7 +9,10 @@ using SCIP_PaPILO_jll
 end
 
 @show(@eval(SCIP, libscip) == SCIP_jll.libscip)
-@show(SCIP_PaPILO_jll.is_available() && @eval(SCIP, libscip) == SCIP_PaPILO_jll.libscip)
+@show(
+    SCIP_PaPILO_jll.is_available() &&
+    @eval(SCIP, libscip) == SCIP_PaPILO_jll.libscip
+)
 @show SCIP.SCIP_versionnumber()
 
 @testset "MathOptInterface nonlinear expressions" begin
@@ -37,6 +40,12 @@ include("sepa_support.jl")
 end
 @testset "cut callbacks" begin
     include("cutcallback.jl")
+end
+@testset "branching rule" begin
+    include("branchrule.jl")
+end
+@testset "heuristic" begin
+    include("heuristic.jl")
 end
 
 const MOI_BASE_EXCLUDED = [

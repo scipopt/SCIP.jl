@@ -1,5 +1,8 @@
 module SCIP
 
+import LinearAlgebra
+import OpenBLAS32_jll
+
 # assorted utility functions
 include("util.jl")
 
@@ -12,11 +15,13 @@ include("wrapper.jl")
 # memory management
 include("scip_data.jl")
 
-# separators
 include("sepa.jl")
 
-# cut selectors
 include("cut_selector.jl")
+
+include("heuristic.jl")
+
+include("branching_rule.jl")
 
 # constraint handlers
 include("conshdlr.jl")

@@ -13,18 +13,23 @@ const OPS = [
 ]
 
 const UNARY_OPS_LOOKUP = (
-    exp = SCIPcreateExprExp,
-    log = SCIPcreateExprLog,
-    abs = SCIPcreateExprAbs,
-    cos = SCIPcreateExprCos,
-    sin = SCIPcreateExprSin,
+    exp=SCIPcreateExprExp,
+    log=SCIPcreateExprLog,
+    abs=SCIPcreateExprAbs,
+    cos=SCIPcreateExprCos,
+    sin=SCIPcreateExprSin,
 )
 
 """
 Extract operators from Julia expr recursively and convert to SCIP expressions.
 Returns the SCIP expression pointer, whether the expression is a pure value (without variables).
 """
-function push_expr!(nonlin::NonlinExpr, scip::Ptr{SCIP_}, vars::Dict{VarRef, Ref{Ptr{SCIP_VAR}}}, expr::Expr)
+function push_expr!(
+    nonlin::NonlinExpr,
+    scip::Ptr{SCIP_},
+    vars::Dict{VarRef,Ref{Ptr{SCIP_VAR}}},
+    expr::Expr,
+)
     # Storage for SCIP_EXPR*
     expr__ = Ref{Ptr{SCIP_EXPR}}(C_NULL)
     num_children = length(expr.args) - 1
@@ -62,7 +67,14 @@ function push_expr!(nonlin::NonlinExpr, scip::Ptr{SCIP_}, vars::Dict{VarRef, Ref
             @assert isa(expr.args[3], Number)
             if !pure_value
                 exponent = Cdouble(expr.args[3])
-                @SCIP_CALL SCIPcreateExprPow(scip, expr__, base[], exponent, C_NULL, C_NULL)
+                @SCIP_CALL SCIPcreateExprPow(
+                    scip,
+                    expr__,
+                    base[],
+                    exponent,
+                    C_NULL,
+                    C_NULL,
+                )
             end
         elseif op in (:-, :+)
             @assert num_children >= 1
@@ -74,8 +86,14 @@ function push_expr!(nonlin::NonlinExpr, scip::Ptr{SCIP_}, vars::Dict{VarRef, Ref
                 if !pure_value
                     # Finally, add the (binary) minus:
                     @SCIP_CALL SCIPcreateExprSum(
-                        scip, expr__, Cint(1), [right[]],
-                        [-1.0], 0.0, C_NULL, C_NULL,
+                        scip,
+                        expr__,
+                        Cint(1),
+                        [right[]],
+                        [-1.0],
+                        0.0,
+                        C_NULL,
+                        C_NULL,
                     )
                 end
             else
@@ -84,7 +102,10 @@ function push_expr!(nonlin::NonlinExpr, scip::Ptr{SCIP_}, vars::Dict{VarRef, Ref
                 else
                     1.0
                 end
-                subexprs_pairs = [push_expr!(nonlin, scip, vars, expr.args[i + 1]) for i in 1:num_children]
+                subexprs_pairs = [
+                    push_expr!(nonlin, scip, vars, expr.args[i+1]) for
+                    i in 1:num_children
+                ]
                 if all(pair -> pair[2], subexprs_pairs)
                     pure_value = true
                 else
@@ -92,8 +113,9 @@ function push_expr!(nonlin::NonlinExpr, scip::Ptr{SCIP_}, vars::Dict{VarRef, Ref
                     subexprs = map(eachindex(subexprs_pairs)) do idx
                         (subexpr, is_pure_value) = subexprs_pairs[idx]
                         if is_pure_value
-                            expr_val = Meta.eval(expr.args[idx + 1])
-                            expr_ptr, _ = push_expr!(nonlin, scip, vars, expr_val)
+                            expr_val = Meta.eval(expr.args[idx+1])
+                            expr_ptr, _ =
+                                push_expr!(nonlin, scip, vars, expr_val)
                             expr_ptr[]
                         else
                             subexpr[]
@@ -101,27 +123,48 @@ function push_expr!(nonlin::NonlinExpr, scip::Ptr{SCIP_}, vars::Dict{VarRef, Ref
                     end
                     coefs = fill(coef_mul, num_children)
                     coefs[1] = 1.0
-                    @SCIP_CALL SCIPcreateExprSum(scip, expr__, Cint(num_children), subexprs, coefs, 0.0, C_NULL, C_NULL)
+                    @SCIP_CALL SCIPcreateExprSum(
+                        scip,
+                        expr__,
+                        Cint(num_children),
+                        subexprs,
+                        coefs,
+                        0.0,
+                        C_NULL,
+                        C_NULL,
+                    )
                     pure_value = false
                 end
             end
         elseif op == :*
             @assert num_children >= 1
-            subexprs_pairs = [push_expr!(nonlin, scip, vars, expr.args[i + 1]) for i in 1:num_children]
+            subexprs_pairs = [
+                push_expr!(nonlin, scip, vars, expr.args[i+1]) for
+                i in 1:num_children
+            ]
             if all(pair -> pair[2], subexprs_pairs)
                 pure_value = true
             else
                 subexprs = map(eachindex(subexprs_pairs)) do idx
                     (subexpr, is_pure_value) = subexprs_pairs[idx]
                     if is_pure_value
-                        expr_val = Meta.eval(expr.args[idx + 1])
-                        expr_ptr, _ = push_expr!(nonlin, scip, vars, expr_val)
+                        expr_val = Meta.eval(expr.args[idx+1])
+                        expr_ptr, _ =
+                            push_expr!(nonlin, scip, vars, expr_val)
                         expr_ptr[]
                     else
                         subexpr[]
                     end
                 end
-                @SCIP_CALL SCIPcreateExprProduct(scip, expr__, num_children, subexprs, 1.0, C_NULL, C_NULL)
+                @SCIP_CALL SCIPcreateExprProduct(
+                    scip,
+                    expr__,
+                    num_children,
+                    subexprs,
+                    1.0,
+                    C_NULL,
+                    C_NULL,
+                )
                 pure_value = false
             end
         elseif op in keys(UNARY_OPS_LOOKUP)
@@ -130,12 +173,25 @@ function push_expr!(nonlin::NonlinExpr, scip::Ptr{SCIP_}, vars::Dict{VarRef, Ref
             # Insert child expression:
             child, pure_value = push_expr!(nonlin, scip, vars, expr.args[2])
             if !pure_value
-                @SCIP_CALL UNARY_OPS_LOOKUP[op](scip, expr__, child[], C_NULL, C_NULL)
+                @SCIP_CALL UNARY_OPS_LOOKUP[op](
+                    scip,
+                    expr__,
+                    child[],
+                    C_NULL,
+                    C_NULL,
+                )
             end
         elseif op == :sqrt
             child, pure_value = push_expr!(nonlin, scip, vars, expr.args[2])
             if !pure_value
-                @SCIP_CALL SCIPcreateExprPow(scip, expr__, child[], 0.5, C_NULL, C_NULL)
+                @SCIP_CALL SCIPcreateExprPow(
+                    scip,
+                    expr__,
+                    child[],
+                    0.5,
+                    C_NULL,
+                    C_NULL,
+                )
             end
         elseif op == :/
             @assert num_children == 2
@@ -143,7 +199,8 @@ function push_expr!(nonlin::NonlinExpr, scip::Ptr{SCIP_}, vars::Dict{VarRef, Ref
             # Create left and right subexpression.
             left, pure_left = push_expr!(nonlin, scip, vars, expr.args[2])
             inverse_right_expr = :($(expr.args[3])^-1.0)
-            right, pure_right = push_expr!(nonlin, scip, vars, inverse_right_expr)
+            right, pure_right =
+                push_expr!(nonlin, scip, vars, inverse_right_expr)
             if pure_left && pure_right
                 pure_value = true
             else
@@ -156,7 +213,15 @@ function push_expr!(nonlin::NonlinExpr, scip::Ptr{SCIP_}, vars::Dict{VarRef, Ref
                     right, _ = push_expr!(nonlin, scip, vars, val)
                 end
                 # TODO evaluate left or right
-                @SCIP_CALL SCIPcreateExprProduct(scip, expr__, num_children, [left[], right[]], 1.0, C_NULL, C_NULL)
+                @SCIP_CALL SCIPcreateExprProduct(
+                    scip,
+                    expr__,
+                    num_children,
+                    [left[], right[]],
+                    1.0,
+                    C_NULL,
+                    C_NULL,
+                )
             end
         else
             # attempt computation of pure value
@@ -190,7 +255,12 @@ function push_expr!(nonlin::NonlinExpr, scip::Ptr{SCIP_}, vars::Dict{VarRef, Ref
     return expr__, pure_value
 end
 
-function push_expr!(nonlin::NonlinExpr, scip::Ptr{SCIP_}, vars::Dict{VarRef, Ref{Ptr{SCIP_VAR}}}, expr::Number)
+function push_expr!(
+    nonlin::NonlinExpr,
+    scip::Ptr{SCIP_},
+    vars::Dict{VarRef,Ref{Ptr{SCIP_VAR}}},
+    expr::Number,
+)
     # Storage for SCIP_EXPR*
     expr__ = Ref{Ptr{SCIP_EXPR}}(C_NULL)
 
@@ -203,7 +273,6 @@ function push_expr!(nonlin::NonlinExpr, scip::Ptr{SCIP_}, vars::Dict{VarRef, Ref
     return expr__, pure_value
 end
 
-
 """
 Add nonlinear constraint to problem, return cons ref.
 
@@ -215,7 +284,12 @@ Add nonlinear constraint to problem, return cons ref.
 - `rhs::Float64`: right-hand side for ranged constraint
 
 """
-function add_nonlinear_constraint(scipd::SCIPData, expr::Expr, lhs::Float64, rhs::Float64)
+function add_nonlinear_constraint(
+    scipd::SCIPData,
+    expr::Expr,
+    lhs::Float64,
+    rhs::Float64,
+)
     nonlin = NonlinExpr()
 
     # convert expression recursively, extract root and variable pointers
@@ -226,7 +300,14 @@ function add_nonlinear_constraint(scipd::SCIPData, expr::Expr, lhs::Float64, rhs
     end
     # create and add cons_nonlinear
     cons__ = Ref{Ptr{SCIP_CONS}}(C_NULL)
-    @SCIP_CALL SCIPcreateConsBasicNonlinear(scipd, cons__, "", root_expr[], lhs, rhs)
+    @SCIP_CALL SCIPcreateConsBasicNonlinear(
+        scipd,
+        cons__,
+        "",
+        root_expr[],
+        lhs,
+        rhs,
+    )
     @SCIP_CALL SCIPaddCons(scipd, cons__[])
 
     # register and return cons ref

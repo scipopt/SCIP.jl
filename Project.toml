@@ -1,25 +1,25 @@
 name = "SCIP"
 uuid = "82193955-e24f-5292-bf16-6f2c5261a85f"
-version = "0.11.10"
+version = "0.11.14"
 
 [deps]
-Ipopt_jll = "9cc047cb-c261-5740-88fc-0cf96f7bdcc7"
 Libdl = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 MathOptInterface = "b8f27783-ece8-5eb3-8dc8-9495eed66fee"
+OpenBLAS32_jll = "656ef2d0-ae68-5445-9ca0-591084a874a2"
 SCIP_PaPILO_jll = "fc9abe76-a5e6-5fed-b0b7-a12f309cf031"
 SCIP_jll = "e5ac4fe4-a920-5659-9bf8-f9f73e9e79ce"
 
 [compat]
-MathOptInterface = "1"
+MathOptInterface = "1.7"
+OpenBLAS32_jll = "0.3"
 SCIP_PaPILO_jll = "800"
 SCIP_jll = "800"
 julia = "1.6"
 
 [extras]
-OpenBLAS32_jll = "656ef2d0-ae68-5445-9ca0-591084a874a2"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test", "OpenBLAS32_jll", "Random"]
+test = ["Test", "Random"]

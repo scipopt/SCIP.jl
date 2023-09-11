@@ -27,8 +27,8 @@ It does not perform memory management and should not be created directly.
 """
 mutable struct SCIPData
     scip::Ref{Ptr{SCIP_}}
-    vars::Dict{VarRef, Ref{Ptr{SCIP_VAR}}}
-    conss::Dict{ConsRef, Ref{Ptr{SCIP_CONS}}}
+    vars::Dict{VarRef,Ref{Ptr{SCIP_VAR}}}
+    conss::Dict{ConsRef,Ref{Ptr{SCIP_CONS}}}
     var_count::Int64
     cons_count::Int64
 
@@ -36,16 +36,18 @@ mutable struct SCIPData
     # or <: AbstractConstraint, respectively) to the corresponding SCIP objects.
     # The reverse mapping is handled by SCIP itself.
     # This also serves to prevent premature GC.
-    conshdlrs::Dict{Any, Ptr{SCIP_CONSHDLR}}
-    conshdlrconss::Dict{Any, Ptr{SCIP_CONS}}
+    conshdlrs::Dict{Any,Ptr{SCIP_CONSHDLR}}
+    conshdlrconss::Dict{Any,Ptr{SCIP_CONS}}
 
     # Map from user-defined types (keys are <: AbstractSeparator) to the
     # corresponding SCIP objects.
-    sepas::Dict{Any, Ptr{SCIP_SEPA}}
+    sepas::Dict{Any,Ptr{SCIP_SEPA}}
 
-    # User-defined cut selector
-    cutsel_storage::Dict{Any, Ptr{SCIP_CUTSEL}}
-
+    # User-defined cut selectors and branching rules
+    cutsel_storage::Dict{Any,Ptr{SCIP_CUTSEL}}
+    branchrule_storage::Dict{Any,Ptr{SCIP_BRANCHRULE}}
+    heuristic_storage::Dict{Any,Ptr{SCIP_HEUR}}
+    
     # to store expressions for release
     nonlinear_storage::Vector{NonlinExpr}
 end
@@ -168,8 +170,15 @@ end
 "Add variable to problem (continuous, no bounds), return var ref."
 function add_variable(scipd::SCIPData)
     var__ = Ref{Ptr{SCIP_VAR}}(C_NULL)
-    @SCIP_CALL SCIPcreateVarBasic(scipd, var__, "", -SCIPinfinity(scipd), SCIPinfinity(scipd),
-                           0.0, SCIP_VARTYPE_CONTINUOUS)
+    @SCIP_CALL SCIPcreateVarBasic(
+        scipd,
+        var__,
+        "",
+        -SCIPinfinity(scipd),
+        SCIPinfinity(scipd),
+        0.0,
+        SCIP_VARTYPE_CONTINUOUS,
+    )
     @SCIP_CALL SCIPaddVar(scipd, var__[])
     return store_var!(scipd, var__)
 end
@@ -213,7 +222,15 @@ function add_linear_constraint(scipd::SCIPData, varrefs, coefs, lhs, rhs)
     vars = [var(scipd, vr) for vr in varrefs]
     cons__ = Ref{Ptr{SCIP_CONS}}(C_NULL)
     @SCIP_CALL SCIPcreateConsBasicLinear(
-        scipd, cons__, "", length(vars), vars, coefs, lhs, rhs)
+        scipd,
+        cons__,
+        "",
+        length(vars),
+        vars,
+        coefs,
+        lhs,
+        rhs,
+    )
     @SCIP_CALL SCIPaddCons(scipd, cons__[])
     return store_cons!(scipd, cons__)
 end
@@ -232,8 +249,16 @@ Add (ranged) quadratic constraint to problem, return cons ref.
 
 Use `(-)SCIPinfinity(scip)` for one of the bounds if not applicable.
 """
-function add_quadratic_constraint(scipd::SCIPData, linrefs, lincoefs,
-                                  quadrefs1, quadrefs2, quadcoefs, lhs, rhs)
+function add_quadratic_constraint(
+    scipd::SCIPData,
+    linrefs,
+    lincoefs,
+    quadrefs1,
+    quadrefs2,
+    quadcoefs,
+    lhs,
+    rhs,
+)
     @assert length(linrefs) == length(lincoefs)
     @assert length(quadrefs1) == length(quadrefs2)
     @assert length(quadrefs1) == length(quadcoefs)
@@ -244,8 +269,19 @@ function add_quadratic_constraint(scipd::SCIPData, linrefs, lincoefs,
 
     cons__ = Ref{Ptr{SCIP_CONS}}(C_NULL)
     @SCIP_CALL SCIPcreateConsBasicQuadraticNonlinear(
-        scipd, cons__, "", length(linvars), linvars, lincoefs,
-        length(quadvars1), quadvars1, quadvars2, quadcoefs, lhs, rhs)
+        scipd,
+        cons__,
+        "",
+        length(linvars),
+        linvars,
+        lincoefs,
+        length(quadvars1),
+        quadvars1,
+        quadvars2,
+        quadcoefs,
+        lhs,
+        rhs,
+    )
     @SCIP_CALL SCIPaddCons(scipd, cons__[])
     return store_cons!(scipd, cons__)
 end
@@ -261,7 +297,14 @@ function add_special_ordered_set_type1(scipd::SCIPData, varrefs, weights)
     @assert length(varrefs) == length(weights)
     vars = [var(scipd, vr) for vr in varrefs]
     cons__ = Ref{Ptr{SCIP_CONS}}(C_NULL)
-    @SCIP_CALL SCIPcreateConsBasicSOS1(scipd, cons__, "", length(vars), vars, weights)
+    @SCIP_CALL SCIPcreateConsBasicSOS1(
+        scipd,
+        cons__,
+        "",
+        length(vars),
+        vars,
+        weights,
+    )
     @SCIP_CALL SCIPaddCons(scipd, cons__[])
     return store_cons!(scipd, cons__)
 end
@@ -277,7 +320,14 @@ function add_special_ordered_set_type2(scipd::SCIPData, varrefs, weights)
     @assert length(varrefs) == length(weights)
     vars = [var(scipd, vr) for vr in varrefs]
     cons__ = Ref{Ptr{SCIP_CONS}}(C_NULL)
-    @SCIP_CALL SCIPcreateConsBasicSOS2(scipd, cons__, "", length(vars), vars, weights)
+    @SCIP_CALL SCIPcreateConsBasicSOS2(
+        scipd,
+        cons__,
+        "",
+        length(vars),
+        vars,
+        weights,
+    )
     @SCIP_CALL SCIPaddCons(scipd, cons__[])
     return store_cons!(scipd, cons__)
 end
@@ -296,11 +346,19 @@ y has to be a binary variable, or SCIP will error.
 - `rhs::Float64`: right-hand side for linear constraint
 """
 function add_indicator_constraint(scipd::SCIPData, y, x, a, rhs)
-    SCIPvarIsBinary(var(scipd, y)) > 0 || error("indicator variable must be binary.")
+    SCIPvarIsBinary(var(scipd, y)) > 0 ||
+        error("indicator variable must be binary.")
     cons__ = Ref{Ptr{SCIP_CONS}}(C_NULL)
     xref = [var(scipd, x[i]) for i in eachindex(x)]
     @SCIP_CALL SCIPcreateConsBasicIndicator(
-        scipd, cons__, "", var(scipd, y), length(x), xref, a, rhs
+        scipd,
+        cons__,
+        "",
+        var(scipd, y),
+        length(x),
+        xref,
+        a,
+        rhs,
     )
     @SCIP_CALL SCIPaddCons(scipd, cons__[])
     return store_cons!(scipd, cons__)
@@ -310,9 +368,13 @@ end
 # 1. Remove leading "SCIP" part (drop the first four characters).
 # 2. Convert camel case to snake case.
 # For example, `SCIPprintStatusStatistics` becomes `print_status_statistics`.
-const STATISTICS_FUNCS = map(x -> Symbol(camel_case_to_snake_case(string(x)[5 : end])), SCIP_STATISTICS_FUNCS)
+const STATISTICS_FUNCS = map(
+    x -> Symbol(camel_case_to_snake_case(string(x)[5:end])),
+    SCIP_STATISTICS_FUNCS,
+)
 
-for (scip_statistics_func, statistics_func) in zip(SCIP_STATISTICS_FUNCS, STATISTICS_FUNCS)
+for (scip_statistics_func, statistics_func) in
+    zip(SCIP_STATISTICS_FUNCS, STATISTICS_FUNCS)
     @eval begin
         """
             $($statistics_func)(scipd::SCIPData)

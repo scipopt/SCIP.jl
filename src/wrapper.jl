@@ -41,5 +41,5 @@ const SCIP_STATISTICS_FUNCS = [
     :SCIPprintBendersStatistics,
     :SCIPprintStatistics,
     :SCIPprintReoptStatistics,
-    :SCIPprintBranchingStatistics
+    :SCIPprintBranchingStatistics,
 ]
