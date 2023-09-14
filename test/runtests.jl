@@ -3,17 +3,14 @@ using SCIP
 using SCIP_jll
 using SCIP_PaPILO_jll
 
-@static if VERSION >= v"1.7"
-    import LinearAlgebra, OpenBLAS32_jll
-    LinearAlgebra.BLAS.lbt_forward(OpenBLAS32_jll.libopenblas_path)
-end
-
 @show(@eval(SCIP, libscip) == SCIP_jll.libscip)
 @show(
     SCIP_PaPILO_jll.is_available() &&
     @eval(SCIP, libscip) == SCIP_PaPILO_jll.libscip
 )
+@show SCIP_PaPILO_jll.best_wrapper
 @show SCIP.SCIP_versionnumber()
+@show SCIP_jll.best_wrapper
 
 @testset "MathOptInterface nonlinear expressions" begin
     include("MOI_nonlinear_exprs.jl")
