@@ -7,7 +7,7 @@ if isfile(depsjl_path)
 else
     # Artifact from BinaryBuilder package
     import SCIP_PaPILO_jll
-    if SCIP_PaPILO_jll.is_available()
+    if SCIP_PaPILO_jll.is_available() && !Sys.iswindows()
         using SCIP_PaPILO_jll: libscip
     else
         using SCIP_jll: libscip
