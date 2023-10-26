@@ -89,9 +89,7 @@ function include_heuristic(
 
     heur__ = Ref{Ptr{SCIP_HEUR}}(C_NULL)
     if !ismutable(heuristic)
-        throw(
-            ArgumentError("The heuristic structure must be a mutable type"),
-        )
+        throw(ArgumentError("The heuristic structure must be a mutable type"))
     end
 
     heurdata_ = pointer_from_objref(heuristic)

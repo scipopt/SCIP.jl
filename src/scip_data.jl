@@ -52,7 +52,7 @@ mutable struct SCIPData
     cutsel_storage::Dict{Any,Ptr{SCIP_CUTSEL}}
     branchrule_storage::Dict{Any,Ptr{SCIP_BRANCHRULE}}
     heuristic_storage::Dict{Any,Ptr{SCIP_HEUR}}
-    
+
     # to store expressions for release
     nonlinear_storage::Vector{NonlinExpr}
 end

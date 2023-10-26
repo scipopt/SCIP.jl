@@ -21,10 +21,17 @@ end
 MostFractional() = MostFractional(0)
 
 # we only specialize the branching on LP rule
-function SCIP.branch(branchrule::MostFractional, scip, allow_additional_constraints, type::SCIP.BranchingLP)
+function SCIP.branch(
+    branchrule::MostFractional,
+    scip,
+    allow_additional_constraints,
+    type::SCIP.BranchingLP,
+)
     branchrule.ncalls += 1
-    (candidates, _, candidates_fractionalities, nprio, nimplied) = SCIP.get_branching_candidates(scip)
-    candidate_idx = argmax(idx -> abs(candidates_fractionalities[idx] - 0.5), 1:nprio)
+    (candidates, _, candidates_fractionalities, nprio, nimplied) =
+        SCIP.get_branching_candidates(scip)
+    candidate_idx =
+        argmax(idx -> abs(candidates_fractionalities[idx] - 0.5), 1:nprio)
     var = candidates[candidate_idx]
     SCIP.branch_on_candidate!(scip, var)
     return (SCIP.SCIP_OKAY, SCIP.SCIP_BRANCHED)
@@ -44,15 +51,18 @@ end
     priority = 15_000
     SCIP.include_branchrule(
         o,
-        branchrule,
+        branchrule;
         name=name,
         description=description,
         priority=priority,
     )
     branchrule_pointer = o.inner.branchrule_storage[branchrule]
-    @test unsafe_string(SCIP.LibSCIP.SCIPbranchruleGetName(branchrule_pointer)) == name
-    @test unsafe_string(SCIP.LibSCIP.SCIPbranchruleGetDesc(branchrule_pointer)) ==
-          description
+    @test unsafe_string(
+        SCIP.LibSCIP.SCIPbranchruleGetName(branchrule_pointer),
+    ) == name
+    @test unsafe_string(
+        SCIP.LibSCIP.SCIPbranchruleGetDesc(branchrule_pointer),
+    ) == description
     @test SCIP.LibSCIP.SCIPbranchruleGetPriority(branchrule_pointer) == priority
     @test SCIP.LibSCIP.SCIPbranchruleGetData(branchrule_pointer) ==
           pointer_from_objref(branchrule)

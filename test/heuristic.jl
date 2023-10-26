@@ -8,10 +8,15 @@ using SCIP
 using LinearAlgebra
 using Test
 
-mutable struct ZeroHeuristic <: SCIP.Heuristic
-end
+mutable struct ZeroHeuristic <: SCIP.Heuristic end
 
-function SCIP.find_primal_solution(scip, ::ZeroHeuristic, heurtiming, nodeinfeasible::Bool, heur_ptr)
+function SCIP.find_primal_solution(
+    scip,
+    ::ZeroHeuristic,
+    heurtiming,
+    nodeinfeasible::Bool,
+    heur_ptr,
+)
     @assert SCIP.SCIPhasCurrentNodeLP(scip) == SCIP.TRUE
     result = SCIP.SCIP_DIDNOTRUN
     sol = SCIP.create_empty_scipsol(scip, heur_ptr)
@@ -19,12 +24,7 @@ function SCIP.find_primal_solution(scip, ::ZeroHeuristic, heurtiming, nodeinfeas
     nvars = SCIP.SCIPgetNVars(scip)
     var_vec = unsafe_wrap(Array, vars, nvars)
     for var in var_vec
-        SCIP.@SCIP_CALL SCIP.SCIPsetSolVal(
-            scip,
-            sol,
-            var,
-            0.0, 
-        )
+        SCIP.@SCIP_CALL SCIP.SCIPsetSolVal(scip, sol, var, 0.0)
     end
     stored = Ref{SCIP.SCIP_Bool}(SCIP.FALSE)
     SCIP.@SCIP_CALL SCIP.SCIPtrySolFree(
@@ -51,7 +51,13 @@ end
     description = "description"
     priority = 1
     heur = ZeroHeuristic()
-    SCIP.include_heuristic(o, heur, name=name, description=description, priority=priority)
+    SCIP.include_heuristic(
+        o,
+        heur;
+        name=name,
+        description=description,
+        priority=priority,
+    )
 
     heur_pointer = o.inner.heuristic_storage[heur]
     @test unsafe_string(SCIP.LibSCIP.SCIPheurGetName(heur_pointer)) == name
@@ -86,12 +92,12 @@ end
     n = 10
     x = MOI.add_variables(o, n)
     MOI.add_constraint.(o, x, MOI.ZeroOne())
-    MOI.add_constraint(
+    MOI.add_constraint(o, sum(x; init=0.0), MOI.LessThan(3.0))
+    MOI.set(
         o,
-        sum(x; init=0.0),
-        MOI.LessThan(3.0),
+        MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(),
+        dot(rand(n), x),
     )
-    MOI.set(o, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(), dot(rand(n), x))
     MOI.set(o, MOI.ObjectiveSense(), MOI.MAX_SENSE)
     ncalls = Ref(0)
     function heuristic_callback(callback_data::SCIP.HeuristicCbData)
@@ -102,13 +108,8 @@ end
         values[findmax(x_frac)[2]] = 1.0
         values[1] = 1.0
         values[2] = 1.0
-        MOI.submit(
-            o,
-            MOI.HeuristicSolution(callback_data),
-            x,
-            values,
-        )
-        global ncalls[] +=1
+        MOI.submit(o, MOI.HeuristicSolution(callback_data), x, values)
+        global ncalls[] += 1
     end
     MOI.set(o, MOI.HeuristicCallback(), heuristic_callback)
     MOI.optimize!(o)

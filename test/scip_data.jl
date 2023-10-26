@@ -5,8 +5,6 @@
 
 # Test memory management
 
-using MathOptInterface
-
 @testset "create and manual free" begin
     o = SCIP.Optimizer()
     @test o.inner.scip[] != C_NULL

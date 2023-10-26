@@ -3,24 +3,18 @@
 # Use of this source code is governed by an MIT-style license that can be found
 # in the LICENSE.md file or at https://opensource.org/licenses/MIT.
 
-using MathOptInterface
-const MOI = MathOptInterface
-const MOIB = MOI.Bridges
-const MOIT = MOI.Test
+import MathOptInterface as MOI
 
-const VI = MOI.VariableIndex
-const CI = MOI.ConstraintIndex
-
-function var_bounds(o::SCIP.Optimizer, vi::VI)
+function var_bounds(o::SCIP.Optimizer, vi::MOI.VariableIndex)
     return MOI.get(
         o,
         MOI.ConstraintSet(),
-        CI{VI,MOI.Interval{Float64}}(vi.value),
+        MOI.ConstraintIndex{MOI.VariableIndex,MOI.Interval{Float64}}(vi.value),
     )
 end
 
-function chg_bounds(o::SCIP.Optimizer, vi::VI, set::S) where {S}
-    ci = CI{VI,S}(vi.value)
+function chg_bounds(o::SCIP.Optimizer, vi::MOI.VariableIndex, set::S) where {S}
+    ci = MOI.ConstraintIndex{MOI.VariableIndex,S}(vi.value)
     MOI.set(o, MOI.ConstraintSet(), ci, set)
     return nothing
 end
@@ -438,11 +432,11 @@ end
 end
 
 @testset "broken indicator test" for presolving in (1, 0)
-    model = MOIB.full_bridge_optimizer(
+    model = MOI.Bridges.full_bridge_optimizer(
         SCIP.Optimizer(; display_verblevel=0, presolving_maxrounds=presolving),
         Float64,
     )
-    config = MOIT.Config(;
+    config = MOI.Test.Config(;
         atol=5e-3,
         rtol=1e-4,
         exclude=Any[
