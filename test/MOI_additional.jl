@@ -557,3 +557,25 @@ end
     MOI.set(optimizer, SCIP.Presolving(), presolving)
     @test MOI.get(optimizer, SCIP.Presolving()) == presolving
 end
+
+@testset "is_valid_zeroone" begin
+    model = SCIP.Optimizer()
+    x = MOI.add_variable(model)
+    c = MOI.ConstraintIndex{MOI.VariableIndex,MOI.ZeroOne}(x.value)
+    @test !MOI.is_valid(model, c)
+    MOI.add_constraint(model, x, MOI.ZeroOne())
+    @test MOI.is_valid(model, c)
+    MOI.delete(model, c)
+    @test !MOI.is_valid(model, c)
+end
+
+@testset "is_valid_integer" begin
+    model = SCIP.Optimizer()
+    x = MOI.add_variable(model)
+    c = MOI.ConstraintIndex{MOI.VariableIndex,MOI.Integer}(x.value)
+    @test !MOI.is_valid(model, c)
+    MOI.add_constraint(model, x, MOI.Integer())
+    @test MOI.is_valid(model, c)
+    MOI.delete(model, c)
+    @test !MOI.is_valid(model, c)
+end

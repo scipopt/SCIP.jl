@@ -266,7 +266,7 @@ function MOI.set(
 end
 
 # TODO: is actually wrong for unbounded variables?
-function MOI.is_valid(o::Optimizer, ci::CI{VI,S}) where {S<:BOUNDS}
+function MOI.is_valid(o::Optimizer, ci::CI{VI,S}) where {S<:Union{<:BOUNDS,MOI.ZeroOne,MOI.Integer}}
     if !haskey(o.inner.vars, VarRef(ci.value))
         return false
     end
@@ -274,7 +274,7 @@ function MOI.is_valid(o::Optimizer, ci::CI{VI,S}) where {S<:BOUNDS}
     if cons_set === nothing
         return false
     end
-    return ConsRef(ci.value) in o.constypes[VI, S]
+    return ConsRef(ci.value) in cons_set
 end
 
 function MOI.get(
@@ -304,16 +304,6 @@ function MOI.get(
         lb, ub = bounds.lower, bounds.upper
     end
     return from_bounds(S, lb, ub)
-end
-
-function MOI.is_valid(
-    o::Optimizer,
-    ci::CI{VI,S},
-) where {S<:Union{MOI.ZeroOne,MOI.Integer}}
-    if !haskey(o.inner.vars, VarRef(ci.value))
-        return false
-    end
-    return ConsRef(ci.value) in o.constypes[VI, S]
 end
 
 function MOI.get(o::Optimizer, ::MOI.ConstraintSet, ci::CI{VI,MOI.ZeroOne})
@@ -396,7 +386,7 @@ function get_original_variables(vars::Array{Ptr{SCIP_VAR}}, nvars::Int)
     orig_vars = map(1:nvars) do i
         var = Ref(vars[i])
         @SCIP_CALL SCIPvarGetOrigvarSum(var, scalar, constant)
-        @assert scalar[] == 1.0 
+        @assert scalar[] == 1.0
         @assert constant[] == 0.0
         var[]
     end
