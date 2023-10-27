@@ -3,12 +3,10 @@
 # Use of this source code is governed by an MIT-style license that can be found
 # in the LICENSE.md file or at https://opensource.org/licenses/MIT.
 
-using MathOptInterface
-const MOI = MathOptInterface
-const MOIT = MOI.Test
+import MathOptInterface as MOI
 
 const OPTIMIZER = SCIP.Optimizer(; display_verblevel=0)
-const CONFIG_DIRECT = MOIT.Config(;
+const CONFIG_DIRECT = MOI.Test.Config(;
     atol=5e-3,
     rtol=1e-4,
     exclude=Any[
@@ -31,7 +29,7 @@ const CONFIG_DIRECT = MOIT.Config(;
             "test_variable_delete_SecondOrderCone",
         ],
     )
-    MOIT.runtests(
+    MOI.Test.runtests(
         OPTIMIZER,
         CONFIG_DIRECT;
         warn_unsupported=false,

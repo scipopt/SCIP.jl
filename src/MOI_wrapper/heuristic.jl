@@ -3,7 +3,6 @@
 # Use of this source code is governed by an MIT-style license that can be found
 # in the LICENSE.md file or at https://opensource.org/licenses/MIT.
 
-
 function include_heuristic(
     o::Optimizer,
     heuristic::HT;
@@ -53,7 +52,13 @@ mutable struct HeuristicCbData
     heur_ptr::Ptr{SCIP_HEUR}
 end
 
-function find_primal_solution(scip, heur::HeuristicCb, heurtiming, nodeinfeasible, heur_ptr)
+function find_primal_solution(
+    scip,
+    heur::HeuristicCb,
+    heurtiming,
+    nodeinfeasible,
+    heur_ptr,
+)
     cb_data = HeuristicCbData(heur, false, heurtiming, nodeinfeasible, heur_ptr)
     heur.heurcallback(cb_data)
     result = cb_data.submit_called ? SCIP_FOUNDSOL : SCIP_DIDNOTFIND
@@ -64,14 +69,23 @@ end
 # MOI Interface for heuristic callbacks
 #
 
-function MOI.get(o::Optimizer, ::MOI.CallbackVariablePrimal{HeuristicCbData}, vs::Vector{VI})
+function MOI.get(
+    o::Optimizer,
+    ::MOI.CallbackVariablePrimal{HeuristicCbData},
+    vs::Vector{MOI.VariableIndex},
+)
     return [SCIPgetSolVal(o, C_NULL, var(o, vi)) for vi in vs]
 end
 
 function MOI.set(o::Optimizer, ::MOI.HeuristicCallback, cb::Function)
     if o.moi_heuristic === nothing
         o.moi_heuristic = HeuristicCb(o.inner, cb)
-        include_heuristic(o, o.moi_heuristic, name="MOI_heuristic", description="Heuristic set in the MOI optimizer")
+        include_heuristic(
+            o,
+            o.moi_heuristic;
+            name="MOI_heuristic",
+            description="Heuristic set in the MOI optimizer",
+        )
     else
         o.moi_heuristic.cutcallback = cb
     end

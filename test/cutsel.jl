@@ -4,8 +4,7 @@
 # in the LICENSE.md file or at https://opensource.org/licenses/MIT.
 
 using SCIP
-import MathOptInterface
-const MOI = MathOptInterface
+import MathOptInterface as MOI
 using Test
 using LinearAlgebra
 using Random

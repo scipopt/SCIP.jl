@@ -3,8 +3,7 @@
 # Use of this source code is governed by an MIT-style license that can be found
 # in the LICENSE.md file or at https://opensource.org/licenses/MIT.
 
-using MathOptInterface
-const MOI = MathOptInterface
+import MathOptInterface as MOI
 
 @testset "NaiveAllDiff (two binary vars)" begin
     optimizer = SCIP.Optimizer(; display_verblevel=0)

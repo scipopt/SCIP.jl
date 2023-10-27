@@ -3,8 +3,7 @@
 # Use of this source code is governed by an MIT-style license that can be found
 # in the LICENSE.md file or at https://opensource.org/licenses/MIT.
 
-using MathOptInterface
-const MOI = MathOptInterface
+import MathOptInterface as MOI
 
 # Test, whether the cut callback is actually called and whether
 # `callback_value` works as intended.

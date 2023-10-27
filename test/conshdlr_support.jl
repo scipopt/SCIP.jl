@@ -119,10 +119,8 @@ end # module AlwaysSatisfied
 
 module NaiveAllDiff
 
-using MathOptInterface
+import MathOptInterface as MOI
 using SCIP
-
-const MOI = MathOptInterface
 
 mutable struct NADCH <: SCIP.AbstractConstraintHandler
     scip::SCIP.Optimizer # for SCIP* and var maps
@@ -217,10 +215,8 @@ end # module NaiveAllDiff
 
 module NoGoodCounter
 
-using MathOptInterface
+import MathOptInterface as MOI
 using SCIP
-
-const MOI = MathOptInterface
 
 mutable struct Counter <: SCIP.AbstractConstraintHandler
     scip::SCIP.Optimizer # for SCIP* and var maps

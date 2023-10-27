@@ -98,7 +98,7 @@ MOI.supports(::Optimizer, ::MOI.UserCutCallback) = true
 function MOI.submit(
     o::Optimizer,
     cb_data::MOI.UserCut{CutCbData},
-    func::SAF,
+    func::MOI.ScalarAffineFunction{Float64},
     set::S,
 ) where {S<:BOUNDS}
     varrefs = [VarRef(t.variable.value) for t in func.terms]

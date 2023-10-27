@@ -3,14 +3,13 @@
 # Use of this source code is governed by an MIT-style license that can be found
 # in the LICENSE.md file or at https://opensource.org/licenses/MIT.
 
-using MathOptInterface
-const MOI = MathOptInterface
-const MOIB = MOI.Bridges
-const MOIT = MOI.Test
+import MathOptInterface as MOI
 
-const BRIDGED =
-    MOIB.full_bridge_optimizer(SCIP.Optimizer(; display_verblevel=0), Float64)
-const CONFIG_BRIDGED = MOIT.Config(;
+const BRIDGED = MOI.Bridges.full_bridge_optimizer(
+    SCIP.Optimizer(; display_verblevel=0),
+    Float64,
+)
+const CONFIG_BRIDGED = MOI.Test.Config(;
     atol=5e-3,
     rtol=1e-4,
     exclude=Any[
@@ -49,7 +48,7 @@ const CONFIG_BRIDGED = MOIT.Config(;
             "test_linear_Indicator_ON_ZERO",
         ],
     )
-    MOIT.runtests(
+    MOI.Test.runtests(
         BRIDGED,
         CONFIG_BRIDGED;
         warn_unsupported=false,
