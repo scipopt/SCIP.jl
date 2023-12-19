@@ -85,6 +85,7 @@ mutable struct Optimizer <: MOI.AbstractOptimizer
             name = replace(String(key), "_" => "/")
             MOI.set(o, MOI.RawOptimizerAttribute(name), value)
         end
+        set_parameter(o.inner, "heuristics/alns/freq", 0)
         return o
     end
 end
@@ -281,6 +282,7 @@ function MOI.empty!(o::Optimizer)
     for pair in o.params
         set_parameter(o.inner, pair.first, pair.second)
     end
+    set_parameter(o.inner, "heuristics/alns/freq", 0)
     o.objective_sense = nothing
     o.objective_function_set = false
     o.conflict_status = MOI.COMPUTE_CONFLICT_NOT_CALLED
