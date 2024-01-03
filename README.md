@@ -4,6 +4,7 @@
 [![codecov](https://codecov.io/gh/scipopt/SCIP.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/scipopt/SCIP.jl)
 [![Genie Downloads](https://shields.io/endpoint?url=https://pkgs.genieframework.com/api/v1/badge/SCIP)](https://pkgs.genieframework.com?packages=SCIP)
 
+
 [SCIP.jl](https://github.com/scipopt/SCIP.jl) is a Julia interface to the [SCIP](https://scipopt.org) solver.
 
 ## Affiliation
