@@ -11,11 +11,15 @@ if isfile(depsjl_path)
     include(depsjl_path)
 else
     # Artifact from BinaryBuilder package
-    import SCIP_PaPILO_jll
-    if SCIP_PaPILO_jll.is_available() && !Sys.iswindows()
-        using SCIP_PaPILO_jll: libscip
+    if Sys.iswindows()
+        @eval const libscip = joinpath(artifact"libscip-windows.zip", "scip_install/bin/libscip.dll")
     else
-        using SCIP_jll: libscip
+        import SCIP_PaPILO_jll
+        if SCIP_PaPILO_jll.is_available() && !Sys.iswindows()
+            using SCIP_PaPILO_jll: libscip
+        else
+            using SCIP_jll: libscip
+        end
     end
 end
 
