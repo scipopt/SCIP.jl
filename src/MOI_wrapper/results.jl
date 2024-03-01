@@ -1,3 +1,8 @@
+# Copyright (c) 2018 Felipe Serrano, Miles Lubin, Robert Schwarz, and contributors
+#
+# Use of this source code is governed by an MIT-style license that can be found
+# in the LICENSE.md file or at https://opensource.org/licenses/MIT.
+
 # results
 
 term_status_map = Dict(
@@ -86,24 +91,32 @@ function MOI.get(o::Optimizer, attr::MOI.ObjectiveValue)
     return SCIPgetSolOrigObj(o, sols[attr.result_index])
 end
 
-function MOI.get(o::Optimizer, attr::MOI.VariablePrimal, vi::VI)
+function MOI.get(o::Optimizer, attr::MOI.VariablePrimal, vi::MOI.VariableIndex)
     assert_solved(o)
     MOI.check_result_index_bounds(o, attr)
     sols = unsafe_wrap(Array{Ptr{SCIP_SOL}}, SCIPgetSols(o), SCIPgetNSols(o))
     return SCIPgetSolVal(o, sols[attr.result_index], var(o, vi))
 end
 
-function MOI.get(o::Optimizer, attr::MOI.ConstraintPrimal, ci::CI{VI,<:BOUNDS})
+function MOI.get(
+    o::Optimizer,
+    attr::MOI.ConstraintPrimal,
+    ci::MOI.ConstraintIndex{MOI.VariableIndex,<:BOUNDS},
+)
     assert_solved(o)
     MOI.check_result_index_bounds(o, attr)
     sols = unsafe_wrap(Array{Ptr{SCIP_SOL}}, SCIPgetSols(o), SCIPgetNSols(o))
-    return SCIPgetSolVal(o, sols[attr.result_index], var(o, VI(ci.value)))
+    return SCIPgetSolVal(
+        o,
+        sols[attr.result_index],
+        var(o, MOI.VariableIndex(ci.value)),
+    )
 end
 
 function MOI.get(
     o::Optimizer,
     attr::MOI.ConstraintPrimal,
-    ci::CI{<:SAF,<:BOUNDS},
+    ci::MOI.ConstraintIndex{<:MOI.ScalarAffineFunction{Float64},<:BOUNDS},
 )
     assert_solved(o)
     MOI.check_result_index_bounds(o, attr)

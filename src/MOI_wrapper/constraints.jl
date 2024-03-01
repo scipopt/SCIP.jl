@@ -1,20 +1,39 @@
+# Copyright (c) 2018 Felipe Serrano, Miles Lubin, Robert Schwarz, and contributors
+#
+# Use of this source code is governed by an MIT-style license that can be found
+# in the LICENSE.md file or at https://opensource.org/licenses/MIT.
+
 # generic constraints
 
-function MOI.get(o::Optimizer, ::MOI.ConstraintName, ci::CI)::String
+function MOI.get(
+    o::Optimizer,
+    ::MOI.ConstraintName,
+    ci::MOI.ConstraintIndex,
+)::String
     return GC.@preserve o unsafe_string(SCIPconsGetName(cons(o, ci)))
 end
 
-function MOI.set(o::Optimizer, ::MOI.ConstraintName, ci::CI, name::String)
+function MOI.set(
+    o::Optimizer,
+    ::MOI.ConstraintName,
+    ci::MOI.ConstraintIndex,
+    name::String,
+)
     @SCIP_CALL SCIPchgConsName(o, cons(o, ci), name)
     return nothing
 end
 
-function MOI.set(o::Optimizer, ::MOI.ConstraintName, ci::CI{VI}, name::String)
+function MOI.set(
+    o::Optimizer,
+    ::MOI.ConstraintName,
+    ci::MOI.ConstraintIndex{MOI.VariableIndex},
+    name::String,
+)
     throw(MOI.VariableIndexConstraintNameError())
     return nothing
 end
 
-function MOI.is_valid(o::Optimizer, c::CI{F,S}) where {F,S}
+function MOI.is_valid(o::Optimizer, c::MOI.ConstraintIndex{F,S}) where {F,S}
     cons_set = get(o.constypes, (F, S), nothing)
     if cons_set === nothing
         return false
@@ -36,7 +55,7 @@ function MOI.get(o::Optimizer, ::Type{MOI.ConstraintIndex}, name::String)
     end
     for ((F, S), setref) in o.constypes
         if cref in setref
-            return CI{F,S}(cref.val)
+            return MOI.ConstraintIndex{F,S}(cref.val)
         end
     end
     error("Constraint type not found for constraint $cref")

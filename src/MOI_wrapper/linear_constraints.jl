@@ -1,12 +1,23 @@
+# Copyright (c) 2018 Felipe Serrano, Miles Lubin, Robert Schwarz, and contributors
+#
+# Use of this source code is governed by an MIT-style license that can be found
+# in the LICENSE.md file or at https://opensource.org/licenses/MIT.
+
 # linear constraints
 
-MOI.supports_constraint(o::Optimizer, ::Type{SAF}, ::Type{<:BOUNDS}) = true
+function MOI.supports_constraint(
+    o::Optimizer,
+    ::Type{MOI.ScalarAffineFunction{Float64}},
+    ::Type{<:BOUNDS},
+)
+    true
+end
 
 function MOI.add_constraint(
     o::Optimizer,
     func::F,
     set::S,
-) where {F<:SAF,S<:BOUNDS}
+) where {F<:MOI.ScalarAffineFunction{Float64},S<:BOUNDS}
     if func.constant != 0.0
         throw(MOI.ScalarFunctionConstantNotZero{Float64,F,S}(func.constant))
     end
@@ -21,7 +32,7 @@ function MOI.add_constraint(
     rhs = rhs === nothing ? SCIPinfinity(o) : rhs
 
     cr = add_linear_constraint(o.inner, varrefs, coefs, lhs, rhs)
-    ci = CI{F,S}(cr.val)
+    ci = MOI.ConstraintIndex{F,S}(cr.val)
     register!(o, ci)
     register!(o, cons(o, ci), cr)
     return ci
@@ -30,7 +41,7 @@ end
 function MOI.set(
     o::SCIP.Optimizer,
     ::MOI.ConstraintSet,
-    ci::CI{<:SAF,S},
+    ci::MOI.ConstraintIndex{<:MOI.ScalarAffineFunction{Float64},S},
     set::S,
 ) where {S<:BOUNDS}
     allow_modification(o)
@@ -48,7 +59,7 @@ end
 function MOI.get(
     o::Optimizer,
     ::MOI.ConstraintFunction,
-    ci::CI{<:SAF,S},
+    ci::MOI.ConstraintIndex{<:MOI.ScalarAffineFunction{Float64},S},
 ) where {S<:BOUNDS}
     _throw_if_invalid(o, ci)
     c = cons(o, ci)
@@ -58,15 +69,20 @@ function MOI.get(
 
     orig_vars = get_original_variables(vars, nvars)
 
-    terms = [AFF_TERM(vals[i], VI(ref(o, orig_vars[i]).val)) for i in 1:nvars]
+    terms = [
+        MOI.ScalarAffineTerm{Float64}(
+            vals[i],
+            MOI.VariableIndex(ref(o, orig_vars[i]).val),
+        ) for i in 1:nvars
+    ]
     # can not identify constant anymore (is merged with lhs,rhs)
-    return SAF(terms, 0.0)
+    return MOI.ScalarAffineFunction{Float64}(terms, 0.0)
 end
 
 function MOI.get(
     o::Optimizer,
     ::MOI.ConstraintSet,
-    ci::CI{<:SAF,S},
+    ci::MOI.ConstraintIndex{<:MOI.ScalarAffineFunction{Float64},S},
 ) where {S<:BOUNDS}
     _throw_if_invalid(o, ci)
     lhs = SCIPgetLhsLinear(o, cons(o, ci))
@@ -76,7 +92,7 @@ end
 
 function MOI.modify(
     o::Optimizer,
-    ci::CI{<:SAF,<:BOUNDS},
+    ci::MOI.ConstraintIndex{<:MOI.ScalarAffineFunction{Float64},<:BOUNDS},
     change::MOI.ScalarCoefficientChange{Float64},
 )
     allow_modification(o)

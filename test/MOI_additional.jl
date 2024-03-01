@@ -1,21 +1,20 @@
-using MathOptInterface
-const MOI = MathOptInterface
-const MOIB = MOI.Bridges
-const MOIT = MOI.Test
+# Copyright (c) 2018 Felipe Serrano, Miles Lubin, Robert Schwarz, and contributors
+#
+# Use of this source code is governed by an MIT-style license that can be found
+# in the LICENSE.md file or at https://opensource.org/licenses/MIT.
 
-const VI = MOI.VariableIndex
-const CI = MOI.ConstraintIndex
+import MathOptInterface as MOI
 
-function var_bounds(o::SCIP.Optimizer, vi::VI)
+function var_bounds(o::SCIP.Optimizer, vi::MOI.VariableIndex)
     return MOI.get(
         o,
         MOI.ConstraintSet(),
-        CI{VI,MOI.Interval{Float64}}(vi.value),
+        MOI.ConstraintIndex{MOI.VariableIndex,MOI.Interval{Float64}}(vi.value),
     )
 end
 
-function chg_bounds(o::SCIP.Optimizer, vi::VI, set::S) where {S}
-    ci = CI{VI,S}(vi.value)
+function chg_bounds(o::SCIP.Optimizer, vi::MOI.VariableIndex, set::S) where {S}
+    ci = MOI.ConstraintIndex{MOI.VariableIndex,S}(vi.value)
     MOI.set(o, MOI.ConstraintSet(), ci, set)
     return nothing
 end
@@ -433,11 +432,11 @@ end
 end
 
 @testset "broken indicator test" for presolving in (1, 0)
-    model = MOIB.full_bridge_optimizer(
+    model = MOI.Bridges.full_bridge_optimizer(
         SCIP.Optimizer(; display_verblevel=0, presolving_maxrounds=presolving),
         Float64,
     )
-    config = MOIT.Config(;
+    config = MOI.Test.Config(;
         atol=5e-3,
         rtol=1e-4,
         exclude=Any[
@@ -556,4 +555,26 @@ end
 
     MOI.set(optimizer, SCIP.Presolving(), presolving)
     @test MOI.get(optimizer, SCIP.Presolving()) == presolving
+end
+
+@testset "is_valid_zeroone" begin
+    model = SCIP.Optimizer()
+    x = MOI.add_variable(model)
+    c = MOI.ConstraintIndex{MOI.VariableIndex,MOI.ZeroOne}(x.value)
+    @test !MOI.is_valid(model, c)
+    MOI.add_constraint(model, x, MOI.ZeroOne())
+    @test MOI.is_valid(model, c)
+    MOI.delete(model, c)
+    @test !MOI.is_valid(model, c)
+end
+
+@testset "is_valid_integer" begin
+    model = SCIP.Optimizer()
+    x = MOI.add_variable(model)
+    c = MOI.ConstraintIndex{MOI.VariableIndex,MOI.Integer}(x.value)
+    @test !MOI.is_valid(model, c)
+    MOI.add_constraint(model, x, MOI.Integer())
+    @test MOI.is_valid(model, c)
+    MOI.delete(model, c)
+    @test !MOI.is_valid(model, c)
 end

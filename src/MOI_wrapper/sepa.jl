@@ -1,3 +1,8 @@
+# Copyright (c) 2018 Felipe Serrano, Miles Lubin, Robert Schwarz, and contributors
+#
+# Use of this source code is governed by an MIT-style license that can be found
+# in the LICENSE.md file or at https://opensource.org/licenses/MIT.
+
 #
 # Adding separators to SCIP.Optimizer.
 #
@@ -93,7 +98,7 @@ MOI.supports(::Optimizer, ::MOI.UserCutCallback) = true
 function MOI.submit(
     o::Optimizer,
     cb_data::MOI.UserCut{CutCbData},
-    func::SAF,
+    func::MOI.ScalarAffineFunction{Float64},
     set::S,
 ) where {S<:BOUNDS}
     varrefs = [VarRef(t.variable.value) for t in func.terms]

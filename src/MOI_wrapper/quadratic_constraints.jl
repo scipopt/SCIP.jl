@@ -1,8 +1,23 @@
+# Copyright (c) 2018 Felipe Serrano, Miles Lubin, Robert Schwarz, and contributors
+#
+# Use of this source code is governed by an MIT-style license that can be found
+# in the LICENSE.md file or at https://opensource.org/licenses/MIT.
+
 # quadratic constraints
 
-MOI.supports_constraint(o::Optimizer, ::Type{SQF}, ::Type{<:BOUNDS}) = true
+function MOI.supports_constraint(
+    o::Optimizer,
+    ::Type{MOI.ScalarQuadraticFunction{Float64}},
+    ::Type{<:BOUNDS},
+)
+    true
+end
 
-function MOI.add_constraint(o::Optimizer, func::SQF, set::S) where {S<:BOUNDS}
+function MOI.add_constraint(
+    o::Optimizer,
+    func::MOI.ScalarQuadraticFunction{Float64},
+    set::S,
+) where {S<:BOUNDS}
     if func.constant != 0.0
         error(
             "SCIP does not support quadratic constraints with a constant offset.",
@@ -38,7 +53,7 @@ function MOI.add_constraint(o::Optimizer, func::SQF, set::S) where {S<:BOUNDS}
         lhs,
         rhs,
     )
-    ci = CI{SQF,S}(cr.val)
+    ci = MOI.ConstraintIndex{MOI.ScalarQuadraticFunction{Float64},S}(cr.val)
     register!(o, ci)
     register!(o, cons(o, ci), cr)
     return ci
@@ -47,7 +62,7 @@ end
 function MOI.set(
     o::SCIP.Optimizer,
     ::MOI.ConstraintSet,
-    ci::CI{SQF,S},
+    ci::MOI.ConstraintIndex{MOI.ScalarQuadraticFunction{Float64},S},
     set::S,
 ) where {S<:BOUNDS}
     allow_modification(o)
@@ -65,7 +80,7 @@ end
 function MOI.get(
     o::Optimizer,
     ::MOI.ConstraintFunction,
-    ci::CI{SQF,S},
+    ci::MOI.ConstraintIndex{MOI.ScalarQuadraticFunction{Float64},S},
 ) where {S<:BOUNDS}
     _throw_if_invalid(o, ci)
     c = cons(o, ci)
@@ -103,7 +118,7 @@ function MOI.get(
     lin_coeff_vec =
         unsafe_wrap(Vector{Cdouble}, lincoefs[], n_linear_terms_ref[])
 
-    func = SCIP.SQF([], [], constant_ref[])
+    func = SCIP.MOI.ScalarQuadraticFunction{Float64}([], [], constant_ref[])
     for idx in 1:n_linear_terms_ref[]
         var_ptr = LibSCIP.SCIPgetVarExprVar(lin_expr_vec[idx])
         func += lin_coeff_vec[idx] * MOI.VariableIndex(o.reference[var_ptr].val)
@@ -167,7 +182,7 @@ end
 function MOI.get(
     o::Optimizer,
     ::MOI.ConstraintSet,
-    ci::CI{SQF,S},
+    ci::MOI.ConstraintIndex{MOI.ScalarQuadraticFunction{Float64},S},
 ) where {S<:BOUNDS}
     _throw_if_invalid(o, ci)
     c = cons(o, ci)
@@ -179,7 +194,7 @@ end
 function MOI.get(
     o::Optimizer,
     ::MOI.ConstraintPrimal,
-    ci::CI{SQF,S},
+    ci::MOI.ConstraintIndex{MOI.ScalarQuadraticFunction{Float64},S},
 ) where {S<:BOUNDS}
     _throw_if_invalid(o, ci)
     c = cons(o, ci)

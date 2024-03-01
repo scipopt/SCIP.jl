@@ -1,3 +1,8 @@
+# Copyright (c) 2018 Felipe Serrano, Miles Lubin, Robert Schwarz, and contributors
+#
+# Use of this source code is governed by an MIT-style license that can be found
+# in the LICENSE.md file or at https://opensource.org/licenses/MIT.
+
 module Dummy
 
 using SCIP
@@ -114,10 +119,8 @@ end # module AlwaysSatisfied
 
 module NaiveAllDiff
 
-using MathOptInterface
+import MathOptInterface as MOI
 using SCIP
-
-const MOI = MathOptInterface
 
 mutable struct NADCH <: SCIP.AbstractConstraintHandler
     scip::SCIP.Optimizer # for SCIP* and var maps
@@ -212,10 +215,8 @@ end # module NaiveAllDiff
 
 module NoGoodCounter
 
-using MathOptInterface
+import MathOptInterface as MOI
 using SCIP
-
-const MOI = MathOptInterface
 
 mutable struct Counter <: SCIP.AbstractConstraintHandler
     scip::SCIP.Optimizer # for SCIP* and var maps

@@ -1,29 +1,16 @@
-using MathOptInterface
-const MOI = MathOptInterface
-const MOIU = MOI.Utilities
+# Copyright (c) 2018 Felipe Serrano, Miles Lubin, Robert Schwarz, and contributors
+#
+# Use of this source code is governed by an MIT-style license that can be found
+# in the LICENSE.md file or at https://opensource.org/licenses/MIT.
 
-# indices
-const VI = MOI.VariableIndex
-const CI = MOI.ConstraintIndex
-# supported functions
-const SAF = MOI.ScalarAffineFunction{Float64}
-const SQF = MOI.ScalarQuadraticFunction{Float64}
-const VAF = MOI.VectorAffineFunction{Float64}
-const VECTOR = MOI.VectorOfVariables
-# supported sets
+import MathOptInterface as MOI
+
 const BOUNDS = Union{
     MOI.EqualTo{Float64},
     MOI.GreaterThan{Float64},
     MOI.LessThan{Float64},
     MOI.Interval{Float64},
 }
-const VAR_TYPES = Union{MOI.ZeroOne,MOI.Integer}
-const SOS1 = MOI.SOS1{Float64}
-const SOS2 = MOI.SOS2{Float64}
-# other MOI types
-const AFF_TERM = MOI.ScalarAffineTerm{Float64}
-const QUAD_TERM = MOI.ScalarQuadraticTerm{Float64}
-const VEC_TERM = MOI.VectorAffineTerm{Float64}
 
 const PtrMap = Dict{Ptr{Cvoid},Union{VarRef,ConsRef}}
 const ConsTypeMap = Dict{Tuple{DataType,DataType},Set{ConsRef}}
@@ -32,9 +19,9 @@ mutable struct Optimizer <: MOI.AbstractOptimizer
     inner::SCIPData
     reference::PtrMap
     constypes::ConsTypeMap
-    binbounds::Dict{VI,BOUNDS} # only for binary variables
+    binbounds::Dict{MOI.VariableIndex,BOUNDS} # only for binary variables
     params::Dict{String,Any}
-    start::Dict{VI,Float64} # can be partial
+    start::Dict{MOI.VariableIndex,Float64} # can be partial
     moi_separator::Any # ::Union{CutCbSeparator, Nothing}
     moi_heuristic::Any # ::Union{HeuristicCb, Nothing}
     objective_sense::Union{Nothing,MOI.OptimizationSense}
@@ -99,7 +86,7 @@ Base.unsafe_convert(::Type{Ptr{SCIP_}}, o::Optimizer) = o.inner.scip[]
 ## convenience functions (not part of MOI)
 
 "Return pointer to SCIP variable."
-function var(o::Optimizer, v::VI)::Ptr{SCIP_VAR}
+function var(o::Optimizer, v::MOI.VariableIndex)::Ptr{SCIP_VAR}
     return var(o.inner, VarRef(v.value))
 end
 
@@ -107,7 +94,10 @@ end
 ref(o::Optimizer, ptr::Ptr{Cvoid}) = o.reference[ptr]
 
 "Return pointer to SCIP constraint."
-function cons(o::Optimizer, c::CI{F,S})::Ptr{SCIP_CONS} where {F,S}
+function cons(
+    o::Optimizer,
+    c::MOI.ConstraintIndex{F,S},
+)::Ptr{SCIP_CONS} where {F,S}
     return cons(o.inner, ConsRef(c.value))
 end
 
@@ -143,7 +133,7 @@ function register!(
 end
 
 "Register constraint in mapping, return constraint reference."
-function register!(o::Optimizer, c::CI{F,S}) where {F,S}
+function register!(o::Optimizer, c::MOI.ConstraintIndex{F,S}) where {F,S}
     cr = ConsRef(c.value)
     if haskey(o.constypes, (F, S))
         push!(o.constypes[F, S], cr)
@@ -167,7 +157,10 @@ MOI.get(::Optimizer, ::MOI.SolverName) = "SCIP"
 
 MOI.supports_incremental_interface(::Optimizer) = true
 
-function _throw_if_invalid(o::Optimizer, ci::CI{F,S}) where {F,S}
+function _throw_if_invalid(
+    o::Optimizer,
+    ci::MOI.ConstraintIndex{F,S},
+) where {F,S}
     if !haskey(o.constypes, (F, S)) || !in(ConsRef(ci.value), o.constypes[F, S])
         throw(MOI.InvalidIndex(ci))
     end
@@ -212,7 +205,11 @@ end
 
 function MOI.set(o::Optimizer, ::MOI.TimeLimitSec, value)
     if value === nothing
-        return MOI.set(o, MOI.RawOptimizerAttribute("limits/time"), SCIPinfinity(o))
+        return MOI.set(
+            o,
+            MOI.RawOptimizerAttribute("limits/time"),
+            SCIPinfinity(o),
+        )
     end
     return MOI.set(o, MOI.RawOptimizerAttribute("limits/time"), value)
 end
@@ -276,8 +273,20 @@ function MOI.empty!(o::Optimizer)
     @SCIP_CALL SCIPincludeDefaultPlugins(scip[])
     @SCIP_CALL SCIP.SCIPcreateProbBasic(scip[], "")
     # create a new problem
-    o.inner =
-        SCIPData(scip, Dict(), Dict(), 0, 0, Dict(), Dict(), Dict(), Dict(), Dict(), Dict(), [])
+    o.inner = SCIPData(
+        scip,
+        Dict(),
+        Dict(),
+        0,
+        0,
+        Dict(),
+        Dict(),
+        Dict(),
+        Dict(),
+        Dict(),
+        Dict(),
+        [],
+    )
     # reapply parameters
     for pair in o.params
         set_parameter(o.inner, pair.first, pair.second)
@@ -292,7 +301,7 @@ function MOI.empty!(o::Optimizer)
 end
 
 function MOI.copy_to(dest::Optimizer, src::MOI.ModelLike)
-    return MOIU.default_copy_to(dest, src)
+    return MOI.Utilities.default_copy_to(dest, src)
 end
 
 MOI.get(o::Optimizer, ::MOI.Name) = unsafe_string(SCIPgetProbName(o))
@@ -331,12 +340,12 @@ function MOI.get(o::Optimizer, ::MOI.ListOfConstraintTypesPresent)
 end
 
 function MOI.get(o::Optimizer, ::MOI.ListOfConstraintIndices{F,S}) where {F,S}
-    list_indices = Vector{CI{F,S}}()
+    list_indices = Vector{MOI.ConstraintIndex{F,S}}()
     if !haskey(o.constypes, (F, S))
         return list_indices
     end
     for cref in o.constypes[F, S]
-        push!(list_indices, CI{F,S}(cref.val))
+        push!(list_indices, MOI.ConstraintIndex{F,S}(cref.val))
     end
     return sort!(list_indices; by=v -> v.value)
 end
@@ -367,13 +376,17 @@ end
 function MOI.optimize!(o::Optimizer)
     set_start_values(o)
     if o.objective_sense == MOI.FEASIBILITY_SENSE
-        MOI.set(o, MOI.ObjectiveFunction{SAF}(), SAF([], 0.0))
+        MOI.set(
+            o,
+            MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(),
+            MOI.ScalarAffineFunction{Float64}([], 0.0),
+        )
     end
     @SCIP_CALL SCIPsolve(o)
     return nothing
 end
 
-function MOI.delete(o::Optimizer, ci::CI{F,S}) where {F,S}
+function MOI.delete(o::Optimizer, ci::MOI.ConstraintIndex{F,S}) where {F,S}
     _throw_if_invalid(o, ci)
     allow_modification(o)
     delete!(o.constypes[F, S], ConsRef(ci.value))

@@ -1,3 +1,8 @@
+# Copyright (c) 2018 Felipe Serrano, Miles Lubin, Robert Schwarz, and contributors
+#
+# Use of this source code is governed by an MIT-style license that can be found
+# in the LICENSE.md file or at https://opensource.org/licenses/MIT.
+
 # Indicator constraints
 
 function MOI.supports_constraint(
@@ -28,7 +33,10 @@ function MOI.add_constraint(
     # a^T x + b <= c ===> a^T <= c - b
 
     cr = add_indicator_constraint(o.inner, y, x, a, MOI.constant(set.set) - b)
-    ci = CI{MOI.VectorAffineFunction{T},MOI.Indicator{MOI.ACTIVATE_ON_ONE,LT}}(
+    ci = MOI.ConstraintIndex{
+        MOI.VectorAffineFunction{T},
+        MOI.Indicator{MOI.ACTIVATE_ON_ONE,LT},
+    }(
         cr.val,
     )
     register!(o, ci)
@@ -39,7 +47,10 @@ end
 function MOI.get(
     o::Optimizer,
     ::MOI.ConstraintFunction,
-    ci::CI{MOI.VectorAffineFunction{T},MOI.Indicator{MOI.ACTIVATE_ON_ONE,LT}},
+    ci::MOI.ConstraintIndex{
+        MOI.VectorAffineFunction{T},
+        MOI.Indicator{MOI.ACTIVATE_ON_ONE,LT},
+    },
 ) where {T<:Real,LT<:MOI.LessThan}
     _throw_if_invalid(o, ci)
     indicator_cons = cons(o, ci)::Ptr{SCIP_CONS}
@@ -58,20 +69,36 @@ function MOI.get(
 
     vals = unsafe_wrap(Array{Float64}, SCIPgetValsLinear(o, linear_cons), nvars)
     aff_terms = [
-        AFF_TERM(vals[i], VI(ref(o, orig_vars[i]).val)) for
-        i in 1:nvars if orig_vars[i] != slack_var
+        MOI.ScalarAffineTerm{Float64}(
+            vals[i],
+            MOI.VariableIndex(ref(o, orig_vars[i]).val),
+        ) for i in 1:nvars if orig_vars[i] != slack_var
     ]
 
-    ind_terms = [VEC_TERM(1, AFF_TERM(1.0, VI(ref(o, bin_var).val)))]
-    vec_terms = [VEC_TERM(2, term) for term in aff_terms]
+    ind_terms = [
+        MOI.VectorAffineTerm{Float64}(
+            1,
+            MOI.ScalarAffineTerm{Float64}(
+                1.0,
+                MOI.VariableIndex(ref(o, bin_var).val),
+            ),
+        ),
+    ]
+    vec_terms = [MOI.VectorAffineTerm{Float64}(2, term) for term in aff_terms]
 
-    return VAF(vcat(ind_terms, vec_terms), [0.0, 0.0])
+    return MOI.VectorAffineFunction{Float64}(
+        vcat(ind_terms, vec_terms),
+        [0.0, 0.0],
+    )
 end
 
 function MOI.get(
     o::Optimizer,
     ::MOI.ConstraintSet,
-    ci::CI{MOI.VectorAffineFunction{T},MOI.Indicator{MOI.ACTIVATE_ON_ONE,LT}},
+    ci::MOI.ConstraintIndex{
+        MOI.VectorAffineFunction{T},
+        MOI.Indicator{MOI.ACTIVATE_ON_ONE,LT},
+    },
 ) where {T<:Real,LT<:MOI.LessThan}
     _throw_if_invalid(o, ci)
     indicator_cons = cons(o, ci)::Ptr{SCIP_CONS}

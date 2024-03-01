@@ -1,3 +1,8 @@
+# Copyright (c) 2018 Felipe Serrano, Miles Lubin, Robert Schwarz, and contributors
+#
+# Use of this source code is governed by an MIT-style license that can be found
+# in the LICENSE.md file or at https://opensource.org/licenses/MIT.
+
 ## Related to constraint handlers
 
 """
@@ -14,7 +19,7 @@ Extract solution values for given variables.
 """
 function sol_values(
     o::Optimizer,
-    vars::AbstractArray{VI},
+    vars::AbstractArray{MOI.VariableIndex},
     sol::Ptr{SCIP_SOL}=C_NULL,
 )
     return [SCIPgetSolVal(o, sol, var(o, vi)) for vi in vars]

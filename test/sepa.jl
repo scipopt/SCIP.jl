@@ -1,5 +1,9 @@
-using MathOptInterface
-const MOI = MathOptInterface
+# Copyright (c) 2018 Felipe Serrano, Miles Lubin, Robert Schwarz, and contributors
+#
+# Use of this source code is governed by an MIT-style license that can be found
+# in the LICENSE.md file or at https://opensource.org/licenses/MIT.
+
+import MathOptInterface as MOI
 
 # Test, whether the callback of the separator is called.
 @testset "DummySepa (no separation)" begin

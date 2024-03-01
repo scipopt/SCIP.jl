@@ -1,3 +1,8 @@
+# Copyright (c) 2018 Felipe Serrano, Miles Lubin, Robert Schwarz, and contributors
+#
+# Use of this source code is governed by an MIT-style license that can be found
+# in the LICENSE.md file or at https://opensource.org/licenses/MIT.
+
 # heuristic interface
 # it is recommended to check https://scipopt.org/doc/html/HEUR.php for key concepts and interface
 
@@ -84,9 +89,7 @@ function include_heuristic(
 
     heur__ = Ref{Ptr{SCIP_HEUR}}(C_NULL)
     if !ismutable(heuristic)
-        throw(
-            ArgumentError("The heuristic structure must be a mutable type"),
-        )
+        throw(ArgumentError("The heuristic structure must be a mutable type"))
     end
 
     heurdata_ = pointer_from_objref(heuristic)

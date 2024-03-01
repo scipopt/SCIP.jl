@@ -1,3 +1,8 @@
+# Copyright (c) 2018 Felipe Serrano, Miles Lubin, Robert Schwarz, and contributors
+#
+# Use of this source code is governed by an MIT-style license that can be found
+# in the LICENSE.md file or at https://opensource.org/licenses/MIT.
+
 # Objective function & sense.
 #
 # SCIP only supports affine objectives. For quadratic or nonlinear objectives,
@@ -5,9 +10,18 @@
 # objectives are also accepted, but the type is not correctly remembered.
 
 MOI.supports(::Optimizer, ::MOI.ObjectiveSense) = true
-MOI.supports(::Optimizer, ::MOI.ObjectiveFunction{SAF}) = true
+function MOI.supports(
+    ::Optimizer,
+    ::MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}},
+)
+    true
+end
 
-function MOI.set(o::Optimizer, ::MOI.ObjectiveFunction{SAF}, obj::SAF)
+function MOI.set(
+    o::Optimizer,
+    ::MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}},
+    obj::MOI.ScalarAffineFunction{Float64},
+)
     allow_modification(o)
 
     # reset objective coefficient of all variables first
@@ -28,15 +42,18 @@ function MOI.set(o::Optimizer, ::MOI.ObjectiveFunction{SAF}, obj::SAF)
     return nothing
 end
 
-function MOI.get(o::Optimizer, ::MOI.ObjectiveFunction{SAF})
-    terms = AFF_TERM[]
+function MOI.get(
+    o::Optimizer,
+    ::MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}},
+)
+    terms = MOI.ScalarAffineTerm{Float64}[]
     for vr in keys(o.inner.vars)
-        vi = VI(vr.val)
+        vi = MOI.VariableIndex(vr.val)
         coef = SCIPvarGetObj(var(o, vi))
-        coef == 0.0 || push!(terms, AFF_TERM(coef, vi))
+        coef == 0.0 || push!(terms, MOI.ScalarAffineTerm{Float64}(coef, vi))
     end
     constant = SCIPgetOrigObjoffset(o)
-    return SAF(terms, constant)
+    return MOI.ScalarAffineFunction{Float64}(terms, constant)
 end
 
 function MOI.set(
@@ -51,7 +68,11 @@ function MOI.set(
         @SCIP_CALL SCIPsetObjsense(o, SCIP_OBJSENSE_MAXIMIZE)
     else
         # erasing objective
-        MOI.set(o, MOI.ObjectiveFunction{SAF}(), SAF([], 0.0))
+        MOI.set(
+            o,
+            MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(),
+            MOI.ScalarAffineFunction{Float64}([], 0.0),
+        )
     end
     o.objective_sense = sense
     return nothing
@@ -63,7 +84,7 @@ end
 
 function MOI.modify(
     o::Optimizer,
-    ::MOI.ObjectiveFunction{SAF},
+    ::MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}},
     change::MOI.ScalarCoefficientChange{Float64},
 )
     allow_modification(o)
@@ -72,4 +93,6 @@ function MOI.modify(
     return nothing
 end
 
-MOI.get(::Optimizer, ::MOI.ObjectiveFunctionType) = SAF
+function MOI.get(::Optimizer, ::MOI.ObjectiveFunctionType)
+    MOI.ScalarAffineFunction{Float64}
+end

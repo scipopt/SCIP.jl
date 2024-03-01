@@ -1,3 +1,8 @@
+# Copyright (c) 2018 Felipe Serrano, Miles Lubin, Robert Schwarz, and contributors
+#
+# Use of this source code is governed by an MIT-style license that can be found
+# in the LICENSE.md file or at https://opensource.org/licenses/MIT.
+
 # branching rule interface
 # it is recommended to check https://scipopt.org/doc/html/BRANCH.php for key concepts and interface
 
@@ -29,7 +34,6 @@ Branching for external candidate, corresponds to the SCIP `SCIP_DECL_BRANCHEXECE
 """
 struct BranchingExternalCandidate <: BranchingType end
 
-
 """
     branch(branching_rule, scip, allow_additional_constraints, type)
 
@@ -43,7 +47,12 @@ If no branching was performed, use `SCIP_DIDNOTRUN` as a result to pass on to th
 
 `type` is the `BranchingType` to branch on, i.e. on LP solution, pseudo-solution or external candidate.
 """
-function branch(branching_rule::AbstractBranchingRule, scip, allow_additional_constraints, type::BranchingType)
+function branch(
+    branching_rule::AbstractBranchingRule,
+    scip,
+    allow_additional_constraints,
+    type::BranchingType,
+)
     return (LibSCIP.SCIP_OKAY, LibSCIP.SCIP_DIDNOTRUN)
 end
 
@@ -111,10 +120,21 @@ end
 ## These are defined here to match the C function signature expected by SCIP
 #####
 
-function _branchrule_exec_lp(scip::Ptr{SCIP_}, branchrule_::Ptr{SCIP_BRANCHRULE}, allowaddcons::SCIP_Bool, result_::Ptr{SCIP_RESULT})
-    branchruledata::Ptr{SCIP_BRANCHRULEDATA} = SCIPbranchruleGetData(branchrule_)
+function _branchrule_exec_lp(
+    scip::Ptr{SCIP_},
+    branchrule_::Ptr{SCIP_BRANCHRULE},
+    allowaddcons::SCIP_Bool,
+    result_::Ptr{SCIP_RESULT},
+)
+    branchruledata::Ptr{SCIP_BRANCHRULEDATA} =
+        SCIPbranchruleGetData(branchrule_)
     branchrule = unsafe_pointer_to_objref(branchruledata)
-    (retcode, result) = branch(branchrule, scip, allowaddcons == 1, BranchingLP())::Tuple{SCIP_RETCODE,SCIP_RESULT}
+    (retcode, result) = branch(
+        branchrule,
+        scip,
+        allowaddcons == 1,
+        BranchingLP(),
+    )::Tuple{SCIP_RETCODE,SCIP_RESULT}
     if retcode != SCIP_OKAY
         return retcode
     end
@@ -122,10 +142,21 @@ function _branchrule_exec_lp(scip::Ptr{SCIP_}, branchrule_::Ptr{SCIP_BRANCHRULE}
     return retcode
 end
 
-function _branchrule_exec_ps(scip::Ptr{SCIP_}, branchrule_::Ptr{SCIP_BRANCHRULE}, allowaddcons::SCIP_Bool, result_::Ptr{SCIP_RESULT})
-    branchruledata::Ptr{SCIP_BRANCHRULEDATA} = SCIPbranchruleGetData(branchrule_)
+function _branchrule_exec_ps(
+    scip::Ptr{SCIP_},
+    branchrule_::Ptr{SCIP_BRANCHRULE},
+    allowaddcons::SCIP_Bool,
+    result_::Ptr{SCIP_RESULT},
+)
+    branchruledata::Ptr{SCIP_BRANCHRULEDATA} =
+        SCIPbranchruleGetData(branchrule_)
     branchrule = unsafe_pointer_to_objref(branchruledata)
-    (retcode, result) = branch(branchrule, scip, allowaddcons == 1, BranchingPseudoSolution())::Tuple{SCIP_RETCODE,SCIP_RESULT}
+    (retcode, result) = branch(
+        branchrule,
+        scip,
+        allowaddcons == 1,
+        BranchingPseudoSolution(),
+    )::Tuple{SCIP_RETCODE,SCIP_RESULT}
     if retcode != SCIP_OKAY
         return retcode
     end
@@ -133,10 +164,21 @@ function _branchrule_exec_ps(scip::Ptr{SCIP_}, branchrule_::Ptr{SCIP_BRANCHRULE}
     return retcode
 end
 
-function _branchrule_exec_external(scip::Ptr{SCIP_}, branchrule_::Ptr{SCIP_BRANCHRULE}, allowaddcons::SCIP_Bool, result_::Ptr{SCIP_RESULT})
-    branchruledata::Ptr{SCIP_BRANCHRULEDATA} = SCIPbranchruleGetData(branchrule_)
+function _branchrule_exec_external(
+    scip::Ptr{SCIP_},
+    branchrule_::Ptr{SCIP_BRANCHRULE},
+    allowaddcons::SCIP_Bool,
+    result_::Ptr{SCIP_RESULT},
+)
+    branchruledata::Ptr{SCIP_BRANCHRULEDATA} =
+        SCIPbranchruleGetData(branchrule_)
     branchrule = unsafe_pointer_to_objref(branchruledata)
-    (retcode, result) = branch(branchrule, scip, allowaddcons == 1, BranchingExternalCandidate())::Tuple{SCIP_RETCODE,SCIP_RESULT}
+    (retcode, result) = branch(
+        branchrule,
+        scip,
+        allowaddcons == 1,
+        BranchingExternalCandidate(),
+    )::Tuple{SCIP_RETCODE,SCIP_RESULT}
     if retcode != SCIP_OKAY
         return retcode
     end
@@ -169,7 +211,9 @@ function include_branchrule(
     branchrule__ = Ref{Ptr{SCIP_BRANCHRULE}}(C_NULL)
     if !ismutable(branchrule)
         throw(
-            ArgumentError("The branching rule structure must be a mutable type"),
+            ArgumentError(
+                "The branching rule structure must be a mutable type",
+            ),
         )
     end
 
@@ -178,32 +222,17 @@ function include_branchrule(
     branchrule_callback_lp = @cfunction(
         _branchrule_exec_lp,
         SCIP_RETCODE,
-        (
-            Ptr{SCIP_},
-            Ptr{SCIP_BRANCHRULE},
-            SCIP_Bool,
-            Ptr{SCIP_RESULT},
-        ),
+        (Ptr{SCIP_}, Ptr{SCIP_BRANCHRULE}, SCIP_Bool, Ptr{SCIP_RESULT}),
     )
     branchrule_callback_ps = @cfunction(
         _branchrule_exec_ps,
         SCIP_RETCODE,
-        (
-            Ptr{SCIP_},
-            Ptr{SCIP_BRANCHRULE},
-            SCIP_Bool,
-            Ptr{SCIP_RESULT},
-        ),
+        (Ptr{SCIP_}, Ptr{SCIP_BRANCHRULE}, SCIP_Bool, Ptr{SCIP_RESULT}),
     )
     branchrule_callback_ext = @cfunction(
         _branchrule_exec_external,
         SCIP_RETCODE,
-        (
-            Ptr{SCIP_},
-            Ptr{SCIP_BRANCHRULE},
-            SCIP_Bool,
-            Ptr{SCIP_RESULT},
-        ),
+        (Ptr{SCIP_}, Ptr{SCIP_BRANCHRULE}, SCIP_Bool, Ptr{SCIP_RESULT}),
     )
     @SCIP_CALL SCIPincludeBranchruleBasic(
         scip,
@@ -220,7 +249,11 @@ function include_branchrule(
     @SCIP_CALL SCIPsetBranchruleFree(
         scip,
         branchrule__[],
-        @cfunction(_branchrulefree, SCIP_RETCODE, (Ptr{SCIP_}, Ptr{SCIP_BRANCHRULE})),
+        @cfunction(
+            _branchrulefree,
+            SCIP_RETCODE,
+            (Ptr{SCIP_}, Ptr{SCIP_BRANCHRULE})
+        ),
     )
 
     @SCIP_CALL SCIPsetBranchruleExecLp(

@@ -1,3 +1,8 @@
+# Copyright (c) 2018 Felipe Serrano, Miles Lubin, Robert Schwarz, and contributors
+#
+# Use of this source code is governed by an MIT-style license that can be found
+# in the LICENSE.md file or at https://opensource.org/licenses/MIT.
+
 "Type-safe wrapper for `Int64`, references a variable."
 struct VarRef
     val::Int64
@@ -47,7 +52,7 @@ mutable struct SCIPData
     cutsel_storage::Dict{Any,Ptr{SCIP_CUTSEL}}
     branchrule_storage::Dict{Any,Ptr{SCIP_BRANCHRULE}}
     heuristic_storage::Dict{Any,Ptr{SCIP_HEUR}}
-    
+
     # to store expressions for release
     nonlinear_storage::Vector{NonlinExpr}
 end
