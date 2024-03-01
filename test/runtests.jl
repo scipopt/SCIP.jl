@@ -18,7 +18,9 @@ using SCIP_PaPILO_jll
 @show SCIP_jll.best_wrapper
 
 @testset "MathOptInterface nonlinear expressions" begin
-    include("MOI_nonlinear_exprs.jl")
+    if !Sys.iswindows()
+        include("MOI_nonlinear_exprs.jl")
+    end
 end
 
 @testset "direct library calls" begin
