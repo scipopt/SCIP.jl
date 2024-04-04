@@ -13,7 +13,10 @@ else
     # Artifact from BinaryBuilder package
     if Sys.iswindows()
         @eval using Artifacts
-        @eval const libscip = joinpath(artifact"libscip-windows.zip", "scip_install/bin/libscip.dll")
+        @eval const libscip = joinpath(
+            artifact"libscip-windows.zip",
+            "scip_install/bin/libscip.dll",
+        )
     else
         import SCIP_PaPILO_jll
         if SCIP_PaPILO_jll.is_available() && !Sys.iswindows()
