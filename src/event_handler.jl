@@ -55,7 +55,7 @@ function include_event_handler(
         _eventexec,
         event_handler_data
     )
-    println("hello"*string(c_handler[]))
+    
     @assert c_handler[] != C_NULL
 
     #Persist in scip store against GC
