@@ -27,7 +27,7 @@ end
 @testset "create and semi-manual free" begin
     o = SCIP.Optimizer()
     @test o.inner.scip[] != C_NULL
-    finalize(o)
+    finalize(o.inner)
     @test o.inner.scip[] == C_NULL
 end
 
@@ -77,7 +77,7 @@ end
             SCIP.@SCIP_CALL SCIP.SCIPsolve(o.inner.scip[])
         end
 
-        finalize(o)
+        finalize(o.inner)
         for var in values(o.inner.vars)
             @test var[] == C_NULL
         end
@@ -108,7 +108,7 @@ end
             SCIP.@SCIP_CALL SCIP.SCIPsolve(o)
         end
 
-        finalize(o)
+        finalize(o.inner)
         for var in values(o.inner.vars)
             @test var[] == C_NULL
         end
