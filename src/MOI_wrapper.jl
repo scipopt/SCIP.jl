@@ -47,6 +47,7 @@ mutable struct Optimizer <: MOI.AbstractOptimizer
             Dict(),
             Dict(),
             Dict(),
+            Dict(),
             [],
         )
 
@@ -279,6 +280,7 @@ function MOI.empty!(o::Optimizer)
         Dict(),
         0,
         0,
+        Dict(),
         Dict(),
         Dict(),
         Dict(),

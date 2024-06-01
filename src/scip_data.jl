@@ -34,6 +34,7 @@ mutable struct SCIPData
     scip::Ref{Ptr{SCIP_}}
     vars::Dict{VarRef,Ref{Ptr{SCIP_VAR}}}
     conss::Dict{ConsRef,Ref{Ptr{SCIP_CONS}}}
+
     var_count::Int64
     cons_count::Int64
 
@@ -47,7 +48,12 @@ mutable struct SCIPData
     # Map from user-defined types (keys are <: AbstractSeparator) to the
     # corresponding SCIP objects.
     sepas::Dict{Any,Ptr{SCIP_SEPA}}
+    
 
+    # Map from user-defined types (keys are <: AbstractEventHandler)
+    # to the corresponding SCIP objects.
+    eventhdlrs::Dict{Any,Ptr{SCIP_Eventhdlr}}
+    
     # User-defined cut selectors and branching rules
     cutsel_storage::Dict{Any,Ptr{SCIP_CUTSEL}}
     branchrule_storage::Dict{Any,Ptr{SCIP_BRANCHRULE}}
