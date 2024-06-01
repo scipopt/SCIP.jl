@@ -26,7 +26,7 @@
     @test ch.lock_called == 1
 
     # free the problem
-    finalize(o)
+    finalize(o.inner)
 end
 
 @testset "dummy conshdlr (always satisfied, with constraint)" begin
@@ -54,7 +54,7 @@ end
     @test ch.lock_called == 1
 
     # free the problem
-    finalize(o)
+    finalize(o.inner)
 end
 
 @testset "dummy conshdlr (always satisfied, no constraint, but needs it)" begin
@@ -79,7 +79,7 @@ end
     @test ch.lock_called == 0
 
     # free the problem
-    finalize(o)
+    finalize(o.inner)
 end
 
 @testset "never satisfied conshdlr (does not need constraint)" begin
@@ -104,7 +104,7 @@ end
     @test ch.lock_called == 1
 
     # free the problem
-    finalize(o)
+    finalize(o.inner)
 end
 
 @testset "never satisfied conshdlr (needs constraint but does not have it)" begin
@@ -129,7 +129,7 @@ end
     @test ch.lock_called == 0
 
     # free the problem
-    finalize(o)
+    finalize(o.inner)
 end
 
 @testset "never satisfied conshdlr (needs constraint and has one)" begin
@@ -157,5 +157,5 @@ end
     @test ch.lock_called == 1
 
     # free the problem
-    finalize(o)
+    finalize(o.inner)
 end
