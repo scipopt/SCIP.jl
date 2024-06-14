@@ -11,11 +11,19 @@ if isfile(depsjl_path)
     include(depsjl_path)
 else
     # Artifact from BinaryBuilder package
-    import SCIP_PaPILO_jll
-    if SCIP_PaPILO_jll.is_available()
-        using SCIP_PaPILO_jll: libscip
+    if Sys.iswindows()
+        @eval using Artifacts
+        @eval const libscip = joinpath(
+            artifact"libscip-windows.zip",
+            "scip_install/bin/libscip.dll",
+        )
     else
-        using SCIP_jll: libscip
+        import SCIP_PaPILO_jll
+        if SCIP_PaPILO_jll.is_available() && !Sys.iswindows()
+            using SCIP_PaPILO_jll: libscip
+        else
+            using SCIP_jll: libscip
+        end
     end
 end
 
@@ -31,7 +39,7 @@ function __init__()
     patch = SCIPtechVersion()
     current = VersionNumber("$major.$minor.$patch")
     required = VersionNumber("8")
-    upperbound = VersionNumber("9")
+    upperbound = VersionNumber("10")
     if current < required || current >= upperbound
         @error(
             "SCIP is installed at version $current, " *
