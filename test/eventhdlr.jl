@@ -1,8 +1,10 @@
+# A simple testcase to test the event handler functionality.
+# It is assumed that test/sepa_support.jl is already included
 using SCIP
 import MathOptInterface as MOI
 
 module FirstLPEventTest
-
+# A simple event handler that stores the objective value of the first LP solve at the root node
 using SCIP
 
 mutable struct FirstLPEvent <: SCIP.AbstractEventhdlr
@@ -52,18 +54,20 @@ end
     )
     MOI.set(optimizer, MOI.ObjectiveSense(), MOI.MIN_SENSE)
 
-    # add the separator
+    # add eventhandler 
     eventhdlr = FirstLPEventTest.FirstLPEvent(inner, 10)
-    SCIP.include_event_handler(inner.scip[], inner.eventhdlrs, eventhdlr)
+    SCIP.include_event_handler(
+        inner,
+        eventhdlr;
+        name="firstlp",
+        desc="Store the objective value of the first LP solve at the root node",
+    )
 
+    # transform the problem into SCIP
     SCIP.@SCIP_CALL SCIP.SCIPtransformProb(inner)
 
-    SCIP.catch_event(
-        inner.scip[],
-        SCIP.SCIP_EVENTTYPE_FIRSTLPSOLVED,
-        inner.eventhdlrs,
-        eventhdlr,
-    )
+    # catch the event. Again this can only be done after the problem is transformed
+    SCIP.catch_event(inner, SCIP.SCIP_EVENTTYPE_FIRSTLPSOLVED, eventhdlr)
 
     # solve the problem
     SCIP.@SCIP_CALL SCIP.SCIPsolve(inner.scip[])

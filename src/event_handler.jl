@@ -1,13 +1,30 @@
-#=
-User have to implement
-- A struct that inherit AbstractEventHandler
-- An eventexec function
-=#
-
+# Wrapper for implementing event handlers in SCIP.
+# Before using please familiaze yourself with https://scipopt.org/doc/html/EVENT.php
+# 
+# The basic idea here is the same as with the separator wrappers. First, you need
+# to define a structure that implements the abstract type `AbstractEventhdlr`.
+# Second you should implement the function `eventexec` where the argument is an
+# instance of your event handler structure. Third, you should at runtime instantiate
+# the structure and call `include_event_handler` to register the event handler with SCIP.
+# 
+# See eventhdlr.jl in the test folder for an example.
+# 
 abstract type AbstractEventhdlr end
 
-function eventexec end;
+""" 
+This is a virtual function that must be implemented by the user. Its Only
+argument is the event handler object.
+"""
+function eventexec(event::T) where {T<:AbstractEventhdlr}
+    error("eventexec not implemented for type $(T)")
+end
 
+"""
+This is the function that will be converted to a C function. It signature
+matches the one given in the SCIP documentation for SCIP_DECL_EVENTEXEC.
+
+Only the eventhdlr object is passed to the function which is user defined.
+"""
 function _eventexec(
     scip::Ptr{SCIP_},
     eventhdlr::Ptr{SCIP_Eventhdlr},
@@ -20,12 +37,24 @@ function _eventexec(
 
     #call user method
     eventexec(event)
+
     return SCIP_OKAY
 end
 
+"""
+    include_event_handler(scipd::SCIP.SCIPData, event_handler::EVENTHDLR; name="", desc="")
+
+Include the event handler in SCIP. WARNING! In contrast to the separator wrapper you only need to 
+pass the SCIPData rather than the SCIP pointer and dictionary. 
+
+# Arguments
+- scipd::SCIP.SCIPData: The SCIPData object
+- event_handler::EVENTHDLR: The event handler object
+- name::String: The name of the event handler
+- desc::String: The description of the event handler
+"""
 function include_event_handler(
-    scip::Ptr{SCIP_},
-    eventhdlrs::Dict{Any,Ptr{SCIP_Eventhdlr}},
+    scipd::SCIP.SCIPData,
     event_handler::EVENTHDLR;
     name="",
     desc="",
@@ -44,7 +73,7 @@ function include_event_handler(
     end
 
     @SCIP_CALL SCIPincludeEventhdlrBasic(
-        scip,
+        scipd.scip[],
         eventhdlrptr,
         name,
         desc,
@@ -54,17 +83,22 @@ function include_event_handler(
 
     @assert eventhdlrptr[] != C_NULL
     #Persist in scip store against GC
-    eventhdlrs[event_handler] = eventhdlrptr[]
+    scipd.eventhdlrs[event_handler] = eventhdlrptr[]
 end
 
+"""
+    catch_event(scipd::SCIP.SCIPData, eventtype::SCIP_EVENTTYPE, eventhdlr::EVENTHDLR)
+
+Catch an event in SCIP. This function is a wrapper around the SCIPcatchEvent function.
+Warning! This function should only be called after the SCIP has been transformed.
+"""
 function catch_event(
-    scip::Ptr{SCIP_},
+    scipd::SCIP.SCIPData,
     eventtype::SCIP_EVENTTYPE,
-    eventhdlrs::Dict{Any,Ptr{SCIP_Eventhdlr}},
     eventhdlr::EVENTHDLR,
 ) where {EVENTHDLR<:AbstractEventhdlr}
-    @assert SCIPgetStage(scip) != SCIP_STAGE_INIT
-    @assert SCIPgetStage(scip) != SCIP_STAGE_PROBLEM
-    eventhdlrptr = eventhdlrs[eventhdlr]
-    @SCIP_CALL SCIPcatchEvent(scip, eventtype, eventhdlrptr, C_NULL, C_NULL)
+    @assert SCIPgetStage(scipd) != SCIP_STAGE_INIT
+    @assert SCIPgetStage(scipd) != SCIP_STAGE_PROBLEM
+    eventhdlrptr = scipd.eventhdlrs[eventhdlr]
+    @SCIP_CALL SCIPcatchEvent(scipd, eventtype, eventhdlrptr, C_NULL, C_NULL)
 end
