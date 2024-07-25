@@ -53,7 +53,6 @@ function include_event_handler(
     )
 
     @assert eventhdlrptr[] != C_NULL
-    println("EventhdlrPtr", eventhdlrptr[])
     #Persist in scip store against GC
     eventhdlrs[event_handler] = eventhdlrptr[]
 end

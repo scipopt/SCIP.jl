@@ -51,7 +51,7 @@ end
         ),
     )
     MOI.set(optimizer, MOI.ObjectiveSense(), MOI.MIN_SENSE)
-    print(inner.scip[])
+
     # add the separator
     eventhdlr = FirstLPEventTest.FirstLPEvent(inner, 10)
     SCIP.include_event_handler(inner.scip[], inner.eventhdlrs, eventhdlr)
