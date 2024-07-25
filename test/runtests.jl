@@ -43,6 +43,11 @@ include("sepa_support.jl")
 @testset "separators" begin
     include("sepa.jl")
 end
+
+@testset "event handlers" begin
+    include("eventhdlr.jl")
+end
+
 @testset "cut callbacks" begin
     include("cutcallback.jl")
 end

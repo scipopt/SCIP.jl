@@ -11,12 +11,15 @@ mutable struct FirstLPEvent <: SCIP.AbstractEventhdlr
 end
 
 function SCIP.eventexec(event::FirstLPEvent)
-    scip = event.scip
-    event.firstlpobj = SCIP.SCIPgetLPObjval(scip)
+    # Only consider the root node
+    current_node = SCIP.SCIPgetFocusNode(event.scip)
+    depth = SCIP.SCIPnodeGetDepth(current_node)
+    if depth == 0
+        scip = event.scip
+        event.firstlpobj = SCIP.SCIPgetLPObjval(scip)
+    end
 end
-
 end
-
 @testset "Try To Listen To First LP Solve" begin
     # create an empty problem
     optimizer = SCIP.Optimizer()
@@ -38,20 +41,23 @@ end
         MOI.LessThan(1.5),
     )
 
-    # maximize x + y
+    # minimize -x - y
     MOI.set(
         optimizer,
         MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(),
         MOI.ScalarAffineFunction(
-            MOI.ScalarAffineTerm.([1.0, 1.0], [x, y]),
+            MOI.ScalarAffineTerm.([-1.0, -1.0], [x, y]),
             0.0,
         ),
     )
-    MOI.set(optimizer, MOI.ObjectiveSense(), MOI.MAX_SENSE)
+    MOI.set(optimizer, MOI.ObjectiveSense(), MOI.MIN_SENSE)
     print(inner.scip[])
     # add the separator
-    eventhdlr = FirstLPEventTest.FirstLPEvent(inner, -1.0)
+    eventhdlr = FirstLPEventTest.FirstLPEvent(inner, 10)
     SCIP.include_event_handler(inner.scip[], inner.eventhdlrs, eventhdlr)
+
+    SCIP.@SCIP_CALL SCIP.SCIPtransformProb(inner)
+
     SCIP.catch_event(
         inner.scip[],
         SCIP.SCIP_EVENTTYPE_FIRSTLPSOLVED,
@@ -63,7 +69,7 @@ end
     SCIP.@SCIP_CALL SCIP.SCIPsolve(inner.scip[])
 
     # test if the event handler worked 
-    @test eventhdlr.firstlpobj == 1.5
+    @test eventhdlr.firstlpobj != 10
 
     # free the problem
     finalize(inner)

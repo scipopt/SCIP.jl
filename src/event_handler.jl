@@ -64,9 +64,8 @@ function catch_event(
     eventhdlrs::Dict{Any,Ptr{SCIP_Eventhdlr}},
     eventhdlr::EVENTHDLR,
 ) where {EVENTHDLR<:AbstractEventhdlr}
+    @assert SCIPgetStage(scip) != SCIP_STAGE_INIT
+    @assert SCIPgetStage(scip) != SCIP_STAGE_PROBLEM
     eventhdlrptr = eventhdlrs[eventhdlr]
-    println(scip)
-    println("NewPointer", eventhdlrptr)
     @SCIP_CALL SCIPcatchEvent(scip, eventtype, eventhdlrptr, C_NULL, C_NULL)
-    println("Event_caught")
 end
