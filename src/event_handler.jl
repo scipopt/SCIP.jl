@@ -69,7 +69,7 @@ function include_event_handler(
     eventhdlr = pointer_from_objref(event_handler)
 
     if name == ""
-        name = "__eventhdlr__$(length(eventhdlrs))"
+        name = "__eventhdlr__$(length(scipd.eventhdlrs))"
     end
 
     @SCIP_CALL SCIPincludeEventhdlrBasic(
