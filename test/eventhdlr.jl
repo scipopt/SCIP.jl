@@ -22,6 +22,7 @@ function SCIP.eventexec(event::FirstLPEvent)
     end
 end
 end
+
 @testset "Try To Listen To First LP Solve" begin
     # create an empty problem
     optimizer = SCIP.Optimizer()
