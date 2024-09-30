@@ -45,7 +45,7 @@ Binaries are available for download at [https://www.scipopt.org/#download](https
 Once the binaries are installed, set the `SCIPOPTDIR` environment variable to
 temporarily point to the installation path (that is, depending on your operating system,
 `$SCIPOPTDIR/lib/libscip.so`, `$SCIPOPTDIR/lib/libscip.dylib`, or
-`$SCIPOPTDIR/bin/scip.dll` must exist). Then, install `SCIP.jl` using `Pkg.add`
+`$SCIPOPTDIR/bin/libscip.dll` must exist). Then, install `SCIP.jl` using `Pkg.add`
 and `Pkg.build` from the Julia command line:
 ```julia
 julia> ENV["SCIPOPTDIR"] = raw"C:\Program Files\SCIPOptSuite 9.1.1" # for Windows
