@@ -21,36 +21,40 @@ licensed under the [Apache 2.0 license](https://github.com/scipopt/scip/blob/mas
 
 ## Installation
 
-Install SCIP.jl using `Pkg.add`:
+**SCIP cannot be installed automatically on Windows. See the "Custom installation"
+instructions below.**
+
+Install SCIP using `Pkg.add`:
 ```julia
-import Pkg
-Pkg.add("SCIP")
+julia> import Pkg
+
+julia> Pkg.add("SCIP")
 ```
 
-On MacOS and Linux, installing the SCIP Julia package will work out of the box
-and install the [`SCIP_jll.jl`](https://github.com/JuliaBinaryWrappers/SCIP_jll.jl) and
-[`SCIP_PaPILO_jll.jl`](https://github.com/JuliaBinaryWrappers/SCIP_PaPILO_jll.jl)
-dependencies.
+On platforms other than Windows, in addition to installing the SCIP.jl package,
+this will also download and install the SCIP binaries. You do not need to
+install SCIP separately.
 
-On Windows, a separate installation of SCIP is still mandatory, as detailed in
-the "Custom installation" section below.
+## Windows and custom installations
 
-## Custom installations
+If you use Windows, or you want a custom SCIP installation, you must manually
+install the SCIP binaries.
 
-If you use an older Julia version, Windows, or you want a custom SCIP
-installation, you must manually install the SCIP binaries.
+Binaries are available for download at [https://www.scipopt.org/#download](https://www.scipopt.org/#download).
 
-Once installed, set the `SCIPOPTDIR` environment variable to point to the
-installation path, that is, depending on your operating system,
+Once the binaries are installed, set the `SCIPOPTDIR` environment variable to
+temporarily point to the installation path (that is, depending on your operating system,
 `$SCIPOPTDIR/lib/libscip.so`, `$SCIPOPTDIR/lib/libscip.dylib`, or
-`$SCIPOPTDIR/bin/scip.dll` must exist.
-
-Then, install `SCIP.jl` using `Pkg.add` and `Pkg.build`:
+`$SCIPOPTDIR/bin/scip.dll` must exist). Then, install `SCIP.jl` using `Pkg.add`
+and `Pkg.build` from the Julia command line:
 ```julia
-ENV["SCIPOPTDIR"] = "/Users/Oscar/code/SCIP"
-import Pkg
-Pkg.add("SCIP")
-Pkg.build("SCIP")
+julia> ENV["SCIPOPTDIR"] = raw"C:\Program Files\SCIPOptSuite 9.1.1" # for Windows
+
+julia> import Pkg
+
+julia> Pkg.add("SCIP")
+
+julia> Pkg.build("SCIP")
 ```
 
 ## Use with JuMP
@@ -112,7 +116,7 @@ List of supported model attributes:
 
 All of the public API methods are wrapped and available within the `SCIP`
 package. This includes the `scip_*.h` and `pub_*.h` headers that are collected
-in `scip.h`, as well as all default constraint handlers (`cons_*.h`.) 
+in `scip.h`, as well as all default constraint handlers (`cons_*.h`.)
 
 The wrapped functions do not transform any data structures and work on the *raw*
 pointers (for example, `SCIP*` in C, `Ptr{SCIP_}` in Julia). Convenience wrapper
