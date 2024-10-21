@@ -47,6 +47,7 @@ mutable struct Optimizer <: MOI.AbstractOptimizer
             Dict(),
             Dict(),
             Dict(),
+            Dict(),
             [],
         )
 
@@ -63,7 +64,7 @@ mutable struct Optimizer <: MOI.AbstractOptimizer
             false,
             MOI.COMPUTE_CONFLICT_NOT_CALLED,
         )
-        finalizer(free_scip, o)
+        finalizer(free_scip, scip_data)
 
         # Set all parameters given as keyword arguments, replacing the
         # delimiter, since "/" is used by all SCIP parameters, but is not
@@ -76,6 +77,7 @@ mutable struct Optimizer <: MOI.AbstractOptimizer
     end
 end
 
+# [TODO] Should Be Safe To Remove
 free_scip(o::Optimizer) = free_scip(o.inner)
 
 Base.cconvert(::Type{Ptr{SCIP_}}, o::Optimizer) = o
@@ -278,6 +280,7 @@ function MOI.empty!(o::Optimizer)
         Dict(),
         0,
         0,
+        Dict(),
         Dict(),
         Dict(),
         Dict(),

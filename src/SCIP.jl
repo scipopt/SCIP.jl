@@ -43,4 +43,6 @@ include("convenience.jl")
 # warn about rewrite
 include("compat.jl")
 
+# Event handler
+include("event_handler.jl")
 end

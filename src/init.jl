@@ -10,6 +10,11 @@ if isfile(depsjl_path)
     # User-provided SCIP library
     include(depsjl_path)
 else
+    if Sys.iswindows()
+        @warn(
+            "SCIP_jll still doesn't work with Windows, segfaults are likely! See the README for instructions on how to manually install SCIP."
+        )
+    end
     # Artifact from BinaryBuilder package
     import SCIP_PaPILO_jll
     if SCIP_PaPILO_jll.is_available()
