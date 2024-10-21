@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        version: ['lts', '1']  # Test against current minor release (at least 1.3)
+        version: ['lts', '1']
         os: [ubuntu-latest, macOS-latest]
         arch: [x64]
     steps:
