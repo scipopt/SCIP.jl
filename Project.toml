@@ -15,7 +15,7 @@ MathOptInterface = "1.7"
 OpenBLAS32_jll = "0.3"
 SCIP_PaPILO_jll = "900"
 SCIP_jll = "900"
-julia = "1.6"
+julia = "1.10"
 
 [extras]
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
