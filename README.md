@@ -69,7 +69,7 @@ set_attribute(model, "limits/gap", 0.05)
 
 ## Options
 
-See the [SCIP documentation](https://scip.zib.de/doc-8.0.0/html/PARAMETERS.php)
+See the [SCIP documentation](https://www.scipopt.org/doc/html/PARAMETERS.php)
 for a list of supported options.
 
 ## MathOptInterface API
@@ -124,7 +124,7 @@ functions based on Julia types are added as needed.
 ### Memory management
 
 Programming with SCIP requires dealing with variable and constraint objects that
-use [reference counting](https://scip.zib.de/doc-8.0.0/html/OBJ.php) for memory
+use [reference counting](https://www.scipopt.org/doc/html/OBJ.php) for memory
 management.
 
 The `SCIP.Optimizer` wrapper type collects lists of `SCIP_VAR*` and `SCIP_CONS*`
