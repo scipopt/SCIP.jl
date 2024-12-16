@@ -215,6 +215,28 @@ function MOI.set(o::Optimizer, ::MOI.TimeLimitSec, value)
     return MOI.set(o, MOI.RawOptimizerAttribute("limits/time"), value)
 end
 
+MOI.supports(o::Optimizer, ::MOI.NodeLimit) = true
+
+function MOI.get(o::Optimizer, ::MOI.NodeLimit)
+    raw_value = MOI.get(o, MOI.RawOptimizerAttribute("limits/node"))
+    if raw_value == -1
+        return nothing
+    else
+        return raw_value::Int
+    end
+end
+
+function MOI.set(o::Optimizer, ::MOI.NodeLimit, value)
+    if value === nothing
+        return MOI.set(
+            o,
+            MOI.RawOptimizerAttribute("limits/node"),
+            -1,
+        )
+    end
+    return MOI.set(o, MOI.RawOptimizerAttribute("limits/node"), value)
+end
+
 MOI.supports(::Optimizer, ::MOI.AbsoluteGapTolerance) = true
 function MOI.get(o::Optimizer, ::MOI.AbsoluteGapTolerance)
     raw_value = MOI.get(o, MOI.RawOptimizerAttribute("limits/absgap"))
