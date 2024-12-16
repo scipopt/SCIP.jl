@@ -228,11 +228,7 @@ end
 
 function MOI.set(o::Optimizer, ::MOI.NodeLimit, value)
     if value === nothing
-        return MOI.set(
-            o,
-            MOI.RawOptimizerAttribute("limits/node"),
-            -1,
-        )
+        return MOI.set(o, MOI.RawOptimizerAttribute("limits/node"), -1)
     end
     return MOI.set(o, MOI.RawOptimizerAttribute("limits/node"), value)
 end
