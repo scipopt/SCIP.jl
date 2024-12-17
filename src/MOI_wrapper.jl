@@ -218,7 +218,7 @@ end
 MOI.supports(o::Optimizer, ::MOI.NodeLimit) = true
 
 function MOI.get(o::Optimizer, ::MOI.NodeLimit)
-    raw_value = MOI.get(o, MOI.RawOptimizerAttribute("limits/node"))
+    raw_value = MOI.get(o, MOI.RawOptimizerAttribute("limits/nodes"))
     if raw_value == -1
         return nothing
     else
@@ -228,9 +228,9 @@ end
 
 function MOI.set(o::Optimizer, ::MOI.NodeLimit, value)
     if value === nothing
-        return MOI.set(o, MOI.RawOptimizerAttribute("limits/node"), -1)
+        return MOI.set(o, MOI.RawOptimizerAttribute("limits/nodes"), -1)
     end
-    return MOI.set(o, MOI.RawOptimizerAttribute("limits/node"), value)
+    return MOI.set(o, MOI.RawOptimizerAttribute("limits/nodes"), value)
 end
 
 MOI.supports(::Optimizer, ::MOI.AbsoluteGapTolerance) = true
