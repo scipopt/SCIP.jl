@@ -18,7 +18,7 @@ jobs:
           - version: '1'  # The latest point-release (Windows)
             os: windows-latest
             arch: x64
-          - version: '1.6'  # 1.6 LTS (64-bit Linux)
+          - version: '1.10'
             os: ubuntu-latest
             arch: x64
           - version: 'nightly'
