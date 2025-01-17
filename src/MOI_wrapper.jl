@@ -316,6 +316,8 @@ function MOI.empty!(o::Optimizer)
     o.conflict_status = MOI.COMPUTE_CONFLICT_NOT_CALLED
     o.moi_separator = nothing
     o.moi_heuristic = nothing
+    finalizer(free_scip, o.inner)
+
     return nothing
 end
 
