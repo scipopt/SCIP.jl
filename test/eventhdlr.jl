@@ -2,7 +2,7 @@
 # It is assumed that test/sepa_support.jl is already included
 using SCIP
 import MathOptInterface as MOI
-
+using Test
 module FirstLPEventTest
 # A simple event handler that stores the objective value of the first LP solve at the root node
 using SCIP
@@ -21,9 +21,20 @@ function SCIP.eventexec(event::FirstLPEvent)
         event.firstlpobj = SCIP.SCIPgetLPObjval(scip)
     end
 end
+
+function SCIP.eventinit(event::FirstLPEvent)
+    SCIP.catch_event(event.scip, SCIP.SCIP_EVENTTYPE_FIRSTLPSOLVED, event)
+    return
 end
 
+function SCIP.eventexit(event::FirstLPEvent)
+    SCIP.drop_event(event.scip, SCIP.SCIP_EVENTTYPE_FIRSTLPSOLVED, event)
+    return
+end
+
+end
 @testset "Listen to first LP solve" begin
+    using .FirstLPEventTest
     # create an empty problem
     optimizer = SCIP.Optimizer()
     inner = optimizer.inner
@@ -60,27 +71,24 @@ end
     SCIP.include_event_handler(
         inner,
         eventhdlr;
-        name="firstlp",
         desc="Store the objective value of the first LP solve at the root node",
     )
 
     # transform the problem into SCIP
     SCIP.@SCIP_CALL SCIP.SCIPtransformProb(inner)
 
-    # catch the event. Again this can only be done after the problem is transformed
-    SCIP.catch_event(inner, SCIP.SCIP_EVENTTYPE_FIRSTLPSOLVED, eventhdlr)
-
     # solve the problem
     SCIP.@SCIP_CALL SCIP.SCIPsolve(inner.scip[])
 
     # test if the event handler worked 
-    @test eventhdlr.firstlpobj != 10
+    @test eventhdlr.firstlpobj != 10.0
 
     # free the problem
     finalize(inner)
 end
 
 @testset "Nameless Event handler" begin
+    using .FirstLPEventTest
     # create an empty problem
     optimizer = SCIP.Optimizer()
     inner = optimizer.inner
@@ -117,21 +125,17 @@ end
     SCIP.include_event_handler(
         inner,
         eventhdlr;
-        name="firstlp",
         desc="Store the objective value of the first LP solve at the root node",
     )
 
     # transform the problem into SCIP
     SCIP.@SCIP_CALL SCIP.SCIPtransformProb(inner)
 
-    # catch the event. Again this can only be done after the problem is transformed
-    SCIP.catch_event(inner, SCIP.SCIP_EVENTTYPE_FIRSTLPSOLVED, eventhdlr)
-
     # solve the problem
     SCIP.@SCIP_CALL SCIP.SCIPsolve(inner.scip[])
 
     # test if the event handler worked 
-    @test eventhdlr.firstlpobj != 10
+    @test eventhdlr.firstlpobj != 10.0
 
     # free the problem
     finalize(inner)
