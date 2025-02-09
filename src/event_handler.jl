@@ -69,6 +69,7 @@ function _eventinit(
     eventinit(event)
     return SCIP_OKAY
 end
+
 """
 This is the function that will be converted to a C function. It signature
 matches the one given in the SCIP documentation for SCIP_DECL_EVENTEXIT.
