@@ -33,6 +33,7 @@ function SCIP.eventexit(event::FirstLPEvent)
 end
 
 end
+
 @testset "Listen to first LP solve" begin
     using .FirstLPEventTest
     # create an empty problem
