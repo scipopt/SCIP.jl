@@ -20,18 +20,14 @@ function eventexec(event::T) where {T<:AbstractEventhdlr}
 end
 
 """
-Virtual function for eventinit. By default it does nothing
+Default eventinit function.
 """
-function eventinit(event::T) where {T<:AbstractEventhdlr}
-    return
-end
+function eventinit(event::AbstractEventhdlr) end
 
 """
-Virtual function for eventexit. By default it does nothing
+Default eventexit function.
 """
-function eventexit(event::T) where {T<:AbstractEventhdlr}
-    return
-end
+function eventexit(event::AbstractEventhdlr) end
 """
 This is the function that will be converted to a C function. It signature
 matches the one given in the SCIP documentation for SCIP_DECL_EVENTEXEC.
@@ -54,8 +50,8 @@ function _eventexec(
 end
 
 """
-This is the function that will be converted to a C function. It signature
-matches the one given in the SCIP documentation for SCIP_DECL_EVENTINIT.
+Internal function that will be converted to a C function and passed to SCIP as a callback.
+Its signature matches the one given in the SCIP documentation for `SCIP_DECL_EVENTINIT`.
 """
 function _eventinit(
     scip::Ptr{SCIP_},
@@ -71,10 +67,9 @@ function _eventinit(
 end
 
 """
-This is the function that will be converted to a C function. It signature
-matches the one given in the SCIP documentation for SCIP_DECL_EVENTEXIT.
+Internal function that will be converted to a C function passed to SCIP.
+Its signature matches the one given in the SCIP documentation for `SCIP_DECL_EVENTEXIT`.
 """
-
 function _eventexit(
     scip::Ptr{SCIP_},
     eventhdlr::Ptr{SCIP_Eventhdlr},
