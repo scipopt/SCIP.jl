@@ -15,6 +15,13 @@ const BOUNDS = Union{
 const PtrMap = Dict{Ptr{Cvoid},Union{VarRef,ConsRef}}
 const ConsTypeMap = Dict{Tuple{DataType,DataType},Set{ConsRef}}
 
+@enum(
+    _SCIP_SOLVE_STATUS,
+    _kSCIP_SOLVE_STATUS_NOT_CALLED,
+    _kSCIP_SOLVE_STATUS_IN_SOLVE,
+    _kSCIP_SOLVE_STATUS_FINISHED,
+)
+
 mutable struct Optimizer <: MOI.AbstractOptimizer
     inner::SCIPData
     reference::PtrMap
@@ -27,6 +34,8 @@ mutable struct Optimizer <: MOI.AbstractOptimizer
     objective_sense::Union{Nothing,MOI.OptimizationSense}
     objective_function_set::Bool
     conflict_status::MOI.ConflictStatusCode
+
+    scip_solve_status::_SCIP_SOLVE_STATUS
 
     function Optimizer(; kwargs...)
         scip = Ref{Ptr{SCIP_}}(C_NULL)
@@ -63,6 +72,7 @@ mutable struct Optimizer <: MOI.AbstractOptimizer
             nothing,
             false,
             MOI.COMPUTE_CONFLICT_NOT_CALLED,
+            _kSCIP_SOLVE_STATUS_NOT_CALLED,
         )
         finalizer(free_scip, scip_data)
 
@@ -146,7 +156,11 @@ end
 
 "Go back from solved stage to problem modification stage, invalidating results."
 function allow_modification(o::Optimizer)
-    if !(SCIPgetStage(o) in (SCIP_STAGE_PROBLEM, SCIP_STAGE_SOLVING))
+    if o.scip_solve_status == _kSCIP_SOLVE_STATUS_IN_SOLVE
+        # Ignore. We're inside the solver. Any number of things can be happening
+        return nothing
+    end
+    if SCIPgetStage(o) != SCIP_STAGE_PROBLEM
         @SCIP_CALL SCIPfreeTransform(o)
     end
     return nothing
@@ -316,6 +330,8 @@ function MOI.empty!(o::Optimizer)
     o.conflict_status = MOI.COMPUTE_CONFLICT_NOT_CALLED
     o.moi_separator = nothing
     o.moi_heuristic = nothing
+    o.scip_solve_status = _kSCIP_SOLVE_STATUS_NOT_CALLED
+
     finalizer(free_scip, o.inner)
 
     return nothing
@@ -403,7 +419,12 @@ function MOI.optimize!(o::Optimizer)
             MOI.ScalarAffineFunction{Float64}([], 0.0),
         )
     end
-    @SCIP_CALL SCIPsolve(o)
+    try
+        o.scip_solve_status = _kSCIP_SOLVE_STATUS_IN_SOLVE
+        @SCIP_CALL SCIPsolve(o)
+    finally
+        o.scip_solve_status = _kSCIP_SOLVE_STATUS_FINISHED
+    end
     return nothing
 end
 
