@@ -60,7 +60,7 @@ import MathOptInterface as MOI
     MOI.set(optimizer, MOI.UserCutCallback(), cutcallback)
 
     # solve the problem
-    SCIP.@SCIP_CALL SCIP.SCIPsolve(inner.scip[])
+    MOI.optimize!(optimizer)
 
     # The cut callback was called and obtaining the LP-solution worked.
     @test calls >= 1
