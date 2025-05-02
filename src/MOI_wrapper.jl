@@ -163,6 +163,7 @@ function allow_modification(o::Optimizer)
     if SCIPgetStage(o) != SCIP_STAGE_PROBLEM
         @SCIP_CALL SCIPfreeTransform(o)
     end
+    o.scip_solve_status = _kSCIP_SOLVE_STATUS_NOT_CALLED
     return nothing
 end
 
