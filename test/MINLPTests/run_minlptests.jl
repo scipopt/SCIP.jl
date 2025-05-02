@@ -5,11 +5,6 @@
 
 using MINLPTests, JuMP, SCIP, Test
 
-@static if VERSION >= v"1.7"
-    import LinearAlgebra, OpenBLAS32_jll
-    LinearAlgebra.BLAS.lbt_forward(OpenBLAS32_jll.libopenblas_path)
-end
-
 const OPTIMIZER =
     JuMP.optimizer_with_attributes(SCIP.Optimizer, "display/verblevel" => 0)
 const OBJTOL = 1e-4
