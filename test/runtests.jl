@@ -8,11 +8,6 @@ using SCIP
 using SCIP_jll
 using SCIP_PaPILO_jll
 
-@static if VERSION >= v"1.7"
-    import LinearAlgebra, OpenBLAS32_jll
-    LinearAlgebra.BLAS.lbt_forward(OpenBLAS32_jll.libopenblas_path)
-end
-
 @show(@eval(SCIP, libscip) == SCIP_jll.libscip)
 @show(
     SCIP_PaPILO_jll.is_available() &&
