@@ -5,8 +5,8 @@
 
 # results
 
-term_status_map = Dict(
-    SCIP_STATUS_UNKNOWN => MOI.OPTIMIZE_NOT_CALLED,
+const _TERMINATION_STATUS_MAP = Dict(
+    SCIP_STATUS_UNKNOWN => MOI.OTHER_ERROR,
     SCIP_STATUS_USERINTERRUPT => MOI.INTERRUPTED,
     SCIP_STATUS_NODELIMIT => MOI.NODE_LIMIT,
     SCIP_STATUS_TOTALNODELIMIT => MOI.NODE_LIMIT,
@@ -25,7 +25,10 @@ term_status_map = Dict(
 )
 
 function MOI.get(o::Optimizer, ::MOI.TerminationStatus)
-    return term_status_map[SCIPgetStatus(o)]
+    if o.scip_solve_status == _kSCIP_SOLVE_STATUS_NOT_CALLED
+        return MOI.OPTIMIZE_NOT_CALLED
+    end
+    return _TERMINATION_STATUS_MAP[SCIPgetStatus(o)]
 end
 
 function MOI.get(o::Optimizer, attr::MOI.PrimalStatus)
