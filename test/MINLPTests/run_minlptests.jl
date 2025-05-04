@@ -3,71 +3,73 @@
 # Use of this source code is governed by an MIT-style license that can be found
 # in the LICENSE.md file or at https://opensource.org/licenses/MIT.
 
-using MINLPTests, JuMP, SCIP, Test
-
-const OPTIMIZER =
-    JuMP.optimizer_with_attributes(SCIP.Optimizer, "display/verblevel" => 0)
-const OBJTOL = 1e-4
-const PRIMALTOL = 1e-3
-const DUALTOL = NaN  # to disable the query
+import JuMP
+import MINLPTests
+import SCIP
 
 MINLPTests.test_directory(
     "nlp",
-    OPTIMIZER;
-    objective_tol=OBJTOL,
-    primal_tol=PRIMALTOL,
-    dual_tol=DUALTOL,
+    JuMP.optimizer_with_attributes(SCIP.Optimizer, "display/verblevel" => 0);
+    objective_tol=1e-5,
+    primal_tol=1e-5,
+    dual_tol=NaN,
     termination_target=MINLPTests.TERMINATION_TARGET_GLOBAL,
     primal_target=MINLPTests.PRIMAL_TARGET_GLOBAL,
-    include=["005_010", "007_010"],
+    exclude=[
+        # Nonlinear objective not supported by SCIP.jl!
+        "001_010",
+        "003_010",
+        "003_011",
+        "003_013",
+        "003_015",
+        "004_010",
+        "004_011",
+        "008_010",
+        "008_011",
+        "009_010",
+        "009_011",
+        # User-defined function
+        "006_010",
+    ],
 )
 
 MINLPTests.test_directory(
     "nlp-cvx",
-    OPTIMIZER;
-    objective_tol=OBJTOL,
-    primal_tol=PRIMALTOL,
-    dual_tol=DUALTOL,
+    JuMP.optimizer_with_attributes(SCIP.Optimizer, "display/verblevel" => 0);
+    objective_tol=1e-4,
+    primal_tol=1e-3,
+    dual_tol=NaN,
     termination_target=MINLPTests.TERMINATION_TARGET_GLOBAL,
     primal_target=MINLPTests.PRIMAL_TARGET_GLOBAL,
-    include=[
-        "001_010",
-        "002_010",
-        "101_010",
-        "101_012",
-        "102_010",
-        "102_011",
-        "102_012",
-        "103_010",
-        "103_011",
-        "103_012",
-        "103_013",
-        "103_014",
-        "104_010",
-        "105_010",
-        "105_011",
-        "105_012",
-        "105_013",
-        "201_010",
-        "201_011",
-        "202_010",
-        "202_011",
-        "202_012",
-        "202_013",
-        "202_014",
-        "203_010",
-        "204_010",
-        "205_010",
+    exclude=[
+        # Nonlinear objective not supported by SCIP.jl!
+        "109_010",
+        "109_011",
+        "109_012",
+        "110_010",
+        "110_011",
+        "110_012",
     ],
 )
 
 MINLPTests.test_directory(
     "nlp-mi",
-    OPTIMIZER;
-    objective_tol=OBJTOL,
-    primal_tol=PRIMALTOL,
-    dual_tol=DUALTOL,
+    JuMP.optimizer_with_attributes(SCIP.Optimizer, "display/verblevel" => 0);
+    objective_tol=1e-4,
+    primal_tol=1e-3,
+    dual_tol=NaN,
     termination_target=MINLPTests.TERMINATION_TARGET_GLOBAL,
     primal_target=MINLPTests.PRIMAL_TARGET_GLOBAL,
-    include=["005_010", "007_010", "007_020"],
+    exclude=[
+        # Nonlinear objective not supported by SCIP.jl!
+        "001_010",
+        "003_010",
+        "003_011",
+        "003_013",
+        "003_015",
+        "004_010",
+        "004_011",
+        # User-defined function
+        "006_010",
+    ],
 )
