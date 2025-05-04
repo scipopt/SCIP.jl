@@ -5,8 +5,6 @@
 
 # Test memory management
 
-import MathOptInterface as MOI
-
 @testset "create and manual free" begin
     o = SCIP.Optimizer()
     @test o.inner.scip[] != C_NULL
@@ -56,7 +54,6 @@ end
         s1 = SCIP.add_special_ordered_set_type1(o.inner, [t, x], [1.0, 2.0])
         s2 = SCIP.add_special_ordered_set_type2(o.inner, [x, y], [1.0, 2.0])
         # nonlinear: x^0.2 == 1
-        vi = MOI.VariableIndex(x.val)
         # n = SCIP.add_nonlinear_constraint(o.inner, :(x[$vi]^0.2 == 1.0), 1.0, 1.0)
 
         # indicator constraint: z = 1 ==> 𝟙^T [x, y] <= 1.
