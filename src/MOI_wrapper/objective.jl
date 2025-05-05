@@ -40,10 +40,7 @@ function MOI.set(
     return nothing
 end
 
-function MOI.get(
-    o::Optimizer,
-    ::MOI.ObjectiveFunction{F},
-) where {F}
+function MOI.get(o::Optimizer, ::MOI.ObjectiveFunction{F}) where {F}
     f = MOI.get(o, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}())
     return convert(F, f)
 end
