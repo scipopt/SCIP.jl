@@ -1,15 +1,26 @@
 # SCIP.jl
 
-[![Build Status](https://github.com/scipopt/SCIP.jl/workflows/CI/badge.svg?branch=master)](https://github.com/scipopt/SCIP.jl/actions?query=workflow%3ACI)
+[![Build Status](https://github.com/scipopt/SCIP.jl/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/scipopt/SCIP.jl/actions?query=workflow%3ACI)
 [![codecov](https://codecov.io/gh/scipopt/SCIP.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/scipopt/SCIP.jl)
 
 [SCIP.jl](https://github.com/scipopt/SCIP.jl) is a Julia interface to the
 [SCIP](https://scipopt.org) solver.
 
+It has two components:
+
+ - a thin wrapper around the complete C API
+ - an interface to [MathOptInterface](https://github.com/jump-dev/MathOptInterface.jl)
+
 ## Affiliation
 
 This wrapper is maintained by the [SCIP project](https://www.scipopt.org/) with
 the help of the JuMP community.
+
+## Getting help
+
+If you need help, please ask a question on the [JuMP community forum](https://jump.dev/forum).
+
+If you have a reproducible example of a bug, please [open a GitHub issue](https://github.com/scipopt/SCIP.jl/issues/new).
 
 ## License
 
