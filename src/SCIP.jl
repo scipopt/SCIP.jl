@@ -6,6 +6,7 @@
 module SCIP
 
 import LinearAlgebra
+import MathOptInterface as MOI
 import OpenBLAS32_jll
 
 # assorted utility functions

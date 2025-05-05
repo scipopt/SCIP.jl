@@ -60,6 +60,31 @@ mutable struct SCIPData
 
     # to store expressions for release
     nonlinear_storage::Vector{NonlinExpr}
+
+    function SCIPData()
+        scip = Ref{Ptr{SCIP_}}(C_NULL)
+        @SCIP_CALL SCIPcreate(scip)
+        @assert scip[] != C_NULL
+        @SCIP_CALL SCIPincludeDefaultPlugins(scip[])
+        @SCIP_CALL SCIP.SCIPcreateProbBasic(scip[], "")
+        scip_data = new(
+            scip,
+            Dict{VarRef,Ref{Ptr{SCIP_VAR}}}(),
+            Dict{ConsRef,Ref{Ptr{SCIP_CONS}}}(),
+            0,
+            0,
+            Dict{Any,Ptr{SCIP_CONSHDLR}}(),
+            Dict{Any,Ptr{SCIP_CONS}}(),
+            Dict{Any,Ptr{SCIP_SEPA}}(),
+            Dict{Any,Ptr{SCIP_Eventhdlr}}(),
+            Dict{Any,Ptr{SCIP_CUTSEL}}(),
+            Dict{Any,Ptr{SCIP_BRANCHRULE}}(),
+            Dict{Any,Ptr{SCIP_HEUR}}(),
+            NonlinExpr[],
+        )
+        finalizer(free_scip, scip_data)
+        return scip_data
+    end
 end
 
 # Protect SCIPData from GC for ccall with Ptr{SCIP_} argument.
