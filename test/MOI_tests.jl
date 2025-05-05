@@ -400,7 +400,7 @@ function test_indicator_constraints()
         ],
         [0.0, 0.0],
     )
-    @test_throws ErrorException MOI.add_constraint(
+    @test_throws AssertionError MOI.add_constraint(
         optimizer,
         ind_func_wrong,
         iset,
@@ -412,7 +412,7 @@ function test_indicator_constraints()
         ],
         [0.0, 0.0],
     )
-    @test_throws ErrorException MOI.add_constraint(
+    @test_throws AssertionError MOI.add_constraint(
         optimizer,
         ind_func_wrong2,
         iset,
