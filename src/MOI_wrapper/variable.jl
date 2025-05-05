@@ -3,8 +3,6 @@
 # Use of this source code is governed by an MIT-style license that can be found
 # in the LICENSE.md file or at https://opensource.org/licenses/MIT.
 
-## variables (general)
-
 function MOI.add_variable(o::Optimizer)
     allow_modification(o)
     vr = add_variable(o.inner)
@@ -13,17 +11,45 @@ function MOI.add_variable(o::Optimizer)
     return MOI.VariableIndex(vr.val)
 end
 
-MOI.add_variables(o::Optimizer, n) = [MOI.add_variable(o) for i in 1:n]
 MOI.get(o::Optimizer, ::MOI.NumberOfVariables) = length(o.inner.vars)
+
 function MOI.get(o::Optimizer, ::MOI.ListOfVariableIndices)
-    sort!(
+    return sort!(
         [MOI.VariableIndex(k.val) for k in keys(o.inner.vars)];
         by=v -> v.value,
     )
 end
+
 function MOI.is_valid(o::Optimizer, vi::MOI.VariableIndex)
-    haskey(o.inner.vars, VarRef(vi.value))
+    return haskey(o.inner.vars, VarRef(vi.value))
 end
+
+function MOI.is_valid(
+    o::Optimizer,
+    ci::MOI.ConstraintIndex{MOI.VariableIndex,S},
+) where {S<:Union{<:BOUNDS,MOI.ZeroOne,MOI.Integer}}
+    if !haskey(o.inner.vars, VarRef(ci.value))
+        return false
+    end
+    cons_set = get(o.constypes, (MOI.VariableIndex, S), nothing)
+    if cons_set === nothing
+        return false
+    end
+    return ConsRef(ci.value) in cons_set
+end
+
+function MOI.get(
+    model::Optimizer,
+    ::MOI.ConstraintFunction,
+    ci::MOI.ConstraintIndex{MOI.VariableIndex},
+)
+    MOI.throw_if_not_valid(model, ci)
+    return MOI.VariableIndex(ci.value)
+end
+
+# MOI.VariableName
+
+MOI.supports(::Optimizer, ::MOI.VariableName, ::Type{MOI.VariableIndex}) = true
 
 function MOI.get(
     o::Optimizer,
@@ -43,8 +69,7 @@ function MOI.set(
     return nothing
 end
 
-MOI.supports(::Optimizer, ::MOI.VariableName, ::Type{MOI.VariableIndex}) = true
-
+# FIXME(odow): This function is broken for dealing with duplicate variable names
 function MOI.get(o::Optimizer, ::Type{MOI.VariableIndex}, name::String)
     ptr = SCIPfindVar(o, name)
     if ptr == C_NULL
@@ -57,128 +82,146 @@ function MOI.get(o::Optimizer, ::Type{MOI.VariableIndex}, name::String)
     return MOI.VariableIndex(var_ref.val)
 end
 
+# MOI.delete
+
 function MOI.delete(o::Optimizer, vi::MOI.VariableIndex)
     # Note: SCIP does not currently support deletion of variables that are still
     # present in some constraint. We don't want the overhead of keeping track of
     # the variable-in-constraint relation, so, to be conservative, we only allow
     # to delete a variable when there are no constraints in the model.
     if length(o.inner.conss) > 0
-        throw(
-            MOI.DeleteNotAllowed(
-                vi,
-                "Can not delete variable while model contains constraints!",
-            ),
-        )
+        msg = "Can not delete variable while model contains constraints!"
+        throw(MOI.DeleteNotAllowed(vi, msg))
     end
     allow_modification(o)
     if !haskey(o.inner.vars, VarRef(vi.value))
         throw(MOI.InvalidIndex(vi))
     end
-    # TODO still necessary?
-    if !haskey(o.reference, var(o, vi))
-        throw(MOI.InvalidIndex(vi))
-    end
-    haskey(o.binbounds, vi) && delete!(o.binbounds, vi)
+    delete!(o.binbounds, vi)
     delete!(o.reference, var(o, vi))
     delete(o.inner, VarRef(vi.value))
     return nothing
 end
 
-## variable types (binary, integer)
+## MOI.VariableIndex -in- MOI.Integer
 
 function MOI.supports_constraint(
-    o::Optimizer,
+    ::Optimizer,
     ::Type{MOI.VariableIndex},
-    ::Type{<:Union{MOI.ZeroOne,MOI.Integer}},
+    ::Type{MOI.Integer},
 )
-    true
+    return true
 end
-
-scip_vartype(::Type{MOI.ZeroOne}) = SCIP_VARTYPE_BINARY
-scip_vartype(::Type{MOI.Integer}) = SCIP_VARTYPE_INTEGER
 
 function MOI.add_constraint(
     o::Optimizer,
     vi::MOI.VariableIndex,
-    set::S,
-) where {S<:Union{MOI.ZeroOne,MOI.Integer}}
+    ::MOI.Integer,
+)
     allow_modification(o)
-    v = var(o, vi)
-    infeasible = Ref{SCIP_Bool}()
-    @SCIP_CALL SCIPchgVarType(o, v, scip_vartype(S), infeasible)
-    # TODO: warn if infeasible[] == TRUE?
-    if S <: MOI.ZeroOne
-        # Need to adjust bounds for SCIP, which fails with an error otherwise.
-        # Check for conflicts with existing bounds first:
-        lb, ub = SCIPvarGetLbOriginal(v), SCIPvarGetUbOriginal(v)
-        if lb == -SCIPinfinity(o) && ub == SCIPinfinity(o)
-            @debug "Implicitly setting bounds [0,1] for binary variable at $(vi.value)!"
-            @SCIP_CALL SCIPchgVarLb(o, v, 0.0)
-            @SCIP_CALL SCIPchgVarUb(o, v, 1.0)
-        else
-            # Store old bounds for later recovery.
-            o.binbounds[vi] = MOI.Interval(lb, ub)
-            if ub > 1.0
-                @debug "Tightening upper bound $ub to 1 for binary variable at $(vi.value)!"
-                @SCIP_CALL SCIPchgVarUb(o, v, 1.0)
-            end
-            if lb < 0.0
-                @debug "Tightening lower bound $lb to 0 for binary variable at $(vi.value)!"
-                @SCIP_CALL SCIPchgVarLb(o, v, 0.0)
-            end
-        end
-    end
-    # use var index for cons index of this type
-    i = vi.value
-    return register!(o, MOI.ConstraintIndex{MOI.VariableIndex,S}(i))
+    p_infeas = Ref{SCIP_Bool}()
+    @SCIP_CALL SCIPchgVarType(o, var(o, vi), SCIP_VARTYPE_INTEGER, p_infeas)
+    ci = MOI.ConstraintIndex{MOI.VariableIndex,MOI.Integer}(vi.value)
+    return register!(o, ci)
 end
 
 function MOI.delete(
     o::Optimizer,
-    ci::MOI.ConstraintIndex{MOI.VariableIndex,S},
-) where {S<:Union{MOI.ZeroOne,MOI.Integer}}
+    ci::MOI.ConstraintIndex{MOI.VariableIndex,MOI.Integer},
+)
     _throw_if_invalid(o, ci)
     allow_modification(o)
-
-    vi = MOI.VariableIndex(ci.value)
-    v = var(o, vi)
-
-    # Reset bounds from constraint if this was a binary, see below.
-    reset_bounds = SCIPvarGetType(v) == SCIP_VARTYPE_BINARY
-
-    # don't actually delete any SCIP constraint, just reset type
-    infeasible = Ref{SCIP_Bool}()
-    @SCIP_CALL SCIPchgVarType(
-        o,
-        var(o, vi),
-        SCIP_VARTYPE_CONTINUOUS,
-        infeasible,
-    )
-    # TODO: warn if infeasible[] == TRUE?
-
-    # Can only change bounds after changing the var type.
-    if reset_bounds
-        bounds = get(o.binbounds, vi, nothing)
-        if bounds !== nothing
-            @SCIP_CALL SCIPchgVarLb(o, v, bounds.lower)
-            @SCIP_CALL SCIPchgVarUb(o, v, bounds.upper)
-        end
-    end
-
-    # but do delete the constraint reference
-    delete!(o.constypes[MOI.VariableIndex, S], ConsRef(ci.value))
-
+    v = var(o, MOI.VariableIndex(ci.value))
+    p_infeas = Ref{SCIP_Bool}()
+    @SCIP_CALL SCIPchgVarType(o, v, SCIP_VARTYPE_CONTINUOUS, p_infeas)
+    delete!(o.constypes[MOI.VariableIndex, MOI.Integer], ConsRef(ci.value))
     return nothing
 end
 
-## variable bounds
+function MOI.get(
+    o::Optimizer,
+    ::MOI.ConstraintSet,
+    ci::MOI.ConstraintIndex{MOI.VariableIndex,MOI.Integer},
+)
+    MOI.throw_if_not_valid(o, ci)
+    return MOI.Integer()
+end
+
+## MOI.VariableIndex -in- MOI.ZeroOne
+
+function MOI.supports_constraint(
+    o::Optimizer,
+    ::Type{MOI.VariableIndex},
+    ::Type{MOI.ZeroOne},
+)
+    return true
+end
+
+function MOI.add_constraint(
+    o::Optimizer,
+    vi::MOI.VariableIndex,
+    ::MOI.ZeroOne,
+)
+    allow_modification(o)
+    v = var(o, vi)
+    p_infeas = Ref{SCIP_Bool}()
+    @SCIP_CALL SCIPchgVarType(o, v, SCIP_VARTYPE_BINARY, p_infeas)
+    # Need to adjust bounds for SCIP, which fails with an error otherwise.
+    # Check for conflicts with existing bounds first:
+    lb, ub = SCIPvarGetLbOriginal(v), SCIPvarGetUbOriginal(v)
+    if lb == -SCIPinfinity(o) && ub == SCIPinfinity(o)
+        @SCIP_CALL SCIPchgVarLb(o, v, 0.0)
+        @SCIP_CALL SCIPchgVarUb(o, v, 1.0)
+    else
+        # Store old bounds for later recovery.
+        o.binbounds[vi] = MOI.Interval(lb, ub)
+        if ub > 1.0
+            @SCIP_CALL SCIPchgVarUb(o, v, 1.0)
+        end
+        if lb < 0.0
+            @SCIP_CALL SCIPchgVarLb(o, v, 0.0)
+        end
+    end
+    ci = MOI.ConstraintIndex{MOI.VariableIndex,MOI.ZeroOne}(vi.value)
+    return register!(o, ci)
+end
+
+function MOI.delete(
+    o::Optimizer,
+    ci::MOI.ConstraintIndex{MOI.VariableIndex,MOI.ZeroOne},
+)
+    _throw_if_invalid(o, ci)
+    allow_modification(o)
+    vi = MOI.VariableIndex(ci.value)
+    v = var(o, vi)
+    p_infeas = Ref{SCIP_Bool}()
+    @SCIP_CALL SCIPchgVarType(o, v, SCIP_VARTYPE_CONTINUOUS, p_infeas)
+    bounds = get(o.binbounds, vi, nothing)
+    if bounds !== nothing
+        @SCIP_CALL SCIPchgVarLb(o, v, bounds.lower)
+        @SCIP_CALL SCIPchgVarUb(o, v, bounds.upper)
+    end
+    delete!(o.constypes[MOI.VariableIndex, MOI.ZeroOne], ConsRef(ci.value))
+    return nothing
+end
+
+function MOI.get(
+    o::Optimizer,
+    ::MOI.ConstraintSet,
+    ci::MOI.ConstraintIndex{MOI.VariableIndex,MOI.ZeroOne},
+)
+    MOI.throw_if_not_valid(o, ci)
+    return MOI.ZeroOne()
+end
+
+## MOI.VariableIndex -in- BOUNDS
 
 function MOI.supports_constraint(
     o::Optimizer,
     ::Type{MOI.VariableIndex},
     ::Type{<:BOUNDS},
 )
-    true
+    return true
 end
 
 function MOI.add_constraint(
@@ -188,81 +231,49 @@ function MOI.add_constraint(
 ) where {S<:BOUNDS}
     allow_modification(o)
     v = var(o, vi)
-    inf = SCIPinfinity(o)
-
     newlb, newub = bounds(set)
-    newlb = newlb === nothing ? -inf : newlb
-    newub = newub === nothing ? inf : newub
-
-    # Check for existing bounds first.
+    inf = SCIPinfinity(o)
+    newlb, newub = something(newlb, -inf), something(newub, inf)
     oldlb, oldub = SCIPvarGetLbOriginal(v), SCIPvarGetUbOriginal(v)
+    # FIXME(odow): This section is broken for detecting existing bounds
     if (oldlb != -inf && newlb != -inf || oldub != inf && newub != inf)
-        # special case: implicit bounds for binaries
         if SCIPvarGetType(v) == SCIP_VARTYPE_BINARY
             # Store new bounds
             o.binbounds[vi] = MOI.Interval(newlb, newub)
-
             if newlb < 0.0
-                @debug "Ignoring relaxed lower bound $newlb for binary variable at $(vi.value)!"
                 newlb = oldlb
             end
-
             if newub > 1.0
-                @debug "Ignoring relaxed upper bounds $newub for binary variable at $(vi.value)!"
                 newub = oldub
             end
-
-            if newlb != oldlb || newub != oldub
-                @debug "Overwriting existing bounds [0.0,1.0] with [$newlb,$newub] for binary variable at $(vi.value)!"
-            end
-        else # general case (non-binary variable)
-            # TODO find initially-set bound constraint
+        else
             throw(MOI.LowerBoundAlreadySet{S,S}(vi))
         end
     end
-
     if newlb != -inf
         @SCIP_CALL SCIPchgVarLb(o, v, newlb)
     end
-
     if newub != inf
         @SCIP_CALL SCIPchgVarUb(o, v, newub)
     end
-
-    # use var index for cons index of this type
-    i = vi.value
-    return register!(o, MOI.ConstraintIndex{MOI.VariableIndex,S}(i))
+    ci = MOI.ConstraintIndex{MOI.VariableIndex,S}(vi.value)
+    return register!(o, ci)
 end
 
-function reset_bounds(
-    o::Optimizer,
-    v,
-    lb,
-    ub,
-    ci::MOI.ConstraintIndex{MOI.VariableIndex,S},
-) where {S<:Union{MOI.Interval{Float64},MOI.EqualTo{Float64}}}
+function reset_bounds(o::Optimizer, v, lb, ub, ::Type{S}) where {S}
     @SCIP_CALL SCIPchgVarLb(o, v, lb)
     @SCIP_CALL SCIPchgVarUb(o, v, ub)
+    return
 end
 
-function reset_bounds(
-    o::Optimizer,
-    v,
-    lb,
-    ub,
-    ci::MOI.ConstraintIndex{MOI.VariableIndex,MOI.GreaterThan{Float64}},
-)
+function reset_bounds(o::Optimizer, v, lb, ub, ::Type{MOI.GreaterThan{Float64}})
     @SCIP_CALL SCIPchgVarLb(o, v, lb)
+    return
 end
 
-function reset_bounds(
-    o::Optimizer,
-    v,
-    lb,
-    ub,
-    ci::MOI.ConstraintIndex{MOI.VariableIndex,MOI.LessThan{Float64}},
-)
+function reset_bounds(o::Optimizer, v, lb, ub, ::Type{MOI.LessThan{Float64}})
     @SCIP_CALL SCIPchgVarUb(o, v, ub)
+    return
 end
 
 function MOI.delete(
@@ -271,21 +282,18 @@ function MOI.delete(
 ) where {S<:BOUNDS}
     _throw_if_invalid(o, ci)
     allow_modification(o)
-
     # Don't actually delete any SCIP constraint, just reset bounds
     vi = MOI.VariableIndex(ci.value)
     v = var(o, vi)
     if SCIPvarGetType(v) == SCIP_VARTYPE_BINARY
-        reset_bounds(o, v, 0.0, 1.0, ci)
+        reset_bounds(o, v, 0.0, 1.0, S)
     else
         inf = SCIPinfinity(o)
-        reset_bounds(o, v, -inf, inf, ci)
+        reset_bounds(o, v, -inf, inf, S)
     end
-
     # but do delete the constraint reference
-    haskey(o.binbounds, vi) && delete!(o.binbounds, vi)
+    delete!(o.binbounds, vi)
     delete!(o.constypes[MOI.VariableIndex, S], ConsRef(ci.value))
-
     return nothing
 end
 
@@ -296,7 +304,7 @@ function MOI.set(
     set::S,
 ) where {S<:BOUNDS}
     allow_modification(o)
-    v = var(o, MOI.VariableIndex(ci.value)) # cons index is actually var index
+    v = var(o, MOI.VariableIndex(ci.value))
     lb, ub = bounds(set)
     old_interval =
         get(o.binbounds, MOI.VariableIndex(ci.value), MOI.Interval(0.0, 1.0))
@@ -319,32 +327,6 @@ function MOI.set(
     return nothing
 end
 
-# TODO: is actually wrong for unbounded variables?
-function MOI.is_valid(
-    o::Optimizer,
-    ci::MOI.ConstraintIndex{MOI.VariableIndex,S},
-) where {S<:Union{<:BOUNDS,MOI.ZeroOne,MOI.Integer}}
-    if !haskey(o.inner.vars, VarRef(ci.value))
-        return false
-    end
-    cons_set = get(o.constypes, (MOI.VariableIndex, S), nothing)
-    if cons_set === nothing
-        return false
-    end
-    return ConsRef(ci.value) in cons_set
-end
-
-function MOI.get(
-    o::Optimizer,
-    ::MOI.ConstraintFunction,
-    ci::MOI.ConstraintIndex{MOI.VariableIndex,S},
-) where {S<:BOUNDS}
-    if !MOI.is_valid(o, ci)
-        throw(MOI.InvalidIndex(ci))
-    end
-    return MOI.VariableIndex(ci.value)
-end
-
 function MOI.get(
     o::Optimizer,
     ::MOI.ConstraintSet,
@@ -363,74 +345,18 @@ function MOI.get(
     return from_bounds(S, lb, ub)
 end
 
-function MOI.get(
-    o::Optimizer,
-    ::MOI.ConstraintSet,
-    ci::MOI.ConstraintIndex{MOI.VariableIndex,MOI.ZeroOne},
-)
-    vi = MOI.VariableIndex(ci.value)
-    v = var(o, vi)
-    if SCIPvarGetType(v) == SCIP_VARTYPE_BINARY
-        return MOI.ZeroOne()
-    end
-    throw(MOI.InvalidIndex(ci))
-end
-
-function MOI.get(
-    o::Optimizer,
-    ::MOI.ConstraintSet,
-    ci::MOI.ConstraintIndex{MOI.VariableIndex,MOI.Integer},
-)
-    vi = MOI.VariableIndex(ci.value)
-    v = var(o, vi)
-    if SCIPvarGetType(v) == SCIP_VARTYPE_INTEGER
-        return MOI.Integer()
-    end
-    throw(MOI.InvalidIndex(ci))
-end
-
-function MOI.get(
-    o::Optimizer,
-    ::MOI.ConstraintFunction,
-    ci::MOI.ConstraintIndex{MOI.VariableIndex,MOI.ZeroOne},
-)
-    vi = MOI.VariableIndex(ci.value)
-    v = var(o, vi)
-    if SCIPvarGetType(v) == SCIP_VARTYPE_BINARY
-        return vi
-    end
-    throw(MOI.InvalidIndex(ci))
-end
-
-function MOI.get(
-    o::Optimizer,
-    ::MOI.ConstraintFunction,
-    ci::MOI.ConstraintIndex{MOI.VariableIndex,MOI.Integer},
-)
-    vi = MOI.VariableIndex(ci.value)
-    v = var(o, vi)
-    if SCIPvarGetType(v) == SCIP_VARTYPE_INTEGER
-        return vi
-    end
-    throw(MOI.InvalidIndex(ci))
-end
-
-# (partial) warm starts
+# MOI.VariablePrimalStart
 
 function MOI.supports(
     ::Optimizer,
     ::MOI.VariablePrimalStart,
     ::Type{MOI.VariableIndex},
 )
-    true
+    return true
 end
 
 function MOI.get(o::Optimizer, ::MOI.VariablePrimalStart, vi::MOI.VariableIndex)
-    return if haskey(o.start, vi)
-        o.start[vi]
-    else
-        nothing
-    end
+    return get(o.start, vi, nothing)
 end
 
 function MOI.set(
@@ -447,11 +373,9 @@ function MOI.set(
     o::Optimizer,
     ::MOI.VariablePrimalStart,
     vi::MOI.VariableIndex,
-    value::Nothing,
+    ::Nothing,
 )
-    if haskey(o.start, vi)
-        delete!(o.start, vi)
-    end
+    delete!(o.start, vi)
     return
 end
 
@@ -461,7 +385,7 @@ function MOI.set(
     ::MOI.ConstraintIndex{MOI.VariableIndex},
     ::MOI.VariableIndex,
 )
-    throw(MOI.SettingVariableIndexNotAllowed())
+    return throw(MOI.SettingVariableIndexNotAllowed())
 end
 
 function get_original_variables(vars::Array{Ptr{SCIP_VAR}}, nvars::Int)
