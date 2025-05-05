@@ -113,11 +113,7 @@ function MOI.supports_constraint(
     return true
 end
 
-function MOI.add_constraint(
-    o::Optimizer,
-    vi::MOI.VariableIndex,
-    ::MOI.Integer,
-)
+function MOI.add_constraint(o::Optimizer, vi::MOI.VariableIndex, ::MOI.Integer)
     allow_modification(o)
     p_infeas = Ref{SCIP_Bool}()
     @SCIP_CALL SCIPchgVarType(o, var(o, vi), SCIP_VARTYPE_INTEGER, p_infeas)
@@ -157,11 +153,7 @@ function MOI.supports_constraint(
     return true
 end
 
-function MOI.add_constraint(
-    o::Optimizer,
-    vi::MOI.VariableIndex,
-    ::MOI.ZeroOne,
-)
+function MOI.add_constraint(o::Optimizer, vi::MOI.VariableIndex, ::MOI.ZeroOne)
     allow_modification(o)
     v = var(o, vi)
     p_infeas = Ref{SCIP_Bool}()
