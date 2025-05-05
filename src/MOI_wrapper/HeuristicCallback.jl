@@ -3,32 +3,12 @@
 # Use of this source code is governed by an MIT-style license that can be found
 # in the LICENSE.md file or at https://opensource.org/licenses/MIT.
 
-function include_heuristic(
-    o::Optimizer,
-    heuristic::HT;
-    name="",
-    description="",
-    dispchar='_',
-    priority=10000,
-    frequency=1,
-    frequency_offset=0,
-    maximum_depth=-1,
-    timing_mask=SCIP_HEURTIMING_BEFORENODE,
-    usessubscip=false,
-) where {HT}
+function include_heuristic(o::Optimizer, heuristic; kwargs...)
     return include_heuristic(
         o.inner.scip[],
         heuristic,
         o.inner.heuristic_storage;
-        name=name,
-        description=description,
-        dispchar=dispchar,
-        priority=priority,
-        frequency=frequency,
-        frequency_offset=frequency_offset,
-        maximum_depth=maximum_depth,
-        timing_mask=timing_mask,
-        usessubscip=usessubscip,
+        kwargs...,
     )
 end
 
@@ -65,9 +45,7 @@ function find_primal_solution(
     return SCIP_OKAY, result
 end
 
-#
 # MOI Interface for heuristic callbacks
-#
 
 function MOI.get(
     o::Optimizer,
@@ -76,6 +54,8 @@ function MOI.get(
 )
     return [SCIPgetSolVal(o, C_NULL, var(o, vi)) for vi in vs]
 end
+
+MOI.supports(::Optimizer, ::MOI.HeuristicCallback) = true
 
 function MOI.set(o::Optimizer, ::MOI.HeuristicCallback, cb::Function)
     if o.moi_heuristic === nothing
@@ -91,7 +71,8 @@ function MOI.set(o::Optimizer, ::MOI.HeuristicCallback, cb::Function)
     end
     return nothing
 end
-MOI.supports(::Optimizer, ::MOI.HeuristicCallback) = true
+
+MOI.supports(::Optimizer, ::MOI.HeuristicSolution{HeuristicCbData}) = true
 
 function MOI.submit(
     o::Optimizer,
@@ -102,7 +83,6 @@ function MOI.submit(
     callback_data = cb.callback_data
     heuristic = callback_data.heur
     heur_ = o.inner.heuristic_storage[heuristic]
-
     sol = create_empty_scipsol(o.inner.scip[], heur_)
     for idx in eachindex(x)
         SCIP.@SCIP_CALL SCIP.SCIPsetSolVal(
@@ -126,5 +106,5 @@ function MOI.submit(
     if stored[] == SCIP.TRUE
         callback_data.submit_called = true
     end
+    return
 end
-MOI.supports(::Optimizer, ::MOI.HeuristicSolution{HeuristicCbData}) = true

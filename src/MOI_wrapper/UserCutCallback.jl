@@ -3,10 +3,6 @@
 # Use of this source code is governed by an MIT-style license that can be found
 # in the LICENSE.md file or at https://opensource.org/licenses/MIT.
 
-#
-# Adding separators to SCIP.Optimizer.
-#
-
 """
     include_sepa(
         o::Optimizer,
@@ -24,34 +20,11 @@ Include a user defined separator `sepa` to the SCIP optimizer instance `o`.
 
 All parameters have default values, that can be set as keyword arguments.
 """
-function include_sepa(
-    o::Optimizer,
-    sepa::SEPA;
-    name="",
-    description="",
-    priority=0,
-    freq=1,
-    maxbounddist=0.0,
-    usessubscip=false,
-    delay=false,
-) where {SEPA<:AbstractSeparator}
-    include_sepa(
-        o.inner.scip[],
-        o.inner.sepas,
-        sepa;
-        name=name,
-        description=description,
-        priority=priority,
-        freq=freq,
-        maxbounddist=maxbounddist,
-        usessubscip=usessubscip,
-        delay=delay,
-    )
+function include_sepa(o::Optimizer, sepa::AbstractSeparator; kwargs...)
+    return include_sepa(o.inner.scip[], o.inner.sepas, sepa; kwargs...)
 end
 
-#
 # Separator for cutcallbacks.
-#
 
 mutable struct CutCbSeparator <: AbstractSeparator
     scipd::SCIPData
@@ -77,13 +50,13 @@ function exec_lp(sepa::CutCbSeparator)
     return cb_data.submit_called ? SCIP_SEPARATED : SCIP_DIDNOTFIND
 end
 
-#
 # MOI Interface for cutcallbacks
-#
 
 function MOI.get(o::Optimizer, ::MOI.CallbackVariablePrimal{CutCbData}, vi)
     return SCIPgetSolVal(o, C_NULL, var(o, vi))
 end
+
+MOI.supports(::Optimizer, ::MOI.UserCutCallback) = true
 
 function MOI.set(o::Optimizer, ::MOI.UserCutCallback, cb::Function)
     if o.moi_separator === nothing
@@ -92,32 +65,29 @@ function MOI.set(o::Optimizer, ::MOI.UserCutCallback, cb::Function)
     else
         o.moi_separator.cutcallback = cb
     end
+    return
 end
-MOI.supports(::Optimizer, ::MOI.UserCutCallback) = true
+
+MOI.supports(::Optimizer, ::MOI.UserCut{CutCbData}) = true
 
 function MOI.submit(
     o::Optimizer,
     cb_data::MOI.UserCut{CutCbData},
     func::MOI.ScalarAffineFunction{Float64},
-    set::S,
-) where {S<:BOUNDS}
-    varrefs = [VarRef(t.variable.value) for t in func.terms]
-    coefs = [t.coefficient for t in func.terms]
-
+    set::BOUNDS,
+)
     lhs, rhs = bounds(set)
-    lhs = lhs === nothing ? -SCIPinfinity(o) : lhs
-    rhs = rhs === nothing ? SCIPinfinity(o) : rhs
-
+    inf = SCIPinfinity(o)
     add_cut_sepa(
         o.inner.scip[],
         o.inner.vars,
         o.inner.sepas,
         cb_data.callback_data.sepa,
-        varrefs,
-        coefs,
-        lhs,
-        rhs,
+        [VarRef(t.variable.value) for t in func.terms],
+        [t.coefficient for t in func.terms],
+        something(lhs, -inf),
+        something(rhs, inf),
     )
     cb_data.callback_data.submit_called = true
+    return
 end
-MOI.supports(::Optimizer, ::MOI.UserCut{CutCbData}) = true
