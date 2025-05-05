@@ -464,7 +464,7 @@ function MOI.set(
     throw(MOI.SettingVariableIndexNotAllowed())
 end
 
-function get_original_variables(vars::Array{Ptr{SCIP_VAR}}, nvars::Int)
+function get_original_variables(vars::Array{Ptr{SCIP_VAR}}, nvars)
     scalar = Ref(1.0)
     constant = Ref(0.0)
     orig_vars = map(1:nvars) do i
