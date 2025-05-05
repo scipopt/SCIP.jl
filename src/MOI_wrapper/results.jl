@@ -3,8 +3,6 @@
 # Use of this source code is governed by an MIT-style license that can be found
 # in the LICENSE.md file or at https://opensource.org/licenses/MIT.
 
-# results
-
 const _TERMINATION_STATUS_MAP = Dict(
     SCIP_STATUS_UNKNOWN => MOI.OTHER_ERROR,
     SCIP_STATUS_USERINTERRUPT => MOI.INTERRUPTED,
@@ -32,28 +30,23 @@ function MOI.get(o::Optimizer, ::MOI.TerminationStatus)
 end
 
 function MOI.get(o::Optimizer, attr::MOI.PrimalStatus)
-    return if 1 <= attr.result_index <= MOI.get(o, MOI.ResultCount())
-        MOI.FEASIBLE_POINT
-    else
-        MOI.NO_SOLUTION
+    if 1 <= attr.result_index <= MOI.get(o, MOI.ResultCount())
+        return MOI.FEASIBLE_POINT
     end
-end
-
-function MOI.get(::Optimizer, ::MOI.DualStatus)
     return MOI.NO_SOLUTION
 end
 
+MOI.get(::Optimizer, ::MOI.DualStatus) = MOI.NO_SOLUTION
+
 function MOI.get(o::Optimizer, ::MOI.ResultCount)::Int
     status = SCIPgetStatus(o)
-    if status in [SCIP_STATUS_UNBOUNDED, SCIP_STATUS_INFORUNBD]
+    if status in (SCIP_STATUS_UNBOUNDED, SCIP_STATUS_INFORUNBD)
         return 0
     end
     return SCIPgetNSols(o)
 end
 
-function MOI.get(o::Optimizer, ::MOI.RawStatusString)
-    return string(SCIPgetStatus(o))
-end
+MOI.get(o::Optimizer, ::MOI.RawStatusString) = string(SCIPgetStatus(o))
 
 "Make sure that SCIP is currently in one of the allowed stages."
 function assert_stage(o::Optimizer, stages)
@@ -61,11 +54,12 @@ function assert_stage(o::Optimizer, stages)
     if !(stage in stages)
         error("SCIP is wrong stage ($stage, need $stages)!")
     end
+    return
 end
 
 "Make sure that the problem was solved (SCIP is in SOLVED stage)."
 function assert_solved(o::Optimizer)
-    # SCIP's stage is SOLVING when stopped by user limit!
+    # SCIP's stage is SCIP_STAGE_SOLVING when stopped by user limit!
     assert_stage(
         o,
         (
@@ -75,17 +69,14 @@ function assert_solved(o::Optimizer)
             SCIP_STAGE_SOLVED,
         ),
     )
-
-    # Check for invalid status (when stage is SOLVING).
+    # Check for invalid status (when stage is SCIP_STAGE_SOLVING).
     status = SCIPgetStatus(o)
     if status in
        (SCIP_STATUS_UNKNOWN, SCIP_STATUS_USERINTERRUPT, SCIP_STATUS_TERMINATE)
         error("SCIP's solving was interrupted, but not by a user-given limit!")
     end
+    return
 end
-
-"Make sure that: TRANSFORMED ≤ stage ≤ SOLVED."
-assert_after_prob(o::Optimizer) = assert_stage(o, SCIP_Stage.(3:10))
 
 function MOI.get(o::Optimizer, attr::MOI.ObjectiveValue)
     assert_solved(o)
@@ -128,14 +119,15 @@ function MOI.get(
 end
 
 function MOI.get(o::Optimizer, ::MOI.ObjectiveBound)
-    assert_after_prob(o)
+    # Make sure that: TRANSFORMED ≤ stage ≤ SOLVED
+    assert_stage(o, SCIP_Stage.(3:10))
     return SCIPgetDualbound(o)
 end
 
 function MOI.get(o::Optimizer, ::MOI.RelativeGap)
     assert_stage(
         o,
-        [SCIP_STAGE_PRESOLVING, SCIP_STAGE_SOLVING, SCIP_STAGE_SOLVED],
+        (SCIP_STAGE_PRESOLVING, SCIP_STAGE_SOLVING, SCIP_STAGE_SOLVED),
     )
     return SCIPgetGap(o)
 end
@@ -144,14 +136,12 @@ function MOI.get(o::Optimizer, ::MOI.SolveTimeSec)
     return SCIPgetSolvingTime(o)
 end
 
-function MOI.get(o::Optimizer, ::MOI.SimplexIterations)
+function MOI.get(o::Optimizer, ::MOI.SimplexIterations)::Int64
     assert_stage(
         o,
-        [SCIP_STAGE_PRESOLVING, SCIP_STAGE_SOLVING, SCIP_STAGE_SOLVED],
+        (SCIP_STAGE_PRESOLVING, SCIP_STAGE_SOLVING, SCIP_STAGE_SOLVED),
     )
     return SCIPgetNLPIterations(o)
 end
 
-function MOI.get(o::Optimizer, ::MOI.NodeCount)
-    return SCIPgetNNodes(o)
-end
+MOI.get(o::Optimizer, ::MOI.NodeCount)::Int64 = SCIPgetNNodes(o)
