@@ -3,17 +3,12 @@
 # Use of this source code is governed by an MIT-style license that can be found
 # in the LICENSE.md file or at https://opensource.org/licenses/MIT.
 
-import MathOptInterface as MOI
-
 const BOUNDS = Union{
     MOI.EqualTo{Float64},
     MOI.GreaterThan{Float64},
     MOI.LessThan{Float64},
     MOI.Interval{Float64},
 }
-
-const PtrMap = Dict{Ptr{Cvoid},Union{VarRef,ConsRef}}
-const ConsTypeMap = Dict{Tuple{DataType,DataType},Set{ConsRef}}
 
 @enum(
     _SCIP_SOLVE_STATUS,
@@ -24,8 +19,8 @@ const ConsTypeMap = Dict{Tuple{DataType,DataType},Set{ConsRef}}
 
 mutable struct Optimizer <: MOI.AbstractOptimizer
     inner::SCIPData
-    reference::PtrMap
-    constypes::ConsTypeMap
+    reference::Dict{Ptr{Cvoid},Union{VarRef,ConsRef}}
+    constypes::Dict{Tuple{Type,Type},Set{ConsRef}}
     binbounds::Dict{MOI.VariableIndex,BOUNDS} # only for binary variables
     params::Dict{String,Any}
     start::Dict{MOI.VariableIndex,Float64} # can be partial
@@ -34,39 +29,16 @@ mutable struct Optimizer <: MOI.AbstractOptimizer
     objective_sense::Union{Nothing,MOI.OptimizationSense}
     objective_function_set::Bool
     conflict_status::MOI.ConflictStatusCode
-
     scip_solve_status::_SCIP_SOLVE_STATUS
 
     function Optimizer(; kwargs...)
-        scip = Ref{Ptr{SCIP_}}(C_NULL)
-        @SCIP_CALL SCIPcreate(scip)
-        @assert scip[] != C_NULL
-        @SCIP_CALL SCIPincludeDefaultPlugins(scip[])
-        @SCIP_CALL SCIP.SCIPcreateProbBasic(scip[], "")
-
-        scip_data = SCIPData(
-            scip,
-            Dict(),
-            Dict(),
-            0,
-            0,
-            Dict(),
-            Dict(),
-            Dict(),
-            Dict(),
-            Dict(),
-            Dict(),
-            Dict(),
-            [],
-        )
-
         o = new(
-            scip_data,
-            PtrMap(),
-            ConsTypeMap(),
-            Dict(),
-            Dict(),
-            Dict(),
+            SCIPData(),
+            Dict{Ptr{Cvoid},Union{VarRef,ConsRef}}(),
+            Dict{Tuple{Type,Type},Set{ConsRef}}(),
+            Dict{MOI.VariableIndex,BOUNDS}(),
+            Dict{String,Any}(),
+            Dict{MOI.VariableIndex,Float64}(),
             nothing,
             nothing,
             nothing,
@@ -74,8 +46,6 @@ mutable struct Optimizer <: MOI.AbstractOptimizer
             MOI.COMPUTE_CONFLICT_NOT_CALLED,
             _kSCIP_SOLVE_STATUS_NOT_CALLED,
         )
-        finalizer(free_scip, scip_data)
-
         # Set all parameters given as keyword arguments, replacing the
         # delimiter, since "/" is used by all SCIP parameters, but is not
         # allowed in Julia identifiers.
@@ -91,8 +61,41 @@ end
 free_scip(o::Optimizer) = free_scip(o.inner)
 
 Base.cconvert(::Type{Ptr{SCIP_}}, o::Optimizer) = o
+
 # Protect Optimizer from GC for ccall with Ptr{SCIP_} argument.
 Base.unsafe_convert(::Type{Ptr{SCIP_}}, o::Optimizer) = o.inner.scip[]
+
+function MOI.is_empty(o::Optimizer)
+    return length(o.inner.vars) == 0 && length(o.inner.conss) == 0
+end
+
+function MOI.empty!(o::Optimizer)
+    # free the underlying problem
+    free_scip(o.inner)
+    # clear auxiliary mapping structures
+    empty!(o.reference)
+    empty!(o.constypes)
+    empty!(o.binbounds)
+    empty!(o.start)
+    o.inner = SCIPData()
+    # reapply parameters
+    for pair in o.params
+        set_parameter(o.inner, pair.first, pair.second)
+    end
+    o.objective_sense = nothing
+    o.objective_function_set = false
+    o.conflict_status = MOI.COMPUTE_CONFLICT_NOT_CALLED
+    o.moi_separator = nothing
+    o.moi_heuristic = nothing
+    o.scip_solve_status = _kSCIP_SOLVE_STATUS_NOT_CALLED
+    return nothing
+end
+
+MOI.supports_incremental_interface(::Optimizer) = true
+
+function MOI.copy_to(dest::Optimizer, src::MOI.ModelLike)
+    return MOI.Utilities.default_copy_to(dest, src)
+end
 
 ## convenience functions (not part of MOI)
 
@@ -114,20 +117,26 @@ end
 
 "Extract bounds from sets."
 bounds(set::MOI.EqualTo{Float64}) = (set.value, set.value)
+
 bounds(set::MOI.GreaterThan{Float64}) = (set.lower, nothing)
+
 bounds(set::MOI.LessThan{Float64}) = (nothing, set.upper)
+
 bounds(set::MOI.Interval{Float64}) = (set.lower, set.upper)
 
 "Make set from bounds."
 function from_bounds(::Type{MOI.EqualTo{Float64}}, lower, upper)
     MOI.EqualTo{Float64}(lower)
 end
+
 function from_bounds(::Type{MOI.GreaterThan{Float64}}, lower, upper)
     MOI.GreaterThan{Float64}(lower)
 end
+
 function from_bounds(::Type{MOI.LessThan{Float64}}, lower, upper)
     MOI.LessThan{Float64}(upper)
 end
+
 function from_bounds(::Type{MOI.Interval{Float64}}, lower, upper)
     MOI.Interval{Float64}(lower, upper)
 end
@@ -167,12 +176,6 @@ function allow_modification(o::Optimizer)
     return nothing
 end
 
-## general queries and support
-
-MOI.get(::Optimizer, ::MOI.SolverName) = "SCIP"
-
-MOI.supports_incremental_interface(::Optimizer) = true
-
 function _throw_if_invalid(
     o::Optimizer,
     ci::MOI.ConstraintIndex{F,S},
@@ -182,6 +185,12 @@ function _throw_if_invalid(
     end
     return nothing
 end
+
+# MOI.SolverName
+
+MOI.get(::Optimizer, ::MOI.SolverName) = "SCIP"
+
+# MOI.RawOptimizerAttribute
 
 function MOI.get(o::Optimizer, param::MOI.RawOptimizerAttribute)
     return get_parameter(o.inner, param.name)
@@ -193,20 +202,21 @@ function MOI.set(o::Optimizer, param::MOI.RawOptimizerAttribute, value)
     return nothing
 end
 
+# MOI.Silent
+
 MOI.supports(o::Optimizer, ::MOI.Silent) = true
 
 function MOI.get(o::Optimizer, ::MOI.Silent)
     return MOI.get(o, MOI.RawOptimizerAttribute("display/verblevel")) == 0
 end
 
-function MOI.set(o::Optimizer, ::MOI.Silent, value)
-    param = MOI.RawOptimizerAttribute("display/verblevel")
-    if value
-        MOI.set(o, param, 0) # no output at all
-    else
-        MOI.set(o, param, 4) # default level
-    end
+function MOI.set(o::Optimizer, ::MOI.Silent, value::Bool)
+    level = ifelse(value, 0, 4)
+    MOI.set(o, MOI.RawOptimizerAttribute("display/verblevel"), level)
+    return
 end
+
+# MOI.TimeLimitSec
 
 MOI.supports(o::Optimizer, ::MOI.TimeLimitSec) = true
 
@@ -214,21 +224,17 @@ function MOI.get(o::Optimizer, ::MOI.TimeLimitSec)
     raw_value = MOI.get(o, MOI.RawOptimizerAttribute("limits/time"))
     if raw_value == SCIPinfinity(o)
         return nothing
-    else
-        return raw_value
     end
+    return raw_value
 end
 
-function MOI.set(o::Optimizer, ::MOI.TimeLimitSec, value)
-    if value === nothing
-        return MOI.set(
-            o,
-            MOI.RawOptimizerAttribute("limits/time"),
-            SCIPinfinity(o),
-        )
-    end
-    return MOI.set(o, MOI.RawOptimizerAttribute("limits/time"), value)
+function MOI.set(o::Optimizer, ::MOI.TimeLimitSec, value::Union{Nothing,Real})
+    value = something(value, SCIPinfinity(o))
+    MOI.set(o, MOI.RawOptimizerAttribute("limits/time"), value)
+    return
 end
+
+# MOI.NodeLimit
 
 MOI.supports(o::Optimizer, ::MOI.NodeLimit) = true
 
@@ -241,106 +247,61 @@ function MOI.get(o::Optimizer, ::MOI.NodeLimit)
     end
 end
 
-function MOI.set(o::Optimizer, ::MOI.NodeLimit, value)
-    if value === nothing
-        return MOI.set(o, MOI.RawOptimizerAttribute("limits/nodes"), -1)
-    end
-    return MOI.set(o, MOI.RawOptimizerAttribute("limits/nodes"), value)
+function MOI.set(o::Optimizer, ::MOI.NodeLimit, value::Union{Nothing,Real})
+    value = something(value, -1)
+    MOI.set(o, MOI.RawOptimizerAttribute("limits/nodes"), value)
+    return
 end
+
+# MOI.AbsoluteGapTolerance
 
 MOI.supports(::Optimizer, ::MOI.AbsoluteGapTolerance) = true
+
 function MOI.get(o::Optimizer, ::MOI.AbsoluteGapTolerance)
     raw_value = MOI.get(o, MOI.RawOptimizerAttribute("limits/absgap"))
-    if raw_value == 0
+    if iszero(raw_value)
         return nothing
     end
     return raw_value
 end
-function MOI.set(o::Optimizer, ::MOI.AbsoluteGapTolerance, value)
-    if value === nothing
-        MOI.set(o, MOI.RawOptimizerAttribute("limits/absgap"), 0.0)
-    else
-        MOI.set(o, MOI.RawOptimizerAttribute("limits/absgap"), value)
-    end
+
+function MOI.set(
+    o::Optimizer,
+    ::MOI.AbsoluteGapTolerance,
+    value::Union{Nothing,Real},
+)
+    value = something(value, 0.0)
+    MOI.set(o, MOI.RawOptimizerAttribute("limits/absgap"), value)
     return nothing
 end
+
+# MOI.RelativeGapTolerance
 
 MOI.supports(::Optimizer, ::MOI.RelativeGapTolerance) = true
+
 function MOI.get(o::Optimizer, ::MOI.RelativeGapTolerance)
     raw_value = MOI.get(o, MOI.RawOptimizerAttribute("limits/gap"))
-    if raw_value == 0
+    if iszero(raw_value)
         return nothing
     end
     return raw_value
 end
-function MOI.set(o::Optimizer, ::MOI.RelativeGapTolerance, value)
-    if value === nothing
-        MOI.set(o, MOI.RawOptimizerAttribute("limits/gap"), 0.0)
-    else
-        MOI.set(o, MOI.RawOptimizerAttribute("limits/gap"), value)
-    end
+
+function MOI.set(
+    o::Optimizer,
+    ::MOI.RelativeGapTolerance,
+    value::Union{Nothing,Real},
+)
+    value = something(value, 0.0)
+    MOI.set(o, MOI.RawOptimizerAttribute("limits/gap"), value)
     return nothing
 end
 
-MOI.supports(::Optimizer, ::MOI.SolverVersion) = true
+# MOI.SolverVersion
 
 MOI.get(::Optimizer, ::MOI.SolverVersion) = "v" * string(SCIP_versionnumber())
 
-## model creation, query and modification
-
-function MOI.is_empty(o::Optimizer)
-    return length(o.inner.vars) == 0 && length(o.inner.conss) == 0
-end
-
-function MOI.empty!(o::Optimizer)
-    # free the underlying problem
-    free_scip(o.inner)
-    # clear auxiliary mapping structures
-    o.reference = PtrMap()
-    o.constypes = ConsTypeMap()
-    o.binbounds = Dict()
-    o.start = Dict()
-    # manually recreate empty o.inner (formerly done by creating a new mscip before ManagedSCIP was removed)
-    scip = Ref{Ptr{SCIP_}}(C_NULL)
-    @SCIP_CALL SCIPcreate(scip)
-    @assert scip[] != C_NULL
-    @SCIP_CALL SCIPincludeDefaultPlugins(scip[])
-    @SCIP_CALL SCIP.SCIPcreateProbBasic(scip[], "")
-    # create a new problem
-    o.inner = SCIPData(
-        scip,
-        Dict(),
-        Dict(),
-        0,
-        0,
-        Dict(),
-        Dict(),
-        Dict(),
-        Dict(),
-        Dict(),
-        Dict(),
-        Dict(),
-        [],
-    )
-    # reapply parameters
-    for pair in o.params
-        set_parameter(o.inner, pair.first, pair.second)
-    end
-    o.objective_sense = nothing
-    o.objective_function_set = false
-    o.conflict_status = MOI.COMPUTE_CONFLICT_NOT_CALLED
-    o.moi_separator = nothing
-    o.moi_heuristic = nothing
-    o.scip_solve_status = _kSCIP_SOLVE_STATUS_NOT_CALLED
-
-    finalizer(free_scip, o.inner)
-
-    return nothing
-end
-
-function MOI.copy_to(dest::Optimizer, src::MOI.ModelLike)
-    return MOI.Utilities.default_copy_to(dest, src)
-end
+# MOI.Name
 
 MOI.supports(::Optimizer, ::MOI.Name) = true
 
@@ -350,6 +311,8 @@ function MOI.set(o::Optimizer, ::MOI.Name, name::String)
     @SCIP_CALL SCIPsetProbName(o, name)
     return
 end
+
+# SCIP.Presolving
 
 """
     Presolving
@@ -371,11 +334,16 @@ function MOI.set(o::Optimizer, ::Presolving, value::Bool)
     else
         MOI.set(o, param, 0) # no presolving
     end
+    return
 end
+
+# MOI.NumberOfConstraints
 
 function MOI.get(o::Optimizer, ::MOI.NumberOfConstraints{F,S}) where {F,S}
     return haskey(o.constypes, (F, S)) ? length(o.constypes[F, S]) : 0
 end
+
+# MOI.ListOfConstraintTypesPresent
 
 function MOI.get(o::Optimizer, ::MOI.ListOfConstraintTypesPresent)
     ret = Tuple{Type,Type}[]
@@ -387,8 +355,10 @@ function MOI.get(o::Optimizer, ::MOI.ListOfConstraintTypesPresent)
     return ret
 end
 
+# MOI.ListOfConstraintIndices
+
 function MOI.get(o::Optimizer, ::MOI.ListOfConstraintIndices{F,S}) where {F,S}
-    list_indices = Vector{MOI.ConstraintIndex{F,S}}()
+    list_indices = MOI.ConstraintIndex{F,S}[]
     if !haskey(o.constypes, (F, S))
         return list_indices
     end
@@ -398,37 +368,31 @@ function MOI.get(o::Optimizer, ::MOI.ListOfConstraintIndices{F,S}) where {F,S}
     return sort!(list_indices; by=v -> v.value)
 end
 
-function set_start_values(o::Optimizer)
+function _set_start_values(o::Optimizer)
     if isempty(o.start)
-        # no primal start values are given
-        return
+        return  # no primal start values are given
     end
-
     # create new partial solution object
     sol__ = Ref{Ptr{SCIP_SOL}}(C_NULL)
     @SCIP_CALL SCIPcreatePartialSol(o, sol__, C_NULL)
     @assert sol__[] != C_NULL
-
     # set all given values
     sol_ = sol__[]
     for (vi, value) in o.start
         @SCIP_CALL SCIPsetSolVal(o, sol_, var(o, vi), value)
     end
-
     # submit the candidate
     stored_ = Ref{SCIP_Bool}(FALSE)
     @SCIP_CALL SCIPaddSolFree(o, sol__, stored_)
     @assert sol__[] == C_NULL
+    return
 end
 
 function MOI.optimize!(o::Optimizer)
-    set_start_values(o)
+    _set_start_values(o)
     if o.objective_sense == MOI.FEASIBILITY_SENSE
-        MOI.set(
-            o,
-            MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(),
-            MOI.ScalarAffineFunction{Float64}([], 0.0),
-        )
+        F = MOI.ScalarAffineFunction{Float64}
+        MOI.set(o, MOI.ObjectiveFunction{F}(), zero(F))
     end
     try
         o.scip_solve_status = _kSCIP_SOLVE_STATUS_IN_SOLVE
@@ -451,6 +415,8 @@ function MOI.delete(o::Optimizer, ci::MOI.ConstraintIndex{F,S}) where {F,S}
     return nothing
 end
 
+# MOI.ListOfVariableAttributesSet
+
 function MOI.get(o::Optimizer, ::MOI.ListOfVariableAttributesSet)
     attributes = MOI.AbstractVariableAttribute[MOI.VariableName()]
     if !isempty(o.start)
@@ -458,6 +424,8 @@ function MOI.get(o::Optimizer, ::MOI.ListOfVariableAttributesSet)
     end
     return attributes
 end
+
+# MOI.ListOfModelAttributesSet
 
 function MOI.get(o::Optimizer, ::MOI.ListOfModelAttributesSet)
     ret = MOI.AbstractModelAttribute[]
@@ -474,6 +442,8 @@ function MOI.get(o::Optimizer, ::MOI.ListOfModelAttributesSet)
     return ret
 end
 
+# MOI.ListOfConstraintAttributesSet
+
 function MOI.get(
     ::Optimizer,
     ::MOI.ListOfConstraintAttributesSet{F,S},
@@ -484,6 +454,8 @@ function MOI.get(
     end
     return attributes
 end
+
+# MOI.ListOfOptimizerAttributesSet
 
 function MOI.get(::Optimizer, ::MOI.ListOfOptimizerAttributesSet)
     attributes = MOI.ListOfOptimizerAttributesSet[]
