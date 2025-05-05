@@ -342,9 +342,13 @@ function MOI.copy_to(dest::Optimizer, src::MOI.ModelLike)
     return MOI.Utilities.default_copy_to(dest, src)
 end
 
+MOI.supports(::Optimizer, ::MOI.Name) = true
+
 MOI.get(o::Optimizer, ::MOI.Name) = unsafe_string(SCIPgetProbName(o))
+
 function MOI.set(o::Optimizer, ::MOI.Name, name::String)
     @SCIP_CALL SCIPsetProbName(o, name)
+    return
 end
 
 """
@@ -374,7 +378,13 @@ function MOI.get(o::Optimizer, ::MOI.NumberOfConstraints{F,S}) where {F,S}
 end
 
 function MOI.get(o::Optimizer, ::MOI.ListOfConstraintTypesPresent)
-    return collect(keys(o.constypes))
+    ret = Tuple{Type,Type}[]
+    for (k, v) in o.constypes
+        if !isempty(v)
+            push!(ret, k)
+        end
+    end
+    return ret
 end
 
 function MOI.get(o::Optimizer, ::MOI.ListOfConstraintIndices{F,S}) where {F,S}
@@ -450,7 +460,10 @@ function MOI.get(o::Optimizer, ::MOI.ListOfVariableAttributesSet)
 end
 
 function MOI.get(o::Optimizer, ::MOI.ListOfModelAttributesSet)
-    ret = MOI.AbstractModelAttribute[MOI.Name()]
+    ret = MOI.AbstractModelAttribute[]
+    if !isempty(MOI.get(o, MOI.Name()))
+        push!(ret, MOI.Name())
+    end
     if o.objective_sense !== nothing
         push!(ret, MOI.ObjectiveSense())
     end
