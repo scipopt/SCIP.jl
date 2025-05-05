@@ -10,11 +10,12 @@
 # objectives are also accepted, but the type is not correctly remembered.
 
 MOI.supports(::Optimizer, ::MOI.ObjectiveSense) = true
+
 function MOI.supports(
     ::Optimizer,
     ::MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}},
 )
-    true
+    return true
 end
 
 function MOI.set(
@@ -23,12 +24,10 @@ function MOI.set(
     obj::MOI.ScalarAffineFunction{Float64},
 )
     allow_modification(o)
-
     # reset objective coefficient of all variables first
     for v in values(o.inner.vars)
         @SCIP_CALL SCIPchgVarObj(o, v[], 0.0)
     end
-
     # set new objective coefficients, summing coefficients
     for t in obj.terms
         v = var(o, t.variable)
@@ -36,10 +35,17 @@ function MOI.set(
         newcoef = oldcoef + t.coefficient
         @SCIP_CALL SCIPchgVarObj(o, v, newcoef)
     end
-
     @SCIP_CALL SCIPaddOrigObjoffset(o, obj.constant - SCIPgetOrigObjoffset(o))
     o.objective_function_set = true
     return nothing
+end
+
+function MOI.get(
+    o::Optimizer,
+    ::MOI.ObjectiveFunction{F},
+) where {F}
+    f = MOI.get(o, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}())
+    return convert(F, f)
 end
 
 function MOI.get(
@@ -50,7 +56,9 @@ function MOI.get(
     for vr in keys(o.inner.vars)
         vi = MOI.VariableIndex(vr.val)
         coef = SCIPvarGetObj(var(o, vi))
-        coef == 0.0 || push!(terms, MOI.ScalarAffineTerm{Float64}(coef, vi))
+        if !iszero(coef)
+            push!(terms, MOI.ScalarAffineTerm{Float64}(coef, vi))
+        end
     end
     constant = SCIPgetOrigObjoffset(o)
     return MOI.ScalarAffineFunction{Float64}(terms, constant)
@@ -94,5 +102,5 @@ function MOI.modify(
 end
 
 function MOI.get(::Optimizer, ::MOI.ObjectiveFunctionType)
-    MOI.ScalarAffineFunction{Float64}
+    return MOI.ScalarAffineFunction{Float64}
 end
