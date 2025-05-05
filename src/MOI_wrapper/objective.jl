@@ -3,13 +3,7 @@
 # Use of this source code is governed by an MIT-style license that can be found
 # in the LICENSE.md file or at https://opensource.org/licenses/MIT.
 
-# Objective function & sense.
-#
-# SCIP only supports affine objectives. For quadratic or nonlinear objectives,
-# the solver will depend on bridges with auxiliary variables. Single variable
-# objectives are also accepted, but the type is not correctly remembered.
-
-MOI.supports(::Optimizer, ::MOI.ObjectiveSense) = true
+# MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}
 
 function MOI.supports(
     ::Optimizer,
@@ -40,11 +34,6 @@ function MOI.set(
     return nothing
 end
 
-function MOI.get(o::Optimizer, ::MOI.ObjectiveFunction{F}) where {F}
-    f = MOI.get(o, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}())
-    return convert(F, f)
-end
-
 function MOI.get(
     o::Optimizer,
     ::MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}},
@@ -60,6 +49,28 @@ function MOI.get(
     constant = SCIPgetOrigObjoffset(o)
     return MOI.ScalarAffineFunction{Float64}(terms, constant)
 end
+
+function MOI.modify(
+    o::Optimizer,
+    ::MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}},
+    change::MOI.ScalarCoefficientChange{Float64},
+)
+    allow_modification(o)
+    @SCIP_CALL SCIPchgVarObj(o, var(o, change.variable), change.new_coefficient)
+    o.objective_function_set = true
+    return nothing
+end
+
+# Get objective function of other types
+
+function MOI.get(o::Optimizer, ::MOI.ObjectiveFunction{F}) where {F}
+    f = MOI.get(o, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}())
+    return convert(F, f)
+end
+
+# MOI.ObjectiveSense
+
+MOI.supports(::Optimizer, ::MOI.ObjectiveSense) = true
 
 function MOI.set(
     o::Optimizer,
@@ -87,16 +98,7 @@ function MOI.get(o::Optimizer, ::MOI.ObjectiveSense)
     return something(o.objective_sense, MOI.FEASIBILITY_SENSE)
 end
 
-function MOI.modify(
-    o::Optimizer,
-    ::MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}},
-    change::MOI.ScalarCoefficientChange{Float64},
-)
-    allow_modification(o)
-    @SCIP_CALL SCIPchgVarObj(o, var(o, change.variable), change.new_coefficient)
-    o.objective_function_set = true
-    return nothing
-end
+# MOI.ObjectiveFunctionType
 
 function MOI.get(::Optimizer, ::MOI.ObjectiveFunctionType)
     return MOI.ScalarAffineFunction{Float64}
