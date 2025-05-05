@@ -1254,7 +1254,7 @@ function test_obtaining_the_LP_solution()
     end
     MOI.set(optimizer, MOI.UserCutCallback(), cutcallback)
     # solve the problem
-    MOI.optimize!(inner.scip[])
+    MOI.optimize!(optimizer)
     # The cut callback was called and obtaining the LP-solution worked.
     @test calls >= 1
     @test x_val + y_val >= 1.0 - min(atol, 1.0 * rtol)

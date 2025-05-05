@@ -15,31 +15,19 @@ using SCIP_PaPILO_jll
 )
 @show SCIP.SCIP_versionnumber()
 
-@testset "direct library calls" begin
-    include("direct_library_calls.jl")
-end
-
-@testset "managed memory" begin
-    include("scip_data.jl")
-end
-
 # new type definitions in module (needs top level)
 include("conshdlr_support.jl")
-@testset "constraint handlers" begin
-    include("conshdlr.jl")
-end
-
 include("sepa_support.jl")
-@testset "separators" begin
-    include("sepa.jl")
-end
 
-@testset "event handlers" begin
-    include("eventhdlr.jl")
+@testset "SCIP" begin
+    @testset "$file" for file in [
+        "conshdlr.jl",
+        "cutsel.jl",
+        "direct_library_calls.jl",
+        "eventhdlr.jl",
+        "MOI_tests.jl",
+        "scip_data.jl",
+    ]
+        include(file)
+    end
 end
-
-@testset "MathOptInterface" begin
-    include("MOI_tests.jl")
-end
-
-include("cutsel.jl")
