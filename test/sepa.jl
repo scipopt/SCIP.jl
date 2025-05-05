@@ -43,13 +43,10 @@ import MathOptInterface as MOI
     SCIP.include_sepa(inner.scip[], inner.sepas, sepa)
 
     # solve the problem
-    SCIP.@SCIP_CALL SCIP.SCIPsolve(inner.scip[])
+    MOI.optimize!(optimizer)
 
     # the separator is called
     @test sepa.called >= 1
-
-    # free the problem
-    finalize(inner)
 end
 
 # Test, whether adding cuts in `exec_lp` via `add_cut_sepa` works [1/2].
@@ -94,7 +91,7 @@ end
     SCIP.include_sepa(inner.scip[], inner.sepas, sepa)
 
     # solve the problem
-    SCIP.@SCIP_CALL SCIP.SCIPsolve(inner.scip[])
+    MOI.optimize!(optimizer)
 
     # SCIP found the single remaining optimal solution
     @test MOI.get(optimizer, MOI.TerminationStatus()) == MOI.OPTIMAL
@@ -105,9 +102,6 @@ end
         rtol
     @test MOI.get(optimizer, MOI.VariablePrimal(), y) ≈ 1.0 atol = atol rtol =
         rtol
-
-    # free the problem
-    finalize(inner)
 end
 
 # Test, whether adding cuts in `exec_lp` via `add_cut_sepa` works [2/2].
@@ -152,7 +146,7 @@ end
     SCIP.include_sepa(inner.scip[], inner.sepas, sepa)
 
     # solve the problem
-    SCIP.@SCIP_CALL SCIP.SCIPsolve(inner.scip[])
+    MOI.optimize!(optimizer)
 
     # SCIP found the single remaining optimal solution
     @test MOI.get(optimizer, MOI.TerminationStatus()) == MOI.OPTIMAL
@@ -163,9 +157,6 @@ end
         rtol
     @test MOI.get(optimizer, MOI.VariablePrimal(), y) ≈ 0.0 atol = atol rtol =
         rtol
-
-    # free the problem
-    finalize(inner)
 end
 
 # Test, whether we can cut the optimal solution.
@@ -210,7 +201,7 @@ end
     SCIP.include_sepa(inner.scip[], inner.sepas, sepa)
 
     # solve the problem
-    SCIP.@SCIP_CALL SCIP.SCIPsolve(inner.scip[])
+    MOI.optimize!(optimizer)
 
     # SCIP found the non-optimal solution, that remains after the cut.
     @test MOI.get(optimizer, MOI.TerminationStatus()) == MOI.OPTIMAL
@@ -221,7 +212,4 @@ end
         rtol
     @test MOI.get(optimizer, MOI.VariablePrimal(), y) ≈ 0.0 atol = atol rtol =
         rtol
-
-    # free the problem
-    finalize(inner)
 end
