@@ -79,10 +79,7 @@ function test_runtests_bridged()
             r"^test_model_ScalarAffineFunction_ConstraintName$",
             r"^test_model_LowerBoundAlreadySet$",
             r"^test_model_UpperBoundAlreadySet$",
-            r"^test_model_VariableName$",
-            r"^test_model_Name_VariableName_ConstraintName$",
             r"^test_model_duplicate_ScalarAffineFunction_ConstraintName$",
-            r"^test_model_duplicate_VariableName$",
             # SCIP does not support nonlinear objective functions.
             r"^test_nonlinear_hs071_NLPBlockDual$",
             r"^test_nonlinear_invalid$",
@@ -115,9 +112,7 @@ function test_runtests_direct()
             r"^test_model_ScalarAffineFunction_ConstraintName$",
             r"^test_model_LowerBoundAlreadySet$",
             r"^test_model_UpperBoundAlreadySet$",
-            r"^test_model_VariableName$",
             r"^test_model_duplicate_ScalarAffineFunction_ConstraintName$",
-            r"^test_model_duplicate_VariableName$",
             # SCIP does not support nonlinear objective functions.
             r"^test_nonlinear_hs071_NLPBlockDual$",
             r"^test_nonlinear_invalid$",

@@ -5,6 +5,7 @@
 
 function MOI.add_variable(o::Optimizer)
     allow_modification(o)
+    o.name_to_variable = nothing
     vr = add_variable(o.inner)
     var::Ptr{SCIP_VAR} = o.inner.vars[vr][]
     register!(o, var, vr)
@@ -66,20 +67,36 @@ function MOI.set(
     name::String,
 )
     @SCIP_CALL SCIPchgVarName(o, var(o, vi), name)
+    o.name_to_variable = nothing
     return nothing
 end
 
-# FIXME(odow): This function is broken for dealing with duplicate variable names
+function _rebuild_name_to_variable(o::Optimizer)
+    o.name_to_variable = Dict{String,Union{Nothing,MOI.VariableIndex}}()
+    for x in MOI.get(o, MOI.ListOfVariableIndices())
+        name = MOI.get(o, MOI.VariableName(), x)
+        if isempty(name)
+            continue
+        elseif haskey(o.name_to_variable, name)
+            o.name_to_variable[name] = nothing
+        else
+            o.name_to_variable[name] = x
+        end
+    end
+    return
+end
+
 function MOI.get(o::Optimizer, ::Type{MOI.VariableIndex}, name::String)
-    ptr = SCIPfindVar(o, name)
-    if ptr == C_NULL
-        return nothing
+    if o.name_to_variable === nothing
+        _rebuild_name_to_variable(o)
     end
-    var_ref = get(o.reference, ptr, nothing)
-    if var_ref === nothing
-        return var_ref
+    x = get(o.name_to_variable, name, missing)
+    if ismissing(x)
+        return nothing  # No name exists
+    elseif isnothing(x)
+        error("Duplicate name")
     end
-    return MOI.VariableIndex(var_ref.val)
+    return x
 end
 
 # MOI.delete
@@ -100,6 +117,7 @@ function MOI.delete(o::Optimizer, vi::MOI.VariableIndex)
     delete!(o.binbounds, vi)
     delete!(o.reference, var(o, vi))
     delete(o.inner, VarRef(vi.value))
+    o.name_to_variable = nothing
     return nothing
 end
 
