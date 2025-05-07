@@ -30,6 +30,10 @@ mutable struct Optimizer <: MOI.AbstractOptimizer
     objective_function_set::Bool
     conflict_status::MOI.ConflictStatusCode
     scip_solve_status::_SCIP_SOLVE_STATUS
+    name_to_variable::Union{
+        Nothing,
+        Dict{String,Union{Nothing,MOI.VariableIndex}},
+    }
 
     function Optimizer(; kwargs...)
         o = new(
@@ -45,6 +49,7 @@ mutable struct Optimizer <: MOI.AbstractOptimizer
             false,
             MOI.COMPUTE_CONFLICT_NOT_CALLED,
             _kSCIP_SOLVE_STATUS_NOT_CALLED,
+            nothing,
         )
         # Set all parameters given as keyword arguments, replacing the
         # delimiter, since "/" is used by all SCIP parameters, but is not
@@ -88,6 +93,7 @@ function MOI.empty!(o::Optimizer)
     o.moi_separator = nothing
     o.moi_heuristic = nothing
     o.scip_solve_status = _kSCIP_SOLVE_STATUS_NOT_CALLED
+    o.name_to_variable = nothing
     return nothing
 end
 
