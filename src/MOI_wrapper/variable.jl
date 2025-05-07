@@ -146,7 +146,7 @@ end
 ## MOI.VariableIndex -in- MOI.ZeroOne
 
 function MOI.supports_constraint(
-    o::Optimizer,
+    ::Optimizer,
     ::Type{MOI.VariableIndex},
     ::Type{MOI.ZeroOne},
 )
@@ -209,7 +209,7 @@ end
 ## MOI.VariableIndex -in- BOUNDS
 
 function MOI.supports_constraint(
-    o::Optimizer,
+    ::Optimizer,
     ::Type{MOI.VariableIndex},
     ::Type{<:BOUNDS},
 )

@@ -3,14 +3,12 @@
 # Use of this source code is governed by an MIT-style license that can be found
 # in the LICENSE.md file or at https://opensource.org/licenses/MIT.
 
-# linear constraints
-
 function MOI.supports_constraint(
-    o::Optimizer,
+    ::Optimizer,
     ::Type{MOI.ScalarAffineFunction{Float64}},
     ::Type{<:BOUNDS},
 )
-    true
+    return true
 end
 
 function MOI.add_constraint(
@@ -21,16 +19,12 @@ function MOI.add_constraint(
     if func.constant != 0.0
         throw(MOI.ScalarFunctionConstantNotZero{Float64,F,S}(func.constant))
     end
-
     allow_modification(o)
-
     varrefs = [VarRef(t.variable.value) for t in func.terms]
     coefs = [t.coefficient for t in func.terms]
-
+    inf = SCIPinfinity(o)
     lhs, rhs = bounds(set)
-    lhs = lhs === nothing ? -SCIPinfinity(o) : lhs
-    rhs = rhs === nothing ? SCIPinfinity(o) : rhs
-
+    lhs, rhs = something(lhs, -inf), something(rhs, inf)
     cr = add_linear_constraint(o.inner, varrefs, coefs, lhs, rhs)
     ci = MOI.ConstraintIndex{F,S}(cr.val)
     register!(o, ci)
@@ -45,14 +39,11 @@ function MOI.set(
     set::S,
 ) where {S<:BOUNDS}
     allow_modification(o)
-
+    inf = SCIPinfinity(o)
     lhs, rhs = bounds(set)
-    lhs = lhs === nothing ? -SCIPinfinity(o) : lhs
-    rhs = rhs === nothing ? SCIPinfinity(o) : rhs
-
+    lhs, rhs = something(lhs, -inf), something(rhs, inf)
     @SCIP_CALL SCIPchgLhsLinear(o, cons(o, ci), lhs)
     @SCIP_CALL SCIPchgRhsLinear(o, cons(o, ci), rhs)
-
     return nothing
 end
 
@@ -63,19 +54,16 @@ function MOI.get(
 ) where {S<:BOUNDS}
     _throw_if_invalid(o, ci)
     c = cons(o, ci)
-    nvars::Int = SCIPgetNVarsLinear(o, c)
+    nvars = SCIPgetNVarsLinear(o, c)
     vars = unsafe_wrap(Array{Ptr{SCIP_VAR}}, SCIPgetVarsLinear(o, c), nvars)
     vals = unsafe_wrap(Array{Float64}, SCIPgetValsLinear(o, c), nvars)
-
     orig_vars = get_original_variables(vars, nvars)
-
     terms = [
         MOI.ScalarAffineTerm{Float64}(
             vals[i],
             MOI.VariableIndex(ref(o, orig_vars[i]).val),
         ) for i in 1:nvars
     ]
-    # can not identify constant anymore (is merged with lhs,rhs)
     return MOI.ScalarAffineFunction{Float64}(terms, 0.0)
 end
 
