@@ -6,30 +6,25 @@
 # quadratic constraints
 
 function MOI.supports_constraint(
-    o::Optimizer,
+    ::Optimizer,
     ::Type{MOI.ScalarQuadraticFunction{Float64}},
     ::Type{<:BOUNDS},
 )
-    true
+    return true
 end
 
 function MOI.add_constraint(
     o::Optimizer,
-    func::MOI.ScalarQuadraticFunction{Float64},
+    func::F,
     set::S,
-) where {S<:BOUNDS}
+) where {F<:MOI.ScalarQuadraticFunction{Float64},S<:BOUNDS}
     if func.constant != 0.0
-        error(
-            "SCIP does not support quadratic constraints with a constant offset.",
-        )
+        throw(MOI.ScalarFunctionConstantNotZero{Float64,F,S}(func.constant))
     end
-
     allow_modification(o)
-
     # affine terms
     linrefs = [VarRef(t.variable.value) for t in func.affine_terms]
     lincoefs = [t.coefficient for t in func.affine_terms]
-
     # quadratic terms
     quadrefs1 = [VarRef(t.variable_1.value) for t in func.quadratic_terms]
     quadrefs2 = [VarRef(t.variable_2.value) for t in func.quadratic_terms]
@@ -37,12 +32,10 @@ function MOI.add_constraint(
     # Take coef * x * y as-is, but turn coef * x^2 into coef/2 * x^2.
     factor = 1.0 .- 0.5 * (quadrefs1 .== quadrefs2)
     quadcoefs = factor .* [t.coefficient for t in func.quadratic_terms]
-
     # range
+    inf = SCIPinfinity(o)
     lhs, rhs = bounds(set)
-    lhs = lhs === nothing ? -SCIPinfinity(o) : lhs
-    rhs = rhs === nothing ? SCIPinfinity(o) : rhs
-
+    lhs, rhs = something(lhs, -inf), something(rhs, inf)
     cr = add_quadratic_constraint(
         o.inner,
         linrefs,
@@ -53,7 +46,7 @@ function MOI.add_constraint(
         lhs,
         rhs,
     )
-    ci = MOI.ConstraintIndex{MOI.ScalarQuadraticFunction{Float64},S}(cr.val)
+    ci = MOI.ConstraintIndex{F,S}(cr.val)
     register!(o, ci)
     register!(o, cons(o, ci), cr)
     return ci
@@ -66,14 +59,11 @@ function MOI.set(
     set::S,
 ) where {S<:BOUNDS}
     allow_modification(o)
-
+    inf = SCIPinfinity(o)
     lhs, rhs = bounds(set)
-    lhs = lhs === nothing ? -SCIPinfinity(o) : lhs
-    rhs = rhs === nothing ? SCIPinfinity(o) : rhs
-
+    lhs, rhs = something(lhs, -inf), something(rhs, inf)
     @SCIP_CALL SCIPchgLhsQuadratic(o, cons(o, ci), lhs)
     @SCIP_CALL SCIPchgRhsQuadratic(o, cons(o, ci), rhs)
-
     return nothing
 end
 
@@ -88,19 +78,13 @@ function MOI.get(
     # This call is required to get quaddata computed in the expression
     isq = Ref{UInt32}(100)
     @SCIP_CALL LibSCIP.SCIPcheckExprQuadratic(o, expr_ref, isq)
-    if isq[] != 1
-        error(
-            "Constraint index $ci pointing to a non-quadratic expression $expr_ref",
-        )
-    end
-
+    @assert isq[] == 1
     constant_ref = Ref{Cdouble}(-1.0)
     n_linear_terms_ref = Ref{Cint}(-1)
     linear_exprs = Ref{Ptr{Ptr{LibSCIP.SCIP_EXPR}}}()
     lincoefs = Ref{Ptr{Cdouble}}()
     n_quad_terms_ref = Ref{Cint}(-1)
     n_bilinear_terms_ref = Ref{Cint}(-1)
-
     LibSCIP.SCIPexprGetQuadraticData(
         expr_ref,
         constant_ref,
@@ -112,12 +96,10 @@ function MOI.get(
         C_NULL,
         C_NULL,
     )
-
     lin_expr_vec =
         unsafe_wrap(Vector{Ptr{Cvoid}}, linear_exprs[], n_linear_terms_ref[])
     lin_coeff_vec =
         unsafe_wrap(Vector{Cdouble}, lincoefs[], n_linear_terms_ref[])
-
     func = SCIP.MOI.ScalarQuadraticFunction{Float64}([], [], constant_ref[])
     for idx in 1:n_linear_terms_ref[]
         var_ptr = LibSCIP.SCIPgetVarExprVar(lin_expr_vec[idx])
@@ -149,7 +131,6 @@ function MOI.get(
             )
         end
     end
-
     for term_idx in 1:n_bilinear_terms_ref[]
         var_expr1 = Ref{Ptr{Cvoid}}()
         var_expr2 = Ref{Ptr{Cvoid}}()
@@ -201,11 +182,7 @@ function MOI.get(
     expr_ref = SCIPgetExprNonlinear(c)
     isq = Ref{UInt32}(100)
     @SCIP_CALL LibSCIP.SCIPcheckExprQuadratic(o, expr_ref, isq)
-    if isq[] != 1
-        error(
-            "Constraint index $ci pointing to a non-quadratic expression $expr_ref",
-        )
-    end
+    @assert isq[] == 1
     sol = SCIPgetBestSol(o)
     @SCIP_CALL SCIPevalExpr(o, expr_ref, sol, Clonglong(0))
     return SCIPexprGetEvalValue(expr_ref)

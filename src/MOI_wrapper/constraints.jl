@@ -3,8 +3,8 @@
 # Use of this source code is governed by an MIT-style license that can be found
 # in the LICENSE.md file or at https://opensource.org/licenses/MIT.
 
-# generic constraints
-
+# FIXME(odow): ConstraintName is missing MOI.supports, doesn't account for
+# duplicate names, and doesn't error properly for MOI.VariableIndex constraints.
 function MOI.get(
     o::Optimizer,
     ::MOI.ConstraintName,
@@ -29,8 +29,7 @@ function MOI.set(
     ci::MOI.ConstraintIndex{MOI.VariableIndex},
     name::String,
 )
-    throw(MOI.VariableIndexConstraintNameError())
-    return nothing
+    return throw(MOI.VariableIndexConstraintNameError())
 end
 
 function MOI.is_valid(o::Optimizer, c::MOI.ConstraintIndex{F,S}) where {F,S}
@@ -58,5 +57,5 @@ function MOI.get(o::Optimizer, ::Type{MOI.ConstraintIndex}, name::String)
             return MOI.ConstraintIndex{F,S}(cref.val)
         end
     end
-    error("Constraint type not found for constraint $cref")
+    return error("Constraint type not found for constraint $cref")
 end

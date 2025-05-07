@@ -6,7 +6,7 @@
 # MOI.VectorOfVariables -in- MOI.SOS1{Float64}
 
 function MOI.supports_constraint(
-    o::Optimizer,
+    ::Optimizer,
     ::Type{MOI.VectorOfVariables},
     ::Type{MOI.SOS1{Float64}},
 )
@@ -55,7 +55,7 @@ end
 # MOI.VectorOfVariables -in- MOI.SOS2{Float64}
 
 function MOI.supports_constraint(
-    o::Optimizer,
+    ::Optimizer,
     ::Type{MOI.VectorOfVariables},
     ::Type{MOI.SOS2{Float64}},
 )
