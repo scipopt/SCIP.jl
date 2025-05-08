@@ -24,13 +24,16 @@ function runtests()
     return
 end
 
-const _EXCLUDE_NONLINEAR_OBJECTIVES = [
-    # SCIP does not support nonlinear objective functions.
-    r"^test_nonlinear_hs071_NLPBlockDual$",
-    r"^test_nonlinear_invalid$",
-    r"^test_nonlinear_objective$",
-    r"^test_nonlinear_objective_and_moi_objective_test$",
-]
+const CONFIG = MOI.Test.Config(;
+    atol=5e-3,
+    rtol=1e-4,
+    exclude=Any[
+        MOI.ConstraintDual,
+        MOI.DualObjectiveValue,
+        MOI.VariableBasisStatus,
+        MOI.ConstraintBasisStatus,
+    ],
+)
 
 function test_runtests_cached()
     model = MOI.Bridges.full_bridge_optimizer(
@@ -41,66 +44,22 @@ function test_runtests_cached()
         Float64,
     )
     MOI.set(model, MOI.Silent(), true)
-    MOI.Test.runtests(
-        model,
-        MOI.Test.Config(;
-            atol=5e-3,
-            rtol=1e-4,
-            exclude=Any[
-                MOI.ConstraintDual,
-                MOI.DualObjectiveValue,
-                MOI.VariableBasisStatus,
-                MOI.ConstraintBasisStatus,
-            ],
-        );
-        exclude=_EXCLUDE_NONLINEAR_OBJECTIVES,
-    )
+    MOI.Test.runtests(model, CONFIG)
     return
 end
 
 function test_runtests_bridged()
     model = MOI.Bridges.full_bridge_optimizer(SCIP.Optimizer(), Float64)
     MOI.set(model, MOI.Silent(), true)
-    MOI.Test.runtests(
-        model,
-        MOI.Test.Config(;
-            atol=5e-3,
-            rtol=1e-4,
-            exclude=Any[
-                MOI.ConstraintDual,
-                MOI.DualObjectiveValue,
-                MOI.VariableBasisStatus,
-                MOI.ConstraintBasisStatus,
-            ],
-        );
-        warn_unsupported=false,
-        exclude=vcat(
-            _EXCLUDE_NONLINEAR_OBJECTIVES,
-            # TODO(odow): bugs to fix
-            r"^test_model_delete$",
-        ),
-    )
+    # TODO(odow): bugs to fix
+    MOI.Test.runtests(model, CONFIG; exclude=[r"^test_model_delete$"])
     return
 end
 
 function test_runtests_direct()
     model = SCIP.Optimizer()
     MOI.set(model, MOI.Silent(), true)
-    MOI.Test.runtests(
-        model,
-        MOI.Test.Config(;
-            atol=5e-3,
-            rtol=1e-4,
-            exclude=Any[
-                MOI.ConstraintDual,
-                MOI.DualObjectiveValue,
-                MOI.VariableBasisStatus,
-                MOI.ConstraintBasisStatus,
-            ],
-        );
-        warn_unsupported=false,
-        exclude=_EXCLUDE_NONLINEAR_OBJECTIVES,
-    )
+    MOI.Test.runtests(model, CONFIG)
     return
 end
 
