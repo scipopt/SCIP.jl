@@ -111,11 +111,13 @@ List of supported constraint types:
  * [`MOI.VariableIndex`](@ref) in [`MOI.Interval{Float64}`](@ref)
  * [`MOI.VariableIndex`](@ref) in [`MOI.LessThan{Float64}`](@ref)
  * [`MOI.VariableIndex`](@ref) in [`MOI.ZeroOne`](@ref)
+ * [`MOI.VectorAffineFunction{Float64}`](@ref) in [`MOI.Indicator{MOI.ACTIVATE_ON_ONE,MOI.LessThan{Float64}}`](@ref)
  * [`MOI.VectorOfVariables`](@ref) in [`MOI.SOS1{Float64}`](@ref)
  * [`MOI.VectorOfVariables`](@ref) in [`MOI.SOS2{Float64}`](@ref)
 
 List of supported model attributes:
 
+ * [`MOI.HeuristicCallback`](@ref)
  * [`MOI.NLPBlock()`](@ref)
  * [`MOI.ObjectiveSense()`](@ref)
  * [`MOI.UserCutCallback()`](@ref)
