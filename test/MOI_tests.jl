@@ -36,12 +36,10 @@ const CONFIG = MOI.Test.Config(;
 )
 
 function test_runtests_cached()
-    model = MOI.Bridges.full_bridge_optimizer(
-        MOI.Utilities.CachingOptimizer(
-            MOI.Utilities.UniversalFallback(MOI.Utilities.Model{Float64}()),
-            SCIP.Optimizer(),
-        ),
-        Float64,
+    model = MOI.instantiate(
+        SCIP.Optimizer;
+        with_bridge_type=Float64,
+        with_cache_type=Float64,
     )
     MOI.set(model, MOI.Silent(), true)
     MOI.Test.runtests(model, CONFIG)
@@ -49,15 +47,14 @@ function test_runtests_cached()
 end
 
 function test_runtests_bridged()
-    model = MOI.Bridges.full_bridge_optimizer(SCIP.Optimizer(), Float64)
+    model = MOI.instantiate(SCIP.Optimizer; with_bridge_type=Float64)
     MOI.set(model, MOI.Silent(), true)
-    # TODO(odow): bugs to fix
-    MOI.Test.runtests(model, CONFIG; exclude=[r"^test_model_delete$"])
+    MOI.Test.runtests(model, CONFIG)
     return
 end
 
 function test_runtests_direct()
-    model = SCIP.Optimizer()
+    model = MOI.instantiate(SCIP.Optimizer)
     MOI.set(model, MOI.Silent(), true)
     MOI.Test.runtests(model, CONFIG)
     return

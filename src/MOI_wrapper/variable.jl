@@ -110,16 +110,37 @@ function MOI.delete(o::Optimizer, vi::MOI.VariableIndex)
         msg = "Can not delete variable while model contains constraints!"
         throw(MOI.DeleteNotAllowed(vi, msg))
     end
-    allow_modification(o)
     if !haskey(o.inner.vars, VarRef(vi.value))
         throw(MOI.InvalidIndex(vi))
     end
-    delete!(o.binbounds, vi)
+    allow_modification(o)
+    cref = ConsRef(vi.value)
+    # Delete integrality constraints
+    v = var(o, vi)
+    var_type = SCIPvarGetType(v)
+    if var_type == SCIP_VARTYPE_BINARY
+        delete!(o.constypes[MOI.VariableIndex, MOI.ZeroOne], cref)
+        delete!(o.binbounds, vi)
+    elseif var_type == SCIP_VARTYPE_INTEGER
+        delete!(o.constypes[MOI.VariableIndex, MOI.Integer], cref)
+    end
+    # Delete bound constraints
+    type = get(o.bound_types, vi, nothing)
+    if type == _kSCIP_EQUAL_TO
+        delete!(o.constypes[MOI.VariableIndex, MOI.EqualTo{Float64}], cref)
+    elseif type == _kSCIP_INTERVAL
+        delete!(o.constypes[MOI.VariableIndex, MOI.Interval{Float64}], cref)
+    elseif type == _kSCIP_LESS_THAN
+        delete!(o.constypes[MOI.VariableIndex, MOI.LessThan{Float64}], cref)
+    elseif type == _kSCIP_GREATER_THAN
+        delete!(o.constypes[MOI.VariableIndex, MOI.GreaterThan{Float64}], cref)
+    elseif type == _kSCIP_LESS_AND_GREATER_THAN
+        delete!(o.constypes[MOI.VariableIndex, MOI.LessThan{Float64}], cref)
+        delete!(o.constypes[MOI.VariableIndex, MOI.GreaterThan{Float64}], cref)
+    end
     delete!(o.bound_types, vi)
-    delete!(o.reference, var(o, vi))
+    delete!(o.reference, v)
     delete(o.inner, VarRef(vi.value))
-    # FIXME(odow): delete the associated ConstraintIndex
-    delete!(o.bound_types, vi)
     o.name_to_variable = nothing
     return nothing
 end
