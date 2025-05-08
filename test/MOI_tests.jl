@@ -38,8 +38,8 @@ const CONFIG = MOI.Test.Config(;
 function test_runtests_cached()
     model = MOI.instantiate(
         SCIP.Optimizer;
-        with_bridge_type = Float64,
-        with_cache_type = Float64,
+        with_bridge_type=Float64,
+        with_cache_type=Float64,
     )
     MOI.set(model, MOI.Silent(), true)
     MOI.Test.runtests(model, CONFIG)
@@ -47,7 +47,7 @@ function test_runtests_cached()
 end
 
 function test_runtests_bridged()
-    model = MOI.instantiate(SCIP.Optimizer; with_bridge_type = Float64)
+    model = MOI.instantiate(SCIP.Optimizer; with_bridge_type=Float64)
     MOI.set(model, MOI.Silent(), true)
     MOI.Test.runtests(model, CONFIG)
     return
