@@ -29,9 +29,9 @@ function MOI.get(
         MOI.ScalarQuadraticFunction{Float64},
         MOI.VectorAffineFunction{Float64},
         MOI.VectorOfVariables,
-    }
+    },
 }
-    return GC.@preserve o unsafe_string(SCIPconsGetName(cons(o, ci)))
+    return unsafe_string(SCIPconsGetName(cons(o, ci)))
 end
 
 function MOI.set(
@@ -45,7 +45,7 @@ function MOI.set(
         MOI.ScalarQuadraticFunction{Float64},
         MOI.VectorAffineFunction{Float64},
         MOI.VectorOfVariables,
-    }
+    },
 }
     @SCIP_CALL SCIPchgConsName(o, cons(o, ci), name)
     o.name_to_constraint_index = nothing
