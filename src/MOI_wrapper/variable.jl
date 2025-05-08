@@ -115,8 +115,11 @@ function MOI.delete(o::Optimizer, vi::MOI.VariableIndex)
         throw(MOI.InvalidIndex(vi))
     end
     delete!(o.binbounds, vi)
+    delete!(o.bound_types, vi)
     delete!(o.reference, var(o, vi))
     delete(o.inner, VarRef(vi.value))
+    # FIXME(odow): delete the associated ConstraintIndex
+    delete!(o.bound_types, vi)
     o.name_to_variable = nothing
     return nothing
 end
@@ -176,22 +179,11 @@ function MOI.add_constraint(o::Optimizer, vi::MOI.VariableIndex, ::MOI.ZeroOne)
     v = var(o, vi)
     p_infeas = Ref{SCIP_Bool}()
     @SCIP_CALL SCIPchgVarType(o, v, SCIP_VARTYPE_BINARY, p_infeas)
-    # Need to adjust bounds for SCIP, which fails with an error otherwise.
-    # Check for conflicts with existing bounds first:
     lb, ub = SCIPvarGetLbOriginal(v), SCIPvarGetUbOriginal(v)
-    if lb == -SCIPinfinity(o) && ub == SCIPinfinity(o)
-        @SCIP_CALL SCIPchgVarLb(o, v, 0.0)
-        @SCIP_CALL SCIPchgVarUb(o, v, 1.0)
-    else
-        # Store old bounds for later recovery.
-        o.binbounds[vi] = MOI.Interval(lb, ub)
-        if ub > 1.0
-            @SCIP_CALL SCIPchgVarUb(o, v, 1.0)
-        end
-        if lb < 0.0
-            @SCIP_CALL SCIPchgVarLb(o, v, 0.0)
-        end
-    end
+    # Store old bounds for later recovery.
+    o.binbounds[vi] = MOI.Interval(lb, ub)
+    @SCIP_CALL SCIPchgVarLb(o, v, max(lb, 0.0))
+    @SCIP_CALL SCIPchgVarUb(o, v, min(ub, 1.0))
     ci = MOI.ConstraintIndex{MOI.VariableIndex,MOI.ZeroOne}(vi.value)
     return register!(o, ci)
 end
@@ -207,10 +199,9 @@ function MOI.delete(
     p_infeas = Ref{SCIP_Bool}()
     @SCIP_CALL SCIPchgVarType(o, v, SCIP_VARTYPE_CONTINUOUS, p_infeas)
     bounds = get(o.binbounds, vi, nothing)
-    if bounds !== nothing
-        @SCIP_CALL SCIPchgVarLb(o, v, bounds.lower)
-        @SCIP_CALL SCIPchgVarUb(o, v, bounds.upper)
-    end
+    @SCIP_CALL SCIPchgVarLb(o, v, bounds.lower)
+    @SCIP_CALL SCIPchgVarUb(o, v, bounds.upper)
+    delete!(o.binbounds, vi)
     delete!(o.constypes[MOI.VariableIndex, MOI.ZeroOne], ConsRef(ci.value))
     return nothing
 end
@@ -234,6 +225,70 @@ function MOI.supports_constraint(
     return true
 end
 
+function _throw_if_existing_lower(x, type, new_set::S) where {S}
+    if type == _kSCIP_EQUAL_TO
+        throw(MOI.LowerBoundAlreadySet{MOI.EqualTo{Float64},S}(x))
+    elseif type == _kSCIP_GREATER_THAN
+        throw(MOI.LowerBoundAlreadySet{MOI.GreaterThan{Float64},S}(x))
+    elseif type == _kSCIP_LESS_AND_GREATER_THAN
+        throw(MOI.LowerBoundAlreadySet{MOI.GreaterThan{Float64},S}(x))
+    elseif type == _kSCIP_INTERVAL
+        throw(MOI.LowerBoundAlreadySet{MOI.Interval{Float64},S}(x))
+    end
+    return
+end
+
+function _throw_if_existing_upper(x, type, new_set::S) where {S}
+    if type == _kSCIP_EQUAL_TO
+        throw(MOI.UpperBoundAlreadySet{MOI.EqualTo{Float64},S}(x))
+    elseif type == _kSCIP_LESS_THAN
+        throw(MOI.UpperBoundAlreadySet{MOI.LessThan{Float64},S}(x))
+    elseif type == _kSCIP_LESS_AND_GREATER_THAN
+        throw(MOI.UpperBoundAlreadySet{MOI.LessThan{Float64},S}(x))
+    elseif type == _kSCIP_INTERVAL
+        throw(MOI.UpperBoundAlreadySet{MOI.Interval{Float64},S}(x))
+    end
+    return
+end
+
+function _update_bound(o::Optimizer, x, s::MOI.EqualTo, l, u)
+    type = get(o.bound_types, x, nothing)
+    _throw_if_existing_lower(x, type, s)
+    _throw_if_existing_upper(x, type, s)
+    o.bound_types[x] = _kSCIP_EQUAL_TO
+    return s.value, s.value
+end
+
+function _update_bound(o::Optimizer, x, s::MOI.Interval, l, u)
+    type = get(o.bound_types, x, nothing)
+    _throw_if_existing_lower(x, type, s)
+    _throw_if_existing_upper(x, type, s)
+    o.bound_types[x] = _kSCIP_INTERVAL
+    return s.lower, s.upper
+end
+
+function _update_bound(o::Optimizer, x, s::MOI.LessThan, l, u)
+    type = get(o.bound_types, x, nothing)
+    _throw_if_existing_upper(x, type, s)
+    if type == _kSCIP_GREATER_THAN
+        o.bound_types[x] = _kSCIP_LESS_AND_GREATER_THAN
+    else
+        o.bound_types[x] = _kSCIP_LESS_THAN
+    end
+    return l, s.upper
+end
+
+function _update_bound(o::Optimizer, x, s::MOI.GreaterThan, l, u)
+    type = get(o.bound_types, x, nothing)
+    _throw_if_existing_lower(x, type, s)
+    if type == _kSCIP_LESS_THAN
+        o.bound_types[x] = _kSCIP_LESS_AND_GREATER_THAN
+    else
+        o.bound_types[x] = _kSCIP_GREATER_THAN
+    end
+    return s.lower, u
+end
+
 function MOI.add_constraint(
     o::Optimizer,
     vi::MOI.VariableIndex,
@@ -241,31 +296,18 @@ function MOI.add_constraint(
 ) where {S<:BOUNDS}
     allow_modification(o)
     v = var(o, vi)
-    newlb, newub = bounds(set)
-    inf = SCIPinfinity(o)
-    newlb, newub = something(newlb, -inf), something(newub, inf)
-    oldlb, oldub = SCIPvarGetLbOriginal(v), SCIPvarGetUbOriginal(v)
-    # FIXME(odow): This section is broken for detecting existing bounds
-    if (oldlb != -inf && newlb != -inf || oldub != inf && newub != inf)
-        if SCIPvarGetType(v) == SCIP_VARTYPE_BINARY
-            # Store new bounds
-            o.binbounds[vi] = MOI.Interval(newlb, newub)
-            if newlb < 0.0
-                newlb = oldlb
-            end
-            if newub > 1.0
-                newub = oldub
-            end
-        else
-            throw(MOI.LowerBoundAlreadySet{S,S}(vi))
-        end
+    l, u = SCIPvarGetLbOriginal(v), SCIPvarGetUbOriginal(v)
+    if SCIPvarGetType(v) == SCIP_VARTYPE_BINARY
+        s = o.binbounds[vi]
+        l, u = s.lower, s.upper
     end
-    if newlb != -inf
-        @SCIP_CALL SCIPchgVarLb(o, v, newlb)
+    l, u = _update_bound(o, vi, set, l, u)
+    if SCIPvarGetType(v) == SCIP_VARTYPE_BINARY
+        o.binbounds[vi] = MOI.Interval(l, u)
+        l, u = max(0.0, l), min(1.0, u)
     end
-    if newub != inf
-        @SCIP_CALL SCIPchgVarUb(o, v, newub)
-    end
+    @SCIP_CALL SCIPchgVarLb(o, v, l)
+    @SCIP_CALL SCIPchgVarUb(o, v, u)
     ci = MOI.ConstraintIndex{MOI.VariableIndex,S}(vi.value)
     return register!(o, ci)
 end
@@ -303,6 +345,14 @@ function MOI.delete(
     end
     # but do delete the constraint reference
     delete!(o.binbounds, vi)
+    type = o.bound_types[vi]
+    if type == _kSCIP_LESS_AND_GREATER_THAN && S <: MOI.LessThan
+        o.bound_types[vi] = _kSCIP_GREATER_THAN
+    elseif type == _kSCIP_LESS_AND_GREATER_THAN && S <: MOI.GreaterThan
+        o.bound_types[vi] = _kSCIP_LESS_AND_GREATER_THAN
+    else
+        delete!(o.bound_types, vi)
+    end
     delete!(o.constypes[MOI.VariableIndex, S], ConsRef(ci.value))
     return nothing
 end
@@ -314,25 +364,25 @@ function MOI.set(
     set::S,
 ) where {S<:BOUNDS}
     allow_modification(o)
-    v = var(o, MOI.VariableIndex(ci.value))
-    lb, ub = bounds(set)
-    old_interval =
-        get(o.binbounds, MOI.VariableIndex(ci.value), MOI.Interval(0.0, 1.0))
-    if lb !== nothing
+    vi = MOI.VariableIndex(ci.value)
+    v = var(o, vi)
+    lb, ub = bounds(o, set)
+    inf = SCIPinfinity(o)
+    if lb > -inf
         if SCIPvarGetType(v) == SCIP_VARTYPE_BINARY
+            old_interval = o.binbounds[vi]
+            o.binbounds[vi] = MOI.Interval(lb, old_interval.upper)
             lb = max(lb, 0.0)
         end
         @SCIP_CALL SCIPchgVarLb(o, v, lb)
-        o.binbounds[MOI.VariableIndex(ci.value)] =
-            MOI.Interval(lb, old_interval.upper)
     end
-    if ub !== nothing
+    if ub < inf
         if SCIPvarGetType(v) == SCIP_VARTYPE_BINARY
+            old_interval = o.binbounds[vi]
+            o.binbounds[vi] = MOI.Interval(old_interval.lower, ub)
             ub = min(ub, 1.0)
         end
         @SCIP_CALL SCIPchgVarUb(o, v, ub)
-        o.binbounds[MOI.VariableIndex(ci.value)] =
-            MOI.Interval(old_interval.lower, ub)
     end
     return nothing
 end

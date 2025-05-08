@@ -17,11 +17,21 @@ const BOUNDS = Union{
     _kSCIP_SOLVE_STATUS_FINISHED,
 )
 
+@enum(
+    _SCIP_BOUND_TYPE,
+    _kSCIP_EQUAL_TO,
+    _kSCIP_INTERVAL,
+    _kSCIP_LESS_THAN,
+    _kSCIP_GREATER_THAN,
+    _kSCIP_LESS_AND_GREATER_THAN,
+)
+
 mutable struct Optimizer <: MOI.AbstractOptimizer
     inner::SCIPData
     reference::Dict{Ptr{Cvoid},Union{VarRef,ConsRef}}
     constypes::Dict{Tuple{Type,Type},Set{ConsRef}}
-    binbounds::Dict{MOI.VariableIndex,BOUNDS} # only for binary variables
+    binbounds::Dict{MOI.VariableIndex,MOI.Interval{Float64}} # only for binary variables
+    bound_types::Dict{MOI.VariableIndex,_SCIP_BOUND_TYPE}
     params::Dict{String,Any}
     start::Dict{MOI.VariableIndex,Float64} # can be partial
     moi_separator::Any # ::Union{CutCbSeparator, Nothing}
@@ -44,7 +54,8 @@ mutable struct Optimizer <: MOI.AbstractOptimizer
             SCIPData(),
             Dict{Ptr{Cvoid},Union{VarRef,ConsRef}}(),
             Dict{Tuple{Type,Type},Set{ConsRef}}(),
-            Dict{MOI.VariableIndex,BOUNDS}(),
+            Dict{MOI.VariableIndex,MOI.Interval{Float64}}(),
+            Dict{MOI.VariableIndex,_SCIP_BOUND_TYPE}(),
             Dict{String,Any}(),
             Dict{MOI.VariableIndex,Float64}(),
             nothing,
@@ -86,6 +97,7 @@ function MOI.empty!(o::Optimizer)
     empty!(o.reference)
     empty!(o.constypes)
     empty!(o.binbounds)
+    empty!(o.bound_types)
     empty!(o.start)
     o.inner = SCIPData()
     # reapply parameters
@@ -128,13 +140,17 @@ function cons(
 end
 
 "Extract bounds from sets."
-bounds(set::MOI.EqualTo{Float64}) = (set.value, set.value)
+bounds(o, set::MOI.EqualTo{Float64}) = (set.value, set.value)
 
-bounds(set::MOI.GreaterThan{Float64}) = (set.lower, nothing)
+function bounds(o, set::MOI.GreaterThan{Float64})
+    return (set.lower, SCIPinfinity(o))
+end
 
-bounds(set::MOI.LessThan{Float64}) = (nothing, set.upper)
+function bounds(o, set::MOI.LessThan{Float64})
+    return (-SCIPinfinity(o), set.upper)
+end
 
-bounds(set::MOI.Interval{Float64}) = (set.lower, set.upper)
+bounds(o, set::MOI.Interval{Float64}) = (set.lower, set.upper)
 
 "Make set from bounds."
 function from_bounds(::Type{MOI.EqualTo{Float64}}, lower, upper)

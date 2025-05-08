@@ -33,9 +33,7 @@ function MOI.add_constraint(
     factor = 1.0 .- 0.5 * (quadrefs1 .== quadrefs2)
     quadcoefs = factor .* [t.coefficient for t in func.quadratic_terms]
     # range
-    inf = SCIPinfinity(o)
-    lhs, rhs = bounds(set)
-    lhs, rhs = something(lhs, -inf), something(rhs, inf)
+    lhs, rhs = bounds(o, set)
     cr = add_quadratic_constraint(
         o.inner,
         linrefs,
@@ -59,9 +57,7 @@ function MOI.set(
     set::S,
 ) where {S<:BOUNDS}
     allow_modification(o)
-    inf = SCIPinfinity(o)
-    lhs, rhs = bounds(set)
-    lhs, rhs = something(lhs, -inf), something(rhs, inf)
+    lhs, rhs = bounds(o, set)
     @SCIP_CALL SCIPchgLhsQuadratic(o, cons(o, ci), lhs)
     @SCIP_CALL SCIPchgRhsQuadratic(o, cons(o, ci), rhs)
     return nothing
