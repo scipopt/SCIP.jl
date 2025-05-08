@@ -66,7 +66,6 @@ function test_runtests_bridged()
             rtol=1e-4,
             exclude=Any[
                 MOI.ConstraintDual,
-                MOI.ConstraintName,
                 MOI.DualObjectiveValue,
                 MOI.VariableBasisStatus,
                 MOI.ConstraintBasisStatus,
@@ -76,10 +75,8 @@ function test_runtests_bridged()
         exclude=[
             # TODO(odow): bugs to fix
             r"^test_model_delete$",
-            r"^test_model_ScalarAffineFunction_ConstraintName$",
             r"^test_model_LowerBoundAlreadySet$",
             r"^test_model_UpperBoundAlreadySet$",
-            r"^test_model_duplicate_ScalarAffineFunction_ConstraintName$",
             # SCIP does not support nonlinear objective functions.
             r"^test_nonlinear_hs071_NLPBlockDual$",
             r"^test_nonlinear_invalid$",
@@ -100,7 +97,6 @@ function test_runtests_direct()
             rtol=1e-4,
             exclude=Any[
                 MOI.ConstraintDual,
-                MOI.ConstraintName,
                 MOI.DualObjectiveValue,
                 MOI.VariableBasisStatus,
                 MOI.ConstraintBasisStatus,
@@ -109,10 +105,8 @@ function test_runtests_direct()
         warn_unsupported=false,
         exclude=[
             # TODO(odow): bugs to fix
-            r"^test_model_ScalarAffineFunction_ConstraintName$",
             r"^test_model_LowerBoundAlreadySet$",
             r"^test_model_UpperBoundAlreadySet$",
-            r"^test_model_duplicate_ScalarAffineFunction_ConstraintName$",
             # SCIP does not support nonlinear objective functions.
             r"^test_nonlinear_hs071_NLPBlockDual$",
             r"^test_nonlinear_invalid$",
@@ -672,7 +666,6 @@ function _test_broken_indicator_test(presolving)
         rtol=1e-4,
         exclude=Any[
             MOI.ConstraintDual,
-            MOI.ConstraintName,
             MOI.DualObjectiveValue,
             MOI.VariableBasisStatus,
             MOI.ConstraintBasisStatus,

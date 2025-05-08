@@ -34,6 +34,10 @@ mutable struct Optimizer <: MOI.AbstractOptimizer
         Nothing,
         Dict{String,Union{Nothing,MOI.VariableIndex}},
     }
+    name_to_constraint_index::Union{
+        Nothing,
+        Dict{String,Union{Nothing,MOI.ConstraintIndex}},
+    }
 
     function Optimizer(; kwargs...)
         o = new(
@@ -49,6 +53,7 @@ mutable struct Optimizer <: MOI.AbstractOptimizer
             false,
             MOI.COMPUTE_CONFLICT_NOT_CALLED,
             _kSCIP_SOLVE_STATUS_NOT_CALLED,
+            nothing,
             nothing,
         )
         # Set all parameters given as keyword arguments, replacing the
@@ -94,6 +99,7 @@ function MOI.empty!(o::Optimizer)
     o.moi_heuristic = nothing
     o.scip_solve_status = _kSCIP_SOLVE_STATUS_NOT_CALLED
     o.name_to_variable = nothing
+    o.name_to_constraint_index = nothing
     return nothing
 end
 
@@ -418,6 +424,7 @@ function MOI.delete(o::Optimizer, ci::MOI.ConstraintIndex{F,S}) where {F,S}
     end
     delete!(o.reference, cons(o, ci))
     delete(o.inner, ConsRef(ci.value))
+    o.name_to_constraint_index = nothing
     return nothing
 end
 
