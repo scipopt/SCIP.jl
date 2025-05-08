@@ -24,6 +24,14 @@ function runtests()
     return
 end
 
+const _EXCLUDE_NONLINEAR_OBJECTIVES = [
+    # SCIP does not support nonlinear objective functions.
+    r"^test_nonlinear_hs071_NLPBlockDual$",
+    r"^test_nonlinear_invalid$",
+    r"^test_nonlinear_objective$",
+    r"^test_nonlinear_objective_and_moi_objective_test$",
+]
+
 function test_runtests_cached()
     model = MOI.Bridges.full_bridge_optimizer(
         MOI.Utilities.CachingOptimizer(
@@ -45,13 +53,7 @@ function test_runtests_cached()
                 MOI.ConstraintBasisStatus,
             ],
         );
-        exclude=[
-            # SCIP does not support nonlinear objective functions.
-            r"^test_nonlinear_hs071_NLPBlockDual$",
-            r"^test_nonlinear_invalid$",
-            r"^test_nonlinear_objective$",
-            r"^test_nonlinear_objective_and_moi_objective_test$",
-        ],
+        exclude=_EXCLUDE_NONLINEAR_OBJECTIVES,
     )
     return
 end
@@ -72,17 +74,11 @@ function test_runtests_bridged()
             ],
         );
         warn_unsupported=false,
-        exclude=[
+        exclude=vcat(
+            _EXCLUDE_NONLINEAR_OBJECTIVES,
             # TODO(odow): bugs to fix
             r"^test_model_delete$",
-            r"^test_model_LowerBoundAlreadySet$",
-            r"^test_model_UpperBoundAlreadySet$",
-            # SCIP does not support nonlinear objective functions.
-            r"^test_nonlinear_hs071_NLPBlockDual$",
-            r"^test_nonlinear_invalid$",
-            r"^test_nonlinear_objective$",
-            r"^test_nonlinear_objective_and_moi_objective_test$",
-        ],
+        ),
     )
     return
 end
@@ -103,16 +99,7 @@ function test_runtests_direct()
             ],
         );
         warn_unsupported=false,
-        exclude=[
-            # TODO(odow): bugs to fix
-            r"^test_model_LowerBoundAlreadySet$",
-            r"^test_model_UpperBoundAlreadySet$",
-            # SCIP does not support nonlinear objective functions.
-            r"^test_nonlinear_hs071_NLPBlockDual$",
-            r"^test_nonlinear_invalid$",
-            r"^test_nonlinear_objective$",
-            r"^test_nonlinear_objective_and_moi_objective_test$",
-        ],
+        exclude=_EXCLUDE_NONLINEAR_OBJECTIVES,
     )
     return
 end

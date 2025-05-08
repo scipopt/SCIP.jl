@@ -22,9 +22,7 @@ function MOI.add_constraint(
     allow_modification(o)
     varrefs = [VarRef(t.variable.value) for t in func.terms]
     coefs = [t.coefficient for t in func.terms]
-    inf = SCIPinfinity(o)
-    lhs, rhs = bounds(set)
-    lhs, rhs = something(lhs, -inf), something(rhs, inf)
+    lhs, rhs = bounds(o, set)
     cr = add_linear_constraint(o.inner, varrefs, coefs, lhs, rhs)
     ci = MOI.ConstraintIndex{F,S}(cr.val)
     register!(o, ci)
@@ -39,9 +37,7 @@ function MOI.set(
     set::S,
 ) where {S<:BOUNDS}
     allow_modification(o)
-    inf = SCIPinfinity(o)
-    lhs, rhs = bounds(set)
-    lhs, rhs = something(lhs, -inf), something(rhs, inf)
+    lhs, rhs = bounds(o, set)
     @SCIP_CALL SCIPchgLhsLinear(o, cons(o, ci), lhs)
     @SCIP_CALL SCIPchgRhsLinear(o, cons(o, ci), rhs)
     return nothing

@@ -76,8 +76,7 @@ function MOI.submit(
     func::MOI.ScalarAffineFunction{Float64},
     set::BOUNDS,
 )
-    lhs, rhs = bounds(set)
-    inf = SCIPinfinity(o)
+    lhs, rhs = bounds(o, set)
     add_cut_sepa(
         o.inner.scip[],
         o.inner.vars,
@@ -85,8 +84,8 @@ function MOI.submit(
         cb_data.callback_data.sepa,
         [VarRef(t.variable.value) for t in func.terms],
         [t.coefficient for t in func.terms],
-        something(lhs, -inf),
-        something(rhs, inf),
+        lhs,
+        rhs,
     )
     cb_data.callback_data.submit_called = true
     return
