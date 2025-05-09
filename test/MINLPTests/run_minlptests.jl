@@ -34,6 +34,29 @@ MINLPTests.test_directory(
 )
 
 MINLPTests.test_directory(
+    "nlp-expr",
+    JuMP.optimizer_with_attributes(SCIP.Optimizer, "display/verblevel" => 0);
+    objective_tol=1e-3,
+    primal_tol=1e-3,
+    dual_tol=NaN,
+    termination_target=MINLPTests.TERMINATION_TARGET_GLOBAL,
+    primal_target=MINLPTests.PRIMAL_TARGET_GLOBAL,
+    exclude=[
+        # MOI.UnsupportedNonlinearOperator(:tan)
+        "004_010",
+        "004_011",
+        # MOI.UnsupportedNonlinearOperator(:inv)
+        "005_010",
+        # User-defined function
+        "006_010",
+        # MOI.UnsupportedNonlinearOperator(:min)
+        "009_010",
+        # MOI.UnsupportedNonlinearOperator(:max)
+        "009_011",
+    ],
+)
+
+MINLPTests.test_directory(
     "nlp-cvx",
     JuMP.optimizer_with_attributes(SCIP.Optimizer, "display/verblevel" => 0);
     objective_tol=1e-4,
@@ -53,6 +76,16 @@ MINLPTests.test_directory(
 )
 
 MINLPTests.test_directory(
+    "nlp-cvx-expr",
+    JuMP.optimizer_with_attributes(SCIP.Optimizer, "display/verblevel" => 0);
+    objective_tol=1e-4,
+    primal_tol=1e-3,
+    dual_tol=NaN,
+    termination_target=MINLPTests.TERMINATION_TARGET_GLOBAL,
+    primal_target=MINLPTests.PRIMAL_TARGET_GLOBAL,
+)
+
+MINLPTests.test_directory(
     "nlp-mi",
     JuMP.optimizer_with_attributes(SCIP.Optimizer, "display/verblevel" => 0);
     objective_tol=1e-4,
@@ -69,6 +102,29 @@ MINLPTests.test_directory(
         "003_015",
         "004_010",
         "004_011",
+        # User-defined function
+        "006_010",
+    ],
+)
+
+MINLPTests.test_directory(
+    "nlp-mi-expr",
+    JuMP.optimizer_with_attributes(SCIP.Optimizer, "display/verblevel" => 0);
+    objective_tol=1e-4,
+    primal_tol=1e-3,
+    dual_tol=NaN,
+    termination_target=MINLPTests.TERMINATION_TARGET_GLOBAL,
+    primal_target=MINLPTests.PRIMAL_TARGET_GLOBAL,
+    exclude=[
+        # Fails because of the periodicity in cos(y). We chould fix this in
+        # MINLPTests by finitely bounding the `y` variable. Currently it is just
+        # y >= 0.1
+        "001_010",
+        # MOI.UnsupportedNonlinearOperator(:tan)
+        "004_010",
+        "004_011",
+        # MOI.UnsupportedNonlinearOperator(:inv)
+        "005_010",
         # User-defined function
         "006_010",
     ],

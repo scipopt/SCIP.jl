@@ -26,7 +26,12 @@ jobs:
           arch: ${{ matrix.arch }}
       - uses: julia-actions/cache@v2
       - uses: julia-actions/julia-buildpkg@v1
-      - shell: bash
-        run: julia -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.activate("test/MINLPTests"); Pkg.instantiate()'
-      - shell: bash
-        run: julia --project=test/MINLPTests test/MINLPTests/run_minlptests.jl
+      - shell: julia --color=yes {0}
+        run: |
+          path = joinpath(ENV["GITHUB_WORKSPACE"], "test", "MINLPTests")
+          cd(path)
+          using Pkg
+          Pkg.activate(".")
+          Pkg.instantiate()
+          Pkg.add(Pkg.PackageSpec(; path = ENV["GITHUB_WORKSPACE"]))
+          include(joinpath(path, "run_minlptests.jl"))
