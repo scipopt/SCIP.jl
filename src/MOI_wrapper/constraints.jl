@@ -11,6 +11,7 @@ function MOI.supports(
     F<:Union{
         MOI.ScalarAffineFunction{Float64},
         MOI.ScalarQuadraticFunction{Float64},
+        MOI.ScalarNonlinearFunction,
         MOI.VectorAffineFunction{Float64},
         MOI.VectorOfVariables,
     },
@@ -27,6 +28,7 @@ function MOI.get(
     F<:Union{
         MOI.ScalarAffineFunction{Float64},
         MOI.ScalarQuadraticFunction{Float64},
+        MOI.ScalarNonlinearFunction,
         MOI.VectorAffineFunction{Float64},
         MOI.VectorOfVariables,
     },
@@ -43,6 +45,7 @@ function MOI.set(
     F<:Union{
         MOI.ScalarAffineFunction{Float64},
         MOI.ScalarQuadraticFunction{Float64},
+        MOI.ScalarNonlinearFunction,
         MOI.VectorAffineFunction{Float64},
         MOI.VectorOfVariables,
     },
