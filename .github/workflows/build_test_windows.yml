@@ -1,0 +1,67 @@
+name: Build on Linux, Run on Windows
+on:
+  push:
+    branches: [master]
+  pull_request:
+    types: [opened, synchronize, reopened]
+# needed to allow julia-actions/cache to delete old caches that it has created
+permissions:
+  actions: write
+  contents: read
+jobs:
+  build-linux:
+    name: Julia - ${{ github.event_name }}
+    runs-on: ubuntu-latest
+    outputs:
+      sha1: ${{ steps.build.outputs.SHA1 }}
+    steps:
+      - uses: actions/checkout@v4
+      # Install Julia 1.7 for BinaryBuilder. Note that this is an old version of
+      # Julia, but it is required for compatibility with BinaryBuilder.
+      - uses: julia-actions/setup-julia@v2
+        with:
+          version: "1.7"
+          arch: x64
+      - uses: julia-actions/cache@v2
+      - name: build
+        run: |
+          julia --color=yes -e 'using Pkg; Pkg.add("BinaryBuilder")'
+          julia --color=yes .github/julia/build_tarballs.jl x86_64-w64-mingw32-cxx11 --verbose --deploy=local
+          file=/home/runner/.julia/dev/SCIP_jll/Artifacts.toml
+          sha1=$(grep '^git-tree-sha1' "$file" | cut -d '"' -f2)
+          echo "artifact_path=${sha1}" >> $GITHUB_ENV
+          echo "SHA1=${sha1}" >> $GITHUB_OUTPUT
+      - uses: actions/upload-artifact@v4
+        with:
+          name: scip-jll
+          path: /home/runner/.julia/dev/SCIP_jll
+      - uses: actions/upload-artifact@v4
+        with:
+          name: artifacts
+          path: /home/runner/.julia/artifacts/${{ env.artifact_path }}
+  run-windows:
+    runs-on: windows-latest
+    needs: build-linux
+    steps:
+      - uses: actions/checkout@v4
+      - uses: julia-actions/setup-julia@v2
+        with:
+          version: "1"
+          arch: x64
+      - uses: julia-actions/cache@v2
+      - uses: julia-actions/julia-buildpkg@v1
+      - uses: actions/download-artifact@v4
+        with:
+          name: scip-jll
+          path: /home/runner/.julia/dev/SCIP_jll
+      - uses: actions/download-artifact@v4
+        with:
+          name: artifacts
+          path: /home/runner/.julia/artifacts/${{ needs.build-linux.outputs.sha1 }}
+      - shell: julia --color=yes --project=. {0}
+        run: |
+          using Pkg
+          Pkg.develop(; path = "/home/runner/.julia/dev/SCIP_jll")
+          Pkg.instantiate()
+          Pkg.update()
+          Pkg.test("SCIP")
