@@ -50,11 +50,10 @@ jobs:
           name: artifacts
           path: override
       - shell: julia --color=yes --project=. {0}
-        env:
-          SHA1: ${{ needs.build-linux.outputs.sha1 }}
         run: |
-          open("/home/runner/.julia/artifacts/Overrides.toml", "w") do io
-            override_dir = joinpath(ENV["GITHUB_WORKSPACE"], "override")
-            println(io, "$(ENV["SHA1"]) = $(override_dir)")
-          end
+          import SCIP_jll
+          sha = last(splitpath(SCIP_jll.artifact_dir))
+          content = "$sha = $(joinpath(ENV["GITHUB_WORKSPACE"], "override"))\n"
+          @show content
+          write("/home/runner/.julia/artifacts/Overrides.toml", content)
       - uses: julia-actions/julia-runtest@v1
