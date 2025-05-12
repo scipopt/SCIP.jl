@@ -60,7 +60,7 @@ jobs:
       - shell: julia --color=yes --project=. {0}
         run: |
           using Pkg
-          Pkg.develop(; path = "/home/runner/.julia/dev/SCIP_jll")
           Pkg.instantiate()
+          Pkg.develop(; path = "/home/runner/.julia/dev/SCIP_jll")
           Pkg.update()
           Pkg.test("SCIP")

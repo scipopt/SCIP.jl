@@ -26,10 +26,6 @@ elif [[ "${target}" == *-mingw* ]]; then
    export LDFLAGS=-L${libdir}
 fi
 
-if [[ "${target}" == *w64* ]]; then
-    export CFLAGS="-O0"
-fi
-
 cd scipoptsuite*
 
 # for soplex threadlocal
