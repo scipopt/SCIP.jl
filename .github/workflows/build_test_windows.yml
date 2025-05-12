@@ -56,5 +56,8 @@ jobs:
           dir = joinpath(ENV["GITHUB_WORKSPACE"], "override")
           content = "$sha = \"$(dir)\"\n"
           @show content
-          write("/home/runner/.julia/artifacts/Overrides.toml", content)
+          write(
+            replace(SCIP_jll.artifact_dir, sha => "Overrides.toml"),
+            content,
+          )
       - uses: julia-actions/julia-runtest@v1
