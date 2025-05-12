@@ -32,10 +32,6 @@ jobs:
           echo "SHA1=${sha1}" >> $GITHUB_OUTPUT
       - uses: actions/upload-artifact@v4
         with:
-          name: scip-jll
-          path: /home/runner/.julia/dev/SCIP_jll
-      - uses: actions/upload-artifact@v4
-        with:
           name: artifacts
           path: /home/runner/.julia/artifacts/${{ env.artifact_path }}
   run-windows:
@@ -49,18 +45,16 @@ jobs:
           arch: x64
       - uses: julia-actions/cache@v2
       - uses: julia-actions/julia-buildpkg@v1
-      - uses: actions/download-artifact@v4
-        with:
-          name: scip-jll
-          path: /home/runner/.julia/dev/SCIP_jll
+      - shell: julia --color=yes --project=. {0}
+          import SCIP_jll
+          SCIP_jll.dev_jll()
+          rm("/home/runner/.julia/dev/SCIP_jll/override/"; recursive = true)
+          mkdir("/home/runner/.julia/dev/SCIP_jll/override/")
       - uses: actions/download-artifact@v4
         with:
           name: artifacts
-          path: /home/runner/.julia/artifacts/${{ needs.build-linux.outputs.sha1 }}
+          path: /home/runner/.julia/dev/SCIP_jll/override
       - shell: julia --color=yes --project=. {0}
-        run: |
+          @show readdir("/home/runner/.julia/dev/SCIP_jll/override/")
           using Pkg
-          Pkg.instantiate()
-          Pkg.develop(; path = "/home/runner/.julia/dev/SCIP_jll")
-          Pkg.update()
           Pkg.test("SCIP")
