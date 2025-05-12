@@ -53,7 +53,7 @@ jobs:
         env:
           SHA1: ${{ needs.build-linux.outputs.sha1 }}
         run: |
-          open("~/.julia/artifacts/Overrides.toml", "w") do io
+          open("/home/runner/.julia/artifacts/Overrides.toml", "w") do io
             override_dir = joinpath(ENV["GITHUB_WORKSPACE"], "override")
             println(io, "$(ENV["SHA1"]) = $(override_dir)")
           end
