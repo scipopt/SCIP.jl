@@ -26,7 +26,7 @@ jobs:
         run: |
           julia --color=yes -e 'using Pkg; Pkg.add("BinaryBuilder")'
           julia --color=yes .github/julia/build_tarballs.jl x86_64-w64-mingw32-cxx11 --verbose --deploy=local
-          file=/home/runner/.julia/dev/SCIP_jll/Artifacts.toml
+          file=/home/runner/.julia/dev/SCIP_PaPILO_jll/Artifacts.toml
           sha1=$(grep '^git-tree-sha1' "$file" | cut -d '"' -f2)
           echo "artifact_path=${sha1}" >> $GITHUB_ENV
           echo "SHA1=${sha1}" >> $GITHUB_OUTPUT
@@ -51,13 +51,13 @@ jobs:
           path: override
       - shell: julia --color=yes --project=. {0}
         run: |
-          import SCIP_jll
-          sha = last(splitpath(SCIP_jll.artifact_dir))
+          import SCIP_PaPILO_jll
+          sha = last(splitpath(SCIP_PaPILO_jll.artifact_dir))
           dir = escape_string(joinpath(ENV["GITHUB_WORKSPACE"], "override"))
           content = "$sha = \"$(dir)\"\n"
           @show content
           write(
-            replace(SCIP_jll.artifact_dir, sha => "Overrides.toml"),
+            replace(SCIP_PaPILO_jll.artifact_dir, sha => "Overrides.toml"),
             content,
           )
       - uses: julia-actions/julia-runtest@v1

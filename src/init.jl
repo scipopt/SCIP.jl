@@ -13,10 +13,10 @@ elseif Sys.iswindows()
     using SCIP_jll: libscip
 else
     # Artifact from BinaryBuilder package
-    using SCIP_jll: libscip
+    # using SCIP_jll: libscip
     # import SCIP_PaPILO_jll
     # if SCIP_PaPILO_jll.is_available()
-    #     using SCIP_PaPILO_jll: libscip
+    using SCIP_PaPILO_jll: libscip
     # else
     # end
 end
