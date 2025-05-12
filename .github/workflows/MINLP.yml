@@ -31,4 +31,4 @@ jobs:
           using Pkg
           Pkg.instantiate()
           Pkg.develop(Pkg.PackageSpec(; path = ENV["GITHUB_WORKSPACE"]))
-          include("test/MINLPTests/run_minlptests.jl")
+          include(joinpath(ENV["GITHUB_WORKSPACE"], "test", "MINLPTests", "run_minlptests.jl"))
