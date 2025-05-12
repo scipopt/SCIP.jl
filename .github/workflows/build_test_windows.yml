@@ -51,7 +51,7 @@ jobs:
           path: override
       - shell: julia --color=yes --project=. {0}
         env:
-          SHA1: ${{ build-linux.outputs.sha1 }}
+          SHA1: ${{ needs.build-linux.outputs.sha1 }}
         run: |
           open("~/.julia/artifacts/Overrides.toml", "w") do io
             override_dir = joinpath(ENV["GITHUB_WORKSPACE"], "override")
