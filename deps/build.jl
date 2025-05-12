@@ -5,12 +5,9 @@
 
 using Libdl
 
-if !haskey(ENV, "SCIPOPTDIR") && !Sys.iswindows()
+if !haskey(ENV, "SCIPOPTDIR")
     # Skip build in favor of SCIP_jll
     exit()
-end
-if Sys.iswindows()
-    @warn("SCIP_jll still doesn't work with windows, segfaults are likely!")
 end
 
 depsfile = joinpath(dirname(@__FILE__), "deps.jl")
