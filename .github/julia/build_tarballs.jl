@@ -28,9 +28,6 @@ fi
 
 cd scipoptsuite*
 
-# for soplex threadlocal
-export CXXFLAGS="-DTHREADLOCAL=''"
-
 mkdir build
 cd build/
 cmake -DCMAKE_INSTALL_PREFIX=$prefix\
