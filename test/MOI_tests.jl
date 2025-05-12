@@ -41,10 +41,11 @@ function test_runtests_cached()
         with_bridge_type=Float64,
         with_cache_type=Float64,
     )
-    MOI.set(model, MOI.Silent(), true)
+    # MOI.set(model, MOI.Silent(), true)
     MOI.Test.runtests(
         model,
         CONFIG;
+        verbose = true,
         # TODO(odow): these doesn't converge. Can we fix upstream?
         exclude=[
             r"^test_nonlinear_expression_hs110$",
@@ -56,10 +57,11 @@ end
 
 function test_runtests_bridged()
     model = MOI.instantiate(SCIP.Optimizer; with_bridge_type=Float64)
-    MOI.set(model, MOI.Silent(), true)
+    # MOI.set(model, MOI.Silent(), true)
     MOI.Test.runtests(
         model,
         CONFIG;
+        verbose = true,
         # TODO(odow): these doesn't converge. Can we fix upstream?
         exclude=[
             r"^test_nonlinear_expression_hs110$",
@@ -71,8 +73,8 @@ end
 
 function test_runtests_direct()
     model = MOI.instantiate(SCIP.Optimizer)
-    MOI.set(model, MOI.Silent(), true)
-    MOI.Test.runtests(model, CONFIG)
+    # MOI.set(model, MOI.Silent(), true)
+    MOI.Test.runtests(model, CONFIG; verbose = true)
     return
 end
 
