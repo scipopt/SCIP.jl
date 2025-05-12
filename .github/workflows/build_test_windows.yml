@@ -53,7 +53,7 @@ jobs:
         run: |
           import SCIP_jll
           sha = last(splitpath(SCIP_jll.artifact_dir))
-          dir = joinpath(ENV["GITHUB_WORKSPACE"], "override")
+          dir = escape_string(joinpath(ENV["GITHUB_WORKSPACE"], "override"))
           content = "$sha = \"$(dir)\"\n"
           @show content
           write(
