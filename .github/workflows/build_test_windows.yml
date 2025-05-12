@@ -45,18 +45,16 @@ jobs:
           arch: x64
       - uses: julia-actions/cache@v2
       - uses: julia-actions/julia-buildpkg@v1
-      - shell: julia --color=yes --project=. {0}
-        run: |
-          import SCIP_jll
-          SCIP_jll.dev_jll()
-          rm("/home/runner/.julia/dev/SCIP_jll/override/"; recursive = true)
-          mkdir("/home/runner/.julia/dev/SCIP_jll/override/")
       - uses: actions/download-artifact@v4
         with:
           name: artifacts
-          path: /home/runner/.julia/dev/SCIP_jll/override
+          path: override
       - shell: julia --color=yes --project=. {0}
+        env:
+          SHA1: ${{ build-linux.outputs.sha1 }}
         run: |
-          @show readdir("/home/runner/.julia/dev/SCIP_jll/override/")
-          using Pkg
-          Pkg.test("SCIP")
+          open("~/.julia/artifacts/Overrides.toml", "w") do io
+            override_dir = joinpath(ENV["GITHUB_WORKSPACE"], "override")
+            println(io, "$(ENV["SHA1"]) = $(override_dir)")
+          end
+      - uses: julia-actions/julia-runtest@v1
