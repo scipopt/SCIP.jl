@@ -10,7 +10,6 @@ permissions:
   contents: read
 jobs:
   build-linux:
-    name: Julia - ${{ github.event_name }}
     runs-on: ubuntu-latest
     outputs:
       sha1: ${{ steps.build.outputs.SHA1 }}
