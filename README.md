@@ -31,9 +31,6 @@ licensed under the [Apache 2.0 license](https://github.com/scipopt/scip/blob/mas
 
 ## Installation
 
-**SCIP cannot be installed automatically on Windows. See the "Custom installation"
-instructions below.**
-
 Install SCIP using `Pkg.add`:
 ```julia
 julia> import Pkg
@@ -41,20 +38,19 @@ julia> import Pkg
 julia> Pkg.add("SCIP")
 ```
 
-On platforms other than Windows, in addition to installing the SCIP.jl package,
-this will also download and install the SCIP binaries. You do not need to
-install SCIP separately.
+In addition to installing the SCIP.jl package, this will also download and
+install the SCIP binaries. You do not need to install SCIP separately.
 
 ## Windows and custom installations
 
-If you use Windows, or you want a custom SCIP installation, you must manually
-install the SCIP binaries.
+If you want a custom SCIP installation, you must manually install the SCIP
+binaries.
 
 Binaries are available for download at [https://www.scipopt.org/#download](https://www.scipopt.org/#download).
 
 Once the binaries are installed, set the `SCIPOPTDIR` environment variable to
-temporarily point to the installation path (that is, depending on your operating system,
-`$SCIPOPTDIR/lib/libscip.so`, `$SCIPOPTDIR/lib/libscip.dylib`, or
+temporarily point to the installation path (that is, depending on your operating
+system, `$SCIPOPTDIR/lib/libscip.so`, `$SCIPOPTDIR/lib/libscip.dylib`, or
 `$SCIPOPTDIR/bin/libscip.dll` must exist). Then, install `SCIP.jl` using `Pkg.add`
 and `Pkg.build` from the Julia command line:
 ```julia
