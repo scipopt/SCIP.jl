@@ -9,16 +9,8 @@ const depsjl_path = joinpath(@__DIR__, "..", "deps", "deps.jl")
 if isfile(depsjl_path)
     # User-provided SCIP library
     include(depsjl_path)
-elseif Sys.iswindows()
-    using SCIP_jll: libscip
 else
-    # Artifact from BinaryBuilder package
-    # using SCIP_jll: libscip
-    # import SCIP_PaPILO_jll
-    # if SCIP_PaPILO_jll.is_available()
     using SCIP_PaPILO_jll: libscip
-    # else
-    # end
 end
 
 function __init__()

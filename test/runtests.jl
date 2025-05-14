@@ -11,11 +11,11 @@ using SCIP_PaPILO_jll
 @show SCIP_jll.artifact_dir
 @show SCIP_jll.libscip
 
-@show(@eval(SCIP, libscip) == SCIP_jll.libscip)
-@show(
-    SCIP_PaPILO_jll.is_available() &&
-    @eval(SCIP, libscip) == SCIP_PaPILO_jll.libscip
-)
+@show SCIP_PaPILO_jll.artifact_dir
+@show SCIP_PaPILO_jll.libscip
+
+@show SCIP.libscip
+
 @show SCIP.SCIP_versionnumber()
 
 # new type definitions in module (needs top level)
