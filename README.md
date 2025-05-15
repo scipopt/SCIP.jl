@@ -41,7 +41,7 @@ julia> Pkg.add("SCIP")
 In addition to installing the SCIP.jl package, this will also download and
 install the SCIP binaries. You do not need to install SCIP separately.
 
-## Windows and custom installations
+## Custom installations
 
 If you want a custom SCIP installation, you must manually install the SCIP
 binaries.
