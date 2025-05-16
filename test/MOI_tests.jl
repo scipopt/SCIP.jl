@@ -247,8 +247,7 @@ function test_minimum_unsatisfiable_system()
     MOI.optimize!(model)
     MOI.get(model, MOI.TerminationStatus()) == MOI.INFEASIBLE
     SCIP.compute_minimum_unsatisfied_constraints!(model)
-    @test MOI.get(model, SCIP.UnsatisfiableSystemStatus()) ==
-          MOI.CONFLICT_FOUND
+    @test MOI.get(model, SCIP.UnsatisfiableSystemStatus()) == MOI.CONFLICT_FOUND
     @test MOI.get(model, attr, c) == MOI.IN_CONFLICT ||
           MOI.get(model, attr, c2) == MOI.IN_CONFLICT
     c_zeroone = MOI.ConstraintIndex{MOI.VariableIndex,MOI.ZeroOne}(x.value)
