@@ -199,10 +199,10 @@ function MOI.add_constraint(o::Optimizer, vi::MOI.VariableIndex, ::MOI.ZeroOne)
     allow_modification(o)
     v = var(o, vi)
     p_infeas = Ref{SCIP_Bool}()
-    @SCIP_CALL SCIPchgVarType(o, v, SCIP_VARTYPE_BINARY, p_infeas)
     lb, ub = SCIPvarGetLbOriginal(v), SCIPvarGetUbOriginal(v)
     # Store old bounds for later recovery.
     o.binbounds[vi] = MOI.Interval(lb, ub)
+    @SCIP_CALL SCIPchgVarType(o, v, SCIP_VARTYPE_BINARY, p_infeas)
     @SCIP_CALL SCIPchgVarLb(o, v, max(lb, 0.0))
     @SCIP_CALL SCIPchgVarUb(o, v, min(ub, 1.0))
     ci = MOI.ConstraintIndex{MOI.VariableIndex,MOI.ZeroOne}(vi.value)
@@ -370,7 +370,7 @@ function MOI.delete(
     if type == _kSCIP_LESS_AND_GREATER_THAN && S <: MOI.LessThan
         o.bound_types[vi] = _kSCIP_GREATER_THAN
     elseif type == _kSCIP_LESS_AND_GREATER_THAN && S <: MOI.GreaterThan
-        o.bound_types[vi] = _kSCIP_LESS_AND_GREATER_THAN
+        o.bound_types[vi] = _kSCIP_LESS_THAN
     else
         delete!(o.bound_types, vi)
     end

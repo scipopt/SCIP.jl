@@ -1583,6 +1583,69 @@ function test_unsupported_nonlinear_operator()
     return
 end
 
+function test_delete_variable_with_bounds()
+    for sets in (
+        (MOI.LessThan(1.0),),
+        (MOI.GreaterThan(1.0),),
+        (MOI.EqualTo(1.0),),
+        (MOI.Interval(1.0, 2.0),),
+        (MOI.GreaterThan(1.0), MOI.LessThan(2.0)),
+    )
+        model = SCIP.Optimizer()
+        x = MOI.add_variable(model)
+        for set in sets
+            MOI.add_constraint(model, x, set)
+        end
+        ret = MOI.get(model, MOI.ListOfConstraintTypesPresent())
+        @test length(ret) == length(sets)
+        for set in sets
+            (MOI.VariableIndex, typeof(set)) in ret
+        end
+        MOI.delete(model, x)
+        @test isempty(MOI.get(model, MOI.ListOfConstraintTypesPresent()))
+    end
+    return
+end
+
+function test_BoundAlreadySet()
+    model = SCIP.Optimizer()
+    x = MOI.add_variable(model)
+    MOI.add_constraint(model, x, MOI.GreaterThan(1.0))
+    MOI.add_constraint(model, x, MOI.LessThan(2.0))
+    @test_throws(
+        MOI.LowerBoundAlreadySet,
+        MOI.add_constraint(model, x, MOI.GreaterThan(1.0)),
+    )
+    @test_throws(
+        MOI.UpperBoundAlreadySet,
+        MOI.add_constraint(model, x, MOI.LessThan(1.0)),
+    )
+    return
+end
+
+function test_delete_bounds()
+    model = SCIP.Optimizer()
+    x = MOI.add_variable(model)
+    c_l = MOI.add_constraint(model, x, MOI.GreaterThan(1.0))
+    c_u = MOI.add_constraint(model, x, MOI.LessThan(2.0))
+    MOI.delete(model, c_u)
+    MOI.add_constraint(model, x, MOI.LessThan(3.0))
+    @test MOI.get(model, MOI.ConstraintSet(), c_u) == MOI.LessThan(3.0)
+    MOI.delete(model, c_l)
+    MOI.add_constraint(model, x, MOI.GreaterThan(-1.0))
+    @test MOI.get(model, MOI.ConstraintSet(), c_l) == MOI.GreaterThan(-1.0)
+    return
+end
+
+function test_get_binary_with_bounds()
+    model = SCIP.Optimizer()
+    x = MOI.add_variable(model)
+    c = MOI.add_constraint(model, x, MOI.Interval(0.5, 1.1))
+    MOI.add_constraint(model, x, MOI.ZeroOne())
+    @test MOI.get(model, MOI.ConstraintSet(), c) == MOI.Interval(0.5, 1.1)
+    return
+end
+
 end  # module TestMOIWrapper
 
 TestMOIWrapper.runtests()
