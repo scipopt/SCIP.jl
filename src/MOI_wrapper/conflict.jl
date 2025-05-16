@@ -4,23 +4,26 @@
 # in the LICENSE.md file or at https://opensource.org/licenses/MIT.
 
 """
-Computes a set of constraints which could not be satisfied when trying to minimize the total violations.
+    compute_minimum_unsatisfied_constraints!(o::Optimizer)
+
+Computes a set of constraints which could not be satisfied when trying to
+minimize the total violations.
 
 Given the problem:
 ```
 (P) min_x c^⊤ x
-s.t.  F(x) ∈ S_i ∀ i in 1…m
+     s.t. F(x) ∈ S_i ∀ i in 1…m
 ```
-
-the analysis uses a feasibility relaxation based on slack variables and indicator constraints:
+the analysis uses a feasibility relaxation based on slack variables and
+indicator constraints:
 ```
 (M) min_{x, z} ∑_i z_i
-s.t.       z_i = 0 → F(x) ∈ S_i ∀ i in 1…m
-           z ∈ {0,1}ᵐ
+          s.t. z_i = 0 → F(x) ∈ S_i ∀ i in 1…m
+               z ∈ {0,1}ᵐ
 ```
 
-If (P) is infeasible, (M) has an optimal value above 1.
-All constraints with `z = 1` had to be violated.
+If (P) is infeasible, (M) has an optimal value above 1. All constraints with
+`z = 1` had to be violated.
 """
 function compute_minimum_unsatisfied_constraints!(o::Optimizer)
     if o.conflict_status != MOI.COMPUTE_CONFLICT_NOT_CALLED
@@ -34,21 +37,17 @@ function compute_minimum_unsatisfied_constraints!(o::Optimizer)
     end
     # first transform all variable bound constraints to constraint bounds
     for (F, S) in MOI.get(o, MOI.ListOfConstraintTypesPresent())
+        if !(F == MOI.VariableIndex && S <: BOUNDS)
+            continue
+        end
         sname = replace(string(S), "MathOptInterface." => "", "{Float64}" => "")
-        if Tuple{F,S} <: Tuple{MOI.VariableIndex,BOUNDS}
-            for (idx, c_index) in
-                enumerate(MOI.get(o, MOI.ListOfConstraintIndices{F,S}()))
-                s = MOI.get(o, MOI.ConstraintSet(), c_index)
-                MOI.delete(o, c_index)
-                vi = MOI.VariableIndex(c_index.value)
-                ci_new = MOI.add_constraint(o, 1.0 * vi, s)
-                MOI.set(
-                    o,
-                    MOI.ConstraintName(),
-                    ci_new,
-                    "varcons_$(c_index.value)_$sname",
-                )
-            end
+        for ci in MOI.get(o, MOI.ListOfConstraintIndices{F,S}())
+            set = MOI.get(o, MOI.ConstraintSet(), ci)
+            MOI.delete(o, ci)
+            x = MOI.VariableIndex(ci.value)
+            ci_new = MOI.add_constraint(o, 1.0 * x, set)
+            name = "varcons_$(x.value)_$sname"
+            MOI.set(o, MOI.ConstraintName(), ci_new, name)
         end
     end
     # we need names for all constraints
@@ -80,31 +79,38 @@ function compute_minimum_unsatisfied_constraints!(o::Optimizer)
     if st != MOI.OPTIMAL
         error("Unexpected status $st when computing conflicts")
     end
-    o.conflict_status = if MOI.get(o, MOI.ObjectiveValue()) > 0
-        MOI.CONFLICT_FOUND
+    if MOI.get(o, MOI.ObjectiveValue()) > 0
+        o.conflict_status = MOI.CONFLICT_FOUND
     else
-        MOI.NO_CONFLICT_EXISTS
+        o.conflict_status = MOI.NO_CONFLICT_EXISTS
     end
     return
 end
 
 """
-Model attribute representing whether why the Minimum Unsatisfiable Constraint analysis terminated.
+    UnsatisfiableSystemStatus() <: MOI.AbstractModelAttribute
+
+Model attribute representing whether why the Minimum Unsatisfiable Constraint
+analysis terminated.
 """
 struct UnsatisfiableSystemStatus <: MOI.AbstractModelAttribute end
 
-attribute_value_type(::UnsatisfiableSystemStatus) = MOI.ConflictStatusCode
+MOI.attribute_value_type(::UnsatisfiableSystemStatus) = MOI.ConflictStatusCode
 
 MOI.get(o::Optimizer, ::UnsatisfiableSystemStatus) = o.conflict_status
 
 """
-Attribute representing whether the constraint could be satisfied in the Minimum Unsatisfiable Constraint analysis.
+    ConstraintSatisfiabilityStatus() <: MOI.AbstractModelAttribute
 
-Note that this is different from a constraint belonging to an Irreducible Infeasible Subsystem.
+Attribute representing whether the constraint could be satisfied in the Minimum
+Unsatisfiable Constraint analysis.
+
+Note that this is different from a constraint belonging to an Irreducible
+Infeasible Subsystem.
 """
 struct ConstraintSatisfiabilityStatus <: MOI.AbstractConstraintAttribute end
 
-function attribute_value_type(::ConstraintSatisfiabilityStatus)
+function MOI.attribute_value_type(::ConstraintSatisfiabilityStatus)
     return MOI.ConflictParticipationStatusCode
 end
 
@@ -113,8 +119,11 @@ function MOI.get(
     ::ConstraintSatisfiabilityStatus,
     index::MOI.ConstraintIndex{MOI.VariableIndex},
 )
-    o.conflict_status == MOI.CONFLICT_FOUND || error("no conflict")
-    # we cannot determine whether variable constraint (integer, binary, variable bounds) participate
+    if o.conflict_status != MOI.CONFLICT_FOUND
+        return MOI.NOT_IN_CONFLICT
+    end
+    # We cannot determine whether variable constraint (integer, binary, variable
+    # bounds) participate.
     return MOI.MAYBE_IN_CONFLICT
 end
 
@@ -123,15 +132,13 @@ function MOI.get(
     ::ConstraintSatisfiabilityStatus,
     index::MOI.ConstraintIndex,
 )
-    o.conflict_status == MOI.CONFLICT_FOUND || error("no conflict")
-    c_name = MOI.get(o, MOI.ConstraintName(), index)
-    slack_name = "$(c_name)_master"
-    ptr = SCIPfindVar(o, slack_name)
-    if ptr == C_NULL
-        error(
-            "No constraint name corresponds to the index $index - name $c_name",
-        )
+    MOI.throw_if_not_valid(o, index)
+    if o.conflict_status != MOI.CONFLICT_FOUND
+        return MOI.NOT_IN_CONFLICT
     end
+    c_name = MOI.get(o, MOI.ConstraintName(), index)
+    ptr = SCIPfindVar(o, "$(c_name)_master")
+    @assert ptr != C_NULL
     sol = SCIPgetBestSol(o)
     slack_value = SCIPgetSolVal(o, sol, ptr)
     return slack_value > 0.5 ? MOI.IN_CONFLICT : MOI.NOT_IN_CONFLICT

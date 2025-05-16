@@ -209,6 +209,7 @@ function _base_satisfiability_problem()
     optimizer = SCIP.Optimizer()
     MOI.set(optimizer, MOI.Silent(), true)
     x, y, z = MOI.add_variables(optimizer, 3)
+    MOI.add_constraint(optimizer, x, MOI.ZeroOne())
     MOI.add_constraint(optimizer, x, MOI.LessThan(1.0))
     MOI.add_constraint(optimizer, y, MOI.LessThan(1.0))
     MOI.add_constraint(optimizer, z, MOI.LessThan(1.0))
@@ -221,22 +222,37 @@ function _base_satisfiability_problem()
 end
 
 function test_minimum_unsatisfiable_system()
-    optimizer, x, y, z, c = _base_satisfiability_problem()
-    MOI.optimize!(optimizer)
-    MOI.get(optimizer, MOI.TerminationStatus()) == MOI.OPTIMAL
-    SCIP.compute_minimum_unsatisfied_constraints!(optimizer)
-    @test MOI.get(optimizer, SCIP.UnsatisfiableSystemStatus()) ==
+    attr = SCIP.ConstraintSatisfiabilityStatus()
+    model, x, y, z, c = _base_satisfiability_problem()
+    MOI.optimize!(model)
+    MOI.get(model, MOI.TerminationStatus()) == MOI.OPTIMAL
+    SCIP.compute_minimum_unsatisfied_constraints!(model)
+    @test_throws(
+        ErrorException(
+            "Conflict computation is destructive for the model and cannot be called twice.",
+        ),
+        SCIP.compute_minimum_unsatisfied_constraints!(model),
+    )
+    @test MOI.attribute_value_type(SCIP.UnsatisfiableSystemStatus()) ==
+          MOI.ConflictStatusCode
+    @test MOI.attribute_value_type(attr) == MOI.ConflictParticipationStatusCode
+    @test MOI.get(model, SCIP.UnsatisfiableSystemStatus()) ==
           MOI.NO_CONFLICT_EXISTS
-    optimizer, x, y, z, c = _base_satisfiability_problem()
-    c2 = MOI.add_constraint(optimizer, 1.0 * x + y + z, MOI.GreaterThan(2.0))
-    MOI.set(optimizer, MOI.ConstraintName(), c2, "lincons2")
-    MOI.optimize!(optimizer)
-    MOI.get(optimizer, MOI.TerminationStatus()) == MOI.INFEASIBLE
-    SCIP.compute_minimum_unsatisfied_constraints!(optimizer)
-    @test MOI.get(optimizer, SCIP.UnsatisfiableSystemStatus()) ==
+    c_zeroone = MOI.ConstraintIndex{MOI.VariableIndex,MOI.ZeroOne}(x.value)
+    @test MOI.get(model, attr, c_zeroone) == MOI.NOT_IN_CONFLICT
+    @test MOI.get(model, attr, c) == MOI.NOT_IN_CONFLICT
+    model, x, y, z, c = _base_satisfiability_problem()
+    c2 = MOI.add_constraint(model, 1.0 * x + y + z, MOI.GreaterThan(2.0))
+    MOI.set(model, MOI.ConstraintName(), c2, "lincons2")
+    MOI.optimize!(model)
+    MOI.get(model, MOI.TerminationStatus()) == MOI.INFEASIBLE
+    SCIP.compute_minimum_unsatisfied_constraints!(model)
+    @test MOI.get(model, SCIP.UnsatisfiableSystemStatus()) ==
           MOI.CONFLICT_FOUND
-    @test Int(MOI.get(optimizer, SCIP.ConstraintSatisfiabilityStatus(), c)) +
-          Int(MOI.get(optimizer, SCIP.ConstraintSatisfiabilityStatus(), c2)) ≥ 1
+    @test MOI.get(model, attr, c) == MOI.IN_CONFLICT ||
+          MOI.get(model, attr, c2) == MOI.IN_CONFLICT
+    c_zeroone = MOI.ConstraintIndex{MOI.VariableIndex,MOI.ZeroOne}(x.value)
+    @test MOI.get(model, attr, c_zeroone) == MOI.MAYBE_IN_CONFLICT
     return
 end
 
