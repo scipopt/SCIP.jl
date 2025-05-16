@@ -1,9 +1,9 @@
 [general]
 library_name = "libscip"
-output_file_path = "../src/LibSCIP.jl"
+output_file_path = "src/LibSCIP.jl"
 module_name = "LibSCIP"
-prologue_file_path = "./prologue.jl"
-export_symbol_prefixes = ["SCIP_", "SCIP", "BMS_"]
+prologue_file_path = "gen/prologue.jl"
+export_symbol_prefixes = ["SCIP", "BMS_"]
 
 use_julia_native_enum_type = true
 use_deterministic_symbol = true
