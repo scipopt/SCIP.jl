@@ -730,6 +730,7 @@ function _test_presolving(presolving)
         ),
     )
     MOI.set(optimizer, MOI.ObjectiveSense(), MOI.MAX_SENSE)
+    @test MOI.supports(optimizer, SCIP.Presolving())
     @test MOI.get(optimizer, SCIP.Presolving()) == true
     MOI.set(optimizer, SCIP.Presolving(), presolving)
     @test MOI.get(optimizer, SCIP.Presolving()) == presolving
@@ -865,9 +866,11 @@ function test_heuristic_callback()
         values[findmax(x_frac)[2]] = 1.0
         values[1] = 1.0
         values[2] = 1.0
+        @test MOI.supports(o, MOI.HeuristicSolution(callback_data))
         MOI.submit(o, MOI.HeuristicSolution(callback_data), x, values)
         global ncalls[] += 1
     end
+    @test MOI.supports(o, MOI.HeuristicCallback())
     MOI.set(o, MOI.HeuristicCallback(), heuristic_callback)
     MOI.optimize!(o)
     @test ncalls[] > 0
@@ -1195,6 +1198,7 @@ function test_obtaining_the_LP_solution()
         )
         calls += 1
     end
+    @test MOI.supports(optimizer, MOI.UserCutCallback())
     MOI.set(optimizer, MOI.UserCutCallback(), cutcallback)
     # solve the problem
     MOI.optimize!(optimizer)
@@ -1237,6 +1241,7 @@ function test_cutting_one_optimal_solution()
     MOI.set(optimizer, MOI.ObjectiveSense(), MOI.MAX_SENSE)
     calls = 0
     function cutcallback(cb_data)
+        @test MOI.supports(optimizer, MOI.UserCut{SCIP.CutCbData}(cb_data))
         MOI.submit(
             optimizer,
             MOI.UserCut{SCIP.CutCbData}(cb_data),
@@ -1497,6 +1502,147 @@ function test_AddSingleCut_too_strong_cut()
         rtol
     @test MOI.get(optimizer, MOI.VariablePrimal(), y) ≈ 0.0 atol = atol rtol =
         rtol
+    return
+end
+
+function test_ScalarFunctionConstantNotZero_quadratic()
+    model = SCIP.Optimizer()
+    x = MOI.add_variable(model)
+    f = 1.0 * x * x + 2.0
+    @test_throws(
+        MOI.ScalarFunctionConstantNotZero,
+        MOI.add_constraint(model, f, MOI.LessThan(3.0)),
+    )
+    return
+end
+
+function test_ListOfSupportedNonlinearOperators()
+    model = SCIP.Optimizer()
+    op = MOI.get(model, MOI.ListOfSupportedNonlinearOperators())
+    @test op isa Vector{Symbol}
+    @test length(op) == 11
+    return
+end
+
+function test_nonlinear_epigraph_functions()
+    op(f, args...) = MOI.ScalarNonlinearFunction(f, Any[args...])
+    default_set = MOI.Interval(1.0, 2.0)
+    for (fn, set, t_value) in [
+        (x -> op(:exp, 1.0 * x + 2.0), default_set, exp(3)),
+        (x -> op(:exp, 1.0 * x * x + 2.0), default_set, exp(3)),
+        (x -> op(:exp, 1.0 * x * x + 2.0 * x + 3.0), default_set, exp(6)),
+        # :/
+        (x -> op(:/, 2, x), MOI.Interval(1.0, 2.0), 1.0),
+        (x -> op(:/, 2, x), MOI.Interval(1.0, 1.5), 4 / 3),
+        # :abs
+        (x -> op(:abs, x), MOI.Interval(1.0, 2.0), 1.0),
+        (x -> op(:abs, x), MOI.Interval(-2.0, 2.0), 0.0),
+        (x -> op(:abs, x), MOI.Interval(-2.0, -1.3), 1.3),
+        # :exp
+        (x -> op(:exp, x), MOI.Interval(-2.0, -1.3), exp(-2)),
+        (x -> op(:exp, x), MOI.Interval(2.0, 3.0), exp(2)),
+        # :log
+        (x -> op(:-, op(:log, x)), MOI.Interval(2.0, 3.0), -log(3)),
+        # :sin
+        (x -> op(:sin, x), MOI.Interval(pi, 2 * pi), -1.0),
+        (x -> op(:sin, x), MOI.Interval(0.0, pi), 0.0),
+        # :cos
+        (x -> op(:cos, x), MOI.Interval(pi, 2 * pi), -1.0),
+        (x -> op(:cos, x), MOI.Interval(0.0, pi), -1.0),
+        (x -> op(:cos, x), MOI.Interval(-pi / 2, pi / 2), 0.0),
+        # :sqrt
+        (x -> op(:-, op(:sqrt, x)), MOI.Interval(2.0, 3.0), -sqrt(3)),
+    ]
+        model = SCIP.Optimizer()
+        MOI.set(model, MOI.Silent(), true)
+        x, _ = MOI.add_constrained_variable(model, set)
+        t = MOI.add_variable(model)
+        MOI.set(model, MOI.ObjectiveSense(), MOI.MIN_SENSE)
+        F = MOI.ScalarAffineFunction{Float64}
+        MOI.set(model, MOI.ObjectiveFunction{F}(), 1.0 * t)
+        MOI.add_constraint(model, op(:-, t, fn(x)), MOI.GreaterThan(0.0))
+        MOI.optimize!(model)
+        @test ≈(MOI.get(model, MOI.VariablePrimal(), t), t_value; atol=1e-4)
+    end
+    return
+end
+
+function test_unsupported_nonlinear_operator()
+    model = SCIP.Optimizer()
+    x = MOI.add_variable(model)
+    f = MOI.ScalarNonlinearFunction(:foo, Any[x])
+    @test_throws(
+        MOI.UnsupportedNonlinearOperator(:foo),
+        MOI.add_constraint(model, f, MOI.GreaterThan(0.0)),
+    )
+    f = MOI.ScalarNonlinearFunction(:^, Any[x, x])
+    @test_throws(
+        MOI.UnsupportedNonlinearOperator(:^),
+        MOI.add_constraint(model, f, MOI.GreaterThan(0.0)),
+    )
+    return
+end
+
+function test_delete_variable_with_bounds()
+    for sets in (
+        (MOI.LessThan(1.0),),
+        (MOI.GreaterThan(1.0),),
+        (MOI.EqualTo(1.0),),
+        (MOI.Interval(1.0, 2.0),),
+        (MOI.GreaterThan(1.0), MOI.LessThan(2.0)),
+    )
+        model = SCIP.Optimizer()
+        x = MOI.add_variable(model)
+        for set in sets
+            MOI.add_constraint(model, x, set)
+        end
+        ret = MOI.get(model, MOI.ListOfConstraintTypesPresent())
+        @test length(ret) == length(sets)
+        for set in sets
+            (MOI.VariableIndex, typeof(set)) in ret
+        end
+        MOI.delete(model, x)
+        @test isempty(MOI.get(model, MOI.ListOfConstraintTypesPresent()))
+    end
+    return
+end
+
+function test_BoundAlreadySet()
+    model = SCIP.Optimizer()
+    x = MOI.add_variable(model)
+    MOI.add_constraint(model, x, MOI.GreaterThan(1.0))
+    MOI.add_constraint(model, x, MOI.LessThan(2.0))
+    @test_throws(
+        MOI.LowerBoundAlreadySet,
+        MOI.add_constraint(model, x, MOI.GreaterThan(1.0)),
+    )
+    @test_throws(
+        MOI.UpperBoundAlreadySet,
+        MOI.add_constraint(model, x, MOI.LessThan(1.0)),
+    )
+    return
+end
+
+function test_delete_bounds()
+    model = SCIP.Optimizer()
+    x = MOI.add_variable(model)
+    c_l = MOI.add_constraint(model, x, MOI.GreaterThan(1.0))
+    c_u = MOI.add_constraint(model, x, MOI.LessThan(2.0))
+    MOI.delete(model, c_u)
+    MOI.add_constraint(model, x, MOI.LessThan(3.0))
+    @test MOI.get(model, MOI.ConstraintSet(), c_u) == MOI.LessThan(3.0)
+    MOI.delete(model, c_l)
+    MOI.add_constraint(model, x, MOI.GreaterThan(-1.0))
+    @test MOI.get(model, MOI.ConstraintSet(), c_l) == MOI.GreaterThan(-1.0)
+    return
+end
+
+function test_get_binary_with_bounds()
+    model = SCIP.Optimizer()
+    x = MOI.add_variable(model)
+    c = MOI.add_constraint(model, x, MOI.Interval(0.5, 1.1))
+    MOI.add_constraint(model, x, MOI.ZeroOne())
+    @test MOI.get(model, MOI.ConstraintSet(), c) == MOI.Interval(0.5, 1.1)
     return
 end
 

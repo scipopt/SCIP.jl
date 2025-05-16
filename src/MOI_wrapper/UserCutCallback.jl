@@ -29,10 +29,11 @@ end
 mutable struct CutCbSeparator <: AbstractSeparator
     scipd::SCIPData
     cutcallback::Function
+
+    CutCbSeparator(scipd::SCIPData, cb=cb_data -> nothing) = new(scipd, cb)
 end
 
 # If no cut callback is given, the cut callback does nothing.
-CutCbSeparator(scipd::SCIPData) = CutCbSeparator(scipd, cb_data -> nothing)
 
 """
 Used for an argument to the cut callback, which in turn uses that argument to

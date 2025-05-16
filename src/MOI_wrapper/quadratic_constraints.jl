@@ -50,19 +50,6 @@ function MOI.add_constraint(
     return ci
 end
 
-function MOI.set(
-    o::SCIP.Optimizer,
-    ::MOI.ConstraintSet,
-    ci::MOI.ConstraintIndex{MOI.ScalarQuadraticFunction{Float64},S},
-    set::S,
-) where {S<:BOUNDS}
-    allow_modification(o)
-    lhs, rhs = bounds(o, set)
-    @SCIP_CALL SCIPchgLhsQuadratic(o, cons(o, ci), lhs)
-    @SCIP_CALL SCIPchgRhsQuadratic(o, cons(o, ci), rhs)
-    return nothing
-end
-
 function MOI.get(
     o::Optimizer,
     ::MOI.ConstraintFunction,
