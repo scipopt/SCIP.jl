@@ -1562,7 +1562,7 @@ function test_nonlinear_epigraph_functions()
         MOI.set(model, MOI.ObjectiveFunction{F}(), 1.0 * t)
         MOI.add_constraint(model, op(:-, t, fn(x)), MOI.GreaterThan(0.0))
         MOI.optimize!(model)
-        @test ≈(MOI.get(model, MOI.VariablePrimal(), t), t_value; atol = 1e-4)
+        @test ≈(MOI.get(model, MOI.VariablePrimal(), t), t_value; atol=1e-4)
     end
     return
 end

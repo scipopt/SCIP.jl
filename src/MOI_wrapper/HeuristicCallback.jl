@@ -16,9 +16,8 @@ mutable struct HeuristicCb <: Heuristic
     scipd::SCIPData
     heurcallback::Function
 
-    HeuristicCb(scipd::SCIPData, cb = cb_data -> nothing) = new(scipd, cb)
+    HeuristicCb(scipd::SCIPData, cb=cb_data -> nothing) = new(scipd, cb)
 end
-
 
 """
 Used for an argument to the heuristic callback, which in turn uses that argument to
