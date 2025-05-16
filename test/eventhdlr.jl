@@ -1,3 +1,8 @@
+# Copyright (c) 2018 Felipe Serrano, Miles Lubin, Robert Schwarz, and contributors
+#
+# Use of this source code is governed by an MIT-style license that can be found
+# in the LICENSE.md file or at https://opensource.org/licenses/MIT.
+
 # A simple testcase to test the event handler functionality.
 # It is assumed that test/sepa_support.jl is already included
 using SCIP
@@ -67,7 +72,7 @@ end
     )
     MOI.set(optimizer, MOI.ObjectiveSense(), MOI.MIN_SENSE)
 
-    # add eventhandler 
+    # add eventhandler
     eventhdlr = FirstLPEventTest.FirstLPEvent(inner, 10)
     SCIP.include_event_handler(
         inner,
@@ -81,7 +86,7 @@ end
     # solve the problem
     SCIP.@SCIP_CALL SCIP.SCIPsolve(inner.scip[])
 
-    # test if the event handler worked 
+    # test if the event handler worked
     @test eventhdlr.firstlpobj != 10.0
 
     # free the problem
@@ -121,7 +126,7 @@ end
     )
     MOI.set(optimizer, MOI.ObjectiveSense(), MOI.MIN_SENSE)
 
-    # add eventhandler 
+    # add eventhandler
     eventhdlr = FirstLPEventTest.FirstLPEvent(inner, 10)
     SCIP.include_event_handler(
         inner,
@@ -135,7 +140,7 @@ end
     # solve the problem
     SCIP.@SCIP_CALL SCIP.SCIPsolve(inner.scip[])
 
-    # test if the event handler worked 
+    # test if the event handler worked
     @test eventhdlr.firstlpobj != 10.0
 
     # free the problem

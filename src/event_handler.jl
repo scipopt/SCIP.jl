@@ -1,3 +1,8 @@
+# Copyright (c) 2018 Felipe Serrano, Miles Lubin, Robert Schwarz, and contributors
+#
+# Use of this source code is governed by an MIT-style license that can be found
+# in the LICENSE.md file or at https://opensource.org/licenses/MIT.
+
 # Wrapper for implementing event handlers in SCIP.
 # Before using please familiaze yourself with https://scipopt.org/doc/html/EVENT.php
 #
