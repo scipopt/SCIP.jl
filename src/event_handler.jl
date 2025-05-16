@@ -1,17 +1,17 @@
 # Wrapper for implementing event handlers in SCIP.
 # Before using please familiaze yourself with https://scipopt.org/doc/html/EVENT.php
-# 
+#
 # The basic idea here is the same as with the separator wrappers. First, you need
 # to define a structure that implements the abstract type `AbstractEventhdlr`.
 # Second you should implement the function `eventexec` where the argument is an
 # instance of your event handler structure. Third, you should at runtime instantiate
 # the structure and call `include_event_handler` to register the event handler with SCIP.
-# 
+#
 # See eventhdlr.jl in the test folder for an example.
-# 
+#
 abstract type AbstractEventhdlr end
 
-""" 
+"""
 This is a virtual function that must be implemented by the user. Its Only
 argument is the event handler object.
 """
@@ -80,19 +80,19 @@ function _eventexit(
     return SCIP_OKAY
 end
 """
-    include_event_handler(scipd::SCIP.SCIPData, event_handler::EVENTHDLR; name="", desc="")
+    include_event_handler(scipd::SCIPData, event_handler::EVENTHDLR; name="", desc="")
 
-Include the event handler in SCIP. WARNING! In contrast to the separator wrapper you only need to 
-pass the SCIPData rather than the SCIP pointer and dictionary. 
+Include the event handler in SCIP. WARNING! In contrast to the separator wrapper you only need to
+pass the SCIPData rather than the SCIP pointer and dictionary.
 
 # Arguments
-- scipd::SCIP.SCIPData: The SCIPData object
+- scipd::SCIPData: The SCIPData object
 - event_handler::EVENTHDLR: The event handler object
 - name::String: The name of the event handler
 - desc::String: The description of the event handler
 """
 function include_event_handler(
-    scipd::SCIP.SCIPData,
+    scipd::SCIPData,
     event_handler::EVENTHDLR;
     name="",
     desc="",
@@ -130,14 +130,14 @@ function include_event_handler(
 end
 
 """
-    catch_event(scipd::SCIP.SCIPData, eventtype::SCIP_EVENTTYPE, eventhdlr::EVENTHDLR)
+    catch_event(scipd::SCIPData, eventtype::SCIP_EVENTTYPE, eventhdlr::EVENTHDLR)
 
 Catch an event in SCIP. This function is a wrapper around the SCIPcatchEvent function.
 Warning! This function should only be called after the SCIP has been transformed.
 Use this instead of calling SCIPcatchEvent directly.
 """
 function catch_event(
-    scipd::SCIP.SCIPData,
+    scipd::SCIPData,
     eventtype::SCIP_EVENTTYPE,
     eventhdlr::EVENTHDLR,
 ) where {EVENTHDLR<:AbstractEventhdlr}
@@ -147,15 +147,15 @@ function catch_event(
     @SCIP_CALL SCIPcatchEvent(scipd, eventtype, eventhdlrptr, C_NULL, C_NULL)
 end
 
-""" 
-    drop_event(scipd::SCIP.SCIPData, eventtype::SCIP_EVENTTYPE, eventhdlr::EVENTHDLR)
+"""
+    drop_event(scipd::SCIPData, eventtype::SCIP_EVENTTYPE, eventhdlr::EVENTHDLR)
 
 Drop an event in SCIP. This function is a wrapper around the SCIPdropEvent function.
 Warning! This function should only be called after the SCIP has been transformed.
 Use this instead of calling SCIPdropEvent directly.
 """
 function drop_event(
-    scipd::SCIP.SCIPData,
+    scipd::SCIPData,
     eventtype::SCIP_EVENTTYPE,
     eventhdlr::EVENTHDLR,
 ) where {EVENTHDLR<:AbstractEventhdlr}

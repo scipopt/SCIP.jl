@@ -60,15 +60,15 @@ function MOI.get(
     expr_ref = SCIPgetExprNonlinear(c)
     # This call is required to get quaddata computed in the expression
     isq = Ref{UInt32}(100)
-    @SCIP_CALL LibSCIP.SCIPcheckExprQuadratic(o, expr_ref, isq)
+    @SCIP_CALL SCIPcheckExprQuadratic(o, expr_ref, isq)
     @assert isq[] == 1
     constant_ref = Ref{Cdouble}(-1.0)
     n_linear_terms_ref = Ref{Cint}(-1)
-    linear_exprs = Ref{Ptr{Ptr{LibSCIP.SCIP_EXPR}}}()
+    linear_exprs = Ref{Ptr{Ptr{SCIP_EXPR}}}()
     lincoefs = Ref{Ptr{Cdouble}}()
     n_quad_terms_ref = Ref{Cint}(-1)
     n_bilinear_terms_ref = Ref{Cint}(-1)
-    LibSCIP.SCIPexprGetQuadraticData(
+    SCIPexprGetQuadraticData(
         expr_ref,
         constant_ref,
         n_linear_terms_ref,
@@ -83,16 +83,16 @@ function MOI.get(
         unsafe_wrap(Vector{Ptr{Cvoid}}, linear_exprs[], n_linear_terms_ref[])
     lin_coeff_vec =
         unsafe_wrap(Vector{Cdouble}, lincoefs[], n_linear_terms_ref[])
-    func = SCIP.MOI.ScalarQuadraticFunction{Float64}([], [], constant_ref[])
+    func = MOI.ScalarQuadraticFunction{Float64}([], [], constant_ref[])
     for idx in 1:n_linear_terms_ref[]
-        var_ptr = LibSCIP.SCIPgetVarExprVar(lin_expr_vec[idx])
+        var_ptr = SCIPgetVarExprVar(lin_expr_vec[idx])
         func += lin_coeff_vec[idx] * MOI.VariableIndex(o.reference[var_ptr].val)
     end
     for term_idx in 1:n_quad_terms_ref[]
         var_expr = Ref{Ptr{Cvoid}}()
         lin_coef_ref = Ref{Cdouble}()
         sqr_coef_ref = Ref{Cdouble}()
-        LibSCIP.SCIPexprGetQuadraticQuadTerm(
+        SCIPexprGetQuadraticQuadTerm(
             expr_ref,
             term_idx - 1, # 0-indexed terms
             var_expr,
@@ -104,7 +104,7 @@ function MOI.get(
         )
         @assert lin_coef_ref[] == 0.0
         if sqr_coef_ref[] != 0.0
-            var_ptr = LibSCIP.SCIPgetVarExprVar(var_expr[])
+            var_ptr = SCIPgetVarExprVar(var_expr[])
             var_idx = MOI.VariableIndex(o.reference[var_ptr].val)
             MOI.Utilities.operate!(
                 +,
@@ -118,7 +118,7 @@ function MOI.get(
         var_expr1 = Ref{Ptr{Cvoid}}()
         var_expr2 = Ref{Ptr{Cvoid}}()
         coef_ref = Ref{Cdouble}()
-        LibSCIP.SCIPexprGetQuadraticBilinTerm(
+        SCIPexprGetQuadraticBilinTerm(
             expr_ref,
             term_idx - 1,
             var_expr1,
@@ -128,9 +128,9 @@ function MOI.get(
             C_NULL,
         )
         if coef_ref[] != 0.0
-            var_ptr1 = LibSCIP.SCIPgetVarExprVar(var_expr1[])
+            var_ptr1 = SCIPgetVarExprVar(var_expr1[])
             var_idx1 = MOI.VariableIndex(o.reference[var_ptr1].val)
-            var_ptr2 = LibSCIP.SCIPgetVarExprVar(var_expr2[])
+            var_ptr2 = SCIPgetVarExprVar(var_expr2[])
             var_idx2 = MOI.VariableIndex(o.reference[var_ptr2].val)
             MOI.Utilities.operate!(
                 +,
@@ -164,7 +164,7 @@ function MOI.get(
     c = cons(o, ci)
     expr_ref = SCIPgetExprNonlinear(c)
     isq = Ref{UInt32}(100)
-    @SCIP_CALL LibSCIP.SCIPcheckExprQuadratic(o, expr_ref, isq)
+    @SCIP_CALL SCIPcheckExprQuadratic(o, expr_ref, isq)
     @assert isq[] == 1
     sol = SCIPgetBestSol(o)
     @SCIP_CALL SCIPevalExpr(o, expr_ref, sol, Clonglong(0))

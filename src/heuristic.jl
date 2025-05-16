@@ -39,7 +39,7 @@ function _find_primal_solution_callback(
 )
     heurdata::Ptr{SCIP_HEURDATA} = SCIPheurGetData(heur_)
     heur = unsafe_pointer_to_objref(heurdata)
-    nodeinfeasible = nodeinfeasible_ == SCIP.TRUE
+    nodeinfeasible = nodeinfeasible_ == TRUE
     (retcode, result) = find_primal_solution(
         scip,
         heur,

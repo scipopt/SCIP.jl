@@ -29,8 +29,8 @@ function compute_minimum_unsatisfied_constraints!(o::Optimizer)
         )
     end
     # free the transformed problem first
-    if LibSCIP.SCIPgetStage(o) != LibSCIP.SCIP_STAGE_PROBLEM
-        @SCIP_CALL LibSCIP.SCIPfreeTransform(o)
+    if SCIPgetStage(o) != SCIP_STAGE_PROBLEM
+        @SCIP_CALL SCIPfreeTransform(o)
     end
     # first transform all variable bound constraints to constraint bounds
     for (F, S) in MOI.get(o, MOI.ListOfConstraintTypesPresent())
@@ -68,9 +68,9 @@ function compute_minimum_unsatisfied_constraints!(o::Optimizer)
             end
         end
     end
-    success = Ref{LibSCIP.SCIP_Bool}(SCIP.FALSE)
-    @SCIP_CALL LibSCIP.SCIPtransformMinUC(o, success)
-    if success[] != SCIP.TRUE
+    success = Ref{SCIP_Bool}(FALSE)
+    @SCIP_CALL SCIPtransformMinUC(o, success)
+    if success[] != TRUE
         error(
             "Failed to compute the minimum unsatisfied constraints system.\nSome constraint types may not support the required transformations",
         )
