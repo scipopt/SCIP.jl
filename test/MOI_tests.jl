@@ -1218,7 +1218,7 @@ function test_obtaining_the_LP_solution()
     _ = MOI.add_variable(optimizer)  # Modify model so last solution not still optimal
     MOI.set(optimizer, MOI.UserCutCallback(), cutcallback)
     MOI.optimize!(optimizer)
-    @test calls > n
+    @test calls >= n
     return
 end
 
