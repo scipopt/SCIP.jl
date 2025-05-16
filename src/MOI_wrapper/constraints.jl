@@ -120,5 +120,5 @@ function MOI.is_valid(o::Optimizer, c::MOI.ConstraintIndex{F,S}) where {F,S}
     if !in(ConsRef(c.value), cons_set)
         return false
     end
-    return haskey(o.inner.conss, SCIP.ConsRef(c.value))
+    return haskey(o.inner.conss, ConsRef(c.value))
 end

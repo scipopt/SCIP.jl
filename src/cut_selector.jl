@@ -48,7 +48,7 @@ function _select_cut_callback(
     @assert length(cuts) == ncuts
     forced_cuts = unsafe_wrap(Vector{Ptr{SCIP_ROW}}, forced_cuts_, nforced_cuts)
     @assert length(forced_cuts) == nforced_cuts
-    root = root_ == SCIP.TRUE
+    root = root_ == TRUE
     (retcode, nselectedcuts, result) = select_cuts(
         cutsel,
         scip,
@@ -260,7 +260,7 @@ function select_cuts(
     nselected_cuts = Ref{Cint}(-1)
     maxparalellism = root ? cutsel.max_parallelism_root : cutsel.max_parallelism
     max_good_parallelism = max(maxparalellism, 0.5)
-    retcode = LibSCIP.SCIPselectCutsHybrid(
+    retcode = SCIPselectCutsHybrid(
         scip,
         cuts,
         forced_cuts,

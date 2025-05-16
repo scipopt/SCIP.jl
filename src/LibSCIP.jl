@@ -63974,7 +63974,7 @@ const ARTIFICIALVARNAMEPREFIX = "andresultant_"
 const SCIPisFinite = isfinite
 
 # exports
-const PREFIXES = ["SCIP_", "SCIP", "BMS_"]
+const PREFIXES = ["SCIP", "BMS_"]
 for name in names(@__MODULE__; all=true), prefix in PREFIXES
     if startswith(string(name), prefix)
         @eval export $name

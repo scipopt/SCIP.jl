@@ -85,19 +85,19 @@ function _eventexit(
     return SCIP_OKAY
 end
 """
-    include_event_handler(scipd::SCIP.SCIPData, event_handler::EVENTHDLR; name="", desc="")
+    include_event_handler(scipd::SCIPData, event_handler::EVENTHDLR; name="", desc="")
 
 Include the event handler in SCIP. WARNING! In contrast to the separator wrapper you only need to
 pass the SCIPData rather than the SCIP pointer and dictionary.
 
 # Arguments
-- scipd::SCIP.SCIPData: The SCIPData object
+- scipd::SCIPData: The SCIPData object
 - event_handler::EVENTHDLR: The event handler object
 - name::String: The name of the event handler
 - desc::String: The description of the event handler
 """
 function include_event_handler(
-    scipd::SCIP.SCIPData,
+    scipd::SCIPData,
     event_handler::EVENTHDLR;
     name="",
     desc="",
@@ -135,14 +135,14 @@ function include_event_handler(
 end
 
 """
-    catch_event(scipd::SCIP.SCIPData, eventtype::SCIP_EVENTTYPE, eventhdlr::EVENTHDLR)
+    catch_event(scipd::SCIPData, eventtype::SCIP_EVENTTYPE, eventhdlr::EVENTHDLR)
 
 Catch an event in SCIP. This function is a wrapper around the SCIPcatchEvent function.
 Warning! This function should only be called after the SCIP has been transformed.
 Use this instead of calling SCIPcatchEvent directly.
 """
 function catch_event(
-    scipd::SCIP.SCIPData,
+    scipd::SCIPData,
     eventtype::SCIP_EVENTTYPE,
     eventhdlr::EVENTHDLR,
 ) where {EVENTHDLR<:AbstractEventhdlr}
@@ -153,14 +153,14 @@ function catch_event(
 end
 
 """
-    drop_event(scipd::SCIP.SCIPData, eventtype::SCIP_EVENTTYPE, eventhdlr::EVENTHDLR)
+    drop_event(scipd::SCIPData, eventtype::SCIP_EVENTTYPE, eventhdlr::EVENTHDLR)
 
 Drop an event in SCIP. This function is a wrapper around the SCIPdropEvent function.
 Warning! This function should only be called after the SCIP has been transformed.
 Use this instead of calling SCIPdropEvent directly.
 """
 function drop_event(
-    scipd::SCIP.SCIPData,
+    scipd::SCIPData,
     eventtype::SCIP_EVENTTYPE,
     eventhdlr::EVENTHDLR,
 ) where {EVENTHDLR<:AbstractEventhdlr}

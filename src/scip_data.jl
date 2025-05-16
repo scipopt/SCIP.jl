@@ -66,7 +66,7 @@ mutable struct SCIPData
         @SCIP_CALL SCIPcreate(scip)
         @assert scip[] != C_NULL
         @SCIP_CALL SCIPincludeDefaultPlugins(scip[])
-        @SCIP_CALL SCIP.SCIPcreateProbBasic(scip[], "")
+        @SCIP_CALL SCIPcreateProbBasic(scip[], "")
         scip_data = new(
             scip,
             Dict{VarRef,Ref{Ptr{SCIP_VAR}}}(),

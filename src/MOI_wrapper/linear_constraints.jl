@@ -31,7 +31,7 @@ function MOI.add_constraint(
 end
 
 function MOI.set(
-    o::SCIP.Optimizer,
+    o::Optimizer,
     ::MOI.ConstraintSet,
     ci::MOI.ConstraintIndex{<:MOI.ScalarAffineFunction{Float64},S},
     set::S,

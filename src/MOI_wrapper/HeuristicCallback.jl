@@ -84,25 +84,25 @@ function MOI.submit(
     heur_ = o.inner.heuristic_storage[heuristic]
     sol = create_empty_scipsol(o.inner.scip[], heur_)
     for idx in eachindex(x)
-        SCIP.@SCIP_CALL SCIP.SCIPsetSolVal(
+        @SCIP_CALL SCIPsetSolVal(
             o.inner.scip[],
             sol,
             var(o, x[idx]),
             values[idx],
         )
     end
-    stored = Ref{SCIP_Bool}(SCIP.FALSE)
+    stored = Ref{SCIP_Bool}(FALSE)
     @SCIP_CALL SCIPtrySolFree(
         o.inner.scip[],
         Ref(sol),
-        SCIP.FALSE,
-        SCIP.FALSE,
-        SCIP.TRUE,
-        SCIP.TRUE,
-        SCIP.TRUE,
+        FALSE,
+        FALSE,
+        TRUE,
+        TRUE,
+        TRUE,
         stored,
     )
-    if stored[] == SCIP.TRUE
+    if stored[] == TRUE
         callback_data.submit_called = true
     end
     return

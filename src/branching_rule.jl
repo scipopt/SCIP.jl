@@ -42,7 +42,7 @@ Perform branching with the current `branching_rule`.
 `allow_additional_constraints` is a Boolean indicating if the branching rule
 is allowed to add constraints to the current node in order to cut off the current solution instead of creating a branching.
 
-That method must return a tuple (return_code::LibSCIP.SCIP_RETCODE, result::SCIP.LibSCIP.SCIP_RESULT).
+That method must return a tuple (return_code::SCIP_RETCODE, result::SCIP_RESULT).
 If no branching was performed, use `SCIP_DIDNOTRUN` as a result to pass on to the following branching rule.
 
 `type` is the `BranchingType` to branch on, i.e. on LP solution, pseudo-solution or external candidate.
@@ -53,7 +53,7 @@ function branch(
     allow_additional_constraints,
     type::BranchingType,
 )
-    return (LibSCIP.SCIP_OKAY, LibSCIP.SCIP_DIDNOTRUN)
+    return (SCIP_OKAY, SCIP_DIDNOTRUN)
 end
 
 """
@@ -104,7 +104,7 @@ function get_branching_candidates(scip)
 end
 
 function branch_on_candidate!(scip, var)
-    @SCIP_CALL LibSCIP.SCIPbranchVar(scip, var, C_NULL, C_NULL, C_NULL)
+    @SCIP_CALL SCIPbranchVar(scip, var, C_NULL, C_NULL, C_NULL)
     return nothing
 end
 
