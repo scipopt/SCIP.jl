@@ -66,7 +66,7 @@ function MOI.set(o::Optimizer, ::MOI.HeuristicCallback, cb::Function)
             description="Heuristic set in the MOI optimizer",
         )
     else
-        o.moi_heuristic.cutcallback = cb
+        o.moi_heuristic.heurcallback = cb
     end
     return nothing
 end

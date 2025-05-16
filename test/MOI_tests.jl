@@ -874,6 +874,11 @@ function test_heuristic_callback()
     MOI.set(o, MOI.HeuristicCallback(), heuristic_callback)
     MOI.optimize!(o)
     @test ncalls[] > 0
+    n = ncalls[]
+    _ = MOI.add_variable(o)  # Modify model so last solution not still optimal
+    MOI.set(o, MOI.HeuristicCallback(), heuristic_callback)
+    MOI.optimize!(o)
+    @test ncalls[] > n
     return
 end
 
@@ -1209,6 +1214,11 @@ function test_obtaining_the_LP_solution()
     @test MOI.get(optimizer, MOI.TerminationStatus()) == MOI.OPTIMAL
     @test MOI.get(optimizer, MOI.PrimalStatus()) == MOI.FEASIBLE_POINT
     @test MOI.get(optimizer, MOI.ObjectiveValue()) ≈ 1.0 atol = atol rtol = rtol
+    n = calls
+    _ = MOI.add_variable(optimizer)  # Modify model so last solution not still optimal
+    MOI.set(optimizer, MOI.UserCutCallback(), cutcallback)
+    MOI.optimize!(optimizer)
+    @test calls >= n
     return
 end
 
