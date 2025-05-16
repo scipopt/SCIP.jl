@@ -1,17 +1,22 @@
+# Copyright (c) 2018 Felipe Serrano, Miles Lubin, Robert Schwarz, and contributors
+#
+# Use of this source code is governed by an MIT-style license that can be found
+# in the LICENSE.md file or at https://opensource.org/licenses/MIT.
+
 # Wrapper for implementing event handlers in SCIP.
 # Before using please familiaze yourself with https://scipopt.org/doc/html/EVENT.php
-# 
+#
 # The basic idea here is the same as with the separator wrappers. First, you need
 # to define a structure that implements the abstract type `AbstractEventhdlr`.
 # Second you should implement the function `eventexec` where the argument is an
 # instance of your event handler structure. Third, you should at runtime instantiate
 # the structure and call `include_event_handler` to register the event handler with SCIP.
-# 
+#
 # See eventhdlr.jl in the test folder for an example.
-# 
+#
 abstract type AbstractEventhdlr end
 
-""" 
+"""
 This is a virtual function that must be implemented by the user. Its Only
 argument is the event handler object.
 """
@@ -82,8 +87,8 @@ end
 """
     include_event_handler(scipd::SCIP.SCIPData, event_handler::EVENTHDLR; name="", desc="")
 
-Include the event handler in SCIP. WARNING! In contrast to the separator wrapper you only need to 
-pass the SCIPData rather than the SCIP pointer and dictionary. 
+Include the event handler in SCIP. WARNING! In contrast to the separator wrapper you only need to
+pass the SCIPData rather than the SCIP pointer and dictionary.
 
 # Arguments
 - scipd::SCIP.SCIPData: The SCIPData object
@@ -147,7 +152,7 @@ function catch_event(
     @SCIP_CALL SCIPcatchEvent(scipd, eventtype, eventhdlrptr, C_NULL, C_NULL)
 end
 
-""" 
+"""
     drop_event(scipd::SCIP.SCIPData, eventtype::SCIP_EVENTTYPE, eventhdlr::EVENTHDLR)
 
 Drop an event in SCIP. This function is a wrapper around the SCIPdropEvent function.
