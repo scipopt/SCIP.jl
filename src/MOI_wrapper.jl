@@ -484,17 +484,6 @@ function MOI.get(
     return attributes
 end
 
-# MOI.ListOfOptimizerAttributesSet
-
-function MOI.get(::Optimizer, ::MOI.ListOfOptimizerAttributesSet)
-    attributes = MOI.ListOfOptimizerAttributesSet[]
-    timelim = MOI.get(o, MOI.TimeLimitSec())
-    if timelim !== nothing
-        push!(attributes, MOI.TimeLimitSec())
-    end
-    return attributes
-end
-
 include(joinpath("MOI_wrapper", "variable.jl"))
 include(joinpath("MOI_wrapper", "constraints.jl"))
 include(joinpath("MOI_wrapper", "linear_constraints.jl"))

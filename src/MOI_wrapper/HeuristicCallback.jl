@@ -15,10 +15,10 @@ end
 mutable struct HeuristicCb <: Heuristic
     scipd::SCIPData
     heurcallback::Function
+
+    HeuristicCb(scipd::SCIPData, cb = cb_data -> nothing) = new(scipd, cb)
 end
 
-# If no cut callback is given, the cut callback does nothing.
-HeuristicCb(scipd::SCIPData) = HeuristicCb(scipd, cb_data -> nothing)
 
 """
 Used for an argument to the heuristic callback, which in turn uses that argument to
