@@ -114,7 +114,7 @@ function MOI.empty!(o::Optimizer)
     o.scip_solve_status = _kSCIP_SOLVE_STATUS_NOT_CALLED
     o.name_to_variable = nothing
     o.name_to_constraint_index = nothing
-    empty!(o.solution_storage)
+    o.solution_storage = Ptr{SCIP_SOL}[]
     return nothing
 end
 

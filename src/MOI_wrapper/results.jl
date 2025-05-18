@@ -108,7 +108,8 @@ function MOI.get(
 )
     assert_solved(o)
     MOI.check_result_index_bounds(o, attr)
-    return SCIPgetActivityLinear(o, cons(o, ci), o.solution_storage[attr.result_index])
+    sols = o.solution_storage[attr.result_index]
+    return SCIPgetActivityLinear(o, cons(o, ci), sols)
 end
 
 function MOI.get(o::Optimizer, ::MOI.ObjectiveBound)
