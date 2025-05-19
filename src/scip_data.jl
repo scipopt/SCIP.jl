@@ -31,9 +31,9 @@ SCIPData holds pointers to SCIP data.
 It does not perform memory management and should not be created directly.
 """
 mutable struct SCIPData
-    scip::Ref{Ptr{SCIP_}}
-    vars::Dict{VarRef,Ref{Ptr{SCIP_VAR}}}
-    conss::Dict{ConsRef,Ref{Ptr{SCIP_CONS}}}
+    scip::Base.RefValue{Ptr{SCIP_}}
+    vars::Dict{VarRef,Base.RefValue{Ptr{SCIP_VAR}}}
+    conss::Dict{ConsRef,Base.RefValue{Ptr{SCIP_CONS}}}
 
     var_count::Int64
     cons_count::Int64
@@ -69,8 +69,8 @@ mutable struct SCIPData
         @SCIP_CALL SCIPcreateProbBasic(scip[], "")
         scip_data = new(
             scip,
-            Dict{VarRef,Ref{Ptr{SCIP_VAR}}}(),
-            Dict{ConsRef,Ref{Ptr{SCIP_CONS}}}(),
+            Dict{VarRef,Base.RefValue{Ptr{SCIP_VAR}}}(),
+            Dict{ConsRef,Base.RefValue{Ptr{SCIP_CONS}}}(),
             0,
             0,
             Dict{Any,Ptr{SCIP_CONSHDLR}}(),

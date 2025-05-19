@@ -31,7 +31,7 @@ Returns the SCIP expression pointer, whether the expression is a pure value (wit
 function push_expr!(
     nonlin::NonlinExpr,
     scip::Ptr{SCIP_},
-    vars::Dict{VarRef,Ref{Ptr{SCIP_VAR}}},
+    vars::Dict{VarRef,<:Ref{Ptr{SCIP_VAR}}},
     expr::Expr,
 )
     # Storage for SCIP_EXPR*
@@ -262,7 +262,7 @@ end
 function push_expr!(
     nonlin::NonlinExpr,
     scip::Ptr{SCIP_},
-    vars::Dict{VarRef,Ref{Ptr{SCIP_VAR}}},
+    vars::Dict{VarRef,<:Ref{Ptr{SCIP_VAR}}},
     expr::Number,
 )
     # Storage for SCIP_EXPR*

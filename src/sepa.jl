@@ -215,7 +215,7 @@ associated to the separator `sepa`.
 """
 function add_cut_sepa(
     scip::Ptr{SCIP_},
-    vars::Dict{VarRef,Ref{Ptr{SCIP_VAR}}},
+    vars::Dict{VarRef,<:Ref{Ptr{SCIP_VAR}}},
     sepas::Dict{Any,Ptr{SCIP_SEPA}},
     sepa::SEPA,
     varrefs,
