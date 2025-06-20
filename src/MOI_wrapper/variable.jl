@@ -349,6 +349,18 @@ function reset_bounds(o::Optimizer, v, lb, ub, ::Type{MOI.LessThan{Float64}})
     return
 end
 
+function _update_binbounds(set::MOI.Interval, ::Type{<:MOI.LessThan})
+    return MOI.Interval(-Inf, set.upper)
+end
+
+function _update_binbounds(set::MOI.Interval, ::Type{<:MOI.GreaterThan})
+    return MOI.Interval(set.lower, Inf)
+end
+
+function _update_binbounds(::MOI.Interval, ::Type{<:S}) where {S}
+    return MOI.Interval(-Inf, Inf)
+end
+
 function MOI.delete(
     o::Optimizer,
     ci::MOI.ConstraintIndex{MOI.VariableIndex,S},
@@ -360,12 +372,12 @@ function MOI.delete(
     v = var(o, vi)
     if SCIPvarGetType(v) == SCIP_VARTYPE_BINARY
         reset_bounds(o, v, 0.0, 1.0, S)
+        old_set = o.binbounds[vi]
+        o.binbounds[vi] = _update_binbounds(old_set, S)
     else
         inf = SCIPinfinity(o)
         reset_bounds(o, v, -inf, inf, S)
     end
-    # but do delete the constraint reference
-    delete!(o.binbounds, vi)
     type = o.bound_types[vi]
     if type == _kSCIP_LESS_AND_GREATER_THAN && S <: MOI.LessThan
         o.bound_types[vi] = _kSCIP_GREATER_THAN

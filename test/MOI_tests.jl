@@ -1671,6 +1671,27 @@ function test_get_binary_with_bounds()
     return
 end
 
+function test_fix_binary_variable()
+    for set in (
+        MOI.GreaterThan(0.0),
+        MOI.LessThan(1.0),
+        MOI.Interval(0.0, 1.0),
+        MOI.EqualTo(1.0),
+    )
+        model = SCIP.Optimizer()
+        MOI.set(model, MOI.Silent(), true)
+        x = MOI.add_variable(model)
+        c = MOI.add_constraint(model, x, set)
+        MOI.add_constraint(model, x, MOI.ZeroOne())
+        MOI.delete(model, c)
+        MOI.add_constraint(model, x, MOI.EqualTo(0.0))
+        MOI.optimize!(model)
+        @test MOI.get(model, MOI.TerminationStatus()) == MOI.OPTIMAL
+        @test MOI.get(model, MOI.VariablePrimal(), x) == 0.0
+    end
+    return
+end
+
 end  # module TestMOIWrapper
 
 TestMOIWrapper.runtests()
