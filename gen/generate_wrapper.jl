@@ -14,6 +14,10 @@ else
     (joinpath(SCIP_jll.artifact_dir, "include"), true)
 end
 
+if !is_default
+    SCIP_BUILD_DIR = ENV["SCIPDIR"]
+end
+
 const SCIP_TYPES_H =
     filter(readdir(joinpath(HEADER_BASE, "scip"); join=true)) do f
         occursin("type", f) && endswith(f, ".h")
