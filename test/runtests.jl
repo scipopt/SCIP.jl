@@ -8,6 +8,7 @@ using SCIP
 using SCIP_jll
 using SCIP_PaPILO_jll
 
+@show SCIP.libscip
 @show(@eval(SCIP, libscip) == SCIP_jll.libscip)
 @show(
     SCIP_PaPILO_jll.is_available() &&
