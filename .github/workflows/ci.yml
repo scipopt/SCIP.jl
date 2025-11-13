@@ -32,3 +32,27 @@ jobs:
         with:
           file: lcov.info
           token: ${{ secrets.CODECOV_TOKEN }}
+test-local:
+    name: Test-local-install
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: julia-actions/setup-julia@v2
+        with:
+          version: '1'
+          arch: 'x64'
+      - uses: julia-actions/cache@v1
+      - shell: bash
+        run: |
+          cd deps
+          curl -L https://github.com/JuliaBinaryWrappers/SCIP_jll.jl/releases/download/SCIP-v900.200.200%2B0/SCIP.v900.200.200.x86_64-linux-gnu-cxx11.tar.gz -o x86_64-linux-gnu.tar.gz
+          tar -xzf x86_64-linux-gnu.tar.gz
+      - uses: julia-actions/julia-buildpkg@v1
+        env:
+          SCIPOPTDIR: "/home/runner/work/SCIP.jl/SCIP.jl/deps"
+      - uses: julia-actions/julia-runtest@v1
+      - uses: julia-actions/julia-processcoverage@v1
+      - uses: codecov/codecov-action@v4
+        with:
+          file: lcov.info
+          token: ${{ secrets.CODECOV_TOKEN }}
