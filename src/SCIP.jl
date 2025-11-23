@@ -9,6 +9,8 @@ import LinearAlgebra
 import MathOptInterface as MOI
 import OpenBLAS32_jll
 
+public Optimizer
+
 # assorted utility functions
 include("util.jl")
 
