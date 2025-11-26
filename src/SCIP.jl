@@ -9,7 +9,8 @@ import LinearAlgebra
 import MathOptInterface as MOI
 import OpenBLAS32_jll
 
-public Optimizer
+# Use version aware for public while Julia 1.10 is supported.
+VERSION >= v"1.11.0-DEV.469" && eval(Meta.parse("public Optimizer"))
 
 # assorted utility functions
 include("util.jl")
