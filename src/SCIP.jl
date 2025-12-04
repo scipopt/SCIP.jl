@@ -46,4 +46,10 @@ include("compat.jl")
 
 # Event handler
 include("event_handler.jl")
+
+# Use version aware for public while Julia 1.10 is supported.
+@static if VERSION >= v"1.11.0-DEV.469"
+    eval(Meta.parse("public Optimizer"))
+end
+
 end
