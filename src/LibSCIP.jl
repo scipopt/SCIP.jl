@@ -1,8 +1,3 @@
-# Copyright (c) 2018 Felipe Serrano, Miles Lubin, Robert Schwarz, and contributors
-#
-# Use of this source code is governed by an MIT-style license that can be found
-# in the LICENSE.md file or at https://opensource.org/licenses/MIT.
-
 module LibSCIP
 
 using ..SCIP: libscip
@@ -137,6 +132,13 @@ end
 
 const SCIP_BENDERSSUBTYPE = SCIP_BendersSubType
 
+@enum SCIP_BendersObjectiveType::UInt32 begin
+    SCIP_BENDERSOBJTYPE_SUM = 0
+    SCIP_BENDERSOBJTYPE_MAX = 1
+end
+
+const SCIP_BENDERSOBJTYPE = SCIP_BendersObjectiveType
+
 const SCIP_BendersData = Cvoid
 
 const SCIP_BENDERSDATA = SCIP_BendersData
@@ -168,6 +170,26 @@ const SCIP_BRANCHRULEDATA = SCIP_BranchruleData
 const SCIP_Treemodel = Cvoid
 
 const SCIP_TREEMODEL = SCIP_Treemodel
+
+const SCIP_Certnodedata = Cvoid
+
+const SCIP_CERTNODEDATA = SCIP_Certnodedata
+
+const SCIP_AggregationInfo = Cvoid
+
+const SCIP_AGGREGATIONINFO = SCIP_AggregationInfo
+
+const SCIP_MirInfo = Cvoid
+
+const SCIP_MIRINFO = SCIP_MirInfo
+
+const SCIP_Certificate = Cvoid
+
+const SCIP_CERTIFICATE = SCIP_Certificate
+
+const SCIP_CertificateBound = Cvoid
+
+const SCIP_CERTIFICATEBOUND = SCIP_CertificateBound
 
 @enum SCIP_ClockType::UInt32 begin
     SCIP_CLOCKTYPE_DEFAULT = 0
@@ -229,7 +251,123 @@ const SCIP_Conflicthdlr = Cvoid
 
 const SCIP_CONFLICTHDLR = SCIP_Conflicthdlr
 
-const SCIP_Node = Cvoid
+const SCIP_Rational = Cvoid
+
+const SCIP_RATIONAL = SCIP_Rational
+
+struct __JL_Ctag_87
+    data::NTuple{8,UInt8}
+end
+
+function Base.getproperty(x::Ptr{__JL_Ctag_87}, f::Symbol)
+    f === :probingnode && return Ptr{Ptr{SCIP_PROBINGNODE}}(x + 0)
+    f === :sibling && return Ptr{SCIP_SIBLING}(x + 0)
+    f === :child && return Ptr{SCIP_CHILD}(x + 0)
+    f === :leaf && return Ptr{SCIP_LEAF}(x + 0)
+    f === :junction && return Ptr{SCIP_JUNCTION}(x + 0)
+    f === :pseudofork && return Ptr{Ptr{SCIP_PSEUDOFORK}}(x + 0)
+    f === :fork && return Ptr{Ptr{SCIP_FORK}}(x + 0)
+    f === :subroot && return Ptr{Ptr{SCIP_SUBROOT}}(x + 0)
+    return getfield(x, f)
+end
+
+function Base.getproperty(x::__JL_Ctag_87, f::Symbol)
+    r = Ref{__JL_Ctag_87}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_87}, r)
+    fptr = getproperty(ptr, f)
+    GC.@preserve r unsafe_load(fptr)
+end
+
+function Base.setproperty!(x::Ptr{__JL_Ctag_87}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::__JL_Ctag_87, private::Bool=false)
+    (
+        :probingnode,
+        :sibling,
+        :child,
+        :leaf,
+        :junction,
+        :pseudofork,
+        :fork,
+        :subroot,
+        if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...,
+    )
+end
+
+const SCIP_ConsSetChg = Cvoid
+
+const SCIP_CONSSETCHG = SCIP_ConsSetChg
+
+const SCIP_DomChg = Cvoid
+
+const SCIP_DOMCHG = SCIP_DomChg
+
+struct SCIP_Node
+    data::NTuple{80,UInt8}
+end
+
+function Base.getproperty(x::Ptr{SCIP_Node}, f::Symbol)
+    f === :number && return Ptr{Clonglong}(x + 0)
+    f === :lowerbound && return Ptr{Cdouble}(x + 8)
+    f === :lowerboundexact && return Ptr{Ptr{SCIP_RATIONAL}}(x + 16)
+    f === :estimate && return Ptr{Cdouble}(x + 24)
+    f === :data && return Ptr{__JL_Ctag_87}(x + 32)
+    f === :parent && return Ptr{Ptr{SCIP_NODE}}(x + 40)
+    f === :conssetchg && return Ptr{Ptr{SCIP_CONSSETCHG}}(x + 48)
+    f === :domchg && return Ptr{Ptr{SCIP_DOMCHG}}(x + 56)
+    f === :depth && return (Ptr{Cuint}(x + 64), 0, 30)
+    f === :reoptid && return (Ptr{Cuint}(x + 68), 0, 32)
+    f === :reopttype && return (Ptr{Cuint}(x + 72), 0, 3)
+    f === :repropsubtreemark && return (Ptr{Cuint}(x + 72), 3, 9)
+    f === :active && return (Ptr{Cuint}(x + 72), 12, 1)
+    f === :cutoff && return (Ptr{Cuint}(x + 72), 13, 1)
+    f === :reprop && return (Ptr{Cuint}(x + 72), 14, 1)
+    f === :nodetype && return (Ptr{Cuint}(x + 72), 15, 4)
+    return getfield(x, f)
+end
+
+function Base.getproperty(x::SCIP_Node, f::Symbol)
+    r = Ref{SCIP_Node}(x)
+    ptr = Base.unsafe_convert(Ptr{SCIP_Node}, r)
+    fptr = getproperty(ptr, f)
+    GC.@preserve r unsafe_load(fptr)
+end
+
+function Base.setproperty!(x::Ptr{SCIP_Node}, f::Symbol, v)
+    unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::SCIP_Node, private::Bool=false)
+    (
+        :number,
+        :lowerbound,
+        :lowerboundexact,
+        :estimate,
+        :data,
+        :parent,
+        :conssetchg,
+        :domchg,
+        :depth,
+        :reoptid,
+        :reopttype,
+        :repropsubtreemark,
+        :active,
+        :cutoff,
+        :reprop,
+        :nodetype,
+        if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...,
+    )
+end
 
 const SCIP_NODE = SCIP_Node
 
@@ -259,6 +397,10 @@ const SCIP_CONFLICTSET = SCIP_ConflictSet
 const SCIP_ProofSet = Cvoid
 
 const SCIP_PROOFSET = SCIP_ProofSet
+
+const SCIP_ConflictRow = Cvoid
+
+const SCIP_CONFLICTROW = SCIP_ConflictRow
 
 const SCIP_LPBdChgs = Cvoid
 
@@ -323,13 +465,13 @@ const SCIP_Diveset = Cvoid
 
 const SCIP_DIVESET = SCIP_Diveset
 
+const SYM_Graph = Cvoid
+
+const SYM_GRAPH = SYM_Graph
+
 const SCIP_ConshdlrData = Cvoid
 
 const SCIP_CONSHDLRDATA = SCIP_ConshdlrData
-
-const SCIP_ConsSetChg = Cvoid
-
-const SCIP_CONSSETCHG = SCIP_ConsSetChg
 
 const SCIP_LinConsStats = Cvoid
 
@@ -378,6 +520,7 @@ struct SCIP_AggrRow
     rowssize::Cint
     rank::Cint
     _local::Cuint
+    certificateline::Clonglong
 end
 
 const SCIP_AGGRROW = SCIP_AggrRow
@@ -386,13 +529,523 @@ const SCIP_Cutsel = Cvoid
 
 const SCIP_CUTSEL = SCIP_Cutsel
 
-const SCIP_Row = Cvoid
+struct SCIP_RowSolVals
+    data::NTuple{24,UInt8}
+end
+
+function Base.getproperty(x::Ptr{SCIP_RowSolVals}, f::Symbol)
+    f === :dualsol && return Ptr{Cdouble}(x + 0)
+    f === :activity && return Ptr{Cdouble}(x + 8)
+    f === :basisstatus && return (Ptr{Cuint}(x + 16), 0, 2)
+    return getfield(x, f)
+end
+
+function Base.getproperty(x::SCIP_RowSolVals, f::Symbol)
+    r = Ref{SCIP_RowSolVals}(x)
+    ptr = Base.unsafe_convert(Ptr{SCIP_RowSolVals}, r)
+    fptr = getproperty(ptr, f)
+    begin
+        if fptr isa Ptr
+            return GC.@preserve(r, unsafe_load(fptr))
+        else
+            (baseptr, offset, width) = fptr
+            ty = eltype(baseptr)
+            baseptr32 = convert(Ptr{UInt32}, baseptr)
+            u64 = GC.@preserve(r, unsafe_load(baseptr32))
+            if offset + width > 32
+                u64 |= GC.@preserve(r, unsafe_load(baseptr32 + 4)) << 32
+            end
+            u64 = u64 >> offset & (1 << width - 1)
+            return u64 % ty
+        end
+    end
+end
+
+function Base.setproperty!(x::Ptr{SCIP_RowSolVals}, f::Symbol, v)
+    fptr = getproperty(x, f)
+    if fptr isa Ptr
+        unsafe_store!(getproperty(x, f), v)
+    else
+        (baseptr, offset, width) = fptr
+        baseptr32 = convert(Ptr{UInt32}, baseptr)
+        u64 = unsafe_load(baseptr32)
+        straddle = offset + width > 32
+        if straddle
+            u64 |= unsafe_load(baseptr32 + 4) << 32
+        end
+        mask = 1 << width - 1
+        u64 &= ~(mask << offset)
+        u64 |= (unsigned(v) & mask) << offset
+        unsafe_store!(baseptr32, u64 & typemax(UInt32))
+        if straddle
+            unsafe_store!(baseptr32 + 4, u64 >> 32)
+        end
+    end
+end
+
+function Base.propertynames(x::SCIP_RowSolVals, private::Bool=false)
+    (:dualsol, :activity, :basisstatus, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
+end
+
+const SCIP_ROWSOLVALS = SCIP_RowSolVals
+
+struct SCIP_ColSolVals
+    data::NTuple{24,UInt8}
+end
+
+function Base.getproperty(x::Ptr{SCIP_ColSolVals}, f::Symbol)
+    f === :primsol && return Ptr{Cdouble}(x + 0)
+    f === :redcost && return Ptr{Cdouble}(x + 8)
+    f === :basisstatus && return (Ptr{Cuint}(x + 16), 0, 2)
+    return getfield(x, f)
+end
+
+function Base.getproperty(x::SCIP_ColSolVals, f::Symbol)
+    r = Ref{SCIP_ColSolVals}(x)
+    ptr = Base.unsafe_convert(Ptr{SCIP_ColSolVals}, r)
+    fptr = getproperty(ptr, f)
+    begin
+        if fptr isa Ptr
+            return GC.@preserve(r, unsafe_load(fptr))
+        else
+            (baseptr, offset, width) = fptr
+            ty = eltype(baseptr)
+            baseptr32 = convert(Ptr{UInt32}, baseptr)
+            u64 = GC.@preserve(r, unsafe_load(baseptr32))
+            if offset + width > 32
+                u64 |= GC.@preserve(r, unsafe_load(baseptr32 + 4)) << 32
+            end
+            u64 = u64 >> offset & (1 << width - 1)
+            return u64 % ty
+        end
+    end
+end
+
+function Base.setproperty!(x::Ptr{SCIP_ColSolVals}, f::Symbol, v)
+    fptr = getproperty(x, f)
+    if fptr isa Ptr
+        unsafe_store!(getproperty(x, f), v)
+    else
+        (baseptr, offset, width) = fptr
+        baseptr32 = convert(Ptr{UInt32}, baseptr)
+        u64 = unsafe_load(baseptr32)
+        straddle = offset + width > 32
+        if straddle
+            u64 |= unsafe_load(baseptr32 + 4) << 32
+        end
+        mask = 1 << width - 1
+        u64 &= ~(mask << offset)
+        u64 |= (unsigned(v) & mask) << offset
+        unsafe_store!(baseptr32, u64 & typemax(UInt32))
+        if straddle
+            unsafe_store!(baseptr32 + 4, u64 >> 32)
+        end
+    end
+end
+
+function Base.propertynames(x::SCIP_ColSolVals, private::Bool=false)
+    (:primsol, :redcost, :basisstatus, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
+end
+
+const SCIP_COLSOLVALS = SCIP_ColSolVals
+
+struct SCIP_Col
+    data::NTuple{280,UInt8}
+end
+
+function Base.getproperty(x::Ptr{SCIP_Col}, f::Symbol)
+    f === :obj && return Ptr{Cdouble}(x + 0)
+    f === :lb && return Ptr{Cdouble}(x + 8)
+    f === :ub && return Ptr{Cdouble}(x + 16)
+    f === :unchangedobj && return Ptr{Cdouble}(x + 24)
+    f === :lazylb && return Ptr{Cdouble}(x + 32)
+    f === :lazyub && return Ptr{Cdouble}(x + 40)
+    f === :flushedobj && return Ptr{Cdouble}(x + 48)
+    f === :flushedlb && return Ptr{Cdouble}(x + 56)
+    f === :flushedub && return Ptr{Cdouble}(x + 64)
+    f === :primsol && return Ptr{Cdouble}(x + 72)
+    f === :redcost && return Ptr{Cdouble}(x + 80)
+    f === :farkascoef && return Ptr{Cdouble}(x + 88)
+    f === :minprimsol && return Ptr{Cdouble}(x + 96)
+    f === :maxprimsol && return Ptr{Cdouble}(x + 104)
+    f === :sbdown && return Ptr{Cdouble}(x + 112)
+    f === :sbup && return Ptr{Cdouble}(x + 120)
+    f === :sbsolval && return Ptr{Cdouble}(x + 128)
+    f === :sblpobjval && return Ptr{Cdouble}(x + 136)
+    f === :sbnode && return Ptr{Clonglong}(x + 144)
+    f === :obsoletenode && return Ptr{Clonglong}(x + 152)
+    f === :storedsolvals && return Ptr{Ptr{SCIP_COLSOLVALS}}(x + 160)
+    f === :var && return Ptr{Ptr{SCIP_VAR}}(x + 168)
+    f === :rows && return Ptr{Ptr{Ptr{SCIP_ROW}}}(x + 176)
+    f === :vals && return Ptr{Ptr{Cdouble}}(x + 184)
+    f === :validredcostlp && return Ptr{Clonglong}(x + 192)
+    f === :validfarkaslp && return Ptr{Clonglong}(x + 200)
+    f === :validsblp && return Ptr{Clonglong}(x + 208)
+    f === :linkpos && return Ptr{Ptr{Cint}}(x + 216)
+    f === :index && return Ptr{Cint}(x + 224)
+    f === :size && return Ptr{Cint}(x + 228)
+    f === :len && return Ptr{Cint}(x + 232)
+    f === :nlprows && return Ptr{Cint}(x + 236)
+    f === :nunlinked && return Ptr{Cint}(x + 240)
+    f === :lppos && return Ptr{Cint}(x + 244)
+    f === :lpipos && return Ptr{Cint}(x + 248)
+    f === :lpdepth && return Ptr{Cint}(x + 252)
+    f === :sbitlim && return Ptr{Cint}(x + 256)
+    f === :nsbcalls && return Ptr{Cint}(x + 260)
+    f === :age && return Ptr{Cint}(x + 264)
+    f === :var_probindex && return Ptr{Cint}(x + 268)
+    f === :basisstatus && return (Ptr{Cuint}(x + 272), 0, 2)
+    f === :lprowssorted && return (Ptr{Cuint}(x + 272), 2, 1)
+    f === :nonlprowssorted && return (Ptr{Cuint}(x + 272), 3, 1)
+    f === :objchanged && return (Ptr{Cuint}(x + 272), 4, 1)
+    f === :lbchanged && return (Ptr{Cuint}(x + 272), 5, 1)
+    f === :ubchanged && return (Ptr{Cuint}(x + 272), 6, 1)
+    f === :coefchanged && return (Ptr{Cuint}(x + 272), 7, 1)
+    f === :integral && return (Ptr{Cuint}(x + 272), 8, 1)
+    f === :impliedintegral && return (Ptr{Cuint}(x + 272), 9, 1)
+    f === :removable && return (Ptr{Cuint}(x + 272), 10, 1)
+    f === :sbdownvalid && return (Ptr{Cuint}(x + 272), 11, 1)
+    f === :sbupvalid && return (Ptr{Cuint}(x + 272), 12, 1)
+    return getfield(x, f)
+end
+
+function Base.getproperty(x::SCIP_Col, f::Symbol)
+    r = Ref{SCIP_Col}(x)
+    ptr = Base.unsafe_convert(Ptr{SCIP_Col}, r)
+    fptr = getproperty(ptr, f)
+    begin
+        if fptr isa Ptr
+            return GC.@preserve(r, unsafe_load(fptr))
+        else
+            (baseptr, offset, width) = fptr
+            ty = eltype(baseptr)
+            baseptr32 = convert(Ptr{UInt32}, baseptr)
+            u64 = GC.@preserve(r, unsafe_load(baseptr32))
+            if offset + width > 32
+                u64 |= GC.@preserve(r, unsafe_load(baseptr32 + 4)) << 32
+            end
+            u64 = u64 >> offset & (1 << width - 1)
+            return u64 % ty
+        end
+    end
+end
+
+function Base.setproperty!(x::Ptr{SCIP_Col}, f::Symbol, v)
+    fptr = getproperty(x, f)
+    if fptr isa Ptr
+        unsafe_store!(getproperty(x, f), v)
+    else
+        (baseptr, offset, width) = fptr
+        baseptr32 = convert(Ptr{UInt32}, baseptr)
+        u64 = unsafe_load(baseptr32)
+        straddle = offset + width > 32
+        if straddle
+            u64 |= unsafe_load(baseptr32 + 4) << 32
+        end
+        mask = 1 << width - 1
+        u64 &= ~(mask << offset)
+        u64 |= (unsigned(v) & mask) << offset
+        unsafe_store!(baseptr32, u64 & typemax(UInt32))
+        if straddle
+            unsafe_store!(baseptr32 + 4, u64 >> 32)
+        end
+    end
+end
+
+function Base.propertynames(x::SCIP_Col, private::Bool=false)
+    (
+        :obj,
+        :lb,
+        :ub,
+        :unchangedobj,
+        :lazylb,
+        :lazyub,
+        :flushedobj,
+        :flushedlb,
+        :flushedub,
+        :primsol,
+        :redcost,
+        :farkascoef,
+        :minprimsol,
+        :maxprimsol,
+        :sbdown,
+        :sbup,
+        :sbsolval,
+        :sblpobjval,
+        :sbnode,
+        :obsoletenode,
+        :storedsolvals,
+        :var,
+        :rows,
+        :vals,
+        :validredcostlp,
+        :validfarkaslp,
+        :validsblp,
+        :linkpos,
+        :index,
+        :size,
+        :len,
+        :nlprows,
+        :nunlinked,
+        :lppos,
+        :lpipos,
+        :lpdepth,
+        :sbitlim,
+        :nsbcalls,
+        :age,
+        :var_probindex,
+        :basisstatus,
+        :lprowssorted,
+        :nonlprowssorted,
+        :objchanged,
+        :lbchanged,
+        :ubchanged,
+        :coefchanged,
+        :integral,
+        :impliedintegral,
+        :removable,
+        :sbdownvalid,
+        :sbupvalid,
+        if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...,
+    )
+end
+
+const SCIP_COL = SCIP_Col
+
+const SCIP_EventFilter = Cvoid
+
+const SCIP_EVENTFILTER = SCIP_EventFilter
+
+const SCIP_RowExact = Cvoid
+
+const SCIP_ROWEXACT = SCIP_RowExact
+
+struct SCIP_Row
+    data::NTuple{320,UInt8}
+end
+
+function Base.getproperty(x::Ptr{SCIP_Row}, f::Symbol)
+    f === :constant && return Ptr{Cdouble}(x + 0)
+    f === :lhs && return Ptr{Cdouble}(x + 8)
+    f === :rhs && return Ptr{Cdouble}(x + 16)
+    f === :flushedlhs && return Ptr{Cdouble}(x + 24)
+    f === :flushedrhs && return Ptr{Cdouble}(x + 32)
+    f === :sqrnorm && return Ptr{Cdouble}(x + 40)
+    f === :sumnorm && return Ptr{Cdouble}(x + 48)
+    f === :objprod && return Ptr{Cdouble}(x + 56)
+    f === :maxval && return Ptr{Cdouble}(x + 64)
+    f === :minval && return Ptr{Cdouble}(x + 72)
+    f === :dualsol && return Ptr{Cdouble}(x + 80)
+    f === :activity && return Ptr{Cdouble}(x + 88)
+    f === :dualfarkas && return Ptr{Cdouble}(x + 96)
+    f === :pseudoactivity && return Ptr{Cdouble}(x + 104)
+    f === :minactivity && return Ptr{Cdouble}(x + 112)
+    f === :maxactivity && return Ptr{Cdouble}(x + 120)
+    f === :validpsactivitydomchg && return Ptr{Clonglong}(x + 128)
+    f === :validactivitybdsdomchg && return Ptr{Clonglong}(x + 136)
+    f === :obsoletenode && return Ptr{Clonglong}(x + 144)
+    f === :activeinlpcounter && return Ptr{Clonglong}(x + 152)
+    f === :nlpsaftercreation && return Ptr{Clonglong}(x + 160)
+    f === :storedsolvals && return Ptr{Ptr{SCIP_ROWSOLVALS}}(x + 168)
+    f === :origin && return Ptr{Ptr{Cvoid}}(x + 176)
+    f === :name && return Ptr{Ptr{Cchar}}(x + 184)
+    f === :cols && return Ptr{Ptr{Ptr{SCIP_COL}}}(x + 192)
+    f === :cols_index && return Ptr{Ptr{Cint}}(x + 200)
+    f === :vals && return Ptr{Ptr{Cdouble}}(x + 208)
+    f === :linkpos && return Ptr{Ptr{Cint}}(x + 216)
+    f === :eventfilter && return Ptr{Ptr{SCIP_EVENTFILTER}}(x + 224)
+    f === :rowexact && return Ptr{Ptr{SCIP_ROWEXACT}}(x + 232)
+    f === :validactivitylp && return Ptr{Clonglong}(x + 240)
+    f === :index && return Ptr{Cint}(x + 248)
+    f === :size && return Ptr{Cint}(x + 252)
+    f === :len && return Ptr{Cint}(x + 256)
+    f === :nlpcols && return Ptr{Cint}(x + 260)
+    f === :nunlinked && return Ptr{Cint}(x + 264)
+    f === :nuses && return Ptr{Cint}(x + 268)
+    f === :lppos && return Ptr{Cint}(x + 272)
+    f === :lpipos && return Ptr{Cint}(x + 276)
+    f === :lpdepth && return Ptr{Cint}(x + 280)
+    f === :minidx && return Ptr{Cint}(x + 284)
+    f === :maxidx && return Ptr{Cint}(x + 288)
+    f === :numintcols && return Ptr{Cint}(x + 292)
+    f === :numimplintcols && return Ptr{Cint}(x + 296)
+    f === :nummaxval && return Ptr{Cint}(x + 300)
+    f === :numminval && return Ptr{Cint}(x + 304)
+    f === :age && return Ptr{Cint}(x + 308)
+    f === :rank && return Ptr{Cint}(x + 312)
+    f === :fromcutpool && return (Ptr{Cuint}(x + 316), 0, 1)
+    f === :basisstatus && return (Ptr{Cuint}(x + 316), 1, 2)
+    f === :lpcolssorted && return (Ptr{Cuint}(x + 316), 3, 1)
+    f === :nonlpcolssorted && return (Ptr{Cuint}(x + 316), 4, 1)
+    f === :delaysort && return (Ptr{Cuint}(x + 316), 5, 1)
+    f === :validminmaxidx && return (Ptr{Cuint}(x + 316), 6, 1)
+    f === :lhschanged && return (Ptr{Cuint}(x + 316), 7, 1)
+    f === :rhschanged && return (Ptr{Cuint}(x + 316), 8, 1)
+    f === :coefchanged && return (Ptr{Cuint}(x + 316), 9, 1)
+    f === :integral && return (Ptr{Cuint}(x + 316), 10, 1)
+    f === :_local && return (Ptr{Cuint}(x + 316), 11, 1)
+    f === :modifiable && return (Ptr{Cuint}(x + 316), 12, 1)
+    f === :removable && return (Ptr{Cuint}(x + 316), 13, 1)
+    f === :inglobalcutpool && return (Ptr{Cuint}(x + 316), 14, 1)
+    f === :normunreliable && return (Ptr{Cuint}(x + 316), 15, 1)
+    f === :nlocks && return (Ptr{Cuint}(x + 316), 16, 13)
+    f === :origintype && return (Ptr{Cuint}(x + 316), 29, 3)
+    return getfield(x, f)
+end
+
+function Base.getproperty(x::SCIP_Row, f::Symbol)
+    r = Ref{SCIP_Row}(x)
+    ptr = Base.unsafe_convert(Ptr{SCIP_Row}, r)
+    fptr = getproperty(ptr, f)
+    begin
+        if fptr isa Ptr
+            return GC.@preserve(r, unsafe_load(fptr))
+        else
+            (baseptr, offset, width) = fptr
+            ty = eltype(baseptr)
+            baseptr32 = convert(Ptr{UInt32}, baseptr)
+            u64 = GC.@preserve(r, unsafe_load(baseptr32))
+            if offset + width > 32
+                u64 |= GC.@preserve(r, unsafe_load(baseptr32 + 4)) << 32
+            end
+            u64 = u64 >> offset & (1 << width - 1)
+            return u64 % ty
+        end
+    end
+end
+
+function Base.setproperty!(x::Ptr{SCIP_Row}, f::Symbol, v)
+    fptr = getproperty(x, f)
+    if fptr isa Ptr
+        unsafe_store!(getproperty(x, f), v)
+    else
+        (baseptr, offset, width) = fptr
+        baseptr32 = convert(Ptr{UInt32}, baseptr)
+        u64 = unsafe_load(baseptr32)
+        straddle = offset + width > 32
+        if straddle
+            u64 |= unsafe_load(baseptr32 + 4) << 32
+        end
+        mask = 1 << width - 1
+        u64 &= ~(mask << offset)
+        u64 |= (unsigned(v) & mask) << offset
+        unsafe_store!(baseptr32, u64 & typemax(UInt32))
+        if straddle
+            unsafe_store!(baseptr32 + 4, u64 >> 32)
+        end
+    end
+end
+
+function Base.propertynames(x::SCIP_Row, private::Bool=false)
+    (
+        :constant,
+        :lhs,
+        :rhs,
+        :flushedlhs,
+        :flushedrhs,
+        :sqrnorm,
+        :sumnorm,
+        :objprod,
+        :maxval,
+        :minval,
+        :dualsol,
+        :activity,
+        :dualfarkas,
+        :pseudoactivity,
+        :minactivity,
+        :maxactivity,
+        :validpsactivitydomchg,
+        :validactivitybdsdomchg,
+        :obsoletenode,
+        :activeinlpcounter,
+        :nlpsaftercreation,
+        :storedsolvals,
+        :origin,
+        :name,
+        :cols,
+        :cols_index,
+        :vals,
+        :linkpos,
+        :eventfilter,
+        :rowexact,
+        :validactivitylp,
+        :index,
+        :size,
+        :len,
+        :nlpcols,
+        :nunlinked,
+        :nuses,
+        :lppos,
+        :lpipos,
+        :lpdepth,
+        :minidx,
+        :maxidx,
+        :numintcols,
+        :numimplintcols,
+        :nummaxval,
+        :numminval,
+        :age,
+        :rank,
+        :fromcutpool,
+        :basisstatus,
+        :lpcolssorted,
+        :nonlpcolssorted,
+        :delaysort,
+        :validminmaxidx,
+        :lhschanged,
+        :rhschanged,
+        :coefchanged,
+        :integral,
+        :_local,
+        :modifiable,
+        :removable,
+        :inglobalcutpool,
+        :normunreliable,
+        :nlocks,
+        :origintype,
+        if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...,
+    )
+end
 
 const SCIP_ROW = SCIP_Row
 
 const SCIP_CutselData = Cvoid
 
 const SCIP_CUTSELDATA = SCIP_CutselData
+
+@enum SCIP_Datatree_Valuetype::UInt32 begin
+    SCIP_DATATREE_BOOL = 0
+    SCIP_DATATREE_LONG = 1
+    SCIP_DATATREE_REAL = 2
+    SCIP_DATATREE_STRING = 3
+    SCIP_DATATREE_BOOLARRAY = 4
+    SCIP_DATATREE_LONGARRAY = 5
+    SCIP_DATATREE_REALARRAY = 6
+    SCIP_DATATREE_STRINGARRAY = 7
+    SCIP_DATATREE_DATATREE = 8
+end
+
+const SCIP_DATATREE_VALUETYPE = SCIP_Datatree_Valuetype
+
+const SCIP_Datatree = Cvoid
+
+const SCIP_DATATREE = SCIP_Datatree
 
 const SCIP_Decomp = Cvoid
 
@@ -496,6 +1149,10 @@ const SCIP_EventTypeChg = Cvoid
 
 const SCIP_EVENTTYPECHG = SCIP_EventTypeChg
 
+const SCIP_EventImplTypeChg = Cvoid
+
+const SCIP_EVENTTYPEIMPLCHG = SCIP_EventImplTypeChg
+
 const SCIP_EventRowAddedSepa = Cvoid
 
 const SCIP_EVENTROWADDEDSEPA = SCIP_EventRowAddedSepa
@@ -523,10 +1180,6 @@ const SCIP_EVENTROWCONSTCHANGED = SCIP_EventRowConstChanged
 const SCIP_EventRowSideChanged = Cvoid
 
 const SCIP_EVENTROWSIDECHANGED = SCIP_EventRowSideChanged
-
-const SCIP_EventFilter = Cvoid
-
-const SCIP_EVENTFILTER = SCIP_EventFilter
 
 const SCIP_EventQueue = Cvoid
 
@@ -574,6 +1227,18 @@ end
     SCIP_MONOTONE_DEC = 2
     SCIP_MONOTONE_CONST = 3
 end
+
+@enum SCIP_ImplintType::UInt32 begin
+    SCIP_IMPLINTTYPE_NONE = 0
+    SCIP_IMPLINTTYPE_WEAK = 1
+    SCIP_IMPLINTTYPE_STRONG = 2
+end
+
+const SCIP_IMPLINTTYPE = SCIP_ImplintType
+
+const SYM_ExprData = Cvoid
+
+const SYM_EXPRDATA = SYM_ExprData
 
 const SCIP_ROUNDMODE = Cint
 
@@ -627,6 +1292,16 @@ function SCIPintervalSet(resultant, value)
         (:SCIPintervalSet, libscip),
         Cvoid,
         (Ptr{SCIP_INTERVAL}, Cdouble),
+        resultant,
+        value,
+    )
+end
+
+function SCIPintervalSetRational(resultant, value)
+    ccall(
+        (:SCIPintervalSetRational, libscip),
+        Cvoid,
+        (Ptr{SCIP_INTERVAL}, Ptr{SCIP_RATIONAL}),
         resultant,
         value,
     )
@@ -1207,6 +1882,10 @@ function SCIPintervalMax(infinity, resultant, operand1, operand2)
     )
 end
 
+function SCIPintervalAbsMax(interval)
+    ccall((:SCIPintervalAbsMax, libscip), Cdouble, (SCIP_INTERVAL,), interval)
+end
+
 function SCIPintervalAbs(infinity, resultant, operand)
     ccall(
         (:SCIPintervalAbs, libscip),
@@ -1527,6 +2206,21 @@ function Base.setproperty!(x::Ptr{SCIP_EXPRITER_USERDATA}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::SCIP_EXPRITER_USERDATA, private::Bool=false)
+    (
+        :realval,
+        :intval,
+        :intvals,
+        :uintval,
+        :ptrval,
+        if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...,
+    )
+end
+
 @enum SCIP_EXPRITER_TYPE::UInt32 begin
     SCIP_EXPRITER_RTOPOLOGIC = 0
     SCIP_EXPRITER_BFS = 1
@@ -1569,6 +2263,7 @@ const SCIP_DIVETYPE = Cuint
     SCIP_DIVECONTEXT_TOTAL = 0
     SCIP_DIVECONTEXT_SINGLE = 1
     SCIP_DIVECONTEXT_ADAPTIVE = 2
+    SCIP_DIVECONTEXT_SCHEDULER = 3
 end
 
 const SCIP_DIVECONTEXT = SCIP_DiveContext
@@ -1597,6 +2292,133 @@ const SCIP_HISTORY = SCIP_History
 const SCIP_ValueHistory = Cvoid
 
 const SCIP_VALUEHISTORY = SCIP_ValueHistory
+
+const SCIP_Hypergraph = Cvoid
+
+const SCIP_HYPERGRAPH = SCIP_Hypergraph
+
+const SCIP_HYPERGRAPH_OVERLAP = Cint
+
+const SCIP_Hypergraph_OverlapData = Cvoid
+
+const SCIP_HYPERGRAPH_OVERLAPDATA = SCIP_Hypergraph_OverlapData
+
+const SCIP_HYPERGRAPH_EDGE = Cint
+
+const SCIP_HYPERGRAPH_VERTEX = Cint
+
+struct SCIP_Hypergraph_Iter
+    data::NTuple{48,UInt8}
+end
+
+function Base.getproperty(x::Ptr{SCIP_Hypergraph_Iter}, f::Symbol)
+    f === :base && return Ptr{SCIP_HYPERGRAPH_EDGE}(x + 0)
+    f === :vertexidx && return Ptr{Cint}(x + 4)
+    f === :minvertex && return Ptr{SCIP_HYPERGRAPH_VERTEX}(x + 8)
+    f === :edgeidx && return Ptr{Cint}(x + 12)
+    f === :adjacent && return Ptr{SCIP_HYPERGRAPH_EDGE}(x + 16)
+    f === :ncommonvertices && return Ptr{Cint}(x + 20)
+    f === :sizecommonvertices && return Ptr{Cint}(x + 24)
+    f === :commonvertices && return Ptr{Ptr{SCIP_HYPERGRAPH_VERTEX}}(x + 32)
+    f === :overlap && return Ptr{SCIP_HYPERGRAPH_OVERLAP}(x + 40)
+    f === :minoverlapsize && return (Ptr{Cuint}(x + 44), 0, 6)
+    f === :onlylater && return (Ptr{Cuint}(x + 44), 6, 1)
+    f === :findoverlaps && return (Ptr{Cuint}(x + 44), 7, 1)
+    return getfield(x, f)
+end
+
+function Base.getproperty(x::SCIP_Hypergraph_Iter, f::Symbol)
+    r = Ref{SCIP_Hypergraph_Iter}(x)
+    ptr = Base.unsafe_convert(Ptr{SCIP_Hypergraph_Iter}, r)
+    fptr = getproperty(ptr, f)
+    begin
+        if fptr isa Ptr
+            return GC.@preserve(r, unsafe_load(fptr))
+        else
+            (baseptr, offset, width) = fptr
+            ty = eltype(baseptr)
+            baseptr32 = convert(Ptr{UInt32}, baseptr)
+            u64 = GC.@preserve(r, unsafe_load(baseptr32))
+            if offset + width > 32
+                u64 |= GC.@preserve(r, unsafe_load(baseptr32 + 4)) << 32
+            end
+            u64 = u64 >> offset & (1 << width - 1)
+            return u64 % ty
+        end
+    end
+end
+
+function Base.setproperty!(x::Ptr{SCIP_Hypergraph_Iter}, f::Symbol, v)
+    fptr = getproperty(x, f)
+    if fptr isa Ptr
+        unsafe_store!(getproperty(x, f), v)
+    else
+        (baseptr, offset, width) = fptr
+        baseptr32 = convert(Ptr{UInt32}, baseptr)
+        u64 = unsafe_load(baseptr32)
+        straddle = offset + width > 32
+        if straddle
+            u64 |= unsafe_load(baseptr32 + 4) << 32
+        end
+        mask = 1 << width - 1
+        u64 &= ~(mask << offset)
+        u64 |= (unsigned(v) & mask) << offset
+        unsafe_store!(baseptr32, u64 & typemax(UInt32))
+        if straddle
+            unsafe_store!(baseptr32 + 4, u64 >> 32)
+        end
+    end
+end
+
+function Base.propertynames(x::SCIP_Hypergraph_Iter, private::Bool=false)
+    (
+        :base,
+        :vertexidx,
+        :minvertex,
+        :edgeidx,
+        :adjacent,
+        :ncommonvertices,
+        :sizecommonvertices,
+        :commonvertices,
+        :overlap,
+        :minoverlapsize,
+        :onlylater,
+        :findoverlaps,
+        if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...,
+    )
+end
+
+const SCIP_HYPERGRAPH_ITER = SCIP_Hypergraph_Iter
+
+const SCIP_Hypergraph_NodeData = Cvoid
+
+const SCIP_HYPERGRAPH_VERTEXDATA = SCIP_Hypergraph_NodeData
+
+const SCIP_Hypergraph_EdgeData = Cvoid
+
+const SCIP_HYPERGRAPH_EDGEDATA = SCIP_Hypergraph_EdgeData
+
+@enum SCIP_Hypergraph_IterCtrl::UInt32 begin
+    SCIP_HYPERGRAPH_ITERCTRL_MINOVERLAP = 255
+    SCIP_HYPERGRAPH_ITERCTRL_ONLYLATER = 256
+    SCIP_HYPERGRAPH_ITERCTRL_FINDOVERLAPS = 512
+end
+
+const SCIP_HYPERGRAPH_ITERCTRL = SCIP_Hypergraph_IterCtrl
+
+const SCIP_IISfinder = Cvoid
+
+const SCIP_IISFINDER = SCIP_IISfinder
+
+const SCIP_IIS = Cvoid
+
+const SCIP_IISfinderData = Cvoid
+
+const SCIP_IISFINDERDATA = SCIP_IISfinderData
 
 const SCIP_VBounds = Cvoid
 
@@ -1661,25 +2483,207 @@ end
 
 const SCIP_LPALGO = SCIP_LPAlgo
 
-const SCIP_ColSolVals = Cvoid
-
-const SCIP_COLSOLVALS = SCIP_ColSolVals
-
-const SCIP_RowSolVals = Cvoid
-
-const SCIP_ROWSOLVALS = SCIP_RowSolVals
-
-const SCIP_LpSolVals = Cvoid
+struct SCIP_LpSolVals
+    lpsolstat::SCIP_LPSOLSTAT
+    lpobjval::Cdouble
+    primalfeasible::Cuint
+    primalchecked::Cuint
+    dualfeasible::Cuint
+    dualchecked::Cuint
+    solisbasic::Cuint
+    lpissolved::Cuint
+    hasprovedboundexact::Cuint
+end
 
 const SCIP_LPSOLVALS = SCIP_LpSolVals
 
-const SCIP_Col = Cvoid
+const SCIP_LPi = Cvoid
 
-const SCIP_COL = SCIP_Col
+const SCIP_LPI = SCIP_LPi
 
-const SCIP_Lp = Cvoid
+const SCIP_LpExact = Cvoid
+
+const SCIP_LPEXACT = SCIP_LpExact
+
+const SCIP_LPiState = Cvoid
+
+const SCIP_LPISTATE = SCIP_LPiState
+
+@enum SCIP_Pricing::UInt32 begin
+    SCIP_PRICING_LPIDEFAULT = 0
+    SCIP_PRICING_AUTO = 1
+    SCIP_PRICING_FULL = 2
+    SCIP_PRICING_PARTIAL = 3
+    SCIP_PRICING_STEEP = 4
+    SCIP_PRICING_STEEPQSTART = 5
+    SCIP_PRICING_DEVEX = 6
+end
+
+const SCIP_PRICING = SCIP_Pricing
+
+struct SCIP_Lp
+    lpobjval::Cdouble
+    looseobjval::Cdouble
+    rellooseobjval::Cdouble
+    glbpseudoobjval::Cdouble
+    relglbpseudoobjval::Cdouble
+    pseudoobjval::Cdouble
+    relpseudoobjval::Cdouble
+    rootlpobjval::Cdouble
+    rootlooseobjval::Cdouble
+    cutoffbound::Cdouble
+    feastol::Cdouble
+    lpiobjlim::Cdouble
+    lpifeastol::Cdouble
+    lpidualfeastol::Cdouble
+    lpibarrierconvtol::Cdouble
+    lpiconditionlimit::Cdouble
+    lpimarkowitz::Cdouble
+    objsqrnorm::Cdouble
+    objsumnorm::Cdouble
+    degeneracy::Cdouble
+    varconsratio::Cdouble
+    lpi::Ptr{SCIP_LPI}
+    lpicols::Ptr{Ptr{SCIP_COL}}
+    lpirows::Ptr{Ptr{SCIP_ROW}}
+    chgcols::Ptr{Ptr{SCIP_COL}}
+    chgrows::Ptr{Ptr{SCIP_ROW}}
+    cols::Ptr{Ptr{SCIP_COL}}
+    lazycols::Ptr{Ptr{SCIP_COL}}
+    rows::Ptr{Ptr{SCIP_ROW}}
+    lpexact::Ptr{SCIP_LPEXACT}
+    soldirection::Ptr{Cdouble}
+    divelpistate::Ptr{SCIP_LPISTATE}
+    divechgsides::Ptr{Cdouble}
+    divechgsidetypes::Ptr{SCIP_SIDETYPE}
+    divechgrows::Ptr{Ptr{SCIP_ROW}}
+    storedsolvals::Ptr{SCIP_LPSOLVALS}
+    validsoldirsol::Ptr{SCIP_SOL}
+    validsollp::Clonglong
+    validfarkaslp::Clonglong
+    validsoldirlp::Clonglong
+    validdegeneracylp::Clonglong
+    divenolddomchgs::Clonglong
+    lpicolssize::Cint
+    nlpicols::Cint
+    lpifirstchgcol::Cint
+    lpirowssize::Cint
+    nlpirows::Cint
+    lpifirstchgrow::Cint
+    chgcolssize::Cint
+    nchgcols::Cint
+    chgrowssize::Cint
+    nchgrows::Cint
+    colssize::Cint
+    soldirectionsize::Cint
+    ncols::Cint
+    lazycolssize::Cint
+    nlazycols::Cint
+    nremovablecols::Cint
+    firstnewcol::Cint
+    rowssize::Cint
+    nrows::Cint
+    nremovablerows::Cint
+    firstnewrow::Cint
+    looseobjvalinf::Cint
+    nloosevars::Cint
+    glbpseudoobjvalinf::Cint
+    pseudoobjvalinf::Cint
+    ndivingrows::Cint
+    ndivechgsides::Cint
+    divechgsidessize::Cint
+    divinglpiitlim::Cint
+    lpiitlim::Cint
+    lpifastmip::Cint
+    lpithreads::Cint
+    lpitiming::Cint
+    lpirandomseed::Cint
+    lpiscaling::Cint
+    lpirefactorinterval::Cint
+    lpipricing::SCIP_PRICING
+    lpsolstat::SCIP_LPSOLSTAT
+    lastlpalgo::SCIP_LPALGO
+    objsqrnormunreliable::Cuint
+    lpisolutionpolishing::Cuint
+    looseobjvalid::Cuint
+    glbpseudoobjvalid::Cuint
+    pseudoobjvalid::Cuint
+    flushdeletedcols::Cuint
+    flushaddedcols::Cuint
+    flushdeletedrows::Cuint
+    flushaddedrows::Cuint
+    updateintegrality::Cuint
+    flushed::Cuint
+    solved::Cuint
+    primalfeasible::Cuint
+    primalchecked::Cuint
+    dualfeasible::Cuint
+    dualchecked::Cuint
+    solisbasic::Cuint
+    rootlpisrelax::Cuint
+    isrelax::Cuint
+    installing::Cuint
+    strongbranching::Cuint
+    probing::Cuint
+    strongbranchprobing::Cuint
+    diving::Cuint
+    divingobjchg::Cuint
+    divinglazyapplied::Cuint
+    resolvelperror::Cuint
+    adjustlpval::Cuint
+    lpifromscratch::Cuint
+    lpipresolving::Cuint
+    lpilpinfo::Cuint
+    lpihasfeastol::Cuint
+    lpihasdualfeastol::Cuint
+    lpihasbarrierconvtol::Cuint
+    lpihasfastmip::Cuint
+    lpihasscaling::Cuint
+    lpihaspresolving::Cuint
+    lpihasrowrep::Cuint
+    lpihaspolishing::Cuint
+    lpihasrefactor::Cuint
+    lpirowrepswitch::Cdouble
+    divelpwasprimfeas::Cuint
+    divelpwasprimchecked::Cuint
+    divelpwasdualfeas::Cuint
+    divelpwasdualchecked::Cuint
+    hasprovedbound::Cuint
+end
 
 const SCIP_LP = SCIP_Lp
+
+const SCIP_ColExactSolVals = Cvoid
+
+const SCIP_COLEXACTSOLVALS = SCIP_ColExactSolVals
+
+const SCIP_RowExactSolVals = Cvoid
+
+const SCIP_ROWEXACTSOLVALS = SCIP_RowExactSolVals
+
+const SCIP_LpExactSolVals = Cvoid
+
+const SCIP_LPEXACTSOLVALS = SCIP_LpExactSolVals
+
+const SCIP_ColExact = Cvoid
+
+const SCIP_COLEXACT = SCIP_ColExact
+
+const SCIP_ProjShiftData = Cvoid
+
+const SCIP_PROJSHIFTDATA = SCIP_ProjShiftData
+
+@enum Ps_dualcostsel::UInt32 begin
+    PS_DUALCOSTSEL_NO = 0
+    PS_DUALCOSTSEL_ACTIVE_FPLP = 1
+    PS_DUALCOSTSEL_ACTIVE_EXLP = 2
+end
+
+const PS_DUALCOSTSEL = Ps_dualcostsel
+
+const SCIP_MatrixValsExact = Cvoid
+
+const SCIP_MATRIXVALSEXACT = SCIP_MatrixValsExact
 
 const SCIP_Matrix = Cvoid
 
@@ -1723,6 +2727,7 @@ const SCIP_CONFIDENCELEVEL = SCIP_Confidencelevel
     SCIP_HASHMAPTYPE_POINTER = 1
     SCIP_HASHMAPTYPE_REAL = 2
     SCIP_HASHMAPTYPE_INT = 3
+    SCIP_HASHMAPTYPE_LONG = 4
 end
 
 const SCIP_HASHMAPTYPE = SCIP_Hashmaptype
@@ -2022,6 +3027,26 @@ const SCIP_PropData = Cvoid
 
 const SCIP_PROPDATA = SCIP_PropData
 
+const SCIP_RationalArray = Cvoid
+
+const SCIP_RATIONALARRAY = SCIP_RationalArray
+
+@enum SCIP_IsFpRepresentable::UInt32 begin
+    SCIP_ISFPREPRESENTABLE_UNKNOWN = 0
+    SCIP_ISFPREPRESENTABLE_TRUE = 1
+    SCIP_ISFPREPRESENTABLE_FALSE = 2
+end
+
+const SCIP_ISFPREPRESENTABLE = SCIP_IsFpRepresentable
+
+@enum SCIP_RoundModeRational::UInt32 begin
+    SCIP_R_ROUND_DOWNWARDS = 0
+    SCIP_R_ROUND_UPWARDS = 1
+    SCIP_R_ROUND_NEAREST = 2
+end
+
+const SCIP_ROUNDMODE_RAT = SCIP_RoundModeRational
+
 const SCIP_Reader = Cvoid
 
 const SCIP_READER = SCIP_Reader
@@ -2110,6 +3135,10 @@ const SCIP_SepaStore = Cvoid
 
 const SCIP_SEPASTORE = SCIP_SepaStore
 
+const SCIP_SepaStoreExact = Cvoid
+
+const SCIP_SEPASTOREEXACT = SCIP_SepaStoreExact
+
 @enum SCIP_Stage::UInt32 begin
     SCIP_STAGE_INIT = 0
     SCIP_STAGE_PROBLEM = 1
@@ -2138,7 +3167,455 @@ end
 
 const SCIP_SETTING = SCIP_Setting
 
-const SCIP_Set = Cvoid
+const SCIP_Table = Cvoid
+
+const SCIP_TABLE = SCIP_Table
+
+const SCIP_DebugSolData = Cvoid
+
+const SCIP_DEBUGSOLDATA = SCIP_DebugSolData
+
+struct SCIP_Set
+    stage::SCIP_STAGE
+    scip::Ptr{SCIP}
+    paramset::Ptr{SCIP_PARAMSET}
+    buffer::Ptr{BMS_BUFMEM}
+    cleanbuffer::Ptr{BMS_BUFMEM}
+    readers::Ptr{Ptr{SCIP_READER}}
+    pricers::Ptr{Ptr{SCIP_PRICER}}
+    conshdlrs::Ptr{Ptr{SCIP_CONSHDLR}}
+    conshdlrs_sepa::Ptr{Ptr{SCIP_CONSHDLR}}
+    conshdlrs_enfo::Ptr{Ptr{SCIP_CONSHDLR}}
+    conshdlrs_include::Ptr{Ptr{SCIP_CONSHDLR}}
+    conflicthdlrs::Ptr{Ptr{SCIP_CONFLICTHDLR}}
+    presols::Ptr{Ptr{SCIP_PRESOL}}
+    relaxs::Ptr{Ptr{SCIP_RELAX}}
+    sepas::Ptr{Ptr{SCIP_SEPA}}
+    cutsels::Ptr{Ptr{SCIP_CUTSEL}}
+    props::Ptr{Ptr{SCIP_PROP}}
+    props_presol::Ptr{Ptr{SCIP_PROP}}
+    heurs::Ptr{Ptr{SCIP_HEUR}}
+    comprs::Ptr{Ptr{SCIP_COMPR}}
+    eventhdlrs::Ptr{Ptr{SCIP_EVENTHDLR}}
+    nodesels::Ptr{Ptr{SCIP_NODESEL}}
+    nodesel::Ptr{SCIP_NODESEL}
+    branchrules::Ptr{Ptr{SCIP_BRANCHRULE}}
+    iisfinders::Ptr{Ptr{SCIP_IISFINDER}}
+    disps::Ptr{Ptr{SCIP_DISP}}
+    tables::Ptr{Ptr{SCIP_TABLE}}
+    dialogs::Ptr{Ptr{SCIP_DIALOG}}
+    exprhdlrs::Ptr{Ptr{SCIP_EXPRHDLR}}
+    exprhdlrvar::Ptr{SCIP_EXPRHDLR}
+    exprhdlrval::Ptr{SCIP_EXPRHDLR}
+    exprhdlrsum::Ptr{SCIP_EXPRHDLR}
+    exprhdlrproduct::Ptr{SCIP_EXPRHDLR}
+    exprhdlrpow::Ptr{SCIP_EXPRHDLR}
+    nlpis::Ptr{Ptr{SCIP_NLPI}}
+    concsolvertypes::Ptr{Ptr{SCIP_CONCSOLVERTYPE}}
+    concsolvers::Ptr{Ptr{SCIP_CONCSOLVER}}
+    benders::Ptr{Ptr{SCIP_BENDERS}}
+    debugsoldata::Ptr{SCIP_DEBUGSOLDATA}
+    banditvtables::Ptr{Ptr{SCIP_BANDITVTABLE}}
+    extcodenames::Ptr{Ptr{Cchar}}
+    extcodedescs::Ptr{Ptr{Cchar}}
+    nreaders::Cint
+    readerssize::Cint
+    npricers::Cint
+    nactivepricers::Cint
+    pricerssize::Cint
+    nconshdlrs::Cint
+    conshdlrssize::Cint
+    nconflicthdlrs::Cint
+    conflicthdlrssize::Cint
+    npresols::Cint
+    presolssize::Cint
+    nrelaxs::Cint
+    relaxssize::Cint
+    nsepas::Cint
+    sepassize::Cint
+    ncutsels::Cint
+    cutselssize::Cint
+    nprops::Cint
+    propssize::Cint
+    nheurs::Cint
+    heurssize::Cint
+    ncomprs::Cint
+    comprssize::Cint
+    neventhdlrs::Cint
+    eventhdlrssize::Cint
+    nnodesels::Cint
+    nodeselssize::Cint
+    nbranchrules::Cint
+    branchrulessize::Cint
+    niisfinders::Cint
+    iisfinderssize::Cint
+    ndisps::Cint
+    dispssize::Cint
+    ntables::Cint
+    tablessize::Cint
+    ndialogs::Cint
+    dialogssize::Cint
+    nexprhdlrs::Cint
+    exprhdlrssize::Cint
+    nnlpis::Cint
+    nlpissize::Cint
+    nconcsolvertypes::Cint
+    concsolvertypessize::Cint
+    nconcsolvers::Cint
+    concsolverssize::Cint
+    nbenders::Cint
+    nactivebenders::Cint
+    benderssize::Cint
+    nextcodes::Cint
+    extcodessize::Cint
+    nbanditvtables::Cint
+    banditvtablessize::Cint
+    pricerssorted::Cuint
+    pricersnamesorted::Cuint
+    conflicthdlrssorted::Cuint
+    conflicthdlrsnamesorted::Cuint
+    presolssorted::Cuint
+    presolsnamesorted::Cuint
+    relaxssorted::Cuint
+    relaxsnamesorted::Cuint
+    sepassorted::Cuint
+    sepasnamesorted::Cuint
+    cutselssorted::Cuint
+    propssorted::Cuint
+    propspresolsorted::Cuint
+    propsnamesorted::Cuint
+    heurssorted::Cuint
+    heursnamesorted::Cuint
+    comprssorted::Cuint
+    comprsnamesorted::Cuint
+    branchrulessorted::Cuint
+    branchrulesnamesorted::Cuint
+    iisfinderssorted::Cuint
+    tablessorted::Cuint
+    exprhdlrssorted::Cuint
+    nlpissorted::Cuint
+    benderssorted::Cuint
+    bendersnamesorted::Cuint
+    limitchanged::Cuint
+    subscipsoff::Cuint
+    branch_scorefunc::Cchar
+    branch_firstsbchild::Cchar
+    branch_scorefac::Cdouble
+    branch_preferbinary::Cuint
+    branch_clamp::Cdouble
+    branch_midpull::Cdouble
+    branch_midpullreldomtrig::Cdouble
+    branch_lpgainnorm::Cchar
+    branch_delaypscost::Cuint
+    branch_divingpscost::Cuint
+    branch_collectancpscost::Cuint
+    branch_forceall::Cuint
+    branch_checksbsol::Cuint
+    branch_roundsbsol::Cuint
+    branch_sumadjustscore::Cuint
+    conf_maxvarsfac::Cdouble
+    conf_maxvarsfracres::Cdouble
+    conf_minmaxvars::Cint
+    conf_maxlploops::Cint
+    conf_lpiterations::Cint
+    conf_fuiplevels::Cint
+    conf_resfuiplevels::Cint
+    conf_interconss::Cint
+    conf_maxconss::Cint
+    conf_maxstoresize::Cint
+    conf_reconvlevels::Cint
+    conf_enable::Cuint
+    conf_cleanbnddepend::Cuint
+    conf_useprop::Cuint
+    conf_usegenres::Cuint
+    conf_useinflp::Cchar
+    conf_useboundlp::Cchar
+    conf_usesb::Cuint
+    conf_reduction::Cchar
+    conf_mbreduction::Cuint
+    conf_usepseudo::Cuint
+    conf_prefinfproof::Cuint
+    conf_preferbinary::Cuint
+    conf_allowlocal::Cuint
+    conf_settlelocal::Cuint
+    conf_repropagate::Cuint
+    conf_keepreprop::Cuint
+    conf_separate::Cuint
+    conf_dynamic::Cuint
+    conf_removable::Cuint
+    conf_depthscorefac::Cdouble
+    conf_proofscorefac::Cdouble
+    conf_uplockscorefac::Cdouble
+    conf_downlockscorefac::Cdouble
+    conf_scorefac::Cdouble
+    conf_restartnum::Cint
+    conf_restartfac::Cdouble
+    conf_ignorerelaxedbd::Cuint
+    conf_maxvarsdetectimpliedbounds::Cint
+    conf_fullshortenconflict::Cuint
+    conf_conflictweight::Cdouble
+    conf_conflictgraphweight::Cdouble
+    conf_weightsize::Cdouble
+    conf_weightrepropdepth::Cdouble
+    conf_weightvaliddepth::Cdouble
+    conf_sepaaltproofs::Cuint
+    conf_minimprove::Cdouble
+    conf_uselocalrows::Cuint
+    conf_maxcoefquot::Cdouble
+    conf_fixandcontinue::Cuint
+    cons_agelimit::Cint
+    cons_obsoleteage::Cint
+    cons_disableenfops::Cuint
+    disp_verblevel::SCIP_VERBLEVEL
+    disp_width::Cint
+    disp_freq::Cint
+    disp_headerfreq::Cint
+    disp_lpinfo::Cuint
+    disp_allviols::Cuint
+    disp_relevantstats::Cuint
+    heur_useuctsubscip::Cuint
+    history_valuebased::Cuint
+    history_allowmerge::Cuint
+    history_allowtransfer::Cuint
+    iisfinder_irreducible::Cuint
+    iisfinder_removebounds::Cuint
+    iisfinder_silent::Cuint
+    iisfinder_stopafterone::Cuint
+    iisfinder_removeunusedvars::Cuint
+    iisfinder_time::Cdouble
+    iisfinder_nodes::Clonglong
+    limit_time::Cdouble
+    limit_memory::Cdouble
+    limit_gap::Cdouble
+    limit_absgap::Cdouble
+    limit_primal::Cdouble
+    limit_dual::Cdouble
+    limit_nodes::Clonglong
+    limit_totalnodes::Clonglong
+    limit_stallnodes::Clonglong
+    limit_solutions::Cint
+    limit_bestsol::Cint
+    limit_maxsol::Cint
+    limit_maxorigsol::Cint
+    limit_restarts::Cint
+    limit_autorestartnodes::Cint
+    istimelimitfinite::Cuint
+    lp_solvefreq::Cint
+    lp_iterlim::Clonglong
+    lp_rootiterlim::Clonglong
+    lp_solvedepth::Cint
+    lp_minsolvedepth::Cint
+    lp_initalgorithm::Cchar
+    lp_resolvealgorithm::Cchar
+    lp_pricing::Cchar
+    lp_clearinitialprobinglp::Cuint
+    lp_resolverestore::Cuint
+    lp_freesolvalbuffers::Cuint
+    lp_colagelimit::Cint
+    lp_rowagelimit::Cint
+    lp_cleanupcols::Cuint
+    lp_cleanupcolsroot::Cuint
+    lp_cleanuprows::Cuint
+    lp_cleanuprowsroot::Cuint
+    lp_checkstability::Cuint
+    lp_conditionlimit::Cdouble
+    lp_markowitz::Cdouble
+    lp_checkprimfeas::Cuint
+    lp_checkdualfeas::Cuint
+    lp_checkfarkas::Cuint
+    lp_fastmip::Cint
+    lp_scaling::Cint
+    lp_presolving::Cuint
+    lp_lexdualalgo::Cuint
+    lp_lexdualrootonly::Cuint
+    lp_lexdualmaxrounds::Cint
+    lp_lexdualbasic::Cuint
+    lp_lexdualstalling::Cuint
+    lp_disablecutoff::Cint
+    lp_rowrepswitch::Cdouble
+    lp_threads::Cint
+    lp_resolveiterfac::Cdouble
+    lp_resolveitermin::Cint
+    lp_solutionpolishing::Cint
+    lp_refactorinterval::Cint
+    lp_alwaysgetduals::Cuint
+    nlp_disable::Cuint
+    nlp_solver::Ptr{Cchar}
+    mem_savefac::Cdouble
+    mem_arraygrowfac::Cdouble
+    mem_treegrowfac::Cdouble
+    mem_pathgrowfac::Cdouble
+    mem_arraygrowinit::Cint
+    mem_treegrowinit::Cint
+    mem_pathgrowinit::Cint
+    misc_catchctrlc::Cuint
+    misc_usevartable::Cuint
+    misc_useconstable::Cuint
+    misc_usesmalltables::Cuint
+    misc_resetstat::Cuint
+    misc_improvingsols::Cuint
+    misc_printreason::Cuint
+    misc_estimexternmem::Cuint
+    misc_avoidmemout::Cuint
+    misc_transorigsols::Cuint
+    misc_transsolsorig::Cuint
+    misc_calcintegral::Cuint
+    misc_finitesolstore::Cuint
+    misc_outputorigsol::Cuint
+    misc_allowstrongdualreds::Cuint
+    misc_allowweakdualreds::Cuint
+    misc_referencevalue::Cdouble
+    misc_usesymmetry::Cint
+    misc_debugsol::Ptr{Cchar}
+    misc_scaleobj::Cuint
+    misc_showdivingstats::Cuint
+    random_randomseedshift::Cint
+    random_randomseedshiftmultiplier::Cint
+    random_permutationseed::Cint
+    random_randomseed::Cint
+    random_permuteconss::Cuint
+    random_permutevars::Cuint
+    nodesel_childsel::Cchar
+    num_infinity::Cdouble
+    num_epsilon::Cdouble
+    num_sumepsilon::Cdouble
+    num_feastol::Cdouble
+    num_checkfeastolfac::Cdouble
+    num_lpfeastolfactor::Cdouble
+    num_dualfeastol::Cdouble
+    num_barrierconvtol::Cdouble
+    num_boundstreps::Cdouble
+    num_pseudocosteps::Cdouble
+    num_pseudocostdelta::Cdouble
+    num_recompfac::Cdouble
+    num_hugeval::Cdouble
+    num_relaxfeastol::Cdouble
+    presol_abortfac::Cdouble
+    presol_maxrounds::Cint
+    presol_maxrestarts::Cint
+    presol_clqtablefac::Cdouble
+    presol_restartfac::Cdouble
+    presol_immrestartfac::Cdouble
+    presol_subrestartfac::Cdouble
+    presol_restartminred::Cdouble
+    presol_donotmultaggr::Cuint
+    presol_donotaggr::Cuint
+    price_abortfac::Cdouble
+    price_maxvars::Cint
+    price_maxvarsroot::Cint
+    price_delvars::Cuint
+    price_delvarsroot::Cuint
+    decomp_benderslabels::Cuint
+    decomp_applybenders::Cuint
+    decomp_maxgraphedge::Cint
+    decomp_disablemeasures::Cuint
+    benders_soltol::Cdouble
+    benders_cutlpsol::Cuint
+    benders_copybenders::Cuint
+    prop_maxrounds::Cint
+    prop_maxroundsroot::Cint
+    prop_abortoncutoff::Cuint
+    reopt_objsimsol::Cdouble
+    reopt_objsimrootlp::Cdouble
+    reopt_objsimdelay::Cdouble
+    reopt_varorderinterdiction::Cchar
+    reopt_forceheurrestart::Cint
+    reopt_maxcutage::Cint
+    reopt_maxdiffofnodes::Cint
+    reopt_maxsavednodes::Cint
+    reopt_solvelp::Cint
+    reopt_solvelpdiff::Cint
+    reopt_savesols::Cint
+    reopt_commontimelimit::Cuint
+    reopt_enable::Cuint
+    reopt_reducetofrontier::Cuint
+    reopt_saveprop::Cuint
+    reopt_sbinit::Cuint
+    reopt_shrinkinner::Cuint
+    reopt_sepaglbinfsubtrees::Cuint
+    reopt_sepabestsol::Cuint
+    reopt_storevarhistory::Cuint
+    reopt_usepscost::Cuint
+    reopt_usecuts::Cuint
+    reopt_usesplitcons::Cuint
+    sepa_maxbounddist::Cdouble
+    sepa_maxlocalbounddist::Cdouble
+    sepa_maxcoefratio::Cdouble
+    sepa_maxcoefratiofacrowprep::Cdouble
+    sepa_minefficacy::Cdouble
+    sepa_minefficacyroot::Cdouble
+    sepa_minortho::Cdouble
+    sepa_minorthoroot::Cdouble
+    sepa_minactivityquot::Cdouble
+    sepa_orthofunc::Cchar
+    sepa_efficacynorm::Cchar
+    sepa_cutselrestart::Cchar
+    sepa_cutselsubscip::Cchar
+    sepa_filtercutpoolrel::Cuint
+    sepa_maxruns::Cint
+    sepa_maxrounds::Cint
+    sepa_maxroundsroot::Cint
+    sepa_maxroundsrootsubrun::Cint
+    sepa_maxaddrounds::Cint
+    sepa_maxstallrounds::Cint
+    sepa_maxstallroundsroot::Cint
+    sepa_maxcutsgenfactor::Cdouble
+    sepa_maxcutsrootgenfactor::Cdouble
+    sepa_maxcuts::Cint
+    sepa_maxcutsroot::Cint
+    sepa_cutagelimit::Cint
+    sepa_poolfreq::Cint
+    parallel_mode::Cint
+    parallel_minnthreads::Cint
+    parallel_maxnthreads::Cint
+    concurrent_changeseeds::Cuint
+    concurrent_changechildsel::Cuint
+    concurrent_commvarbnds::Cuint
+    concurrent_presolvebefore::Cuint
+    concurrent_initseed::Cint
+    concurrent_freqinit::Cdouble
+    concurrent_freqmax::Cdouble
+    concurrent_freqfactor::Cdouble
+    concurrent_targetprogress::Cdouble
+    concurrent_maxnsols::Cint
+    concurrent_nbestsols::Cint
+    concurrent_maxnsyncdelay::Cint
+    concurrent_minsyncdelay::Cdouble
+    concurrent_paramsetprefix::Ptr{Cchar}
+    time_clocktype::SCIP_CLOCKTYPE
+    time_enabled::Cuint
+    time_reading::Cuint
+    time_rareclockcheck::Cuint
+    time_statistictiming::Cuint
+    time_nlpieval::Cuint
+    compr_enable::Cuint
+    compr_time::Cdouble
+    visual_vbcfilename::Ptr{Cchar}
+    visual_bakfilename::Ptr{Cchar}
+    visual_realtime::Cuint
+    visual_dispsols::Cuint
+    visual_displb::Cuint
+    visual_objextern::Cuint
+    exact_enable::Cuint
+    exact_improvingsols::Cuint
+    exact_interleavedbstrat::Cint
+    exact_safedbmethod::Cchar
+    exact_psdualcolselection::Cint
+    exact_lpinfo::Cuint
+    exact_allownegslack::Cuint
+    exact_cutmaxdenom::Clonglong
+    exact_cutapproxmaxboundval::Clonglong
+    certificate_filename::Ptr{Cchar}
+    certificate_maxfilesize::Cdouble
+    read_initialconss::Cuint
+    read_dynamicconss::Cuint
+    read_dynamiccols::Cuint
+    read_dynamicrows::Cuint
+    write_allconss::Cuint
+    write_printzeros::Cuint
+    write_genoffset::Cint
+    write_implintlevel::Cint
+end
 
 const SCIP_SET = SCIP_Set
 
@@ -2170,23 +3647,29 @@ end
 
 const SCIP_SOLTYPE = SCIP_SolType
 
+const SCIP_ValsExact = Cvoid
+
+const SCIP_VALSEXACT = SCIP_ValsExact
+
 @enum SCIP_Status::UInt32 begin
     SCIP_STATUS_UNKNOWN = 0
-    SCIP_STATUS_USERINTERRUPT = 1
-    SCIP_STATUS_NODELIMIT = 2
-    SCIP_STATUS_TOTALNODELIMIT = 3
-    SCIP_STATUS_STALLNODELIMIT = 4
-    SCIP_STATUS_TIMELIMIT = 5
-    SCIP_STATUS_MEMLIMIT = 6
-    SCIP_STATUS_GAPLIMIT = 7
-    SCIP_STATUS_SOLLIMIT = 8
-    SCIP_STATUS_BESTSOLLIMIT = 9
-    SCIP_STATUS_RESTARTLIMIT = 10
-    SCIP_STATUS_OPTIMAL = 11
-    SCIP_STATUS_INFEASIBLE = 12
-    SCIP_STATUS_UNBOUNDED = 13
-    SCIP_STATUS_INFORUNBD = 14
-    SCIP_STATUS_TERMINATE = 15
+    SCIP_STATUS_OPTIMAL = 1
+    SCIP_STATUS_INFEASIBLE = 2
+    SCIP_STATUS_UNBOUNDED = 3
+    SCIP_STATUS_INFORUNBD = 4
+    SCIP_STATUS_USERINTERRUPT = 10
+    SCIP_STATUS_TERMINATE = 11
+    SCIP_STATUS_NODELIMIT = 20
+    SCIP_STATUS_TOTALNODELIMIT = 21
+    SCIP_STATUS_STALLNODELIMIT = 22
+    SCIP_STATUS_TIMELIMIT = 23
+    SCIP_STATUS_MEMLIMIT = 24
+    SCIP_STATUS_GAPLIMIT = 25
+    SCIP_STATUS_PRIMALLIMIT = 26
+    SCIP_STATUS_DUALLIMIT = 27
+    SCIP_STATUS_SOLLIMIT = 28
+    SCIP_STATUS_BESTSOLLIMIT = 29
+    SCIP_STATUS_RESTARTLIMIT = 30
 end
 
 const SCIP_STATUS = SCIP_Status
@@ -2205,10 +3688,6 @@ const SCIP_PARALLELMODE = SCIP_Parallelmode
 const SCIP_BoundStore = Cvoid
 
 const SCIP_BOUNDSTORE = SCIP_BoundStore
-
-const SCIP_Table = Cvoid
-
-const SCIP_TABLE = SCIP_Table
 
 const SCIP_TableData = Cvoid
 
@@ -2230,45 +3709,325 @@ end
 
 const SCIP_NODETYPE = SCIP_NodeType
 
-const SCIP_Probingnode = Cvoid
+const SCIP_LPiNorms = Cvoid
+
+const SCIP_LPINORMS = SCIP_LPiNorms
+
+struct SCIP_Probingnode
+    lpistate::Ptr{SCIP_LPISTATE}
+    lpinorms::Ptr{SCIP_LPINORMS}
+    ninitialcols::Cint
+    ninitialrows::Cint
+    ncols::Cint
+    nrows::Cint
+    origobjvars::Ptr{Ptr{SCIP_VAR}}
+    origobjvals::Ptr{Cdouble}
+    nchgdobjs::Cint
+    lpwasprimfeas::Cuint
+    lpwasprimchecked::Cuint
+    lpwasdualfeas::Cuint
+    lpwasdualchecked::Cuint
+end
 
 const SCIP_PROBINGNODE = SCIP_Probingnode
 
-const SCIP_Sibling = Cvoid
+struct SCIP_Sibling
+    arraypos::Cint
+end
 
 const SCIP_SIBLING = SCIP_Sibling
 
-const SCIP_Child = Cvoid
+struct SCIP_Child
+    arraypos::Cint
+end
 
 const SCIP_CHILD = SCIP_Child
 
-const SCIP_Leaf = Cvoid
+struct SCIP_Leaf
+    lpstatefork::Ptr{SCIP_NODE}
+end
 
 const SCIP_LEAF = SCIP_Leaf
 
-const SCIP_Junction = Cvoid
+struct SCIP_Junction
+    nchildren::Cint
+end
 
 const SCIP_JUNCTION = SCIP_Junction
 
-const SCIP_Pseudofork = Cvoid
+struct SCIP_Pseudofork
+    addedcols::Ptr{Ptr{SCIP_COL}}
+    addedrows::Ptr{Ptr{SCIP_ROW}}
+    naddedcols::Cint
+    naddedrows::Cint
+    nchildren::Cint
+end
 
 const SCIP_PSEUDOFORK = SCIP_Pseudofork
 
-const SCIP_Fork = Cvoid
+struct SCIP_Fork
+    data::NTuple{48,UInt8}
+end
+
+function Base.getproperty(x::Ptr{SCIP_Fork}, f::Symbol)
+    f === :addedcols && return Ptr{Ptr{Ptr{SCIP_COL}}}(x + 0)
+    f === :addedrows && return Ptr{Ptr{Ptr{SCIP_ROW}}}(x + 8)
+    f === :lpistate && return Ptr{Ptr{SCIP_LPISTATE}}(x + 16)
+    f === :lpobjval && return Ptr{Cdouble}(x + 24)
+    f === :naddedcols && return Ptr{Cint}(x + 32)
+    f === :naddedrows && return Ptr{Cint}(x + 36)
+    f === :nlpistateref && return Ptr{Cint}(x + 40)
+    f === :nchildren && return (Ptr{Cuint}(x + 44), 0, 28)
+    f === :lpwasprimfeas && return (Ptr{Cuint}(x + 44), 28, 1)
+    f === :lpwasprimchecked && return (Ptr{Cuint}(x + 44), 29, 1)
+    f === :lpwasdualfeas && return (Ptr{Cuint}(x + 44), 30, 1)
+    f === :lpwasdualchecked && return (Ptr{Cuint}(x + 44), 31, 1)
+    return getfield(x, f)
+end
+
+function Base.getproperty(x::SCIP_Fork, f::Symbol)
+    r = Ref{SCIP_Fork}(x)
+    ptr = Base.unsafe_convert(Ptr{SCIP_Fork}, r)
+    fptr = getproperty(ptr, f)
+    begin
+        if fptr isa Ptr
+            return GC.@preserve(r, unsafe_load(fptr))
+        else
+            (baseptr, offset, width) = fptr
+            ty = eltype(baseptr)
+            baseptr32 = convert(Ptr{UInt32}, baseptr)
+            u64 = GC.@preserve(r, unsafe_load(baseptr32))
+            if offset + width > 32
+                u64 |= GC.@preserve(r, unsafe_load(baseptr32 + 4)) << 32
+            end
+            u64 = u64 >> offset & (1 << width - 1)
+            return u64 % ty
+        end
+    end
+end
+
+function Base.setproperty!(x::Ptr{SCIP_Fork}, f::Symbol, v)
+    fptr = getproperty(x, f)
+    if fptr isa Ptr
+        unsafe_store!(getproperty(x, f), v)
+    else
+        (baseptr, offset, width) = fptr
+        baseptr32 = convert(Ptr{UInt32}, baseptr)
+        u64 = unsafe_load(baseptr32)
+        straddle = offset + width > 32
+        if straddle
+            u64 |= unsafe_load(baseptr32 + 4) << 32
+        end
+        mask = 1 << width - 1
+        u64 &= ~(mask << offset)
+        u64 |= (unsigned(v) & mask) << offset
+        unsafe_store!(baseptr32, u64 & typemax(UInt32))
+        if straddle
+            unsafe_store!(baseptr32 + 4, u64 >> 32)
+        end
+    end
+end
+
+function Base.propertynames(x::SCIP_Fork, private::Bool=false)
+    (
+        :addedcols,
+        :addedrows,
+        :lpistate,
+        :lpobjval,
+        :naddedcols,
+        :naddedrows,
+        :nlpistateref,
+        :nchildren,
+        :lpwasprimfeas,
+        :lpwasprimchecked,
+        :lpwasdualfeas,
+        :lpwasdualchecked,
+        if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...,
+    )
+end
 
 const SCIP_FORK = SCIP_Fork
 
-const SCIP_Subroot = Cvoid
+struct SCIP_Subroot
+    data::NTuple{56,UInt8}
+end
+
+function Base.getproperty(x::Ptr{SCIP_Subroot}, f::Symbol)
+    f === :cols && return Ptr{Ptr{Ptr{SCIP_COL}}}(x + 0)
+    f === :rows && return Ptr{Ptr{Ptr{SCIP_ROW}}}(x + 8)
+    f === :lpistate && return Ptr{Ptr{SCIP_LPISTATE}}(x + 16)
+    f === :lpobjval && return Ptr{Cdouble}(x + 24)
+    f === :ncols && return Ptr{Cint}(x + 32)
+    f === :nrows && return Ptr{Cint}(x + 36)
+    f === :nlpistateref && return Ptr{Cint}(x + 40)
+    f === :nchildren && return (Ptr{Cuint}(x + 44), 0, 30)
+    f === :lpwasprimfeas && return (Ptr{Cuint}(x + 44), 30, 1)
+    f === :lpwasprimchecked && return (Ptr{Cuint}(x + 44), 31, 1)
+    f === :lpwasdualfeas && return (Ptr{Cuint}(x + 48), 0, 1)
+    f === :lpwasdualchecked && return (Ptr{Cuint}(x + 48), 1, 1)
+    return getfield(x, f)
+end
+
+function Base.getproperty(x::SCIP_Subroot, f::Symbol)
+    r = Ref{SCIP_Subroot}(x)
+    ptr = Base.unsafe_convert(Ptr{SCIP_Subroot}, r)
+    fptr = getproperty(ptr, f)
+    begin
+        if fptr isa Ptr
+            return GC.@preserve(r, unsafe_load(fptr))
+        else
+            (baseptr, offset, width) = fptr
+            ty = eltype(baseptr)
+            baseptr32 = convert(Ptr{UInt32}, baseptr)
+            u64 = GC.@preserve(r, unsafe_load(baseptr32))
+            if offset + width > 32
+                u64 |= GC.@preserve(r, unsafe_load(baseptr32 + 4)) << 32
+            end
+            u64 = u64 >> offset & (1 << width - 1)
+            return u64 % ty
+        end
+    end
+end
+
+function Base.setproperty!(x::Ptr{SCIP_Subroot}, f::Symbol, v)
+    fptr = getproperty(x, f)
+    if fptr isa Ptr
+        unsafe_store!(getproperty(x, f), v)
+    else
+        (baseptr, offset, width) = fptr
+        baseptr32 = convert(Ptr{UInt32}, baseptr)
+        u64 = unsafe_load(baseptr32)
+        straddle = offset + width > 32
+        if straddle
+            u64 |= unsafe_load(baseptr32 + 4) << 32
+        end
+        mask = 1 << width - 1
+        u64 &= ~(mask << offset)
+        u64 |= (unsigned(v) & mask) << offset
+        unsafe_store!(baseptr32, u64 & typemax(UInt32))
+        if straddle
+            unsafe_store!(baseptr32 + 4, u64 >> 32)
+        end
+    end
+end
+
+function Base.propertynames(x::SCIP_Subroot, private::Bool=false)
+    (
+        :cols,
+        :rows,
+        :lpistate,
+        :lpobjval,
+        :ncols,
+        :nrows,
+        :nlpistateref,
+        :nchildren,
+        :lpwasprimfeas,
+        :lpwasprimchecked,
+        :lpwasdualfeas,
+        :lpwasdualchecked,
+        if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...,
+    )
+end
 
 const SCIP_SUBROOT = SCIP_Subroot
 
-const SCIP_PendingBdchg = Cvoid
+struct SCIP_PendingBdchg
+    node::Ptr{SCIP_NODE}
+    var::Ptr{SCIP_VAR}
+    newbound::Cdouble
+    newboundexact::Ptr{SCIP_RATIONAL}
+    boundtype::SCIP_BOUNDTYPE
+    infercons::Ptr{SCIP_CONS}
+    inferprop::Ptr{SCIP_PROP}
+    inferinfo::Cint
+    probingchange::Cuint
+end
 
 const SCIP_PENDINGBDCHG = SCIP_PendingBdchg
 
-const SCIP_Tree = Cvoid
+struct SCIP_Tree
+    root::Ptr{SCIP_NODE}
+    leaves::Ptr{SCIP_NODEPQ}
+    path::Ptr{Ptr{SCIP_NODE}}
+    focusnode::Ptr{SCIP_NODE}
+    focuslpfork::Ptr{SCIP_NODE}
+    focuslpstatefork::Ptr{SCIP_NODE}
+    focussubroot::Ptr{SCIP_NODE}
+    probingroot::Ptr{SCIP_NODE}
+    children::Ptr{Ptr{SCIP_NODE}}
+    siblings::Ptr{Ptr{SCIP_NODE}}
+    childrenprio::Ptr{Cdouble}
+    siblingsprio::Ptr{Cdouble}
+    divebdchgvars::NTuple{2,Ptr{Ptr{SCIP_VAR}}}
+    divebdchgdirs::NTuple{2,Ptr{SCIP_BRANCHDIR}}
+    divebdchgvals::NTuple{2,Ptr{Cdouble}}
+    pathnlpcols::Ptr{Cint}
+    pathnlprows::Ptr{Cint}
+    probinglpistate::Ptr{SCIP_LPISTATE}
+    focuslpistate::Ptr{SCIP_LPISTATE}
+    probinglpinorms::Ptr{SCIP_LPINORMS}
+    pendingbdchgs::Ptr{SCIP_PENDINGBDCHG}
+    probdiverelaxsol::Ptr{Cdouble}
+    probinglpobjval::Cdouble
+    nprobdiverelaxsol::Cint
+    focuslpstateforklpcount::Clonglong
+    lastbranchparentid::Clonglong
+    divebdchgsize::NTuple{2,Cint}
+    ndivebdchanges::NTuple{2,Cint}
+    pendingbdchgssize::Cint
+    npendingbdchgs::Cint
+    childrensize::Cint
+    nchildren::Cint
+    siblingssize::Cint
+    nsiblings::Cint
+    pathlen::Cint
+    pathsize::Cint
+    effectiverootdepth::Cint
+    updatedeffectiverootdepth::Cint
+    correctlpdepth::Cint
+    cutoffdepth::Cint
+    repropdepth::Cint
+    repropsubtreecount::Cint
+    probingsumchgdobjs::Cint
+    focusnodehaslp::Cuint
+    probingnodehaslp::Cuint
+    focuslpconstructed::Cuint
+    cutoffdelayed::Cuint
+    probinglpwasflushed::Cuint
+    probinglpwassolved::Cuint
+    probingloadlpistate::Cuint
+    probinglpwasrelax::Cuint
+    probingsolvedlp::Cuint
+    forcinglpmessage::Cuint
+    probingobjchanged::Cuint
+    sbprobing::Cuint
+    probinglpwasprimfeas::Cuint
+    probinglpwasprimchecked::Cuint
+    probinglpwasdualfeas::Cuint
+    probinglpwasdualchecked::Cuint
+    probinglphadsafebound::Cuint
+    probdiverelaxstored::Cuint
+    probdiverelaxincludeslp::Cuint
+end
 
 const SCIP_TREE = SCIP_Tree
+
+@enum SCIP_Vartype::UInt32 begin
+    SCIP_VARTYPE_BINARY = 0
+    SCIP_VARTYPE_INTEGER = 1
+    SCIP_VARTYPE_IMPLINT = 2
+    SCIP_VARTYPE_CONTINUOUS = 3
+end
+
+const SCIP_VARTYPE = SCIP_Vartype
 
 const SCIP_VarData = Cvoid
 
@@ -2285,15 +4044,6 @@ const SCIP_VARDATA = SCIP_VarData
 end
 
 const SCIP_VARSTATUS = SCIP_Varstatus
-
-@enum SCIP_Vartype::UInt32 begin
-    SCIP_VARTYPE_BINARY = 0
-    SCIP_VARTYPE_INTEGER = 1
-    SCIP_VARTYPE_IMPLINT = 2
-    SCIP_VARTYPE_CONTINUOUS = 3
-end
-
-const SCIP_VARTYPE = SCIP_Vartype
 
 @enum SCIP_DomchgType::UInt32 begin
     SCIP_DOMCHGTYPE_DYNAMIC = 0
@@ -2322,10 +4072,6 @@ const SCIP_DOMCHGBOTH = SCIP_DomChgBoth
 const SCIP_DomChgDyn = Cvoid
 
 const SCIP_DOMCHGDYN = SCIP_DomChgDyn
-
-const SCIP_DomChg = Cvoid
-
-const SCIP_DOMCHG = SCIP_DomChg
 
 const SCIP_BoundChg = Cvoid
 
@@ -2359,17 +4105,37 @@ const SCIP_Original = Cvoid
 
 const SCIP_ORIGINAL = SCIP_Original
 
+const SCIP_Loose = Cvoid
+
+const SCIP_LOOSE = SCIP_Loose
+
 const SCIP_Aggregate = Cvoid
 
 const SCIP_AGGREGATE = SCIP_Aggregate
+
+const SCIP_AggregateExact = Cvoid
+
+const SCIP_AGGREGATEEXACT = SCIP_AggregateExact
 
 const SCIP_Multaggr = Cvoid
 
 const SCIP_MULTAGGR = SCIP_Multaggr
 
+const SCIP_MultaggrExact = Cvoid
+
+const SCIP_MULTAGGREXACT = SCIP_MultaggrExact
+
 const SCIP_Negate = Cvoid
 
 const SCIP_NEGATE = SCIP_Negate
+
+const SCIP_VarDataExact = Cvoid
+
+const SCIP_VARDATAEXACT = SCIP_VarDataExact
+
+const SCIP_DomExact = Cvoid
+
+const SCIP_DOMEXACT = SCIP_DomExact
 
 @enum SCIP_VBCColor::Int32 begin
     SCIP_VBCCOLOR_UNSOLVED = 3
@@ -3368,6 +5134,23 @@ function SCIPsolveNlpiParam(scip, nlpi, problem, param)
     )
 end
 
+function BMSreallocBufferMemory_call(buffer, ptr, size, filename, line)
+    ccall(
+        (:BMSreallocBufferMemory_call, libscip),
+        Ptr{Cvoid},
+        (Ptr{BMS_BUFMEM}, Ptr{Cvoid}, Csize_t, Ptr{Cchar}, Cint),
+        buffer,
+        ptr,
+        size,
+        filename,
+        line,
+    )
+end
+
+const SCIP_LPiExact = Cvoid
+
+const SCIP_LPIEXACT = SCIP_LPiExact
+
 function SCIPshrinkDisjunctiveVarSet(
     scip,
     vars,
@@ -3497,6 +5280,27 @@ function SCIPaggrRowAddRow(scip, aggrrow, row, weight, sidetype)
     )
 end
 
+function SCIPaggrRowAddRowSafely(scip, aggrrow, row, weight, sidetype, success)
+    ccall(
+        (:SCIPaggrRowAddRowSafely, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP},
+            Ptr{SCIP_AGGRROW},
+            Ptr{SCIP_ROW},
+            Cdouble,
+            Cint,
+            Ptr{Cuint},
+        ),
+        scip,
+        aggrrow,
+        row,
+        weight,
+        sidetype,
+        success,
+    )
+end
+
 function SCIPaggrRowCancelVarWithBound(scip, aggrrow, var, pos, valid)
     ccall(
         (:SCIPaggrRowCancelVarWithBound, libscip),
@@ -3513,6 +5317,18 @@ end
 function SCIPaggrRowAddObjectiveFunction(scip, aggrrow, rhs, scale)
     ccall(
         (:SCIPaggrRowAddObjectiveFunction, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_AGGRROW}, Cdouble, Cdouble),
+        scip,
+        aggrrow,
+        rhs,
+        scale,
+    )
+end
+
+function SCIPaggrRowAddObjectiveFunctionSafely(scip, aggrrow, rhs, scale)
+    ccall(
+        (:SCIPaggrRowAddObjectiveFunctionSafely, libscip),
         SCIP_RETCODE,
         (Ptr{SCIP}, Ptr{SCIP_AGGRROW}, Cdouble, Cdouble),
         scip,
@@ -3571,6 +5387,15 @@ end
 
 function SCIPaggrRowClear(aggrrow)
     ccall((:SCIPaggrRowClear, libscip), Cvoid, (Ptr{SCIP_AGGRROW},), aggrrow)
+end
+
+function SCIPaggrRowClearSafely(aggrrow)
+    ccall(
+        (:SCIPaggrRowClearSafely, libscip),
+        Cvoid,
+        (Ptr{SCIP_AGGRROW},),
+        aggrrow,
+    )
 end
 
 function SCIPaggrRowSumRows(
@@ -3687,6 +5512,16 @@ function SCIPaggrRowGetValue(aggrrow, i)
     )
 end
 
+function SCIPaggrRowGetValueSafely(aggrrow, i)
+    ccall(
+        (:SCIPaggrRowGetValueSafely, libscip),
+        Cdouble,
+        (Ptr{SCIP_AGGRROW}, Cint),
+        aggrrow,
+        i,
+    )
+end
+
 function SCIPaggrRowGetProbvarValue(aggrrow, probindex)
     ccall(
         (:SCIPaggrRowGetProbvarValue, libscip),
@@ -3718,7 +5553,7 @@ function SCIPcalcMIR(
     sol,
     postprocess,
     boundswitch,
-    usevbds,
+    vartypeusevbds,
     allowlocal,
     fixintegralrhs,
     boundsfortrans,
@@ -3744,7 +5579,7 @@ function SCIPcalcMIR(
             Ptr{SCIP_SOL},
             Cuint,
             Cdouble,
-            Cuint,
+            Cint,
             Cuint,
             Cuint,
             Ptr{Cint},
@@ -3766,7 +5601,7 @@ function SCIPcalcMIR(
         sol,
         postprocess,
         boundswitch,
-        usevbds,
+        vartypeusevbds,
         allowlocal,
         fixintegralrhs,
         boundsfortrans,
@@ -3791,7 +5626,7 @@ function SCIPcutGenerationHeuristicCMIR(
     sol,
     postprocess,
     boundswitch,
-    usevbds,
+    vartypeusevbds,
     allowlocal,
     maxtestdelta,
     boundsfortrans,
@@ -3816,7 +5651,7 @@ function SCIPcutGenerationHeuristicCMIR(
             Ptr{SCIP_SOL},
             Cuint,
             Cdouble,
-            Cuint,
+            Cint,
             Cuint,
             Cint,
             Ptr{Cint},
@@ -3837,7 +5672,7 @@ function SCIPcutGenerationHeuristicCMIR(
         sol,
         postprocess,
         boundswitch,
-        usevbds,
+        vartypeusevbds,
         allowlocal,
         maxtestdelta,
         boundsfortrans,
@@ -3959,7 +5794,7 @@ function SCIPcalcStrongCG(
     sol,
     postprocess,
     boundswitch,
-    usevbds,
+    vartypeusevbds,
     allowlocal,
     minfrac,
     maxfrac,
@@ -3982,7 +5817,7 @@ function SCIPcalcStrongCG(
             Ptr{SCIP_SOL},
             Cuint,
             Cdouble,
-            Cuint,
+            Cint,
             Cuint,
             Cdouble,
             Cdouble,
@@ -4001,7 +5836,7 @@ function SCIPcalcStrongCG(
         sol,
         postprocess,
         boundswitch,
-        usevbds,
+        vartypeusevbds,
         allowlocal,
         minfrac,
         maxfrac,
@@ -4026,6 +5861,8 @@ function SCIPperformGenericDivingAlgorithm(
     result,
     nodeinfeasible,
     iterlim,
+    nodelimit,
+    lpresolvedomchgquot,
     divecontext,
 )
     ccall(
@@ -4039,6 +5876,8 @@ function SCIPperformGenericDivingAlgorithm(
             Ptr{SCIP_RESULT},
             Cuint,
             Clonglong,
+            Cint,
+            Cdouble,
             SCIP_DIVECONTEXT,
         ),
         scip,
@@ -4048,6 +5887,8 @@ function SCIPperformGenericDivingAlgorithm(
         result,
         nodeinfeasible,
         iterlim,
+        nodelimit,
+        lpresolvedomchgquot,
         divecontext,
     )
 end
@@ -4096,8 +5937,8 @@ function SCIPcopyLargeNeighborhoodSearch(
 end
 
 function SCIPaddTrustregionNeighborhoodConstraint(
-    scip,
-    subscip,
+    sourcescip,
+    targetscip,
     subvars,
     violpenalty,
 )
@@ -4105,8 +5946,8 @@ function SCIPaddTrustregionNeighborhoodConstraint(
         (:SCIPaddTrustregionNeighborhoodConstraint, libscip),
         SCIP_RETCODE,
         (Ptr{SCIP}, Ptr{SCIP}, Ptr{Ptr{SCIP_VAR}}, Cdouble),
-        scip,
-        subscip,
+        sourcescip,
+        targetscip,
         subvars,
         violpenalty,
     )
@@ -4502,6 +6343,17 @@ function SCIPsetBendersPriority(scip, benders, priority)
     )
 end
 
+function SCIPsetBendersObjectiveType(scip, benders, objectivetype)
+    ccall(
+        (:SCIPsetBendersObjectiveType, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_BENDERS}, SCIP_BENDERSOBJTYPE),
+        scip,
+        benders,
+        objectivetype,
+    )
+end
+
 function SCIPsolveBendersSubproblems(
     scip,
     benders,
@@ -4715,16 +6567,6 @@ function SCIPmergeBendersSubproblemIntoMaster(
         varmap,
         consmap,
         probnumber,
-    )
-end
-
-function SCIPapplyBendersDecomposition(scip, decompindex)
-    ccall(
-        (:SCIPapplyBendersDecomposition, libscip),
-        SCIP_RETCODE,
-        (Ptr{SCIP}, Cint),
-        scip,
-        decompindex,
     )
 end
 
@@ -5533,6 +7375,474 @@ function SCIPbranchPseudo(scip, result)
     )
 end
 
+function SCIPcreateDatatree(scip, datatree, capacity)
+    ccall(
+        (:SCIPcreateDatatree, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{Ptr{SCIP_DATATREE}}, Cint),
+        scip,
+        datatree,
+        capacity,
+    )
+end
+
+function SCIPcreateDatatreeInTree(scip, datatree, newtree, name, capacity)
+    ccall(
+        (:SCIPcreateDatatreeInTree, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP},
+            Ptr{SCIP_DATATREE},
+            Ptr{Ptr{SCIP_DATATREE}},
+            Ptr{Cchar},
+            Cint,
+        ),
+        scip,
+        datatree,
+        newtree,
+        name,
+        capacity,
+    )
+end
+
+function SCIPinsertDatatreeBool(scip, datatree, name, value)
+    ccall(
+        (:SCIPinsertDatatreeBool, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_DATATREE}, Ptr{Cchar}, Cuint),
+        scip,
+        datatree,
+        name,
+        value,
+    )
+end
+
+function SCIPinsertDatatreeInt(scip, datatree, name, value)
+    ccall(
+        (:SCIPinsertDatatreeInt, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_DATATREE}, Ptr{Cchar}, Cint),
+        scip,
+        datatree,
+        name,
+        value,
+    )
+end
+
+function SCIPinsertDatatreeLong(scip, datatree, name, value)
+    ccall(
+        (:SCIPinsertDatatreeLong, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_DATATREE}, Ptr{Cchar}, Clonglong),
+        scip,
+        datatree,
+        name,
+        value,
+    )
+end
+
+function SCIPinsertDatatreeReal(scip, datatree, name, value)
+    ccall(
+        (:SCIPinsertDatatreeReal, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_DATATREE}, Ptr{Cchar}, Cdouble),
+        scip,
+        datatree,
+        name,
+        value,
+    )
+end
+
+function SCIPinsertDatatreeString(scip, datatree, name, value)
+    ccall(
+        (:SCIPinsertDatatreeString, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_DATATREE}, Ptr{Cchar}, Ptr{Cchar}),
+        scip,
+        datatree,
+        name,
+        value,
+    )
+end
+
+function SCIPinsertDatatreeBoolArray(scip, datatree, name, values, nvalues)
+    ccall(
+        (:SCIPinsertDatatreeBoolArray, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_DATATREE}, Ptr{Cchar}, Ptr{Cuint}, Cint),
+        scip,
+        datatree,
+        name,
+        values,
+        nvalues,
+    )
+end
+
+function SCIPinsertDatatreeIntArray(scip, datatree, name, values, nvalues)
+    ccall(
+        (:SCIPinsertDatatreeIntArray, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_DATATREE}, Ptr{Cchar}, Ptr{Cint}, Cint),
+        scip,
+        datatree,
+        name,
+        values,
+        nvalues,
+    )
+end
+
+function SCIPinsertDatatreeLongArray(scip, datatree, name, values, nvalues)
+    ccall(
+        (:SCIPinsertDatatreeLongArray, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_DATATREE}, Ptr{Cchar}, Ptr{Clonglong}, Cint),
+        scip,
+        datatree,
+        name,
+        values,
+        nvalues,
+    )
+end
+
+function SCIPinsertDatatreeRealArray(scip, datatree, name, values, nvalues)
+    ccall(
+        (:SCIPinsertDatatreeRealArray, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_DATATREE}, Ptr{Cchar}, Ptr{Cdouble}, Cint),
+        scip,
+        datatree,
+        name,
+        values,
+        nvalues,
+    )
+end
+
+function SCIPinsertDatatreeStringArray(scip, datatree, name, values, nvalues)
+    ccall(
+        (:SCIPinsertDatatreeStringArray, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_DATATREE}, Ptr{Cchar}, Ptr{Ptr{Cchar}}, Cint),
+        scip,
+        datatree,
+        name,
+        values,
+        nvalues,
+    )
+end
+
+function SCIPinsertDatatreeTree(scip, datatree, name, value)
+    ccall(
+        (:SCIPinsertDatatreeTree, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_DATATREE}, Ptr{Cchar}, Ptr{SCIP_DATATREE}),
+        scip,
+        datatree,
+        name,
+        value,
+    )
+end
+
+function SCIPfreeDatatree(scip, datatree)
+    ccall(
+        (:SCIPfreeDatatree, libscip),
+        Cvoid,
+        (Ptr{SCIP}, Ptr{Ptr{SCIP_DATATREE}}),
+        scip,
+        datatree,
+    )
+end
+
+function SCIPwriteDatatreeJson(scip, file, datatree)
+    ccall(
+        (:SCIPwriteDatatreeJson, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{Libc.FILE}, Ptr{SCIP_DATATREE}),
+        scip,
+        file,
+        datatree,
+    )
+end
+
+function SCIPprintDatatreeAsTable(scip, datatree, file, sectionname, tablename)
+    ccall(
+        (:SCIPprintDatatreeAsTable, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_DATATREE}, Ptr{Libc.FILE}, Ptr{Cchar}, Ptr{Cchar}),
+        scip,
+        datatree,
+        file,
+        sectionname,
+        tablename,
+    )
+end
+
+function SCIPisCertified(scip)
+    ccall((:SCIPisCertified, libscip), Cuint, (Ptr{SCIP},), scip)
+end
+
+function SCIPshouldCertificateTrackBounds(scip)
+    ccall(
+        (:SCIPshouldCertificateTrackBounds, libscip),
+        Cuint,
+        (Ptr{SCIP},),
+        scip,
+    )
+end
+
+function SCIPcertifyCons(scip, isorigfile, consname, sense, side, len, ind, val)
+    ccall(
+        (:SCIPcertifyCons, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP},
+            Cuint,
+            Ptr{Cchar},
+            Cchar,
+            Ptr{SCIP_RATIONAL},
+            Cint,
+            Ptr{Cint},
+            Ptr{Ptr{SCIP_RATIONAL}},
+        ),
+        scip,
+        isorigfile,
+        consname,
+        sense,
+        side,
+        len,
+        ind,
+        val,
+    )
+end
+
+function SCIPcertifyActivityVarBound(
+    scip,
+    linename,
+    boundtype,
+    newbound,
+    ismaxactivity,
+    constraint,
+    variable,
+    row,
+    vals,
+    lhs,
+    rhs,
+    vars,
+    nvars,
+)
+    ccall(
+        (:SCIPcertifyActivityVarBound, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP},
+            Ptr{Cchar},
+            SCIP_BOUNDTYPE,
+            Cdouble,
+            Cuint,
+            Ptr{SCIP_CONS},
+            Ptr{SCIP_VAR},
+            Ptr{SCIP_ROWEXACT},
+            Ptr{Ptr{SCIP_RATIONAL}},
+            Ptr{SCIP_RATIONAL},
+            Ptr{SCIP_RATIONAL},
+            Ptr{Ptr{SCIP_VAR}},
+            Cint,
+        ),
+        scip,
+        linename,
+        boundtype,
+        newbound,
+        ismaxactivity,
+        constraint,
+        variable,
+        row,
+        vals,
+        lhs,
+        rhs,
+        vars,
+        nvars,
+    )
+end
+
+function SCIPcertifyActivityVarBoundExact(
+    scip,
+    linename,
+    boundtype,
+    newbound,
+    ismaxactivity,
+    constraint,
+    variable,
+    row,
+    vals,
+    lhs,
+    rhs,
+    vars,
+    nvars,
+)
+    ccall(
+        (:SCIPcertifyActivityVarBoundExact, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP},
+            Ptr{Cchar},
+            SCIP_BOUNDTYPE,
+            Ptr{SCIP_RATIONAL},
+            Cuint,
+            Ptr{SCIP_CONS},
+            Ptr{SCIP_VAR},
+            Ptr{SCIP_ROWEXACT},
+            Ptr{Ptr{SCIP_RATIONAL}},
+            Ptr{SCIP_RATIONAL},
+            Ptr{SCIP_RATIONAL},
+            Ptr{Ptr{SCIP_VAR}},
+            Cint,
+        ),
+        scip,
+        linename,
+        boundtype,
+        newbound,
+        ismaxactivity,
+        constraint,
+        variable,
+        row,
+        vals,
+        lhs,
+        rhs,
+        vars,
+        nvars,
+    )
+end
+
+function SCIPcertifyActivityConflict(
+    scip,
+    cons,
+    row,
+    lhs,
+    rhs,
+    nvals,
+    vals,
+    vars,
+    diff,
+    userhs,
+)
+    ccall(
+        (:SCIPcertifyActivityConflict, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP},
+            Ptr{SCIP_CONS},
+            Ptr{SCIP_ROWEXACT},
+            Ptr{SCIP_RATIONAL},
+            Ptr{SCIP_RATIONAL},
+            Cint,
+            Ptr{Ptr{SCIP_RATIONAL}},
+            Ptr{Ptr{SCIP_VAR}},
+            Ptr{SCIP_RATIONAL},
+            Cuint,
+        ),
+        scip,
+        cons,
+        row,
+        lhs,
+        rhs,
+        nvals,
+        vals,
+        vars,
+        diff,
+        userhs,
+    )
+end
+
+function SCIPaddCertificateAggrInfo(
+    scip,
+    aggrrow,
+    aggrrows,
+    weights,
+    naggrrows,
+    negslackrows,
+    negslackweights,
+    nnegslackrows,
+)
+    ccall(
+        (:SCIPaddCertificateAggrInfo, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP},
+            Ptr{SCIP_AGGRROW},
+            Ptr{Ptr{SCIP_ROW}},
+            Ptr{Cdouble},
+            Cint,
+            Ptr{Ptr{SCIP_ROW}},
+            Ptr{Cdouble},
+            Cint,
+        ),
+        scip,
+        aggrrow,
+        aggrrows,
+        weights,
+        naggrrows,
+        negslackrows,
+        negslackweights,
+        nnegslackrows,
+    )
+end
+
+function SCIPstoreCertificateActiveAggrInfo(scip, row)
+    ccall(
+        (:SCIPstoreCertificateActiveAggrInfo, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_ROW}),
+        scip,
+        row,
+    )
+end
+
+function SCIPfreeCertificateActiveAggrInfo(scip)
+    ccall(
+        (:SCIPfreeCertificateActiveAggrInfo, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP},),
+        scip,
+    )
+end
+
+function SCIPaddCertificateMirInfo(scip)
+    ccall(
+        (:SCIPaddCertificateMirInfo, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP},),
+        scip,
+    )
+end
+
+function SCIPstoreCertificateActiveMirInfo(scip, row)
+    ccall(
+        (:SCIPstoreCertificateActiveMirInfo, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_ROW}),
+        scip,
+        row,
+    )
+end
+
+function SCIPcertifyMirCut(scip, row)
+    ccall(
+        (:SCIPcertifyMirCut, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_ROW}),
+        scip,
+        row,
+    )
+end
+
+function SCIPfreeCertificateActiveMirInfo(scip)
+    ccall(
+        (:SCIPfreeCertificateActiveMirInfo, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP},),
+        scip,
+    )
+end
+
 function SCIPincludeCompr(
     scip,
     name,
@@ -6182,6 +8492,8 @@ function SCIPincludeConshdlr(
     consgetvars,
     consgetnvars,
     consgetdivebdchgs,
+    consgetpermsymgraph,
+    consgetsignedpermsymgraph,
     conshdlrdata,
 )
     ccall(
@@ -6203,6 +8515,8 @@ function SCIPincludeConshdlr(
             Cuint,
             SCIP_PROPTIMING,
             SCIP_PRESOLTIMING,
+            Ptr{Cvoid},
+            Ptr{Cvoid},
             Ptr{Cvoid},
             Ptr{Cvoid},
             Ptr{Cvoid},
@@ -6284,6 +8598,8 @@ function SCIPincludeConshdlr(
         consgetvars,
         consgetnvars,
         consgetdivebdchgs,
+        consgetpermsymgraph,
+        consgetsignedpermsymgraph,
         conshdlrdata,
     )
 end
@@ -6666,6 +8982,32 @@ function SCIPsetConshdlrGetDiveBdChgs(scip, conshdlr, consgetdivebdchgs)
         scip,
         conshdlr,
         consgetdivebdchgs,
+    )
+end
+
+function SCIPsetConshdlrGetPermsymGraph(scip, conshdlr, consgetpermsymgraph)
+    ccall(
+        (:SCIPsetConshdlrGetPermsymGraph, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_CONSHDLR}, Ptr{Cvoid}),
+        scip,
+        conshdlr,
+        consgetpermsymgraph,
+    )
+end
+
+function SCIPsetConshdlrGetSignedPermsymGraph(
+    scip,
+    conshdlr,
+    consgetsignedpermsymgraph,
+)
+    ccall(
+        (:SCIPsetConshdlrGetSignedPermsymGraph, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_CONSHDLR}, Ptr{Cvoid}),
+        scip,
+        conshdlr,
+        consgetsignedpermsymgraph,
     )
 end
 
@@ -7423,6 +9765,30 @@ function SCIPgetConsNVars(scip, cons, nvars, success)
     )
 end
 
+function SCIPgetConsPermsymGraph(scip, cons, graph, success)
+    ccall(
+        (:SCIPgetConsPermsymGraph, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_CONS}, Ptr{SYM_GRAPH}, Ptr{Cuint}),
+        scip,
+        cons,
+        graph,
+        success,
+    )
+end
+
+function SCIPgetConsSignedPermsymGraph(scip, cons, graph, success)
+    ccall(
+        (:SCIPgetConsSignedPermsymGraph, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_CONS}, Ptr{SYM_GRAPH}, Ptr{Cuint}),
+        scip,
+        cons,
+        graph,
+        success,
+    )
+end
+
 function SCIPcopyPlugins(
     sourcescip,
     targetscip,
@@ -7439,6 +9805,7 @@ function SCIPcopyPlugins(
     copyeventhdlrs,
     copynodeselectors,
     copybranchrules,
+    copyiisfinders,
     copydisplays,
     copydialogs,
     copytables,
@@ -7453,6 +9820,7 @@ function SCIPcopyPlugins(
         (
             Ptr{SCIP},
             Ptr{SCIP},
+            Cuint,
             Cuint,
             Cuint,
             Cuint,
@@ -7489,6 +9857,7 @@ function SCIPcopyPlugins(
         copyeventhdlrs,
         copynodeselectors,
         copybranchrules,
+        copyiisfinders,
         copydisplays,
         copydialogs,
         copytables,
@@ -8267,19 +10636,6 @@ function SCIPisCutApplicable(scip, cut)
         (Ptr{SCIP}, Ptr{SCIP_ROW}),
         scip,
         cut,
-    )
-end
-
-function SCIPaddCut(scip, sol, cut, forcecut, infeasible)
-    ccall(
-        (:SCIPaddCut, libscip),
-        SCIP_RETCODE,
-        (Ptr{SCIP}, Ptr{SCIP_SOL}, Ptr{SCIP_ROW}, Cuint, Ptr{Cuint}),
-        scip,
-        sol,
-        cut,
-        forcecut,
-        infeasible,
     )
 end
 
@@ -9548,6 +11904,44 @@ function SCIPdropRowEvent(scip, row, eventtype, eventhdlr, eventdata, filterpos)
     )
 end
 
+function SCIPenableExactSolving(scip, enable)
+    ccall(
+        (:SCIPenableExactSolving, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Cuint),
+        scip,
+        enable,
+    )
+end
+
+function SCIPisExact(scip)
+    ccall((:SCIPisExact, libscip), Cuint, (Ptr{SCIP},), scip)
+end
+
+function SCIPallowNegSlack(scip)
+    ccall((:SCIPallowNegSlack, libscip), Cuint, (Ptr{SCIP},), scip)
+end
+
+function SCIPbranchLPExact(scip, result)
+    ccall(
+        (:SCIPbranchLPExact, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_RESULT}),
+        scip,
+        result,
+    )
+end
+
+function SCIPaddRowExact(scip, rowexact)
+    ccall(
+        (:SCIPaddRowExact, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_ROWEXACT}),
+        scip,
+        rowexact,
+    )
+end
+
 function SCIPincludeExprhdlr(scip, exprhdlr, name, desc, precedence, eval, data)
     ccall(
         (:SCIPincludeExprhdlr, libscip),
@@ -10193,6 +12587,17 @@ function SCIPsimplifyExpr(
     )
 end
 
+function SCIPgetSymDataExpr(scip, expr, symdata)
+    ccall(
+        (:SCIPgetSymDataExpr, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_EXPR}, Ptr{Ptr{SYM_EXPRDATA}}),
+        scip,
+        expr,
+        symdata,
+    )
+end
+
 function SCIPreplaceCommonSubexpressions(scip, exprs, nexprs, replacedroot)
     ccall(
         (:SCIPreplaceCommonSubexpressions, libscip),
@@ -10245,6 +12650,34 @@ function SCIPgetExprVarExprs(scip, expr, varexprs, nvarexprs)
         expr,
         varexprs,
         nvarexprs,
+    )
+end
+
+function SCIPcallExprPrint(
+    scip,
+    expr,
+    stage,
+    currentchild,
+    parentprecedence,
+    file,
+)
+    ccall(
+        (:SCIPcallExprPrint, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP},
+            Ptr{SCIP_EXPR},
+            SCIP_EXPRITER_STAGE,
+            Cint,
+            Cuint,
+            Ptr{Libc.FILE},
+        ),
+        scip,
+        expr,
+        stage,
+        currentchild,
+        parentprecedence,
+        file,
     )
 end
 
@@ -10446,6 +12879,17 @@ function SCIPcallExprReverseprop(scip, expr, bounds, childrenbounds, infeasible)
     )
 end
 
+function SCIPcallExprGetSymData(scip, expr, symdata)
+    ccall(
+        (:SCIPcallExprGetSymData, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_EXPR}, Ptr{Ptr{SYM_EXPRDATA}}),
+        scip,
+        expr,
+        symdata,
+    )
+end
+
 function SCIPcreateExpriter(scip, iterator)
     ccall(
         (:SCIPcreateExpriter, libscip),
@@ -10532,6 +12976,25 @@ function SCIPcomputeExprQuadraticCurvature(
     )
 end
 
+function SCIPgetExprMonomialData(scip, expr, coef, exponents, factors)
+    ccall(
+        (:SCIPgetExprMonomialData, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP},
+            Ptr{SCIP_EXPR},
+            Ptr{Cdouble},
+            Ptr{Cdouble},
+            Ptr{Ptr{SCIP_EXPR}},
+        ),
+        scip,
+        expr,
+        coef,
+        exponents,
+        factors,
+    )
+end
+
 function SCIPversion()
     ccall((:SCIPversion, libscip), Cdouble, ())
 end
@@ -10602,6 +13065,10 @@ function SCIPgetStatus(scip)
     ccall((:SCIPgetStatus, libscip), SCIP_STATUS, (Ptr{SCIP},), scip)
 end
 
+function SCIPstatusName(status)
+    ccall((:SCIPstatusName, libscip), Ptr{Cchar}, (SCIP_STATUS,), status)
+end
+
 function SCIPprintStatus(scip, file)
     ccall(
         (:SCIPprintStatus, libscip),
@@ -10614,10 +13081,6 @@ end
 
 function SCIPisTransformed(scip)
     ccall((:SCIPisTransformed, libscip), Cuint, (Ptr{SCIP},), scip)
-end
-
-function SCIPisExactSolve(scip)
-    ccall((:SCIPisExactSolve, libscip), Cuint, (Ptr{SCIP},), scip)
 end
 
 function SCIPisPresolveFinished(scip)
@@ -10971,6 +13434,135 @@ function SCIPisDivesetAvailable(scip, diveset, available)
     )
 end
 
+function SCIPincludeIISfinder(
+    scip,
+    name,
+    desc,
+    priority,
+    iisfindercopy,
+    iisfinderfree,
+    iisfinderexec,
+    iisfinderdata,
+)
+    ccall(
+        (:SCIPincludeIISfinder, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP},
+            Ptr{Cchar},
+            Ptr{Cchar},
+            Cint,
+            Ptr{Cvoid},
+            Ptr{Cvoid},
+            Ptr{Cvoid},
+            Ptr{SCIP_IISFINDERDATA},
+        ),
+        scip,
+        name,
+        desc,
+        priority,
+        iisfindercopy,
+        iisfinderfree,
+        iisfinderexec,
+        iisfinderdata,
+    )
+end
+
+function SCIPincludeIISfinderBasic(
+    scip,
+    iisfinder,
+    name,
+    desc,
+    priority,
+    iisfinderexec,
+    iisfinderdata,
+)
+    ccall(
+        (:SCIPincludeIISfinderBasic, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP},
+            Ptr{Ptr{SCIP_IISFINDER}},
+            Ptr{Cchar},
+            Ptr{Cchar},
+            Cint,
+            Ptr{Cvoid},
+            Ptr{SCIP_IISFINDERDATA},
+        ),
+        scip,
+        iisfinder,
+        name,
+        desc,
+        priority,
+        iisfinderexec,
+        iisfinderdata,
+    )
+end
+
+function SCIPsetIISfinderCopy(scip, iisfinder, iisfindercopy)
+    ccall(
+        (:SCIPsetIISfinderCopy, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_IISFINDER}, Ptr{Cvoid}),
+        scip,
+        iisfinder,
+        iisfindercopy,
+    )
+end
+
+function SCIPsetIISfinderFree(scip, iisfinder, iisfinderfree)
+    ccall(
+        (:SCIPsetIISfinderFree, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_IISFINDER}, Ptr{Cvoid}),
+        scip,
+        iisfinder,
+        iisfinderfree,
+    )
+end
+
+function SCIPgenerateIIS(scip)
+    ccall((:SCIPgenerateIIS, libscip), SCIP_RETCODE, (Ptr{SCIP},), scip)
+end
+
+function SCIPfindIISfinder(scip, name)
+    ccall(
+        (:SCIPfindIISfinder, libscip),
+        Ptr{SCIP_IISFINDER},
+        (Ptr{SCIP}, Ptr{Cchar}),
+        scip,
+        name,
+    )
+end
+
+function SCIPgetIISfinders(scip)
+    ccall(
+        (:SCIPgetIISfinders, libscip),
+        Ptr{Ptr{SCIP_IISFINDER}},
+        (Ptr{SCIP},),
+        scip,
+    )
+end
+
+function SCIPgetNIISfinders(scip)
+    ccall((:SCIPgetNIISfinders, libscip), Cint, (Ptr{SCIP},), scip)
+end
+
+function SCIPsetIISfinderPriority(scip, iisfinder, priority)
+    ccall(
+        (:SCIPsetIISfinderPriority, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_IISFINDER}, Cint),
+        scip,
+        iisfinder,
+        priority,
+    )
+end
+
+function SCIPgetIIS(scip)
+    ccall((:SCIPgetIIS, libscip), Ptr{SCIP_IIS}, (Ptr{SCIP},), scip)
+end
+
 function SCIPhasCurrentNodeLP(scip)
     ccall((:SCIPhasCurrentNodeLP, libscip), Cuint, (Ptr{SCIP},), scip)
 end
@@ -11228,10 +13820,6 @@ function SCIPwriteMIP(scip, filename, genericnames, origobj, lazyconss)
     )
 end
 
-const SCIP_LPi = Cvoid
-
-const SCIP_LPI = SCIP_LPi
-
 function SCIPgetLPI(scip, lpi)
     ccall(
         (:SCIPgetLPI, libscip),
@@ -11484,49 +14072,6 @@ function SCIPcreateRowUnspec(
     )
 end
 
-function SCIPcreateRow(
-    scip,
-    row,
-    name,
-    len,
-    cols,
-    vals,
-    lhs,
-    rhs,
-    _local,
-    modifiable,
-    removable,
-)
-    ccall(
-        (:SCIPcreateRow, libscip),
-        SCIP_RETCODE,
-        (
-            Ptr{SCIP},
-            Ptr{Ptr{SCIP_ROW}},
-            Ptr{Cchar},
-            Cint,
-            Ptr{Ptr{SCIP_COL}},
-            Ptr{Cdouble},
-            Cdouble,
-            Cdouble,
-            Cuint,
-            Cuint,
-            Cuint,
-        ),
-        scip,
-        row,
-        name,
-        len,
-        cols,
-        vals,
-        lhs,
-        rhs,
-        _local,
-        modifiable,
-        removable,
-    )
-end
-
 function SCIPcreateEmptyRowConshdlr(
     scip,
     row,
@@ -11650,40 +14195,6 @@ function SCIPcreateEmptyRowUnspec(
 )
     ccall(
         (:SCIPcreateEmptyRowUnspec, libscip),
-        SCIP_RETCODE,
-        (
-            Ptr{SCIP},
-            Ptr{Ptr{SCIP_ROW}},
-            Ptr{Cchar},
-            Cdouble,
-            Cdouble,
-            Cuint,
-            Cuint,
-            Cuint,
-        ),
-        scip,
-        row,
-        name,
-        lhs,
-        rhs,
-        _local,
-        modifiable,
-        removable,
-    )
-end
-
-function SCIPcreateEmptyRow(
-    scip,
-    row,
-    name,
-    lhs,
-    rhs,
-    _local,
-    modifiable,
-    removable,
-)
-    ccall(
-        (:SCIPcreateEmptyRow, libscip),
         SCIP_RETCODE,
         (
             Ptr{SCIP},
@@ -11890,6 +14401,16 @@ end
 function SCIPgetRowNumIntCols(scip, row)
     ccall(
         (:SCIPgetRowNumIntCols, libscip),
+        Cint,
+        (Ptr{SCIP}, Ptr{SCIP_ROW}),
+        scip,
+        row,
+    )
+end
+
+function SCIPgetRowNumImpliedIntCols(scip, row)
+    ccall(
+        (:SCIPgetRowNumImpliedIntCols, libscip),
         Cint,
         (Ptr{SCIP}, Ptr{SCIP_ROW}),
         scip,
@@ -12234,6 +14755,10 @@ function SCIPprintMemoryDiagnostic(scip)
     ccall((:SCIPprintMemoryDiagnostic, libscip), Cvoid, (Ptr{SCIP},), scip)
 end
 
+function SCIPcollectMemoryGarbage(scip)
+    ccall((:SCIPcollectMemoryGarbage, libscip), Cvoid, (Ptr{SCIP},), scip)
+end
+
 function SCIPsetMessagehdlr(scip, messagehdlr)
     ccall(
         (:SCIPsetMessagehdlr, libscip),
@@ -12358,6 +14883,25 @@ end
 
 function SCIPgetNNLPNlRows(scip)
     ccall((:SCIPgetNNLPNlRows, libscip), Cint, (Ptr{SCIP},), scip)
+end
+
+function SCIPgetNLPNlRowsStat(
+    scip,
+    nlinear,
+    nconvexineq,
+    nnonconvexineq,
+    nnonlineareq,
+)
+    ccall(
+        (:SCIPgetNLPNlRowsStat, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}),
+        scip,
+        nlinear,
+        nconvexineq,
+        nnonconvexineq,
+        nnonlineareq,
+    )
 end
 
 function SCIPaddNlRow(scip, nlrow)
@@ -12640,6 +15184,17 @@ function SCIPchgNlRowConstant(scip, nlrow, constant)
         scip,
         nlrow,
         constant,
+    )
+end
+
+function SCIPsetNlRowCurvature(scip, nlrow, curvature)
+    ccall(
+        (:SCIPsetNlRowCurvature, libscip),
+        Cvoid,
+        (Ptr{SCIP}, Ptr{SCIP_NLROW}, SCIP_EXPRCURV),
+        scip,
+        nlrow,
+        curvature,
     )
 end
 
@@ -13667,10 +16222,6 @@ function SCIPsumepsilon(scip)
     ccall((:SCIPsumepsilon, libscip), Cdouble, (Ptr{SCIP},), scip)
 end
 
-function SCIPlpfeastol(scip)
-    ccall((:SCIPlpfeastol, libscip), Cdouble, (Ptr{SCIP},), scip)
-end
-
 function SCIPbarrierconvtol(scip)
     ccall((:SCIPbarrierconvtol, libscip), Cdouble, (Ptr{SCIP},), scip)
 end
@@ -13690,17 +16241,6 @@ function SCIPchgFeastol(scip, feastol)
         (Ptr{SCIP}, Cdouble),
         scip,
         feastol,
-    )
-end
-
-function SCIPchgLpfeastol(scip, lpfeastol, printnewvalue)
-    ccall(
-        (:SCIPchgLpfeastol, libscip),
-        SCIP_RETCODE,
-        (Ptr{SCIP}, Cdouble, Cuint),
-        scip,
-        lpfeastol,
-        printnewvalue,
     )
 end
 
@@ -14379,6 +16919,18 @@ function SCIPparseReal(scip, str, value, endptr)
     )
 end
 
+function SCIPparseRational(scip, str, value, endptr)
+    ccall(
+        (:SCIPparseRational, libscip),
+        Cuint,
+        (Ptr{SCIP}, Ptr{Cchar}, Ptr{SCIP_RATIONAL}, Ptr{Ptr{Cchar}}),
+        scip,
+        str,
+        value,
+        endptr,
+    )
+end
+
 function SCIPaddBoolParam(
     scip,
     name,
@@ -14904,6 +17456,17 @@ function SCIPisStringParamValid(scip, param, value)
         (Ptr{SCIP}, Ptr{SCIP_PARAM}, Ptr{Cchar}),
         scip,
         param,
+        value,
+    )
+end
+
+function SCIPsetParam(scip, name, value)
+    ccall(
+        (:SCIPsetParam, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{Cchar}, Ptr{Cchar}),
+        scip,
+        name,
         value,
     )
 end
@@ -15537,6 +18100,30 @@ function SCIPreadProb(scip, filename, extension)
     )
 end
 
+function SCIPprintOrigProblem(scip, file, extension, genericnames)
+    ccall(
+        (:SCIPprintOrigProblem, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{Libc.FILE}, Ptr{Cchar}, Cuint),
+        scip,
+        file,
+        extension,
+        genericnames,
+    )
+end
+
+function SCIPprintTransProblem(scip, file, extension, genericnames)
+    ccall(
+        (:SCIPprintTransProblem, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{Libc.FILE}, Ptr{Cchar}, Cuint),
+        scip,
+        file,
+        extension,
+        genericnames,
+    )
+end
+
 function SCIPwriteOrigProblem(scip, filename, extension, genericnames)
     ccall(
         (:SCIPwriteOrigProblem, libscip),
@@ -15571,19 +18158,23 @@ function SCIPpermuteProb(
     permuteconss,
     permutebinvars,
     permuteintvars,
-    permuteimplvars,
+    permutebinimplvars,
+    permuteintimplvars,
+    permutecontimplvars,
     permutecontvars,
 )
     ccall(
         (:SCIPpermuteProb, libscip),
         SCIP_RETCODE,
-        (Ptr{SCIP}, Cuint, Cuint, Cuint, Cuint, Cuint, Cuint),
+        (Ptr{SCIP}, Cuint, Cuint, Cuint, Cuint, Cuint, Cuint, Cuint, Cuint),
         scip,
         randseed,
         permuteconss,
         permutebinvars,
         permuteintvars,
-        permuteimplvars,
+        permutebinimplvars,
+        permuteintimplvars,
+        permutecontimplvars,
         permutecontvars,
     )
 end
@@ -15653,6 +18244,16 @@ function SCIPaddObjoffset(scip, addval)
     )
 end
 
+function SCIPaddOrigObjoffsetExact(scip, addval)
+    ccall(
+        (:SCIPaddOrigObjoffsetExact, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_RATIONAL}),
+        scip,
+        addval,
+    )
+end
+
 function SCIPaddOrigObjoffset(scip, addval)
     ccall(
         (:SCIPaddOrigObjoffset, libscip),
@@ -15665,6 +18266,15 @@ end
 
 function SCIPgetOrigObjoffset(scip)
     ccall((:SCIPgetOrigObjoffset, libscip), Cdouble, (Ptr{SCIP},), scip)
+end
+
+function SCIPgetOrigObjoffsetExact(scip)
+    ccall(
+        (:SCIPgetOrigObjoffsetExact, libscip),
+        Ptr{SCIP_RATIONAL},
+        (Ptr{SCIP},),
+        scip,
+    )
 end
 
 function SCIPgetOrigObjscale(scip)
@@ -15788,6 +18398,18 @@ function SCIPgetNImplVars(scip)
     ccall((:SCIPgetNImplVars, libscip), Cint, (Ptr{SCIP},), scip)
 end
 
+function SCIPgetNBinImplVars(scip)
+    ccall((:SCIPgetNBinImplVars, libscip), Cint, (Ptr{SCIP},), scip)
+end
+
+function SCIPgetNIntImplVars(scip)
+    ccall((:SCIPgetNIntImplVars, libscip), Cint, (Ptr{SCIP},), scip)
+end
+
+function SCIPgetNContImplVars(scip)
+    ccall((:SCIPgetNContImplVars, libscip), Cint, (Ptr{SCIP},), scip)
+end
+
 function SCIPgetNContVars(scip)
     ccall((:SCIPgetNContVars, libscip), Cint, (Ptr{SCIP},), scip)
 end
@@ -15855,6 +18477,18 @@ function SCIPgetNOrigImplVars(scip)
     ccall((:SCIPgetNOrigImplVars, libscip), Cint, (Ptr{SCIP},), scip)
 end
 
+function SCIPgetNOrigBinImplVars(scip)
+    ccall((:SCIPgetNOrigBinImplVars, libscip), Cint, (Ptr{SCIP},), scip)
+end
+
+function SCIPgetNOrigIntImplVars(scip)
+    ccall((:SCIPgetNOrigIntImplVars, libscip), Cint, (Ptr{SCIP},), scip)
+end
+
+function SCIPgetNOrigContImplVars(scip)
+    ccall((:SCIPgetNOrigContImplVars, libscip), Cint, (Ptr{SCIP},), scip)
+end
+
 function SCIPgetNOrigContVars(scip)
     ccall((:SCIPgetNOrigContVars, libscip), Cint, (Ptr{SCIP},), scip)
 end
@@ -15870,7 +18504,9 @@ function SCIPgetSolVarsData(
     nvars,
     nbinvars,
     nintvars,
-    nimplvars,
+    nbinimplvars,
+    nintimplvars,
+    ncontimplvars,
     ncontvars,
 )
     ccall(
@@ -15885,6 +18521,8 @@ function SCIPgetSolVarsData(
             Ptr{Cint},
             Ptr{Cint},
             Ptr{Cint},
+            Ptr{Cint},
+            Ptr{Cint},
         ),
         scip,
         sol,
@@ -15892,7 +18530,9 @@ function SCIPgetSolVarsData(
         nvars,
         nbinvars,
         nintvars,
-        nimplvars,
+        nbinimplvars,
+        nintimplvars,
+        ncontimplvars,
         ncontvars,
     )
 end
@@ -15918,6 +18558,17 @@ function SCIPaddCons(scip, cons)
         (Ptr{SCIP}, Ptr{SCIP_CONS}),
         scip,
         cons,
+    )
+end
+
+function SCIPaddConsUpgrade(scip, oldcons, newcons)
+    ccall(
+        (:SCIPaddConsUpgrade, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_CONS}, Ptr{Ptr{SCIP_CONS}}),
+        scip,
+        oldcons,
+        newcons,
     )
 end
 
@@ -15989,7 +18640,7 @@ function SCIPaddConflict(
         (
             Ptr{SCIP},
             Ptr{SCIP_NODE},
-            Ptr{SCIP_CONS},
+            Ptr{Ptr{SCIP_CONS}},
             Ptr{SCIP_NODE},
             SCIP_CONFTYPE,
             Cuint,
@@ -16288,14 +18939,6 @@ function SCIPsolveProbingLPWithPricing(
         cutoff,
     )
 end
-
-const SCIP_LPiState = Cvoid
-
-const SCIP_LPISTATE = SCIP_LPiState
-
-const SCIP_LPiNorms = Cvoid
-
-const SCIP_LPINORMS = SCIP_LPiNorms
 
 function SCIPsetProbingLPState(scip, lpistate, lpinorms, primalfeas, dualfeas)
     ccall(
@@ -17122,7 +19765,7 @@ function SCIPsetRelaxPriority(scip, relax, priority)
     )
 end
 
-function SCIPgetReoptChildIDs(scip, node, ids, mem, nids)
+function SCIPgetReoptChildIDs(scip, node, ids, idssize, nids)
     ccall(
         (:SCIPgetReoptChildIDs, libscip),
         SCIP_RETCODE,
@@ -17130,12 +19773,12 @@ function SCIPgetReoptChildIDs(scip, node, ids, mem, nids)
         scip,
         node,
         ids,
-        mem,
+        idssize,
         nids,
     )
 end
 
-function SCIPgetReoptLeaveIDs(scip, node, ids, mem, nids)
+function SCIPgetReoptLeaveIDs(scip, node, ids, idssize, nids)
     ccall(
         (:SCIPgetReoptLeaveIDs, libscip),
         SCIP_RETCODE,
@@ -17143,7 +19786,7 @@ function SCIPgetReoptLeaveIDs(scip, node, ids, mem, nids)
         scip,
         node,
         ids,
-        mem,
+        idssize,
         nids,
     )
 end
@@ -17407,19 +20050,6 @@ function SCIPgetReoptSimilarity(scip, run1, run2)
         scip,
         run1,
         run2,
-    )
-end
-
-function SCIPgetVarCoefChg(scip, varidx, negated, entering, leaving)
-    ccall(
-        (:SCIPgetVarCoefChg, libscip),
-        Cvoid,
-        (Ptr{SCIP}, Cint, Ptr{Cuint}, Ptr{Cuint}, Ptr{Cuint}),
-        scip,
-        varidx,
-        negated,
-        entering,
-        leaving,
     )
 end
 
@@ -17833,9 +20463,31 @@ function SCIPcreateSol(scip, sol, heur)
     )
 end
 
+function SCIPcreateSolExact(scip, sol, heur)
+    ccall(
+        (:SCIPcreateSolExact, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{Ptr{SCIP_SOL}}, Ptr{SCIP_HEUR}),
+        scip,
+        sol,
+        heur,
+    )
+end
+
 function SCIPcreateLPSol(scip, sol, heur)
     ccall(
         (:SCIPcreateLPSol, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{Ptr{SCIP_SOL}}, Ptr{SCIP_HEUR}),
+        scip,
+        sol,
+        heur,
+    )
+end
+
+function SCIPcreateLPSolExact(scip, sol, heur)
+    ccall(
+        (:SCIPcreateLPSolExact, libscip),
         SCIP_RETCODE,
         (Ptr{SCIP}, Ptr{Ptr{SCIP_SOL}}, Ptr{SCIP_HEUR}),
         scip,
@@ -17975,6 +20627,16 @@ function SCIPlinkLPSol(scip, sol)
     )
 end
 
+function SCIPlinkLPSolExact(scip, sol)
+    ccall(
+        (:SCIPlinkLPSolExact, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_SOL}),
+        scip,
+        sol,
+    )
+end
+
 function SCIPlinkNLPSol(scip, sol)
     ccall(
         (:SCIPlinkNLPSol, libscip),
@@ -18035,11 +20697,33 @@ function SCIPunlinkSol(scip, sol)
     )
 end
 
+function SCIPunlinkSolExact(scip, sol)
+    ccall(
+        (:SCIPunlinkSolExact, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_SOL}),
+        scip,
+        sol,
+    )
+end
+
 function SCIPsetSolVal(scip, sol, var, val)
     ccall(
         (:SCIPsetSolVal, libscip),
         SCIP_RETCODE,
         (Ptr{SCIP}, Ptr{SCIP_SOL}, Ptr{SCIP_VAR}, Cdouble),
+        scip,
+        sol,
+        var,
+        val,
+    )
+end
+
+function SCIPsetSolValExact(scip, sol, var, val)
+    ccall(
+        (:SCIPsetSolValExact, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_SOL}, Ptr{SCIP_VAR}, Ptr{SCIP_RATIONAL}),
         scip,
         sol,
         var,
@@ -18083,6 +20767,18 @@ function SCIPgetSolVal(scip, sol, var)
     )
 end
 
+function SCIPgetSolValExact(scip, sol, var, res)
+    ccall(
+        (:SCIPgetSolValExact, libscip),
+        Cvoid,
+        (Ptr{SCIP}, Ptr{SCIP_SOL}, Ptr{SCIP_VAR}, Ptr{SCIP_RATIONAL}),
+        scip,
+        sol,
+        var,
+        res,
+    )
+end
+
 function SCIPgetSolVals(scip, sol, nvars, vars, vals)
     ccall(
         (:SCIPgetSolVals, libscip),
@@ -18106,6 +20802,17 @@ function SCIPgetSolOrigObj(scip, sol)
     )
 end
 
+function SCIPgetSolOrigObjExact(scip, sol, res)
+    ccall(
+        (:SCIPgetSolOrigObjExact, libscip),
+        Cvoid,
+        (Ptr{SCIP}, Ptr{SCIP_SOL}, Ptr{SCIP_RATIONAL}),
+        scip,
+        sol,
+        res,
+    )
+end
+
 function SCIPgetSolTransObj(scip, sol)
     ccall(
         (:SCIPgetSolTransObj, libscip),
@@ -18113,6 +20820,17 @@ function SCIPgetSolTransObj(scip, sol)
         (Ptr{SCIP}, Ptr{SCIP_SOL}),
         scip,
         sol,
+    )
+end
+
+function SCIPgetSolTransObjExact(scip, sol, res)
+    ccall(
+        (:SCIPgetSolTransObjExact, libscip),
+        Cvoid,
+        (Ptr{SCIP}, Ptr{SCIP_SOL}, Ptr{SCIP_RATIONAL}),
+        scip,
+        sol,
+        res,
     )
 end
 
@@ -18211,6 +20929,18 @@ end
 function SCIPprintSol(scip, sol, file, printzeros)
     ccall(
         (:SCIPprintSol, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_SOL}, Ptr{Libc.FILE}, Cuint),
+        scip,
+        sol,
+        file,
+        printzeros,
+    )
+end
+
+function SCIPprintSolExact(scip, sol, file, printzeros)
+    ccall(
+        (:SCIPprintSolExact, libscip),
         SCIP_RETCODE,
         (Ptr{SCIP}, Ptr{SCIP_SOL}, Ptr{Libc.FILE}, Cuint),
         scip,
@@ -18333,9 +21063,29 @@ function SCIProundSol(scip, sol, success)
     )
 end
 
+function SCIPmakeSolExact(scip, sol)
+    ccall(
+        (:SCIPmakeSolExact, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_SOL}),
+        scip,
+        sol,
+    )
+end
+
 function SCIPretransformSol(scip, sol)
     ccall(
         (:SCIPretransformSol, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_SOL}),
+        scip,
+        sol,
+    )
+end
+
+function SCIPretransformSolExact(scip, sol)
+    ccall(
+        (:SCIPretransformSolExact, libscip),
         SCIP_RETCODE,
         (Ptr{SCIP}, Ptr{SCIP_SOL}),
         scip,
@@ -18652,6 +21402,50 @@ function SCIPupdatePrimalRay(scip, primalray)
     )
 end
 
+function SCIPoverwriteFPsol(scip, sol)
+    ccall(
+        (:SCIPoverwriteFPsol, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_SOL}),
+        scip,
+        sol,
+    )
+end
+
+function SCIPtrySolFreeExact(
+    scip,
+    sol,
+    printreason,
+    completely,
+    checkbounds,
+    checkintegrality,
+    checklprows,
+    stored,
+)
+    ccall(
+        (:SCIPtrySolFreeExact, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP},
+            Ptr{Ptr{SCIP_SOL}},
+            Cuint,
+            Cuint,
+            Cuint,
+            Cuint,
+            Cuint,
+            Ptr{Cuint},
+        ),
+        scip,
+        sol,
+        printreason,
+        completely,
+        checkbounds,
+        checkintegrality,
+        checklprows,
+        stored,
+    )
+end
+
 function SCIPtransformProb(scip)
     ccall((:SCIPtransformProb, libscip), SCIP_RETCODE, (Ptr{SCIP},), scip)
 end
@@ -18662,10 +21456,6 @@ end
 
 function SCIPsolve(scip)
     ccall((:SCIPsolve, libscip), SCIP_RETCODE, (Ptr{SCIP},), scip)
-end
-
-function SCIPsolveParallel(scip)
-    ccall((:SCIPsolveParallel, libscip), SCIP_RETCODE, (Ptr{SCIP},), scip)
 end
 
 function SCIPsolveConcurrent(scip)
@@ -18720,7 +21510,7 @@ function SCIPisReoptEnabled(scip)
     ccall((:SCIPisReoptEnabled, libscip), Cuint, (Ptr{SCIP},), scip)
 end
 
-function SCIPgetReoptSolsRun(scip, run, sols, allocmem, nsols)
+function SCIPgetReoptSolsRun(scip, run, sols, solssize, nsols)
     ccall(
         (:SCIPgetReoptSolsRun, libscip),
         SCIP_RETCODE,
@@ -18728,7 +21518,7 @@ function SCIPgetReoptSolsRun(scip, run, sols, allocmem, nsols)
         scip,
         run,
         sols,
-        allocmem,
+        solssize,
         nsols,
     )
 end
@@ -18823,12 +21613,20 @@ function SCIPgetNRootboundChgsRun(scip)
     ccall((:SCIPgetNRootboundChgsRun, libscip), Cint, (Ptr{SCIP},), scip)
 end
 
+function SCIPgetNRootIntFixingsRun(scip)
+    ccall((:SCIPgetNRootIntFixingsRun, libscip), Cint, (Ptr{SCIP},), scip)
+end
+
 function SCIPgetNDelayedCutoffs(scip)
     ccall((:SCIPgetNDelayedCutoffs, libscip), Clonglong, (Ptr{SCIP},), scip)
 end
 
 function SCIPgetNLPs(scip)
     ccall((:SCIPgetNLPs, libscip), Clonglong, (Ptr{SCIP},), scip)
+end
+
+function SCIPgetNExactLPs(scip)
+    ccall((:SCIPgetNExactLPs, libscip), Clonglong, (Ptr{SCIP},), scip)
 end
 
 function SCIPgetNLPIterations(scip)
@@ -19033,6 +21831,15 @@ function SCIPgetNConflictConssApplied(scip)
     )
 end
 
+function SCIPgetNResConflictConssApplied(scip)
+    ccall(
+        (:SCIPgetNResConflictConssApplied, libscip),
+        Clonglong,
+        (Ptr{SCIP},),
+        scip,
+    )
+end
+
 function SCIPgetNConflictDualproofsApplied(scip)
     ccall(
         (:SCIPgetNConflictDualproofsApplied, libscip),
@@ -19074,8 +21881,28 @@ function SCIPgetDualbound(scip)
     ccall((:SCIPgetDualbound, libscip), Cdouble, (Ptr{SCIP},), scip)
 end
 
+function SCIPgetDualboundExact(scip, result)
+    ccall(
+        (:SCIPgetDualboundExact, libscip),
+        Cvoid,
+        (Ptr{SCIP}, Ptr{SCIP_RATIONAL}),
+        scip,
+        result,
+    )
+end
+
 function SCIPgetLowerbound(scip)
     ccall((:SCIPgetLowerbound, libscip), Cdouble, (Ptr{SCIP},), scip)
+end
+
+function SCIPgetLowerboundExact(scip, result)
+    ccall(
+        (:SCIPgetLowerboundExact, libscip),
+        Cvoid,
+        (Ptr{SCIP}, Ptr{SCIP_RATIONAL}),
+        scip,
+        result,
+    )
 end
 
 function SCIPgetDualboundRoot(scip)
@@ -19102,12 +21929,41 @@ function SCIPgetPrimalbound(scip)
     ccall((:SCIPgetPrimalbound, libscip), Cdouble, (Ptr{SCIP},), scip)
 end
 
+function SCIPgetPrimalboundExact(scip, result)
+    ccall(
+        (:SCIPgetPrimalboundExact, libscip),
+        Cvoid,
+        (Ptr{SCIP}, Ptr{SCIP_RATIONAL}),
+        scip,
+        result,
+    )
+end
+
 function SCIPgetUpperbound(scip)
     ccall((:SCIPgetUpperbound, libscip), Cdouble, (Ptr{SCIP},), scip)
 end
 
+function SCIPgetUpperboundExact(scip, result)
+    ccall(
+        (:SCIPgetUpperboundExact, libscip),
+        Cvoid,
+        (Ptr{SCIP}, Ptr{SCIP_RATIONAL}),
+        scip,
+        result,
+    )
+end
+
 function SCIPgetCutoffbound(scip)
     ccall((:SCIPgetCutoffbound, libscip), Cdouble, (Ptr{SCIP},), scip)
+end
+
+function SCIPgetCutoffboundExact(scip)
+    ccall(
+        (:SCIPgetCutoffboundExact, libscip),
+        Ptr{SCIP_RATIONAL},
+        (Ptr{SCIP},),
+        scip,
+    )
 end
 
 function SCIPupdateCutoffbound(scip, cutoffbound)
@@ -19197,6 +22053,16 @@ end
 
 function SCIPgetAvgPseudocostScore(scip)
     ccall((:SCIPgetAvgPseudocostScore, libscip), Cdouble, (Ptr{SCIP},), scip)
+end
+
+function SCIPgetAvgDPseudocostScore(scip, discountfac)
+    ccall(
+        (:SCIPgetAvgDPseudocostScore, libscip),
+        Cdouble,
+        (Ptr{SCIP}, Cdouble),
+        scip,
+        discountfac,
+    )
 end
 
 function SCIPgetPseudocostVariance(scip, branchdir, onlycurrentrun)
@@ -19316,32 +22182,22 @@ function SCIPgetAvgCutoffScoreCurrentRun(scip)
     )
 end
 
+function SCIPgetAvgGMIeff(scip)
+    ccall((:SCIPgetAvgGMIeff, libscip), Cdouble, (Ptr{SCIP},), scip)
+end
+
+function SCIPincAvgGMIeff(scip, gmieff)
+    ccall(
+        (:SCIPincAvgGMIeff, libscip),
+        Cvoid,
+        (Ptr{SCIP}, Cdouble),
+        scip,
+        gmieff,
+    )
+end
+
 function SCIPgetDeterministicTime(scip)
     ccall((:SCIPgetDeterministicTime, libscip), Cdouble, (Ptr{SCIP},), scip)
-end
-
-function SCIPprintOrigProblem(scip, file, extension, genericnames)
-    ccall(
-        (:SCIPprintOrigProblem, libscip),
-        SCIP_RETCODE,
-        (Ptr{SCIP}, Ptr{Libc.FILE}, Ptr{Cchar}, Cuint),
-        scip,
-        file,
-        extension,
-        genericnames,
-    )
-end
-
-function SCIPprintTransProblem(scip, file, extension, genericnames)
-    ccall(
-        (:SCIPprintTransProblem, libscip),
-        SCIP_RETCODE,
-        (Ptr{SCIP}, Ptr{Libc.FILE}, Ptr{Cchar}, Cuint),
-        scip,
-        file,
-        extension,
-        genericnames,
-    )
 end
 
 function SCIPprintStatusStatistics(scip, file)
@@ -19351,6 +22207,16 @@ function SCIPprintStatusStatistics(scip, file)
         (Ptr{SCIP}, Ptr{Libc.FILE}),
         scip,
         file,
+    )
+end
+
+function SCIPcollectStatusStatistics(scip, datatree)
+    ccall(
+        (:SCIPcollectStatusStatistics, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_DATATREE}),
+        scip,
+        datatree,
     )
 end
 
@@ -19364,6 +22230,16 @@ function SCIPprintTimingStatistics(scip, file)
     )
 end
 
+function SCIPcollectTimingStatistics(scip, datatree)
+    ccall(
+        (:SCIPcollectTimingStatistics, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_DATATREE}),
+        scip,
+        datatree,
+    )
+end
+
 function SCIPprintOrigProblemStatistics(scip, file)
     ccall(
         (:SCIPprintOrigProblemStatistics, libscip),
@@ -19371,6 +22247,16 @@ function SCIPprintOrigProblemStatistics(scip, file)
         (Ptr{SCIP}, Ptr{Libc.FILE}),
         scip,
         file,
+    )
+end
+
+function SCIPcollectOrigProblemStatistics(scip, datatree)
+    ccall(
+        (:SCIPcollectOrigProblemStatistics, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_DATATREE}),
+        scip,
+        datatree,
     )
 end
 
@@ -19384,6 +22270,16 @@ function SCIPprintTransProblemStatistics(scip, file)
     )
 end
 
+function SCIPcollectTransProblemStatistics(scip, datatree)
+    ccall(
+        (:SCIPcollectTransProblemStatistics, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_DATATREE}),
+        scip,
+        datatree,
+    )
+end
+
 function SCIPprintPresolverStatistics(scip, file)
     ccall(
         (:SCIPprintPresolverStatistics, libscip),
@@ -19391,6 +22287,16 @@ function SCIPprintPresolverStatistics(scip, file)
         (Ptr{SCIP}, Ptr{Libc.FILE}),
         scip,
         file,
+    )
+end
+
+function SCIPcollectPresolverStatistics(scip, datatree)
+    ccall(
+        (:SCIPcollectPresolverStatistics, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_DATATREE}),
+        scip,
+        datatree,
     )
 end
 
@@ -19404,6 +22310,16 @@ function SCIPprintConstraintStatistics(scip, file)
     )
 end
 
+function SCIPcollectConstraintStatistics(scip, datatree)
+    ccall(
+        (:SCIPcollectConstraintStatistics, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_DATATREE}),
+        scip,
+        datatree,
+    )
+end
+
 function SCIPprintConstraintTimingStatistics(scip, file)
     ccall(
         (:SCIPprintConstraintTimingStatistics, libscip),
@@ -19411,6 +22327,16 @@ function SCIPprintConstraintTimingStatistics(scip, file)
         (Ptr{SCIP}, Ptr{Libc.FILE}),
         scip,
         file,
+    )
+end
+
+function SCIPcollectConstraintTimingStatistics(scip, datatree)
+    ccall(
+        (:SCIPcollectConstraintTimingStatistics, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_DATATREE}),
+        scip,
+        datatree,
     )
 end
 
@@ -19424,6 +22350,16 @@ function SCIPprintPropagatorStatistics(scip, file)
     )
 end
 
+function SCIPcollectPropagatorStatistics(scip, datatree)
+    ccall(
+        (:SCIPcollectPropagatorStatistics, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_DATATREE}),
+        scip,
+        datatree,
+    )
+end
+
 function SCIPprintConflictStatistics(scip, file)
     ccall(
         (:SCIPprintConflictStatistics, libscip),
@@ -19431,6 +22367,16 @@ function SCIPprintConflictStatistics(scip, file)
         (Ptr{SCIP}, Ptr{Libc.FILE}),
         scip,
         file,
+    )
+end
+
+function SCIPcollectConflictStatistics(scip, datatree)
+    ccall(
+        (:SCIPcollectConflictStatistics, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_DATATREE}),
+        scip,
+        datatree,
     )
 end
 
@@ -19444,6 +22390,16 @@ function SCIPprintSeparatorStatistics(scip, file)
     )
 end
 
+function SCIPcollectSeparatorStatistics(scip, datatree)
+    ccall(
+        (:SCIPcollectSeparatorStatistics, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_DATATREE}),
+        scip,
+        datatree,
+    )
+end
+
 function SCIPprintCutselectorStatistics(scip, file)
     ccall(
         (:SCIPprintCutselectorStatistics, libscip),
@@ -19451,6 +22407,16 @@ function SCIPprintCutselectorStatistics(scip, file)
         (Ptr{SCIP}, Ptr{Libc.FILE}),
         scip,
         file,
+    )
+end
+
+function SCIPcollectCutselectorStatistics(scip, datatree)
+    ccall(
+        (:SCIPcollectCutselectorStatistics, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_DATATREE}),
+        scip,
+        datatree,
     )
 end
 
@@ -19464,6 +22430,16 @@ function SCIPprintPricerStatistics(scip, file)
     )
 end
 
+function SCIPcollectPricerStatistics(scip, datatree)
+    ccall(
+        (:SCIPcollectPricerStatistics, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_DATATREE}),
+        scip,
+        datatree,
+    )
+end
+
 function SCIPprintBranchruleStatistics(scip, file)
     ccall(
         (:SCIPprintBranchruleStatistics, libscip),
@@ -19471,6 +22447,16 @@ function SCIPprintBranchruleStatistics(scip, file)
         (Ptr{SCIP}, Ptr{Libc.FILE}),
         scip,
         file,
+    )
+end
+
+function SCIPcollectBranchruleStatistics(scip, datatree)
+    ccall(
+        (:SCIPcollectBranchruleStatistics, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_DATATREE}),
+        scip,
+        datatree,
     )
 end
 
@@ -19484,6 +22470,16 @@ function SCIPprintHeuristicStatistics(scip, file)
     )
 end
 
+function SCIPcollectHeuristicStatistics(scip, datatree)
+    ccall(
+        (:SCIPcollectHeuristicStatistics, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_DATATREE}),
+        scip,
+        datatree,
+    )
+end
+
 function SCIPprintCompressionStatistics(scip, file)
     ccall(
         (:SCIPprintCompressionStatistics, libscip),
@@ -19491,6 +22487,16 @@ function SCIPprintCompressionStatistics(scip, file)
         (Ptr{SCIP}, Ptr{Libc.FILE}),
         scip,
         file,
+    )
+end
+
+function SCIPcollectCompressionStatistics(scip, datatree)
+    ccall(
+        (:SCIPcollectCompressionStatistics, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_DATATREE}),
+        scip,
+        datatree,
     )
 end
 
@@ -19504,6 +22510,16 @@ function SCIPprintLPStatistics(scip, file)
     )
 end
 
+function SCIPcollectLPStatistics(scip, datatree)
+    ccall(
+        (:SCIPcollectLPStatistics, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_DATATREE}),
+        scip,
+        datatree,
+    )
+end
+
 function SCIPprintNLPStatistics(scip, file)
     ccall(
         (:SCIPprintNLPStatistics, libscip),
@@ -19511,6 +22527,16 @@ function SCIPprintNLPStatistics(scip, file)
         (Ptr{SCIP}, Ptr{Libc.FILE}),
         scip,
         file,
+    )
+end
+
+function SCIPcollectNLPStatistics(scip, datatree)
+    ccall(
+        (:SCIPcollectNLPStatistics, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_DATATREE}),
+        scip,
+        datatree,
     )
 end
 
@@ -19524,6 +22550,16 @@ function SCIPprintRelaxatorStatistics(scip, file)
     )
 end
 
+function SCIPcollectRelaxatorStatistics(scip, datatree)
+    ccall(
+        (:SCIPcollectRelaxatorStatistics, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_DATATREE}),
+        scip,
+        datatree,
+    )
+end
+
 function SCIPprintTreeStatistics(scip, file)
     ccall(
         (:SCIPprintTreeStatistics, libscip),
@@ -19531,6 +22567,16 @@ function SCIPprintTreeStatistics(scip, file)
         (Ptr{SCIP}, Ptr{Libc.FILE}),
         scip,
         file,
+    )
+end
+
+function SCIPcollectTreeStatistics(scip, datatree)
+    ccall(
+        (:SCIPcollectTreeStatistics, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_DATATREE}),
+        scip,
+        datatree,
     )
 end
 
@@ -19544,6 +22590,16 @@ function SCIPprintRootStatistics(scip, file)
     )
 end
 
+function SCIPcollectRootStatistics(scip, datatree)
+    ccall(
+        (:SCIPcollectRootStatistics, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_DATATREE}),
+        scip,
+        datatree,
+    )
+end
+
 function SCIPprintSolutionStatistics(scip, file)
     ccall(
         (:SCIPprintSolutionStatistics, libscip),
@@ -19551,6 +22607,16 @@ function SCIPprintSolutionStatistics(scip, file)
         (Ptr{SCIP}, Ptr{Libc.FILE}),
         scip,
         file,
+    )
+end
+
+function SCIPcollectSolutionStatistics(scip, datatree)
+    ccall(
+        (:SCIPcollectSolutionStatistics, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_DATATREE}),
+        scip,
+        datatree,
     )
 end
 
@@ -19564,6 +22630,16 @@ function SCIPprintConcsolverStatistics(scip, file)
     )
 end
 
+function SCIPcollectConcsolverStatistics(scip, datatree)
+    ccall(
+        (:SCIPcollectConcsolverStatistics, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_DATATREE}),
+        scip,
+        datatree,
+    )
+end
+
 function SCIPprintBendersStatistics(scip, file)
     ccall(
         (:SCIPprintBendersStatistics, libscip),
@@ -19571,6 +22647,16 @@ function SCIPprintBendersStatistics(scip, file)
         (Ptr{SCIP}, Ptr{Libc.FILE}),
         scip,
         file,
+    )
+end
+
+function SCIPcollectBendersStatistics(scip, datatree)
+    ccall(
+        (:SCIPcollectBendersStatistics, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_DATATREE}),
+        scip,
+        datatree,
     )
 end
 
@@ -19584,6 +22670,16 @@ function SCIPprintExpressionHandlerStatistics(scip, file)
     )
 end
 
+function SCIPcollectExpressionHandlerStatistics(scip, datatree)
+    ccall(
+        (:SCIPcollectExpressionHandlerStatistics, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_DATATREE}),
+        scip,
+        datatree,
+    )
+end
+
 function SCIPprintNLPIStatistics(scip, file)
     ccall(
         (:SCIPprintNLPIStatistics, libscip),
@@ -19594,9 +22690,29 @@ function SCIPprintNLPIStatistics(scip, file)
     )
 end
 
+function SCIPcollectNLPIStatistics(scip, datatree)
+    ccall(
+        (:SCIPcollectNLPIStatistics, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_DATATREE}),
+        scip,
+        datatree,
+    )
+end
+
 function SCIPprintStatistics(scip, file)
     ccall(
         (:SCIPprintStatistics, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{Libc.FILE}),
+        scip,
+        file,
+    )
+end
+
+function SCIPprintStatisticsJson(scip, file)
+    ccall(
+        (:SCIPprintStatisticsJson, libscip),
         SCIP_RETCODE,
         (Ptr{SCIP}, Ptr{Libc.FILE}),
         scip,
@@ -19624,6 +22740,16 @@ function SCIPprintBranchingStatistics(scip, file)
     )
 end
 
+function SCIPcollectBranchingStatistics(scip, datatree)
+    ccall(
+        (:SCIPcollectBranchingStatistics, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_DATATREE}),
+        scip,
+        datatree,
+    )
+end
+
 function SCIPprintDisplayLine(scip, file, verblevel, endline)
     ccall(
         (:SCIPprintDisplayLine, libscip),
@@ -19640,18 +22766,12 @@ function SCIPgetNImplications(scip)
     ccall((:SCIPgetNImplications, libscip), Cint, (Ptr{SCIP},), scip)
 end
 
-function SCIPwriteImplicationConflictGraph(scip, filename)
-    ccall(
-        (:SCIPwriteImplicationConflictGraph, libscip),
-        SCIP_RETCODE,
-        (Ptr{SCIP}, Ptr{Cchar}),
-        scip,
-        filename,
-    )
-end
-
 function SCIPstoreSolutionGap(scip)
     ccall((:SCIPstoreSolutionGap, libscip), Cvoid, (Ptr{SCIP},), scip)
+end
+
+function SCIPgetPrimalDualIntegral(scip)
+    ccall((:SCIPgetPrimalDualIntegral, libscip), Cdouble, (Ptr{SCIP},), scip)
 end
 
 function SCIPincludeTable(
@@ -19666,6 +22786,7 @@ function SCIPincludeTable(
     tableinitsol,
     tableexitsol,
     tableoutput,
+    tablecollect,
     tabledata,
     position,
     earlieststage,
@@ -19678,6 +22799,7 @@ function SCIPincludeTable(
             Ptr{Cchar},
             Ptr{Cchar},
             Cuint,
+            Ptr{Cvoid},
             Ptr{Cvoid},
             Ptr{Cvoid},
             Ptr{Cvoid},
@@ -19700,6 +22822,7 @@ function SCIPincludeTable(
         tableinitsol,
         tableexitsol,
         tableoutput,
+        tablecollect,
         tabledata,
         position,
         earlieststage,
@@ -20103,6 +23226,37 @@ function SCIPvalidateSolve(
     )
 end
 
+function SCIPvalidateSolveExact(
+    scip,
+    primalreference,
+    dualreference,
+    quiet,
+    feasible,
+    primalboundcheck,
+    dualboundcheck,
+)
+    ccall(
+        (:SCIPvalidateSolveExact, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP},
+            Ptr{SCIP_RATIONAL},
+            Ptr{SCIP_RATIONAL},
+            Cuint,
+            Ptr{Cuint},
+            Ptr{Cuint},
+            Ptr{Cuint},
+        ),
+        scip,
+        primalreference,
+        dualreference,
+        quiet,
+        feasible,
+        primalboundcheck,
+        dualboundcheck,
+    )
+end
+
 function SCIPcreateVar(
     scip,
     var,
@@ -20175,6 +23329,80 @@ function SCIPcreateVarBasic(scip, var, name, lb, ub, obj, vartype)
         ub,
         obj,
         vartype,
+    )
+end
+
+function SCIPcreateVarImpl(
+    scip,
+    var,
+    name,
+    lb,
+    ub,
+    obj,
+    vartype,
+    impltype,
+    initial,
+    removable,
+    vardelorig,
+    vartrans,
+    vardeltrans,
+    varcopy,
+    vardata,
+)
+    ccall(
+        (:SCIPcreateVarImpl, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP},
+            Ptr{Ptr{SCIP_VAR}},
+            Ptr{Cchar},
+            Cdouble,
+            Cdouble,
+            Cdouble,
+            SCIP_VARTYPE,
+            SCIP_IMPLINTTYPE,
+            Cuint,
+            Cuint,
+            Ptr{Cvoid},
+            Ptr{Cvoid},
+            Ptr{Cvoid},
+            Ptr{Cvoid},
+            Ptr{SCIP_VARDATA},
+        ),
+        scip,
+        var,
+        name,
+        lb,
+        ub,
+        obj,
+        vartype,
+        impltype,
+        initial,
+        removable,
+        vardelorig,
+        vartrans,
+        vardeltrans,
+        varcopy,
+        vardata,
+    )
+end
+
+function SCIPaddVarExactData(scip, var, lb, ub, obj)
+    ccall(
+        (:SCIPaddVarExactData, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP},
+            Ptr{SCIP_VAR},
+            Ptr{SCIP_RATIONAL},
+            Ptr{SCIP_RATIONAL},
+            Ptr{SCIP_RATIONAL},
+        ),
+        scip,
+        var,
+        lb,
+        ub,
+        obj,
     )
 end
 
@@ -20391,6 +23619,43 @@ function SCIPparseVarsLinearsum(
     )
 end
 
+function SCIPparseVarsLinearsumExact(
+    scip,
+    str,
+    vars,
+    vals,
+    nvars,
+    varssize,
+    requiredsize,
+    endptr,
+    success,
+)
+    ccall(
+        (:SCIPparseVarsLinearsumExact, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP},
+            Ptr{Cchar},
+            Ptr{Ptr{SCIP_VAR}},
+            Ptr{Ptr{SCIP_RATIONAL}},
+            Ptr{Cint},
+            Cint,
+            Ptr{Cint},
+            Ptr{Ptr{Cchar}},
+            Ptr{Cuint},
+        ),
+        scip,
+        str,
+        vars,
+        vals,
+        nvars,
+        varssize,
+        requiredsize,
+        endptr,
+        success,
+    )
+end
+
 function SCIPparseVarsPolynomial(
     scip,
     str,
@@ -20422,6 +23687,59 @@ function SCIPparseVarsPolynomial(
         monomialexps,
         monomialcoefs,
         monomialnvars,
+        nmonomials,
+        endptr,
+        success,
+    )
+end
+
+function SCIPfreeParseVarsPolynomialDataExact(
+    scip,
+    monomialvars,
+    monomialcoefs,
+    nmonomials,
+)
+    ccall(
+        (:SCIPfreeParseVarsPolynomialDataExact, libscip),
+        Cvoid,
+        (
+            Ptr{SCIP},
+            Ptr{Ptr{Ptr{Ptr{SCIP_VAR}}}},
+            Ptr{Ptr{Ptr{SCIP_RATIONAL}}},
+            Cint,
+        ),
+        scip,
+        monomialvars,
+        monomialcoefs,
+        nmonomials,
+    )
+end
+
+function SCIPparseVarsPolynomialExact(
+    scip,
+    str,
+    monomialvars,
+    monomialcoefs,
+    nmonomials,
+    endptr,
+    success,
+)
+    ccall(
+        (:SCIPparseVarsPolynomialExact, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP},
+            Ptr{Cchar},
+            Ptr{Ptr{Ptr{Ptr{SCIP_VAR}}}},
+            Ptr{Ptr{Ptr{SCIP_RATIONAL}}},
+            Ptr{Cint},
+            Ptr{Ptr{Cchar}},
+            Ptr{Cuint},
+        ),
+        scip,
+        str,
+        monomialvars,
+        monomialcoefs,
         nmonomials,
         endptr,
         success,
@@ -20599,7 +23917,6 @@ function SCIPgetProbvarLinearSum(
     varssize,
     constant,
     requiredsize,
-    mergemultiples,
 )
     ccall(
         (:SCIPgetProbvarLinearSum, libscip),
@@ -20612,7 +23929,6 @@ function SCIPgetProbvarLinearSum(
             Cint,
             Ptr{Cdouble},
             Ptr{Cint},
-            Cuint,
         ),
         scip,
         vars,
@@ -20621,7 +23937,6 @@ function SCIPgetProbvarLinearSum(
         varssize,
         constant,
         requiredsize,
-        mergemultiples,
     )
 end
 
@@ -20630,6 +23945,18 @@ function SCIPgetProbvarSum(scip, var, scalar, constant)
         (:SCIPgetProbvarSum, libscip),
         SCIP_RETCODE,
         (Ptr{SCIP}, Ptr{Ptr{SCIP_VAR}}, Ptr{Cdouble}, Ptr{Cdouble}),
+        scip,
+        var,
+        scalar,
+        constant,
+    )
+end
+
+function SCIPgetProbvarSumExact(scip, var, scalar, constant)
+    ccall(
+        (:SCIPgetProbvarSumExact, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{Ptr{SCIP_VAR}}, Ptr{SCIP_RATIONAL}, Ptr{SCIP_RATIONAL}),
         scip,
         var,
         scalar,
@@ -21336,9 +24663,31 @@ function SCIPadjustedVarLb(scip, var, lb)
     )
 end
 
+function SCIPadjustedVarLbExactFloat(scip, var, lb)
+    ccall(
+        (:SCIPadjustedVarLbExactFloat, libscip),
+        Cdouble,
+        (Ptr{SCIP}, Ptr{SCIP_VAR}, Cdouble),
+        scip,
+        var,
+        lb,
+    )
+end
+
 function SCIPadjustedVarUb(scip, var, ub)
     ccall(
         (:SCIPadjustedVarUb, libscip),
+        Cdouble,
+        (Ptr{SCIP}, Ptr{SCIP_VAR}, Cdouble),
+        scip,
+        var,
+        ub,
+    )
+end
+
+function SCIPadjustedVarUbExactFloat(scip, var, ub)
+    ccall(
+        (:SCIPadjustedVarUbExactFloat, libscip),
         Cdouble,
         (Ptr{SCIP}, Ptr{SCIP_VAR}, Cdouble),
         scip,
@@ -21358,11 +24707,33 @@ function SCIPchgVarLb(scip, var, newbound)
     )
 end
 
+function SCIPchgVarLbExact(scip, var, newbound)
+    ccall(
+        (:SCIPchgVarLbExact, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_VAR}, Ptr{SCIP_RATIONAL}),
+        scip,
+        var,
+        newbound,
+    )
+end
+
 function SCIPchgVarUb(scip, var, newbound)
     ccall(
         (:SCIPchgVarUb, libscip),
         SCIP_RETCODE,
         (Ptr{SCIP}, Ptr{SCIP_VAR}, Cdouble),
+        scip,
+        var,
+        newbound,
+    )
+end
+
+function SCIPchgVarUbExact(scip, var, newbound)
+    ccall(
+        (:SCIPchgVarUbExact, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_VAR}, Ptr{SCIP_RATIONAL}),
         scip,
         var,
         newbound,
@@ -21451,6 +24822,19 @@ function SCIPtightenVarLb(scip, var, newbound, force, infeasible, tightened)
     )
 end
 
+function SCIPtightenVarLbExact(scip, var, newbound, infeasible, tightened)
+    ccall(
+        (:SCIPtightenVarLbExact, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_VAR}, Ptr{SCIP_RATIONAL}, Ptr{Cuint}, Ptr{Cuint}),
+        scip,
+        var,
+        newbound,
+        infeasible,
+        tightened,
+    )
+end
+
 function SCIPtightenVarUb(scip, var, newbound, force, infeasible, tightened)
     ccall(
         (:SCIPtightenVarUb, libscip),
@@ -21460,6 +24844,19 @@ function SCIPtightenVarUb(scip, var, newbound, force, infeasible, tightened)
         var,
         newbound,
         force,
+        infeasible,
+        tightened,
+    )
+end
+
+function SCIPtightenVarUbExact(scip, var, newbound, infeasible, tightened)
+    ccall(
+        (:SCIPtightenVarUbExact, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_VAR}, Ptr{SCIP_RATIONAL}, Ptr{Cuint}, Ptr{Cuint}),
+        scip,
+        var,
+        newbound,
         infeasible,
         tightened,
     )
@@ -21591,6 +24988,68 @@ function SCIPinferBinvarCons(
         scip,
         var,
         fixedval,
+        infercons,
+        inferinfo,
+        infeasible,
+        tightened,
+    )
+end
+
+function SCIPinferVarUbConsExact(
+    scip,
+    var,
+    newbound,
+    infercons,
+    inferinfo,
+    infeasible,
+    tightened,
+)
+    ccall(
+        (:SCIPinferVarUbConsExact, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP},
+            Ptr{SCIP_VAR},
+            Ptr{SCIP_RATIONAL},
+            Ptr{SCIP_CONS},
+            Cint,
+            Ptr{Cuint},
+            Ptr{Cuint},
+        ),
+        scip,
+        var,
+        newbound,
+        infercons,
+        inferinfo,
+        infeasible,
+        tightened,
+    )
+end
+
+function SCIPinferVarLbConsExact(
+    scip,
+    var,
+    newbound,
+    infercons,
+    inferinfo,
+    infeasible,
+    tightened,
+)
+    ccall(
+        (:SCIPinferVarLbConsExact, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP},
+            Ptr{SCIP_VAR},
+            Ptr{SCIP_RATIONAL},
+            Ptr{SCIP_CONS},
+            Cint,
+            Ptr{Cuint},
+            Ptr{Cuint},
+        ),
+        scip,
+        var,
+        newbound,
         infercons,
         inferinfo,
         infeasible,
@@ -21803,6 +25262,17 @@ function SCIPcomputeVarLbLocal(scip, var)
     )
 end
 
+function SCIPcomputeVarLbLocalExact(scip, var, result)
+    ccall(
+        (:SCIPcomputeVarLbLocalExact, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_VAR}, Ptr{SCIP_RATIONAL}),
+        scip,
+        var,
+        result,
+    )
+end
+
 function SCIPcomputeVarUbLocal(scip, var)
     ccall(
         (:SCIPcomputeVarUbLocal, libscip),
@@ -21810,6 +25280,17 @@ function SCIPcomputeVarUbLocal(scip, var)
         (Ptr{SCIP}, Ptr{SCIP_VAR}),
         scip,
         var,
+    )
+end
+
+function SCIPcomputeVarUbLocalExact(scip, var, result)
+    ccall(
+        (:SCIPcomputeVarUbLocalExact, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_VAR}, Ptr{SCIP_RATIONAL}),
+        scip,
+        var,
+        result,
     )
 end
 
@@ -22006,14 +25487,32 @@ function SCIPaddClique(
     )
 end
 
-function SCIPcalcCliquePartition(scip, vars, nvars, cliquepartition, ncliques)
+function SCIPcalcCliquePartition(
+    scip,
+    vars,
+    nvars,
+    probtoidxmap,
+    probtoidxmapsize,
+    cliquepartition,
+    ncliques,
+)
     ccall(
         (:SCIPcalcCliquePartition, libscip),
         SCIP_RETCODE,
-        (Ptr{SCIP}, Ptr{Ptr{SCIP_VAR}}, Cint, Ptr{Cint}, Ptr{Cint}),
+        (
+            Ptr{SCIP},
+            Ptr{Ptr{SCIP_VAR}},
+            Cint,
+            Ptr{Ptr{Cint}},
+            Ptr{Cint},
+            Ptr{Cint},
+            Ptr{Cint},
+        ),
         scip,
         vars,
         nvars,
+        probtoidxmap,
+        probtoidxmapsize,
         cliquepartition,
         ncliques,
     )
@@ -22023,16 +25522,28 @@ function SCIPcalcNegatedCliquePartition(
     scip,
     vars,
     nvars,
+    probtoidxmap,
+    probtoidxmapsize,
     cliquepartition,
     ncliques,
 )
     ccall(
         (:SCIPcalcNegatedCliquePartition, libscip),
         SCIP_RETCODE,
-        (Ptr{SCIP}, Ptr{Ptr{SCIP_VAR}}, Cint, Ptr{Cint}, Ptr{Cint}),
+        (
+            Ptr{SCIP},
+            Ptr{Ptr{SCIP_VAR}},
+            Cint,
+            Ptr{Ptr{Cint}},
+            Ptr{Cint},
+            Ptr{Cint},
+            Ptr{Cint},
+        ),
         scip,
         vars,
         nvars,
+        probtoidxmap,
+        probtoidxmapsize,
         cliquepartition,
         ncliques,
     )
@@ -22191,11 +25702,36 @@ function SCIPchgVarType(scip, var, vartype, infeasible)
     )
 end
 
+function SCIPchgVarImplType(scip, var, impltype, infeasible)
+    ccall(
+        (:SCIPchgVarImplType, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_VAR}, SCIP_IMPLINTTYPE, Ptr{Cuint}),
+        scip,
+        var,
+        impltype,
+        infeasible,
+    )
+end
+
 function SCIPfixVar(scip, var, fixedval, infeasible, fixed)
     ccall(
         (:SCIPfixVar, libscip),
         SCIP_RETCODE,
         (Ptr{SCIP}, Ptr{SCIP_VAR}, Cdouble, Ptr{Cuint}, Ptr{Cuint}),
+        scip,
+        var,
+        fixedval,
+        infeasible,
+        fixed,
+    )
+end
+
+function SCIPfixVarExact(scip, var, fixedval, infeasible, fixed)
+    ccall(
+        (:SCIPfixVarExact, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_VAR}, Ptr{SCIP_RATIONAL}, Ptr{Cuint}, Ptr{Cuint}),
         scip,
         var,
         fixedval,
@@ -22225,6 +25761,43 @@ function SCIPaggregateVars(
             Cdouble,
             Cdouble,
             Cdouble,
+            Ptr{Cuint},
+            Ptr{Cuint},
+            Ptr{Cuint},
+        ),
+        scip,
+        varx,
+        vary,
+        scalarx,
+        scalary,
+        rhs,
+        infeasible,
+        redundant,
+        aggregated,
+    )
+end
+
+function SCIPaggregateVarsExact(
+    scip,
+    varx,
+    vary,
+    scalarx,
+    scalary,
+    rhs,
+    infeasible,
+    redundant,
+    aggregated,
+)
+    ccall(
+        (:SCIPaggregateVarsExact, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP},
+            Ptr{SCIP_VAR},
+            Ptr{SCIP_VAR},
+            Ptr{SCIP_RATIONAL},
+            Ptr{SCIP_RATIONAL},
+            Ptr{SCIP_RATIONAL},
             Ptr{Cuint},
             Ptr{Cuint},
             Ptr{Cuint},
@@ -22275,6 +25848,40 @@ function SCIPmultiaggregateVar(
     )
 end
 
+function SCIPmultiaggregateVarExact(
+    scip,
+    var,
+    naggvars,
+    aggvars,
+    scalars,
+    constant,
+    infeasible,
+    aggregated,
+)
+    ccall(
+        (:SCIPmultiaggregateVarExact, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP},
+            Ptr{SCIP_VAR},
+            Cint,
+            Ptr{Ptr{SCIP_VAR}},
+            Ptr{Ptr{SCIP_RATIONAL}},
+            Ptr{SCIP_RATIONAL},
+            Ptr{Cuint},
+            Ptr{Cuint},
+        ),
+        scip,
+        var,
+        naggvars,
+        aggvars,
+        scalars,
+        constant,
+        infeasible,
+        aggregated,
+    )
+end
+
 function SCIPdoNotAggr(scip)
     ccall((:SCIPdoNotAggr, libscip), Cuint, (Ptr{SCIP},), scip)
 end
@@ -22303,16 +25910,19 @@ function SCIPdoNotMultaggrVar(scip, var)
     )
 end
 
-function SCIPallowDualReds(scip)
-    ccall((:SCIPallowDualReds, libscip), Cuint, (Ptr{SCIP},), scip)
+function SCIPisVarAggrCoefAcceptable(scip, var, scalar)
+    ccall(
+        (:SCIPisVarAggrCoefAcceptable, libscip),
+        Cuint,
+        (Ptr{SCIP}, Ptr{SCIP_VAR}, Cdouble),
+        scip,
+        var,
+        scalar,
+    )
 end
 
 function SCIPallowStrongDualReds(scip)
     ccall((:SCIPallowStrongDualReds, libscip), Cuint, (Ptr{SCIP},), scip)
-end
-
-function SCIPallowObjProp(scip)
-    ccall((:SCIPallowObjProp, libscip), Cuint, (Ptr{SCIP},), scip)
 end
 
 function SCIPallowWeakDualReds(scip)
@@ -22360,9 +25970,33 @@ function SCIPupdateVarPseudocost(scip, var, solvaldelta, objdelta, weight)
     )
 end
 
+function SCIPupdateVarAncPseudocost(scip, var, solvaldelta, objdelta, weight)
+    ccall(
+        (:SCIPupdateVarAncPseudocost, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_VAR}, Cdouble, Cdouble, Cdouble),
+        scip,
+        var,
+        solvaldelta,
+        objdelta,
+        weight,
+    )
+end
+
 function SCIPgetVarPseudocostVal(scip, var, solvaldelta)
     ccall(
         (:SCIPgetVarPseudocostVal, libscip),
+        Cdouble,
+        (Ptr{SCIP}, Ptr{SCIP_VAR}, Cdouble),
+        scip,
+        var,
+        solvaldelta,
+    )
+end
+
+function SCIPgetVarAncPseudocostVal(scip, var, solvaldelta)
+    ccall(
+        (:SCIPgetVarAncPseudocostVal, libscip),
         Cdouble,
         (Ptr{SCIP}, Ptr{SCIP_VAR}, Cdouble),
         scip,
@@ -22418,6 +26052,17 @@ end
 function SCIPgetVarPseudocostCountCurrentRun(scip, var, dir)
     ccall(
         (:SCIPgetVarPseudocostCountCurrentRun, libscip),
+        Cdouble,
+        (Ptr{SCIP}, Ptr{SCIP_VAR}, SCIP_BRANCHDIR),
+        scip,
+        var,
+        dir,
+    )
+end
+
+function SCIPgetVarAncPseudocostCountCurrentRun(scip, var, dir)
+    ccall(
+        (:SCIPgetVarAncPseudocostCountCurrentRun, libscip),
         Cdouble,
         (Ptr{SCIP}, Ptr{SCIP_VAR}, SCIP_BRANCHDIR),
         scip,
@@ -22539,6 +26184,18 @@ function SCIPgetVarPseudocostScore(scip, var, solval)
         scip,
         var,
         solval,
+    )
+end
+
+function SCIPgetVarDPseudocostScore(scip, var, solval, discountfac)
+    ccall(
+        (:SCIPgetVarDPseudocostScore, libscip),
+        Cdouble,
+        (Ptr{SCIP}, Ptr{SCIP_VAR}, Cdouble, Cdouble),
+        scip,
+        var,
+        solval,
+        discountfac,
     )
 end
 
@@ -22832,6 +26489,48 @@ function SCIPgetVarAvgInferenceCutoffScoreCurrentRun(scip, var, cutoffweight)
     )
 end
 
+function SCIPgetVarAvgGMIScore(scip, var)
+    ccall(
+        (:SCIPgetVarAvgGMIScore, libscip),
+        Cdouble,
+        (Ptr{SCIP}, Ptr{SCIP_VAR}),
+        scip,
+        var,
+    )
+end
+
+function SCIPincVarGMISumScore(scip, var, gmieff)
+    ccall(
+        (:SCIPincVarGMISumScore, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_VAR}, Cdouble),
+        scip,
+        var,
+        gmieff,
+    )
+end
+
+function SCIPgetVarLastGMIScore(scip, var)
+    ccall(
+        (:SCIPgetVarLastGMIScore, libscip),
+        Cdouble,
+        (Ptr{SCIP}, Ptr{SCIP_VAR}),
+        scip,
+        var,
+    )
+end
+
+function SCIPsetVarLastGMIScore(scip, var, gmieff)
+    ccall(
+        (:SCIPsetVarLastGMIScore, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_VAR}, Cdouble),
+        scip,
+        var,
+        gmieff,
+    )
+end
+
 function SCIPprintVar(scip, var, file)
     ccall(
         (:SCIPprintVar, libscip),
@@ -22840,6 +26539,94 @@ function SCIPprintVar(scip, var, file)
         scip,
         var,
         file,
+    )
+end
+
+function SCIPchgVarObjExact(scip, var, newobj)
+    ccall(
+        (:SCIPchgVarObjExact, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_VAR}, Ptr{SCIP_RATIONAL}),
+        scip,
+        var,
+        newobj,
+    )
+end
+
+function SCIPchgVarUbGlobalExact(scip, var, newbound)
+    ccall(
+        (:SCIPchgVarUbGlobalExact, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_VAR}, Ptr{SCIP_RATIONAL}),
+        scip,
+        var,
+        newbound,
+    )
+end
+
+function SCIPchgVarLbGlobalExact(scip, var, newbound)
+    ccall(
+        (:SCIPchgVarLbGlobalExact, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_VAR}, Ptr{SCIP_RATIONAL}),
+        scip,
+        var,
+        newbound,
+    )
+end
+
+function SCIPwriteVarsLinearsumExact(scip, file, vars, vals, nvars, type)
+    ccall(
+        (:SCIPwriteVarsLinearsumExact, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP},
+            Ptr{Libc.FILE},
+            Ptr{Ptr{SCIP_VAR}},
+            Ptr{Ptr{SCIP_RATIONAL}},
+            Cint,
+            Cuint,
+        ),
+        scip,
+        file,
+        vars,
+        vals,
+        nvars,
+        type,
+    )
+end
+
+function SCIPgetProbvarLinearSumExact(
+    scip,
+    vars,
+    scalars,
+    nvars,
+    varssize,
+    constant,
+    requiredsize,
+    mergemultiples,
+)
+    ccall(
+        (:SCIPgetProbvarLinearSumExact, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP},
+            Ptr{Ptr{SCIP_VAR}},
+            Ptr{Ptr{SCIP_RATIONAL}},
+            Ptr{Cint},
+            Cint,
+            Ptr{SCIP_RATIONAL},
+            Ptr{Cint},
+            Cuint,
+        ),
+        scip,
+        vars,
+        scalars,
+        nvars,
+        varssize,
+        constant,
+        requiredsize,
+        mergemultiples,
     )
 end
 
@@ -22927,17 +26714,27 @@ function SCIPvarCalcDistributionParameters(
     varlb,
     varub,
     vartype,
+    impltype,
     mean,
     variance,
 )
     ccall(
         (:SCIPvarCalcDistributionParameters, libscip),
         Cvoid,
-        (Ptr{SCIP}, Cdouble, Cdouble, SCIP_VARTYPE, Ptr{Cdouble}, Ptr{Cdouble}),
+        (
+            Ptr{SCIP},
+            Cdouble,
+            Cdouble,
+            SCIP_VARTYPE,
+            SCIP_IMPLINTTYPE,
+            Ptr{Cdouble},
+            Ptr{Cdouble},
+        ),
         scip,
         varlb,
         varub,
         vartype,
+        impltype,
         mean,
         variance,
     )
@@ -23086,6 +26883,15 @@ function SCIPselectVarStrongBranching(
         bestupvalid,
         provedbound,
         result,
+    )
+end
+
+function SCIPincludeBranchruleGomory(scip)
+    ccall(
+        (:SCIPincludeBranchruleGomory, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP},),
+        scip,
     )
 end
 
@@ -23417,28 +27223,6 @@ function SCIPsortAndCons(scip, cons)
         (Ptr{SCIP}, Ptr{SCIP_CONS}),
         scip,
         cons,
-    )
-end
-
-function SCIPchgAndConsCheckFlagWhenUpgr(scip, cons, flag)
-    ccall(
-        (:SCIPchgAndConsCheckFlagWhenUpgr, libscip),
-        SCIP_RETCODE,
-        (Ptr{SCIP}, Ptr{SCIP_CONS}, Cuint),
-        scip,
-        cons,
-        flag,
-    )
-end
-
-function SCIPchgAndConsRemovableFlagWhenUpgr(scip, cons, flag)
-    ccall(
-        (:SCIPchgAndConsRemovableFlagWhenUpgr, libscip),
-        SCIP_RETCODE,
-        (Ptr{SCIP}, Ptr{SCIP_CONS}, Cuint),
-        scip,
-        cons,
-        flag,
     )
 end
 
@@ -24418,7 +28202,7 @@ function SCIPpresolveCumulativeCondition(
     downlocks,
     uplocks,
     cons,
-    delvars,
+    irrelevants,
     nfixedvars,
     nchgsides,
     cutoff,
@@ -24450,7 +28234,7 @@ function SCIPpresolveCumulativeCondition(
         downlocks,
         uplocks,
         cons,
-        delvars,
+        irrelevants,
         nfixedvars,
         nchgsides,
         cutoff,
@@ -24789,6 +28573,15 @@ function SCIPaddConsElemDisjunction(scip, cons, addcons)
     )
 end
 
+function SCIPincludeConshdlrFixedvar(scip)
+    ccall(
+        (:SCIPincludeConshdlrFixedvar, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP},),
+        scip,
+    )
+end
+
 function SCIPincludeConshdlrIndicator(scip)
     ccall(
         (:SCIPincludeConshdlrIndicator, libscip),
@@ -25098,6 +28891,113 @@ function SCIPcreateConsBasicIndicatorLinCons(
         binvar,
         lincons,
         slackvar,
+    )
+end
+
+function SCIPcreateConsIndicatorGenericLinConsPure(
+    scip,
+    cons,
+    name,
+    binvar,
+    lincons,
+    activeone,
+    initial,
+    separate,
+    enforce,
+    check,
+    propagate,
+    _local,
+    dynamic,
+    removable,
+    stickingatnode,
+)
+    ccall(
+        (:SCIPcreateConsIndicatorGenericLinConsPure, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP},
+            Ptr{Ptr{SCIP_CONS}},
+            Ptr{Cchar},
+            Ptr{SCIP_VAR},
+            Ptr{SCIP_CONS},
+            Cuint,
+            Cuint,
+            Cuint,
+            Cuint,
+            Cuint,
+            Cuint,
+            Cuint,
+            Cuint,
+            Cuint,
+            Cuint,
+        ),
+        scip,
+        cons,
+        name,
+        binvar,
+        lincons,
+        activeone,
+        initial,
+        separate,
+        enforce,
+        check,
+        propagate,
+        _local,
+        dynamic,
+        removable,
+        stickingatnode,
+    )
+end
+
+function SCIPcreateConsIndicatorLinConsPure(
+    scip,
+    cons,
+    name,
+    binvar,
+    lincons,
+    initial,
+    separate,
+    enforce,
+    check,
+    propagate,
+    _local,
+    dynamic,
+    removable,
+    stickingatnode,
+)
+    ccall(
+        (:SCIPcreateConsIndicatorLinConsPure, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP},
+            Ptr{Ptr{SCIP_CONS}},
+            Ptr{Cchar},
+            Ptr{SCIP_VAR},
+            Ptr{SCIP_CONS},
+            Cuint,
+            Cuint,
+            Cuint,
+            Cuint,
+            Cuint,
+            Cuint,
+            Cuint,
+            Cuint,
+            Cuint,
+        ),
+        scip,
+        cons,
+        name,
+        binvar,
+        lincons,
+        initial,
+        separate,
+        enforce,
+        check,
+        propagate,
+        _local,
+        dynamic,
+        removable,
+        stickingatnode,
     )
 end
 
@@ -25446,6 +29346,16 @@ function SCIPgetRowKnapsack(scip, cons)
     )
 end
 
+function SCIPcreateRowKnapsack(scip, cons)
+    ccall(
+        (:SCIPcreateRowKnapsack, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_CONS}),
+        scip,
+        cons,
+    )
+end
+
 function SCIPsolveKnapsackExactly(
     scip,
     nitems,
@@ -25621,14 +29531,15 @@ function SCIPseparateRelaxedKnapsack(
     )
 end
 
-function SCIPcleanupConssKnapsack(scip, onlychecked, infeasible)
+function SCIPcleanupConssKnapsack(scip, onlychecked, infeasible, ndelconss)
     ccall(
         (:SCIPcleanupConssKnapsack, libscip),
         SCIP_RETCODE,
-        (Ptr{SCIP}, Cuint, Ptr{Cuint}),
+        (Ptr{SCIP}, Cuint, Ptr{Cuint}, Ptr{Cint}),
         scip,
         onlychecked,
         infeasible,
+        ndelconss,
     )
 end
 
@@ -25993,6 +29904,16 @@ function SCIPgetRowLinear(scip, cons)
     )
 end
 
+function SCIPcreateRowLinear(scip, cons)
+    ccall(
+        (:SCIPcreateRowLinear, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_CONS}),
+        scip,
+        cons,
+    )
+end
+
 function SCIPupgradeConsLinear(scip, cons, upgdcons)
     ccall(
         (:SCIPupgradeConsLinear, libscip),
@@ -26014,14 +29935,12038 @@ function SCIPclassifyConstraintTypesLinear(scip, linconsstats)
     )
 end
 
-function SCIPcleanupConssLinear(scip, onlychecked, infeasible)
+function SCIPcleanupConssLinear(scip, onlychecked, infeasible, ndelconss)
     ccall(
         (:SCIPcleanupConssLinear, libscip),
         SCIP_RETCODE,
-        (Ptr{SCIP}, Cuint, Ptr{Cuint}),
+        (Ptr{SCIP}, Cuint, Ptr{Cuint}, Ptr{Cint}),
         scip,
         onlychecked,
         infeasible,
+        ndelconss,
+    )
+end
+
+function SCIPincludeConshdlrExactLinear(scip)
+    ccall(
+        (:SCIPincludeConshdlrExactLinear, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP},),
+        scip,
+    )
+end
+
+function SCIPcreateConsExactLinear(
+    scip,
+    cons,
+    name,
+    nvars,
+    vars,
+    vals,
+    lhs,
+    rhs,
+    initial,
+    separate,
+    enforce,
+    check,
+    propagate,
+    _local,
+    modifiable,
+    dynamic,
+    removable,
+    stickingatnode,
+)
+    ccall(
+        (:SCIPcreateConsExactLinear, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP},
+            Ptr{Ptr{SCIP_CONS}},
+            Ptr{Cchar},
+            Cint,
+            Ptr{Ptr{SCIP_VAR}},
+            Ptr{Ptr{SCIP_RATIONAL}},
+            Ptr{SCIP_RATIONAL},
+            Ptr{SCIP_RATIONAL},
+            Cuint,
+            Cuint,
+            Cuint,
+            Cuint,
+            Cuint,
+            Cuint,
+            Cuint,
+            Cuint,
+            Cuint,
+            Cuint,
+        ),
+        scip,
+        cons,
+        name,
+        nvars,
+        vars,
+        vals,
+        lhs,
+        rhs,
+        initial,
+        separate,
+        enforce,
+        check,
+        propagate,
+        _local,
+        modifiable,
+        dynamic,
+        removable,
+        stickingatnode,
+    )
+end
+
+function SCIPcreateConsBasicExactLinear(
+    scip,
+    cons,
+    name,
+    nvars,
+    vars,
+    vals,
+    lhs,
+    rhs,
+)
+    ccall(
+        (:SCIPcreateConsBasicExactLinear, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP},
+            Ptr{Ptr{SCIP_CONS}},
+            Ptr{Cchar},
+            Cint,
+            Ptr{Ptr{SCIP_VAR}},
+            Ptr{Ptr{SCIP_RATIONAL}},
+            Ptr{SCIP_RATIONAL},
+            Ptr{SCIP_RATIONAL},
+        ),
+        scip,
+        cons,
+        name,
+        nvars,
+        vars,
+        vals,
+        lhs,
+        rhs,
+    )
+end
+
+function SCIPcopyConsExactLinear(
+    scip,
+    cons,
+    sourcescip,
+    name,
+    nvars,
+    sourcevars,
+    sourcecoefs,
+    lhs,
+    rhs,
+    varmap,
+    consmap,
+    initial,
+    separate,
+    enforce,
+    check,
+    propagate,
+    _local,
+    modifiable,
+    dynamic,
+    removable,
+    stickingatnode,
+    _global,
+    valid,
+)
+    ccall(
+        (:SCIPcopyConsExactLinear, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP},
+            Ptr{Ptr{SCIP_CONS}},
+            Ptr{SCIP},
+            Ptr{Cchar},
+            Cint,
+            Ptr{Ptr{SCIP_VAR}},
+            Ptr{SCIP_INTERVAL},
+            Cdouble,
+            Cdouble,
+            Ptr{SCIP_HASHMAP},
+            Ptr{SCIP_HASHMAP},
+            Cuint,
+            Cuint,
+            Cuint,
+            Cuint,
+            Cuint,
+            Cuint,
+            Cuint,
+            Cuint,
+            Cuint,
+            Cuint,
+            Cuint,
+            Ptr{Cuint},
+        ),
+        scip,
+        cons,
+        sourcescip,
+        name,
+        nvars,
+        sourcevars,
+        sourcecoefs,
+        lhs,
+        rhs,
+        varmap,
+        consmap,
+        initial,
+        separate,
+        enforce,
+        check,
+        propagate,
+        _local,
+        modifiable,
+        dynamic,
+        removable,
+        stickingatnode,
+        _global,
+        valid,
+    )
+end
+
+function SCIPaddCoefExactLinear(scip, cons, var, val)
+    ccall(
+        (:SCIPaddCoefExactLinear, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_CONS}, Ptr{SCIP_VAR}, Ptr{SCIP_RATIONAL}),
+        scip,
+        cons,
+        var,
+        val,
+    )
+end
+
+function SCIPchgCoefExactLinear(scip, cons, var, val)
+    ccall(
+        (:SCIPchgCoefExactLinear, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_CONS}, Ptr{SCIP_VAR}, Ptr{SCIP_RATIONAL}),
+        scip,
+        cons,
+        var,
+        val,
+    )
+end
+
+function SCIPdelCoefExactLinear(scip, cons, var)
+    ccall(
+        (:SCIPdelCoefExactLinear, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_CONS}, Ptr{SCIP_VAR}),
+        scip,
+        cons,
+        var,
+    )
+end
+
+function SCIPgetLhsExactLinear(scip, cons)
+    ccall(
+        (:SCIPgetLhsExactLinear, libscip),
+        Ptr{SCIP_RATIONAL},
+        (Ptr{SCIP}, Ptr{SCIP_CONS}),
+        scip,
+        cons,
+    )
+end
+
+function SCIPgetRhsExactLinear(scip, cons)
+    ccall(
+        (:SCIPgetRhsExactLinear, libscip),
+        Ptr{SCIP_RATIONAL},
+        (Ptr{SCIP}, Ptr{SCIP_CONS}),
+        scip,
+        cons,
+    )
+end
+
+function SCIPchgLhsExactLinear(scip, cons, lhs)
+    ccall(
+        (:SCIPchgLhsExactLinear, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_CONS}, Ptr{SCIP_RATIONAL}),
+        scip,
+        cons,
+        lhs,
+    )
+end
+
+function SCIPchgRhsExactLinear(scip, cons, rhs)
+    ccall(
+        (:SCIPchgRhsExactLinear, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_CONS}, Ptr{SCIP_RATIONAL}),
+        scip,
+        cons,
+        rhs,
+    )
+end
+
+function SCIPgetNVarsExactLinear(scip, cons)
+    ccall(
+        (:SCIPgetNVarsExactLinear, libscip),
+        Cint,
+        (Ptr{SCIP}, Ptr{SCIP_CONS}),
+        scip,
+        cons,
+    )
+end
+
+function SCIPgetVarsExactLinear(scip, cons)
+    ccall(
+        (:SCIPgetVarsExactLinear, libscip),
+        Ptr{Ptr{SCIP_VAR}},
+        (Ptr{SCIP}, Ptr{SCIP_CONS}),
+        scip,
+        cons,
+    )
+end
+
+function SCIPgetValsRealExactLinear(scip, cons)
+    ccall(
+        (:SCIPgetValsRealExactLinear, libscip),
+        Ptr{SCIP_INTERVAL},
+        (Ptr{SCIP}, Ptr{SCIP_CONS}),
+        scip,
+        cons,
+    )
+end
+
+function SCIPgetValsExactLinear(scip, cons)
+    ccall(
+        (:SCIPgetValsExactLinear, libscip),
+        Ptr{Ptr{SCIP_RATIONAL}},
+        (Ptr{SCIP}, Ptr{SCIP_CONS}),
+        scip,
+        cons,
+    )
+end
+
+function SCIPgetActivityExactLinear(scip, cons, sol, ret)
+    ccall(
+        (:SCIPgetActivityExactLinear, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_CONS}, Ptr{SCIP_SOL}, Ptr{SCIP_RATIONAL}),
+        scip,
+        cons,
+        sol,
+        ret,
+    )
+end
+
+function SCIPgetFeasibilityExactLinear(scip, cons, sol, ret)
+    ccall(
+        (:SCIPgetFeasibilityExactLinear, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_CONS}, Ptr{SCIP_SOL}, Ptr{SCIP_RATIONAL}),
+        scip,
+        cons,
+        sol,
+        ret,
+    )
+end
+
+function SCIPgetFpDualsolExactLinear(scip, cons, ret)
+    ccall(
+        (:SCIPgetFpDualsolExactLinear, libscip),
+        Cvoid,
+        (Ptr{SCIP}, Ptr{SCIP_CONS}, Ptr{SCIP_RATIONAL}),
+        scip,
+        cons,
+        ret,
+    )
+end
+
+function SCIPgetFpDualfarkasExactLinear(scip, cons, ret)
+    ccall(
+        (:SCIPgetFpDualfarkasExactLinear, libscip),
+        Cvoid,
+        (Ptr{SCIP}, Ptr{SCIP_CONS}, Ptr{SCIP_RATIONAL}),
+        scip,
+        cons,
+        ret,
+    )
+end
+
+function SCIPgetRowExactLinear(scip, cons)
+    ccall(
+        (:SCIPgetRowExactLinear, libscip),
+        Ptr{SCIP_ROW},
+        (Ptr{SCIP}, Ptr{SCIP_CONS}),
+        scip,
+        cons,
+    )
+end
+
+function SCIPgetRowExactExactLinear(scip, cons)
+    ccall(
+        (:SCIPgetRowExactExactLinear, libscip),
+        Ptr{SCIP_ROWEXACT},
+        (Ptr{SCIP}, Ptr{SCIP_CONS}),
+        scip,
+        cons,
+    )
+end
+
+function SCIPcertifyConsOrigExactLinear(scip, conshdlr, cons)
+    ccall(
+        (:SCIPcertifyConsOrigExactLinear, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_CONSHDLR}, Ptr{SCIP_CONS}),
+        scip,
+        conshdlr,
+        cons,
+    )
+end
+
+function colLink(col, blkmem, set, eventqueue, lp)
+    ccall(
+        (:colLink, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_COL},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_LP},
+        ),
+        col,
+        blkmem,
+        set,
+        eventqueue,
+        lp,
+    )
+end
+
+function colUnlink(col, blkmem, set, eventqueue, lp)
+    ccall(
+        (:colUnlink, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_COL},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_LP},
+        ),
+        col,
+        blkmem,
+        set,
+        eventqueue,
+        lp,
+    )
+end
+
+function rowLink(row, blkmem, set, eventqueue, lp)
+    ccall(
+        (:rowLink, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_ROW},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_LP},
+        ),
+        row,
+        blkmem,
+        set,
+        eventqueue,
+        lp,
+    )
+end
+
+function rowUnlink(row, set, lp)
+    ccall(
+        (:rowUnlink, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_ROW}, Ptr{SCIP_SET}, Ptr{SCIP_LP}),
+        row,
+        set,
+        lp,
+    )
+end
+
+function SCIPcolCreate(col, blkmem, set, stat, var, len, rows, vals, removable)
+    ccall(
+        (:SCIPcolCreate, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{Ptr{SCIP_COL}},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_VAR},
+            Cint,
+            Ptr{Ptr{SCIP_ROW}},
+            Ptr{Cdouble},
+            Cuint,
+        ),
+        col,
+        blkmem,
+        set,
+        stat,
+        var,
+        len,
+        rows,
+        vals,
+        removable,
+    )
+end
+
+function SCIPcolFree(col, blkmem, set, eventqueue, lp)
+    ccall(
+        (:SCIPcolFree, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{Ptr{SCIP_COL}},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_LP},
+        ),
+        col,
+        blkmem,
+        set,
+        eventqueue,
+        lp,
+    )
+end
+
+function SCIPcolPrint(col, messagehdlr, file)
+    ccall(
+        (:SCIPcolPrint, libscip),
+        Cvoid,
+        (Ptr{SCIP_COL}, Ptr{SCIP_MESSAGEHDLR}, Ptr{Libc.FILE}),
+        col,
+        messagehdlr,
+        file,
+    )
+end
+
+function SCIPcolAddCoef(col, blkmem, set, eventqueue, lp, row, val)
+    ccall(
+        (:SCIPcolAddCoef, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_COL},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_LP},
+            Ptr{SCIP_ROW},
+            Cdouble,
+        ),
+        col,
+        blkmem,
+        set,
+        eventqueue,
+        lp,
+        row,
+        val,
+    )
+end
+
+function SCIPcolDelCoef(col, blkmem, set, eventqueue, lp, row)
+    ccall(
+        (:SCIPcolDelCoef, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_COL},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_LP},
+            Ptr{SCIP_ROW},
+        ),
+        col,
+        blkmem,
+        set,
+        eventqueue,
+        lp,
+        row,
+    )
+end
+
+function SCIPcolChgCoef(col, blkmem, set, eventqueue, lp, row, val)
+    ccall(
+        (:SCIPcolChgCoef, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_COL},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_LP},
+            Ptr{SCIP_ROW},
+            Cdouble,
+        ),
+        col,
+        blkmem,
+        set,
+        eventqueue,
+        lp,
+        row,
+        val,
+    )
+end
+
+function SCIPcolIncCoef(col, blkmem, set, eventqueue, lp, row, incval)
+    ccall(
+        (:SCIPcolIncCoef, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_COL},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_LP},
+            Ptr{SCIP_ROW},
+            Cdouble,
+        ),
+        col,
+        blkmem,
+        set,
+        eventqueue,
+        lp,
+        row,
+        incval,
+    )
+end
+
+function SCIPcolChgObj(col, set, lp, newobj)
+    ccall(
+        (:SCIPcolChgObj, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_COL}, Ptr{SCIP_SET}, Ptr{SCIP_LP}, Cdouble),
+        col,
+        set,
+        lp,
+        newobj,
+    )
+end
+
+function SCIPcolChgLb(col, set, lp, newlb)
+    ccall(
+        (:SCIPcolChgLb, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_COL}, Ptr{SCIP_SET}, Ptr{SCIP_LP}, Cdouble),
+        col,
+        set,
+        lp,
+        newlb,
+    )
+end
+
+function SCIPcolChgUb(col, set, lp, newub)
+    ccall(
+        (:SCIPcolChgUb, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_COL}, Ptr{SCIP_SET}, Ptr{SCIP_LP}, Cdouble),
+        col,
+        set,
+        lp,
+        newub,
+    )
+end
+
+function SCIPcolCalcRedcost(col, dualsol)
+    ccall(
+        (:SCIPcolCalcRedcost, libscip),
+        Cdouble,
+        (Ptr{SCIP_COL}, Ptr{Cdouble}),
+        col,
+        dualsol,
+    )
+end
+
+function SCIPcolGetRedcost(col, stat, lp)
+    ccall(
+        (:SCIPcolGetRedcost, libscip),
+        Cdouble,
+        (Ptr{SCIP_COL}, Ptr{SCIP_STAT}, Ptr{SCIP_LP}),
+        col,
+        stat,
+        lp,
+    )
+end
+
+function SCIPcolGetFeasibility(col, set, stat, lp)
+    ccall(
+        (:SCIPcolGetFeasibility, libscip),
+        Cdouble,
+        (Ptr{SCIP_COL}, Ptr{SCIP_SET}, Ptr{SCIP_STAT}, Ptr{SCIP_LP}),
+        col,
+        set,
+        stat,
+        lp,
+    )
+end
+
+function SCIPcolCalcFarkasCoef(col, dualfarkas)
+    ccall(
+        (:SCIPcolCalcFarkasCoef, libscip),
+        Cdouble,
+        (Ptr{SCIP_COL}, Ptr{Cdouble}),
+        col,
+        dualfarkas,
+    )
+end
+
+function SCIPcolGetFarkasCoef(col, stat, lp)
+    ccall(
+        (:SCIPcolGetFarkasCoef, libscip),
+        Cdouble,
+        (Ptr{SCIP_COL}, Ptr{SCIP_STAT}, Ptr{SCIP_LP}),
+        col,
+        stat,
+        lp,
+    )
+end
+
+function SCIPcolGetFarkasValue(col, stat, lp)
+    ccall(
+        (:SCIPcolGetFarkasValue, libscip),
+        Cdouble,
+        (Ptr{SCIP_COL}, Ptr{SCIP_STAT}, Ptr{SCIP_LP}),
+        col,
+        stat,
+        lp,
+    )
+end
+
+function SCIPlpStartStrongbranch(lp)
+    ccall(
+        (:SCIPlpStartStrongbranch, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_LP},),
+        lp,
+    )
+end
+
+function SCIPlpEndStrongbranch(lp)
+    ccall((:SCIPlpEndStrongbranch, libscip), SCIP_RETCODE, (Ptr{SCIP_LP},), lp)
+end
+
+function SCIPcolSetStrongbranchData(
+    col,
+    set,
+    stat,
+    lp,
+    lpobjval,
+    primsol,
+    sbdown,
+    sbup,
+    sbdownvalid,
+    sbupvalid,
+    iter,
+    itlim,
+)
+    ccall(
+        (:SCIPcolSetStrongbranchData, libscip),
+        Cvoid,
+        (
+            Ptr{SCIP_COL},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_LP},
+            Cdouble,
+            Cdouble,
+            Cdouble,
+            Cdouble,
+            Cuint,
+            Cuint,
+            Clonglong,
+            Cint,
+        ),
+        col,
+        set,
+        stat,
+        lp,
+        lpobjval,
+        primsol,
+        sbdown,
+        sbup,
+        sbdownvalid,
+        sbupvalid,
+        iter,
+        itlim,
+    )
+end
+
+function SCIPcolInvalidateStrongbranchData(col, set, stat, lp)
+    ccall(
+        (:SCIPcolInvalidateStrongbranchData, libscip),
+        Cvoid,
+        (Ptr{SCIP_COL}, Ptr{SCIP_SET}, Ptr{SCIP_STAT}, Ptr{SCIP_LP}),
+        col,
+        set,
+        stat,
+        lp,
+    )
+end
+
+function SCIPcolGetStrongbranch(
+    col,
+    integral,
+    set,
+    stat,
+    prob,
+    lp,
+    itlim,
+    updatecol,
+    updatestat,
+    down,
+    up,
+    downvalid,
+    upvalid,
+    lperror,
+)
+    ccall(
+        (:SCIPcolGetStrongbranch, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_COL},
+            Cuint,
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_LP},
+            Cint,
+            Cuint,
+            Cuint,
+            Ptr{Cdouble},
+            Ptr{Cdouble},
+            Ptr{Cuint},
+            Ptr{Cuint},
+            Ptr{Cuint},
+        ),
+        col,
+        integral,
+        set,
+        stat,
+        prob,
+        lp,
+        itlim,
+        updatecol,
+        updatestat,
+        down,
+        up,
+        downvalid,
+        upvalid,
+        lperror,
+    )
+end
+
+function SCIPcolGetStrongbranches(
+    cols,
+    ncols,
+    integral,
+    set,
+    stat,
+    prob,
+    lp,
+    itlim,
+    down,
+    up,
+    downvalid,
+    upvalid,
+    lperror,
+)
+    ccall(
+        (:SCIPcolGetStrongbranches, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{Ptr{SCIP_COL}},
+            Cint,
+            Cuint,
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_LP},
+            Cint,
+            Ptr{Cdouble},
+            Ptr{Cdouble},
+            Ptr{Cuint},
+            Ptr{Cuint},
+            Ptr{Cuint},
+        ),
+        cols,
+        ncols,
+        integral,
+        set,
+        stat,
+        prob,
+        lp,
+        itlim,
+        down,
+        up,
+        downvalid,
+        upvalid,
+        lperror,
+    )
+end
+
+function SCIPcolGetStrongbranchLast(
+    col,
+    down,
+    up,
+    downvalid,
+    upvalid,
+    solval,
+    lpobjval,
+)
+    ccall(
+        (:SCIPcolGetStrongbranchLast, libscip),
+        Cvoid,
+        (
+            Ptr{SCIP_COL},
+            Ptr{Cdouble},
+            Ptr{Cdouble},
+            Ptr{Cuint},
+            Ptr{Cuint},
+            Ptr{Cdouble},
+            Ptr{Cdouble},
+        ),
+        col,
+        down,
+        up,
+        downvalid,
+        upvalid,
+        solval,
+        lpobjval,
+    )
+end
+
+function SCIPcolGetStrongbranchLPAge(col, stat)
+    ccall(
+        (:SCIPcolGetStrongbranchLPAge, libscip),
+        Clonglong,
+        (Ptr{SCIP_COL}, Ptr{SCIP_STAT}),
+        col,
+        stat,
+    )
+end
+
+function SCIPcolMarkNotRemovableLocal(col, stat)
+    ccall(
+        (:SCIPcolMarkNotRemovableLocal, libscip),
+        Cvoid,
+        (Ptr{SCIP_COL}, Ptr{SCIP_STAT}),
+        col,
+        stat,
+    )
+end
+
+function SCIProwCreate(
+    row,
+    blkmem,
+    set,
+    stat,
+    name,
+    len,
+    cols,
+    vals,
+    lhs,
+    rhs,
+    origintype,
+    origin,
+    _local,
+    modifiable,
+    removable,
+)
+    ccall(
+        (:SCIProwCreate, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{Ptr{SCIP_ROW}},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{Cchar},
+            Cint,
+            Ptr{Ptr{SCIP_COL}},
+            Ptr{Cdouble},
+            Cdouble,
+            Cdouble,
+            SCIP_ROWORIGINTYPE,
+            Ptr{Cvoid},
+            Cuint,
+            Cuint,
+            Cuint,
+        ),
+        row,
+        blkmem,
+        set,
+        stat,
+        name,
+        len,
+        cols,
+        vals,
+        lhs,
+        rhs,
+        origintype,
+        origin,
+        _local,
+        modifiable,
+        removable,
+    )
+end
+
+function SCIProwFree(row, blkmem, set, lp)
+    ccall(
+        (:SCIProwFree, libscip),
+        SCIP_RETCODE,
+        (Ptr{Ptr{SCIP_ROW}}, Ptr{BMS_BLKMEM}, Ptr{SCIP_SET}, Ptr{SCIP_LP}),
+        row,
+        blkmem,
+        set,
+        lp,
+    )
+end
+
+function SCIProwPrint(row, messagehdlr, file)
+    ccall(
+        (:SCIProwPrint, libscip),
+        Cvoid,
+        (Ptr{SCIP_ROW}, Ptr{SCIP_MESSAGEHDLR}, Ptr{Libc.FILE}),
+        row,
+        messagehdlr,
+        file,
+    )
+end
+
+function SCIProwEnsureSize(row, blkmem, set, num)
+    ccall(
+        (:SCIProwEnsureSize, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_ROW}, Ptr{BMS_BLKMEM}, Ptr{SCIP_SET}, Cint),
+        row,
+        blkmem,
+        set,
+        num,
+    )
+end
+
+function SCIProwCapture(row)
+    ccall((:SCIProwCapture, libscip), Cvoid, (Ptr{SCIP_ROW},), row)
+end
+
+function SCIProwRelease(row, blkmem, set, lp)
+    ccall(
+        (:SCIProwRelease, libscip),
+        SCIP_RETCODE,
+        (Ptr{Ptr{SCIP_ROW}}, Ptr{BMS_BLKMEM}, Ptr{SCIP_SET}, Ptr{SCIP_LP}),
+        row,
+        blkmem,
+        set,
+        lp,
+    )
+end
+
+function SCIProwDelaySort(row)
+    ccall((:SCIProwDelaySort, libscip), Cvoid, (Ptr{SCIP_ROW},), row)
+end
+
+function SCIProwForceSort(row, set)
+    ccall(
+        (:SCIProwForceSort, libscip),
+        Cvoid,
+        (Ptr{SCIP_ROW}, Ptr{SCIP_SET}),
+        row,
+        set,
+    )
+end
+
+function SCIProwAddCoef(row, blkmem, set, eventqueue, lp, col, val)
+    ccall(
+        (:SCIProwAddCoef, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_ROW},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_LP},
+            Ptr{SCIP_COL},
+            Cdouble,
+        ),
+        row,
+        blkmem,
+        set,
+        eventqueue,
+        lp,
+        col,
+        val,
+    )
+end
+
+function SCIProwDelCoef(row, blkmem, set, eventqueue, lp, col)
+    ccall(
+        (:SCIProwDelCoef, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_ROW},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_LP},
+            Ptr{SCIP_COL},
+        ),
+        row,
+        blkmem,
+        set,
+        eventqueue,
+        lp,
+        col,
+    )
+end
+
+function SCIProwChgCoef(row, blkmem, set, eventqueue, lp, col, val)
+    ccall(
+        (:SCIProwChgCoef, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_ROW},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_LP},
+            Ptr{SCIP_COL},
+            Cdouble,
+        ),
+        row,
+        blkmem,
+        set,
+        eventqueue,
+        lp,
+        col,
+        val,
+    )
+end
+
+function SCIProwIncCoef(row, blkmem, set, eventqueue, lp, col, incval)
+    ccall(
+        (:SCIProwIncCoef, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_ROW},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_LP},
+            Ptr{SCIP_COL},
+            Cdouble,
+        ),
+        row,
+        blkmem,
+        set,
+        eventqueue,
+        lp,
+        col,
+        incval,
+    )
+end
+
+function SCIProwChgConstant(row, blkmem, set, stat, eventqueue, lp, constant)
+    ccall(
+        (:SCIProwChgConstant, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_ROW},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_LP},
+            Cdouble,
+        ),
+        row,
+        blkmem,
+        set,
+        stat,
+        eventqueue,
+        lp,
+        constant,
+    )
+end
+
+function SCIProwAddConstant(row, blkmem, set, stat, eventqueue, lp, addval)
+    ccall(
+        (:SCIProwAddConstant, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_ROW},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_LP},
+            Cdouble,
+        ),
+        row,
+        blkmem,
+        set,
+        stat,
+        eventqueue,
+        lp,
+        addval,
+    )
+end
+
+function SCIProwChgLhs(row, blkmem, set, eventqueue, lp, lhs)
+    ccall(
+        (:SCIProwChgLhs, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_ROW},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_LP},
+            Cdouble,
+        ),
+        row,
+        blkmem,
+        set,
+        eventqueue,
+        lp,
+        lhs,
+    )
+end
+
+function SCIProwChgRhs(row, blkmem, set, eventqueue, lp, rhs)
+    ccall(
+        (:SCIProwChgRhs, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_ROW},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_LP},
+            Cdouble,
+        ),
+        row,
+        blkmem,
+        set,
+        eventqueue,
+        lp,
+        rhs,
+    )
+end
+
+function SCIProwChgLocal(row, _local)
+    ccall(
+        (:SCIProwChgLocal, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_ROW}, Cuint),
+        row,
+        _local,
+    )
+end
+
+function SCIProwCalcIntegralScalar(
+    row,
+    set,
+    mindelta,
+    maxdelta,
+    maxdnom,
+    maxscale,
+    usecontvars,
+    intscalar,
+    success,
+)
+    ccall(
+        (:SCIProwCalcIntegralScalar, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_ROW},
+            Ptr{SCIP_SET},
+            Cdouble,
+            Cdouble,
+            Clonglong,
+            Cdouble,
+            Cuint,
+            Ptr{Cdouble},
+            Ptr{Cuint},
+        ),
+        row,
+        set,
+        mindelta,
+        maxdelta,
+        maxdnom,
+        maxscale,
+        usecontvars,
+        intscalar,
+        success,
+    )
+end
+
+function SCIProwMakeIntegral(
+    row,
+    blkmem,
+    set,
+    eventqueue,
+    stat,
+    lp,
+    mindelta,
+    maxdelta,
+    maxdnom,
+    maxscale,
+    usecontvars,
+    success,
+)
+    ccall(
+        (:SCIProwMakeIntegral, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_ROW},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_LP},
+            Cdouble,
+            Cdouble,
+            Clonglong,
+            Cdouble,
+            Cuint,
+            Ptr{Cuint},
+        ),
+        row,
+        blkmem,
+        set,
+        eventqueue,
+        stat,
+        lp,
+        mindelta,
+        maxdelta,
+        maxdnom,
+        maxscale,
+        usecontvars,
+        success,
+    )
+end
+
+function SCIProwRecalcNorms(row, set)
+    ccall(
+        (:SCIProwRecalcNorms, libscip),
+        Cvoid,
+        (Ptr{SCIP_ROW}, Ptr{SCIP_SET}),
+        row,
+        set,
+    )
+end
+
+function SCIProwRecalcLPActivity(row, stat)
+    ccall(
+        (:SCIProwRecalcLPActivity, libscip),
+        Cvoid,
+        (Ptr{SCIP_ROW}, Ptr{SCIP_STAT}),
+        row,
+        stat,
+    )
+end
+
+function SCIProwGetLPActivity(row, set, stat, lp)
+    ccall(
+        (:SCIProwGetLPActivity, libscip),
+        Cdouble,
+        (Ptr{SCIP_ROW}, Ptr{SCIP_SET}, Ptr{SCIP_STAT}, Ptr{SCIP_LP}),
+        row,
+        set,
+        stat,
+        lp,
+    )
+end
+
+function SCIProwGetLPFeasibility(row, set, stat, lp)
+    ccall(
+        (:SCIProwGetLPFeasibility, libscip),
+        Cdouble,
+        (Ptr{SCIP_ROW}, Ptr{SCIP_SET}, Ptr{SCIP_STAT}, Ptr{SCIP_LP}),
+        row,
+        set,
+        stat,
+        lp,
+    )
+end
+
+function SCIProwGetRelaxFeasibility(row, set, stat)
+    ccall(
+        (:SCIProwGetRelaxFeasibility, libscip),
+        Cdouble,
+        (Ptr{SCIP_ROW}, Ptr{SCIP_SET}, Ptr{SCIP_STAT}),
+        row,
+        set,
+        stat,
+    )
+end
+
+function SCIProwGetNLPFeasibility(row, set, stat)
+    ccall(
+        (:SCIProwGetNLPFeasibility, libscip),
+        Cdouble,
+        (Ptr{SCIP_ROW}, Ptr{SCIP_SET}, Ptr{SCIP_STAT}),
+        row,
+        set,
+        stat,
+    )
+end
+
+function SCIProwRecalcPseudoActivity(row, stat)
+    ccall(
+        (:SCIProwRecalcPseudoActivity, libscip),
+        Cvoid,
+        (Ptr{SCIP_ROW}, Ptr{SCIP_STAT}),
+        row,
+        stat,
+    )
+end
+
+function SCIProwGetPseudoActivity(row, set, stat)
+    ccall(
+        (:SCIProwGetPseudoActivity, libscip),
+        Cdouble,
+        (Ptr{SCIP_ROW}, Ptr{SCIP_SET}, Ptr{SCIP_STAT}),
+        row,
+        set,
+        stat,
+    )
+end
+
+function SCIProwGetPseudoFeasibility(row, set, stat)
+    ccall(
+        (:SCIProwGetPseudoFeasibility, libscip),
+        Cdouble,
+        (Ptr{SCIP_ROW}, Ptr{SCIP_SET}, Ptr{SCIP_STAT}),
+        row,
+        set,
+        stat,
+    )
+end
+
+function SCIProwGetSolActivity(row, set, stat, sol)
+    ccall(
+        (:SCIProwGetSolActivity, libscip),
+        Cdouble,
+        (Ptr{SCIP_ROW}, Ptr{SCIP_SET}, Ptr{SCIP_STAT}, Ptr{SCIP_SOL}),
+        row,
+        set,
+        stat,
+        sol,
+    )
+end
+
+function SCIProwGetSolFeasibility(row, set, stat, sol)
+    ccall(
+        (:SCIProwGetSolFeasibility, libscip),
+        Cdouble,
+        (Ptr{SCIP_ROW}, Ptr{SCIP_SET}, Ptr{SCIP_STAT}, Ptr{SCIP_SOL}),
+        row,
+        set,
+        stat,
+        sol,
+    )
+end
+
+function SCIProwGetMinActivity(row, set, stat)
+    ccall(
+        (:SCIProwGetMinActivity, libscip),
+        Cdouble,
+        (Ptr{SCIP_ROW}, Ptr{SCIP_SET}, Ptr{SCIP_STAT}),
+        row,
+        set,
+        stat,
+    )
+end
+
+function SCIProwGetMaxActivity(row, set, stat)
+    ccall(
+        (:SCIProwGetMaxActivity, libscip),
+        Cdouble,
+        (Ptr{SCIP_ROW}, Ptr{SCIP_SET}, Ptr{SCIP_STAT}),
+        row,
+        set,
+        stat,
+    )
+end
+
+function SCIProwIsRedundant(row, set, stat)
+    ccall(
+        (:SCIProwIsRedundant, libscip),
+        Cuint,
+        (Ptr{SCIP_ROW}, Ptr{SCIP_SET}, Ptr{SCIP_STAT}),
+        row,
+        set,
+        stat,
+    )
+end
+
+function SCIProwGetMaxval(row, set)
+    ccall(
+        (:SCIProwGetMaxval, libscip),
+        Cdouble,
+        (Ptr{SCIP_ROW}, Ptr{SCIP_SET}),
+        row,
+        set,
+    )
+end
+
+function SCIProwGetMinval(row, set)
+    ccall(
+        (:SCIProwGetMinval, libscip),
+        Cdouble,
+        (Ptr{SCIP_ROW}, Ptr{SCIP_SET}),
+        row,
+        set,
+    )
+end
+
+function SCIProwGetMaxidx(row, set)
+    ccall(
+        (:SCIProwGetMaxidx, libscip),
+        Cint,
+        (Ptr{SCIP_ROW}, Ptr{SCIP_SET}),
+        row,
+        set,
+    )
+end
+
+function SCIProwGetMinidx(row, set)
+    ccall(
+        (:SCIProwGetMinidx, libscip),
+        Cint,
+        (Ptr{SCIP_ROW}, Ptr{SCIP_SET}),
+        row,
+        set,
+    )
+end
+
+function SCIProwGetNumIntCols(row, set)
+    ccall(
+        (:SCIProwGetNumIntCols, libscip),
+        Cint,
+        (Ptr{SCIP_ROW}, Ptr{SCIP_SET}),
+        row,
+        set,
+    )
+end
+
+function SCIProwGetNumImpliedIntCols(row, set)
+    ccall(
+        (:SCIProwGetNumImpliedIntCols, libscip),
+        Cint,
+        (Ptr{SCIP_ROW}, Ptr{SCIP_SET}),
+        row,
+        set,
+    )
+end
+
+function SCIProwGetLPSolCutoffDistance(row, set, stat, sol, lp)
+    ccall(
+        (:SCIProwGetLPSolCutoffDistance, libscip),
+        Cdouble,
+        (
+            Ptr{SCIP_ROW},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_SOL},
+            Ptr{SCIP_LP},
+        ),
+        row,
+        set,
+        stat,
+        sol,
+        lp,
+    )
+end
+
+function SCIProwGetLPEfficacy(row, set, stat, lp)
+    ccall(
+        (:SCIProwGetLPEfficacy, libscip),
+        Cdouble,
+        (Ptr{SCIP_ROW}, Ptr{SCIP_SET}, Ptr{SCIP_STAT}, Ptr{SCIP_LP}),
+        row,
+        set,
+        stat,
+        lp,
+    )
+end
+
+function SCIProwIsLPEfficacious(row, set, stat, lp, root)
+    ccall(
+        (:SCIProwIsLPEfficacious, libscip),
+        Cuint,
+        (Ptr{SCIP_ROW}, Ptr{SCIP_SET}, Ptr{SCIP_STAT}, Ptr{SCIP_LP}, Cuint),
+        row,
+        set,
+        stat,
+        lp,
+        root,
+    )
+end
+
+function SCIProwGetSolEfficacy(row, set, stat, sol)
+    ccall(
+        (:SCIProwGetSolEfficacy, libscip),
+        Cdouble,
+        (Ptr{SCIP_ROW}, Ptr{SCIP_SET}, Ptr{SCIP_STAT}, Ptr{SCIP_SOL}),
+        row,
+        set,
+        stat,
+        sol,
+    )
+end
+
+function SCIProwIsSolEfficacious(row, set, stat, sol, root)
+    ccall(
+        (:SCIProwIsSolEfficacious, libscip),
+        Cuint,
+        (Ptr{SCIP_ROW}, Ptr{SCIP_SET}, Ptr{SCIP_STAT}, Ptr{SCIP_SOL}, Cuint),
+        row,
+        set,
+        stat,
+        sol,
+        root,
+    )
+end
+
+function SCIProwGetRelaxEfficacy(row, set, stat)
+    ccall(
+        (:SCIProwGetRelaxEfficacy, libscip),
+        Cdouble,
+        (Ptr{SCIP_ROW}, Ptr{SCIP_SET}, Ptr{SCIP_STAT}),
+        row,
+        set,
+        stat,
+    )
+end
+
+function SCIProwGetNLPEfficacy(row, set, stat)
+    ccall(
+        (:SCIProwGetNLPEfficacy, libscip),
+        Cdouble,
+        (Ptr{SCIP_ROW}, Ptr{SCIP_SET}, Ptr{SCIP_STAT}),
+        row,
+        set,
+        stat,
+    )
+end
+
+function SCIProwGetObjParallelism(row, set, lp)
+    ccall(
+        (:SCIProwGetObjParallelism, libscip),
+        Cdouble,
+        (Ptr{SCIP_ROW}, Ptr{SCIP_SET}, Ptr{SCIP_LP}),
+        row,
+        set,
+        lp,
+    )
+end
+
+function SCIProwCatchEvent(
+    row,
+    blkmem,
+    set,
+    eventtype,
+    eventhdlr,
+    eventdata,
+    filterpos,
+)
+    ccall(
+        (:SCIProwCatchEvent, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_ROW},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            SCIP_EVENTTYPE,
+            Ptr{SCIP_EVENTHDLR},
+            Ptr{SCIP_EVENTDATA},
+            Ptr{Cint},
+        ),
+        row,
+        blkmem,
+        set,
+        eventtype,
+        eventhdlr,
+        eventdata,
+        filterpos,
+    )
+end
+
+function SCIProwDropEvent(
+    row,
+    blkmem,
+    set,
+    eventtype,
+    eventhdlr,
+    eventdata,
+    filterpos,
+)
+    ccall(
+        (:SCIProwDropEvent, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_ROW},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            SCIP_EVENTTYPE,
+            Ptr{SCIP_EVENTHDLR},
+            Ptr{SCIP_EVENTDATA},
+            Cint,
+        ),
+        row,
+        blkmem,
+        set,
+        eventtype,
+        eventhdlr,
+        eventdata,
+        filterpos,
+    )
+end
+
+function SCIProwMarkNotRemovableLocal(row, stat)
+    ccall(
+        (:SCIProwMarkNotRemovableLocal, libscip),
+        Cvoid,
+        (Ptr{SCIP_ROW}, Ptr{SCIP_STAT}),
+        row,
+        stat,
+    )
+end
+
+function SCIPlpCreate(lp, set, messagehdlr, stat, name)
+    ccall(
+        (:SCIPlpCreate, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{Ptr{SCIP_LP}},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_MESSAGEHDLR},
+            Ptr{SCIP_STAT},
+            Ptr{Cchar},
+        ),
+        lp,
+        set,
+        messagehdlr,
+        stat,
+        name,
+    )
+end
+
+function SCIPlpFree(lp, blkmem, set, eventqueue, eventfilter)
+    ccall(
+        (:SCIPlpFree, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{Ptr{SCIP_LP}},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_EVENTFILTER},
+        ),
+        lp,
+        blkmem,
+        set,
+        eventqueue,
+        eventfilter,
+    )
+end
+
+function SCIPlpReset(lp, blkmem, set, prob, stat, eventqueue, eventfilter)
+    ccall(
+        (:SCIPlpReset, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_LP},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_EVENTFILTER},
+        ),
+        lp,
+        blkmem,
+        set,
+        prob,
+        stat,
+        eventqueue,
+        eventfilter,
+    )
+end
+
+function SCIPlpAddCol(lp, set, col, depth)
+    ccall(
+        (:SCIPlpAddCol, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_LP}, Ptr{SCIP_SET}, Ptr{SCIP_COL}, Cint),
+        lp,
+        set,
+        col,
+        depth,
+    )
+end
+
+function SCIPlpAddRow(lp, blkmem, set, eventqueue, eventfilter, row, depth)
+    ccall(
+        (:SCIPlpAddRow, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_LP},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_EVENTFILTER},
+            Ptr{SCIP_ROW},
+            Cint,
+        ),
+        lp,
+        blkmem,
+        set,
+        eventqueue,
+        eventfilter,
+        row,
+        depth,
+    )
+end
+
+function SCIPlpShrinkCols(lp, set, newncols)
+    ccall(
+        (:SCIPlpShrinkCols, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_LP}, Ptr{SCIP_SET}, Cint),
+        lp,
+        set,
+        newncols,
+    )
+end
+
+function SCIPlpShrinkRows(lp, blkmem, set, eventqueue, eventfilter, newnrows)
+    ccall(
+        (:SCIPlpShrinkRows, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_LP},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_EVENTFILTER},
+            Cint,
+        ),
+        lp,
+        blkmem,
+        set,
+        eventqueue,
+        eventfilter,
+        newnrows,
+    )
+end
+
+function SCIPlpClear(lp, blkmem, set, eventqueue, eventfilter)
+    ccall(
+        (:SCIPlpClear, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_LP},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_EVENTFILTER},
+        ),
+        lp,
+        blkmem,
+        set,
+        eventqueue,
+        eventfilter,
+    )
+end
+
+function SCIPlpMarkSize(lp)
+    ccall((:SCIPlpMarkSize, libscip), Cvoid, (Ptr{SCIP_LP},), lp)
+end
+
+function SCIPlpSetSizeMark(lp, nrows, ncols)
+    ccall(
+        (:SCIPlpSetSizeMark, libscip),
+        Cvoid,
+        (Ptr{SCIP_LP}, Cint, Cint),
+        lp,
+        nrows,
+        ncols,
+    )
+end
+
+function SCIPlpGetBasisInd(lp, basisind)
+    ccall(
+        (:SCIPlpGetBasisInd, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_LP}, Ptr{Cint}),
+        lp,
+        basisind,
+    )
+end
+
+function SCIPlpGetBase(lp, cstat, rstat)
+    ccall(
+        (:SCIPlpGetBase, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_LP}, Ptr{Cint}, Ptr{Cint}),
+        lp,
+        cstat,
+        rstat,
+    )
+end
+
+function SCIPlpGetBInvRow(lp, r, coef, inds, ninds)
+    ccall(
+        (:SCIPlpGetBInvRow, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_LP}, Cint, Ptr{Cdouble}, Ptr{Cint}, Ptr{Cint}),
+        lp,
+        r,
+        coef,
+        inds,
+        ninds,
+    )
+end
+
+function SCIPlpGetBInvCol(lp, c, coef, inds, ninds)
+    ccall(
+        (:SCIPlpGetBInvCol, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_LP}, Cint, Ptr{Cdouble}, Ptr{Cint}, Ptr{Cint}),
+        lp,
+        c,
+        coef,
+        inds,
+        ninds,
+    )
+end
+
+function SCIPlpGetBInvARow(lp, r, binvrow, coef, inds, ninds)
+    ccall(
+        (:SCIPlpGetBInvARow, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_LP}, Cint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cint}, Ptr{Cint}),
+        lp,
+        r,
+        binvrow,
+        coef,
+        inds,
+        ninds,
+    )
+end
+
+function SCIPlpGetBInvACol(lp, c, coef, inds, ninds)
+    ccall(
+        (:SCIPlpGetBInvACol, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_LP}, Cint, Ptr{Cdouble}, Ptr{Cint}, Ptr{Cint}),
+        lp,
+        c,
+        coef,
+        inds,
+        ninds,
+    )
+end
+
+function SCIPlpSumRows(lp, set, prob, weights, sumcoef, sumlhs, sumrhs)
+    ccall(
+        (:SCIPlpSumRows, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_LP},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_PROB},
+            Ptr{Cdouble},
+            Ptr{SCIP_REALARRAY},
+            Ptr{Cdouble},
+            Ptr{Cdouble},
+        ),
+        lp,
+        set,
+        prob,
+        weights,
+        sumcoef,
+        sumlhs,
+        sumrhs,
+    )
+end
+
+function SCIPlpGetState(lp, blkmem, lpistate)
+    ccall(
+        (:SCIPlpGetState, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_LP}, Ptr{BMS_BLKMEM}, Ptr{Ptr{SCIP_LPISTATE}}),
+        lp,
+        blkmem,
+        lpistate,
+    )
+end
+
+function SCIPlpSetState(
+    lp,
+    blkmem,
+    set,
+    prob,
+    eventqueue,
+    lpistate,
+    wasprimfeas,
+    wasprimchecked,
+    wasdualfeas,
+    wasdualchecked,
+)
+    ccall(
+        (:SCIPlpSetState, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_LP},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_LPISTATE},
+            Cuint,
+            Cuint,
+            Cuint,
+            Cuint,
+        ),
+        lp,
+        blkmem,
+        set,
+        prob,
+        eventqueue,
+        lpistate,
+        wasprimfeas,
+        wasprimchecked,
+        wasdualfeas,
+        wasdualchecked,
+    )
+end
+
+function SCIPlpFreeState(lp, blkmem, lpistate)
+    ccall(
+        (:SCIPlpFreeState, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_LP}, Ptr{BMS_BLKMEM}, Ptr{Ptr{SCIP_LPISTATE}}),
+        lp,
+        blkmem,
+        lpistate,
+    )
+end
+
+function SCIPlpInterrupt(lp, interrupt)
+    ccall(
+        (:SCIPlpInterrupt, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_LP}, Cuint),
+        lp,
+        interrupt,
+    )
+end
+
+function SCIPlpGetNorms(lp, blkmem, lpinorms)
+    ccall(
+        (:SCIPlpGetNorms, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_LP}, Ptr{BMS_BLKMEM}, Ptr{Ptr{SCIP_LPINORMS}}),
+        lp,
+        blkmem,
+        lpinorms,
+    )
+end
+
+function SCIPlpSetNorms(lp, blkmem, lpinorms)
+    ccall(
+        (:SCIPlpSetNorms, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_LP}, Ptr{BMS_BLKMEM}, Ptr{SCIP_LPINORMS}),
+        lp,
+        blkmem,
+        lpinorms,
+    )
+end
+
+function SCIPlpFreeNorms(lp, blkmem, lpinorms)
+    ccall(
+        (:SCIPlpFreeNorms, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_LP}, Ptr{BMS_BLKMEM}, Ptr{Ptr{SCIP_LPINORMS}}),
+        lp,
+        blkmem,
+        lpinorms,
+    )
+end
+
+function SCIPlpGetCutoffbound(lp)
+    ccall((:SCIPlpGetCutoffbound, libscip), Cdouble, (Ptr{SCIP_LP},), lp)
+end
+
+function SCIPlpSetCutoffbound(lp, set, prob, cutoffbound)
+    ccall(
+        (:SCIPlpSetCutoffbound, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_LP}, Ptr{SCIP_SET}, Ptr{SCIP_PROB}, Cdouble),
+        lp,
+        set,
+        prob,
+        cutoffbound,
+    )
+end
+
+function SCIPlpGetFeastol(lp)
+    ccall((:SCIPlpGetFeastol, libscip), Cdouble, (Ptr{SCIP_LP},), lp)
+end
+
+function SCIPlpSetFeastol(lp, set, newfeastol)
+    ccall(
+        (:SCIPlpSetFeastol, libscip),
+        Cvoid,
+        (Ptr{SCIP_LP}, Ptr{SCIP_SET}, Cdouble),
+        lp,
+        set,
+        newfeastol,
+    )
+end
+
+function SCIPlpResetFeastol(lp, set)
+    ccall(
+        (:SCIPlpResetFeastol, libscip),
+        Cvoid,
+        (Ptr{SCIP_LP}, Ptr{SCIP_SET}),
+        lp,
+        set,
+    )
+end
+
+function SCIPlpFlush(lp, blkmem, set, prob, eventqueue)
+    ccall(
+        (:SCIPlpFlush, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_LP},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_EVENTQUEUE},
+        ),
+        lp,
+        blkmem,
+        set,
+        prob,
+        eventqueue,
+    )
+end
+
+function SCIPlpMarkFlushed(lp, set)
+    ccall(
+        (:SCIPlpMarkFlushed, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_LP}, Ptr{SCIP_SET}),
+        lp,
+        set,
+    )
+end
+
+function SCIPlpSolveAndEval(
+    lp,
+    set,
+    messagehdlr,
+    blkmem,
+    stat,
+    eventqueue,
+    eventfilter,
+    prob,
+    itlim,
+    limitresolveiters,
+    aging,
+    keepsol,
+    forcedlpsolve,
+    lperror,
+)
+    ccall(
+        (:SCIPlpSolveAndEval, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_LP},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_MESSAGEHDLR},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_EVENTFILTER},
+            Ptr{SCIP_PROB},
+            Clonglong,
+            Cuint,
+            Cuint,
+            Cuint,
+            Cuint,
+            Ptr{Cuint},
+        ),
+        lp,
+        set,
+        messagehdlr,
+        blkmem,
+        stat,
+        eventqueue,
+        eventfilter,
+        prob,
+        itlim,
+        limitresolveiters,
+        aging,
+        keepsol,
+        forcedlpsolve,
+        lperror,
+    )
+end
+
+function SCIPlpGetSolstat(lp)
+    ccall((:SCIPlpGetSolstat, libscip), SCIP_LPSOLSTAT, (Ptr{SCIP_LP},), lp)
+end
+
+function SCIPlpSetRootLPIsRelax(lp, isrelax)
+    ccall(
+        (:SCIPlpSetRootLPIsRelax, libscip),
+        Cvoid,
+        (Ptr{SCIP_LP}, Cuint),
+        lp,
+        isrelax,
+    )
+end
+
+function SCIPlpIsRootLPRelax(lp)
+    ccall((:SCIPlpIsRootLPRelax, libscip), Cuint, (Ptr{SCIP_LP},), lp)
+end
+
+function SCIPlpGetObjval(lp, set, prob)
+    ccall(
+        (:SCIPlpGetObjval, libscip),
+        Cdouble,
+        (Ptr{SCIP_LP}, Ptr{SCIP_SET}, Ptr{SCIP_PROB}),
+        lp,
+        set,
+        prob,
+    )
+end
+
+function SCIPlpGetColumnObjval(lp)
+    ccall((:SCIPlpGetColumnObjval, libscip), Cdouble, (Ptr{SCIP_LP},), lp)
+end
+
+function SCIPlpGetLooseObjval(lp, set, prob)
+    ccall(
+        (:SCIPlpGetLooseObjval, libscip),
+        Cdouble,
+        (Ptr{SCIP_LP}, Ptr{SCIP_SET}, Ptr{SCIP_PROB}),
+        lp,
+        set,
+        prob,
+    )
+end
+
+function SCIPlpStoreRootObjval(lp, set, prob)
+    ccall(
+        (:SCIPlpStoreRootObjval, libscip),
+        Cvoid,
+        (Ptr{SCIP_LP}, Ptr{SCIP_SET}, Ptr{SCIP_PROB}),
+        lp,
+        set,
+        prob,
+    )
+end
+
+function SCIPlpInvalidateRootObjval(lp)
+    ccall((:SCIPlpInvalidateRootObjval, libscip), Cvoid, (Ptr{SCIP_LP},), lp)
+end
+
+function SCIPlpGetGlobalPseudoObjval(lp, set, prob)
+    ccall(
+        (:SCIPlpGetGlobalPseudoObjval, libscip),
+        Cdouble,
+        (Ptr{SCIP_LP}, Ptr{SCIP_SET}, Ptr{SCIP_PROB}),
+        lp,
+        set,
+        prob,
+    )
+end
+
+function SCIPlpRecomputeLocalAndGlobalPseudoObjval(lp, set, prob)
+    ccall(
+        (:SCIPlpRecomputeLocalAndGlobalPseudoObjval, libscip),
+        Cvoid,
+        (Ptr{SCIP_LP}, Ptr{SCIP_SET}, Ptr{SCIP_PROB}),
+        lp,
+        set,
+        prob,
+    )
+end
+
+function SCIPlpGetPseudoObjval(lp, set, prob)
+    ccall(
+        (:SCIPlpGetPseudoObjval, libscip),
+        Cdouble,
+        (Ptr{SCIP_LP}, Ptr{SCIP_SET}, Ptr{SCIP_PROB}),
+        lp,
+        set,
+        prob,
+    )
+end
+
+function SCIPlpGetModifiedPseudoObjval(
+    lp,
+    set,
+    prob,
+    var,
+    oldbound,
+    newbound,
+    boundtype,
+)
+    ccall(
+        (:SCIPlpGetModifiedPseudoObjval, libscip),
+        Cdouble,
+        (
+            Ptr{SCIP_LP},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_VAR},
+            Cdouble,
+            Cdouble,
+            SCIP_BOUNDTYPE,
+        ),
+        lp,
+        set,
+        prob,
+        var,
+        oldbound,
+        newbound,
+        boundtype,
+    )
+end
+
+function SCIPlpUpdateVarObj(lp, set, var, oldobj, newobj)
+    ccall(
+        (:SCIPlpUpdateVarObj, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_LP}, Ptr{SCIP_SET}, Ptr{SCIP_VAR}, Cdouble, Cdouble),
+        lp,
+        set,
+        var,
+        oldobj,
+        newobj,
+    )
+end
+
+function SCIPlpUpdateVarLbGlobal(lp, set, var, oldlb, newlb)
+    ccall(
+        (:SCIPlpUpdateVarLbGlobal, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_LP}, Ptr{SCIP_SET}, Ptr{SCIP_VAR}, Cdouble, Cdouble),
+        lp,
+        set,
+        var,
+        oldlb,
+        newlb,
+    )
+end
+
+function SCIPlpUpdateVarLb(lp, set, var, oldlb, newlb)
+    ccall(
+        (:SCIPlpUpdateVarLb, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_LP}, Ptr{SCIP_SET}, Ptr{SCIP_VAR}, Cdouble, Cdouble),
+        lp,
+        set,
+        var,
+        oldlb,
+        newlb,
+    )
+end
+
+function SCIPlpUpdateVarUbGlobal(lp, set, var, oldub, newub)
+    ccall(
+        (:SCIPlpUpdateVarUbGlobal, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_LP}, Ptr{SCIP_SET}, Ptr{SCIP_VAR}, Cdouble, Cdouble),
+        lp,
+        set,
+        var,
+        oldub,
+        newub,
+    )
+end
+
+function SCIPlpUpdateVarUb(lp, set, var, oldub, newub)
+    ccall(
+        (:SCIPlpUpdateVarUb, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_LP}, Ptr{SCIP_SET}, Ptr{SCIP_VAR}, Cdouble, Cdouble),
+        lp,
+        set,
+        var,
+        oldub,
+        newub,
+    )
+end
+
+function SCIPlpUpdateAddVar(lp, set, var)
+    ccall(
+        (:SCIPlpUpdateAddVar, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_LP}, Ptr{SCIP_SET}, Ptr{SCIP_VAR}),
+        lp,
+        set,
+        var,
+    )
+end
+
+function SCIPlpUpdateDelVar(lp, set, var)
+    ccall(
+        (:SCIPlpUpdateDelVar, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_LP}, Ptr{SCIP_SET}, Ptr{SCIP_VAR}),
+        lp,
+        set,
+        var,
+    )
+end
+
+function SCIPlpUpdateVarColumn(lp, set, var)
+    ccall(
+        (:SCIPlpUpdateVarColumn, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_LP}, Ptr{SCIP_SET}, Ptr{SCIP_VAR}),
+        lp,
+        set,
+        var,
+    )
+end
+
+function SCIPlpUpdateVarLoose(lp, set, var)
+    ccall(
+        (:SCIPlpUpdateVarLoose, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_LP}, Ptr{SCIP_SET}, Ptr{SCIP_VAR}),
+        lp,
+        set,
+        var,
+    )
+end
+
+function SCIPlpDecNLoosevars(lp)
+    ccall((:SCIPlpDecNLoosevars, libscip), Cvoid, (Ptr{SCIP_LP},), lp)
+end
+
+function SCIPlpGetSol(lp, set, stat, primalfeasible, dualfeasible)
+    ccall(
+        (:SCIPlpGetSol, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_LP}, Ptr{SCIP_SET}, Ptr{SCIP_STAT}, Ptr{Cuint}, Ptr{Cuint}),
+        lp,
+        set,
+        stat,
+        primalfeasible,
+        dualfeasible,
+    )
+end
+
+function SCIPlpGetUnboundedSol(lp, set, stat, primalfeasible, rayfeasible)
+    ccall(
+        (:SCIPlpGetUnboundedSol, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_LP}, Ptr{SCIP_SET}, Ptr{SCIP_STAT}, Ptr{Cuint}, Ptr{Cuint}),
+        lp,
+        set,
+        stat,
+        primalfeasible,
+        rayfeasible,
+    )
+end
+
+function SCIPlpGetPrimalRay(lp, set, ray)
+    ccall(
+        (:SCIPlpGetPrimalRay, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_LP}, Ptr{SCIP_SET}, Ptr{Cdouble}),
+        lp,
+        set,
+        ray,
+    )
+end
+
+function SCIPlpGetDualfarkas(lp, set, stat, forcedlpsolve, valid)
+    ccall(
+        (:SCIPlpGetDualfarkas, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_LP}, Ptr{SCIP_SET}, Ptr{SCIP_STAT}, Cuint, Ptr{Cuint}),
+        lp,
+        set,
+        stat,
+        forcedlpsolve,
+        valid,
+    )
+end
+
+function SCIPlpGetIterations(lp, iterations)
+    ccall(
+        (:SCIPlpGetIterations, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_LP}, Ptr{Cint}),
+        lp,
+        iterations,
+    )
+end
+
+function SCIPlpUpdateAges(lp, stat)
+    ccall(
+        (:SCIPlpUpdateAges, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_LP}, Ptr{SCIP_STAT}),
+        lp,
+        stat,
+    )
+end
+
+function SCIPlpRemoveNewObsoletes(
+    lp,
+    blkmem,
+    set,
+    stat,
+    eventqueue,
+    eventfilter,
+)
+    ccall(
+        (:SCIPlpRemoveNewObsoletes, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_LP},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_EVENTFILTER},
+        ),
+        lp,
+        blkmem,
+        set,
+        stat,
+        eventqueue,
+        eventfilter,
+    )
+end
+
+function SCIPlpRemoveAllObsoletes(
+    lp,
+    blkmem,
+    set,
+    stat,
+    eventqueue,
+    eventfilter,
+)
+    ccall(
+        (:SCIPlpRemoveAllObsoletes, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_LP},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_EVENTFILTER},
+        ),
+        lp,
+        blkmem,
+        set,
+        stat,
+        eventqueue,
+        eventfilter,
+    )
+end
+
+function SCIPlpCleanupNew(lp, blkmem, set, stat, eventqueue, eventfilter, root)
+    ccall(
+        (:SCIPlpCleanupNew, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_LP},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_EVENTFILTER},
+            Cuint,
+        ),
+        lp,
+        blkmem,
+        set,
+        stat,
+        eventqueue,
+        eventfilter,
+        root,
+    )
+end
+
+function SCIPlpCleanupAll(lp, blkmem, set, stat, eventqueue, eventfilter, root)
+    ccall(
+        (:SCIPlpCleanupAll, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_LP},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_EVENTFILTER},
+            Cuint,
+        ),
+        lp,
+        blkmem,
+        set,
+        stat,
+        eventqueue,
+        eventfilter,
+        root,
+    )
+end
+
+function SCIPlpRemoveRedundantRows(
+    lp,
+    blkmem,
+    set,
+    stat,
+    eventqueue,
+    eventfilter,
+)
+    ccall(
+        (:SCIPlpRemoveRedundantRows, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_LP},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_EVENTFILTER},
+        ),
+        lp,
+        blkmem,
+        set,
+        stat,
+        eventqueue,
+        eventfilter,
+    )
+end
+
+function SCIPlpStartDive(lp, blkmem, set, stat)
+    ccall(
+        (:SCIPlpStartDive, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_LP}, Ptr{BMS_BLKMEM}, Ptr{SCIP_SET}, Ptr{SCIP_STAT}),
+        lp,
+        blkmem,
+        set,
+        stat,
+    )
+end
+
+function SCIPlpEndDive(
+    lp,
+    blkmem,
+    set,
+    messagehdlr,
+    stat,
+    eventqueue,
+    eventfilter,
+    prob,
+    vars,
+    nvars,
+)
+    ccall(
+        (:SCIPlpEndDive, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_LP},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_MESSAGEHDLR},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_EVENTFILTER},
+            Ptr{SCIP_PROB},
+            Ptr{Ptr{SCIP_VAR}},
+            Cint,
+        ),
+        lp,
+        blkmem,
+        set,
+        messagehdlr,
+        stat,
+        eventqueue,
+        eventfilter,
+        prob,
+        vars,
+        nvars,
+    )
+end
+
+function SCIPlpRecordOldRowSideDive(lp, row, sidetype)
+    ccall(
+        (:SCIPlpRecordOldRowSideDive, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_LP}, Ptr{SCIP_ROW}, SCIP_SIDETYPE),
+        lp,
+        row,
+        sidetype,
+    )
+end
+
+function SCIPlpStartProbing(lp)
+    ccall((:SCIPlpStartProbing, libscip), SCIP_RETCODE, (Ptr{SCIP_LP},), lp)
+end
+
+function SCIPlpEndProbing(lp)
+    ccall((:SCIPlpEndProbing, libscip), SCIP_RETCODE, (Ptr{SCIP_LP},), lp)
+end
+
+function SCIPlpStartStrongbranchProbing(lp)
+    ccall(
+        (:SCIPlpStartStrongbranchProbing, libscip),
+        Cvoid,
+        (Ptr{SCIP_LP},),
+        lp,
+    )
+end
+
+function SCIPlpEndStrongbranchProbing(lp)
+    ccall((:SCIPlpEndStrongbranchProbing, libscip), Cvoid, (Ptr{SCIP_LP},), lp)
+end
+
+function SCIPlpGetProvedLowerbound(lp, set, bound)
+    ccall(
+        (:SCIPlpGetProvedLowerbound, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_LP}, Ptr{SCIP_SET}, Ptr{Cdouble}),
+        lp,
+        set,
+        bound,
+    )
+end
+
+function SCIPlpIsInfeasibilityProved(lp, set, proved)
+    ccall(
+        (:SCIPlpIsInfeasibilityProved, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_LP}, Ptr{SCIP_SET}, Ptr{Cuint}),
+        lp,
+        set,
+        proved,
+    )
+end
+
+function SCIPlpWrite(lp, fname)
+    ccall(
+        (:SCIPlpWrite, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_LP}, Ptr{Cchar}),
+        lp,
+        fname,
+    )
+end
+
+function SCIPlpWriteMip(
+    lp,
+    set,
+    messagehdlr,
+    fname,
+    genericnames,
+    origobj,
+    objsense,
+    objscale,
+    objoffset,
+    lazyconss,
+)
+    ccall(
+        (:SCIPlpWriteMip, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_LP},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_MESSAGEHDLR},
+            Ptr{Cchar},
+            Cuint,
+            Cuint,
+            SCIP_OBJSENSE,
+            Cdouble,
+            Cdouble,
+            Cuint,
+        ),
+        lp,
+        set,
+        messagehdlr,
+        fname,
+        genericnames,
+        origobj,
+        objsense,
+        objscale,
+        objoffset,
+        lazyconss,
+    )
+end
+
+function SCIPlpRecalculateObjSqrNorm(set, lp)
+    ccall(
+        (:SCIPlpRecalculateObjSqrNorm, libscip),
+        Cvoid,
+        (Ptr{SCIP_SET}, Ptr{SCIP_LP}),
+        set,
+        lp,
+    )
+end
+
+function SCIPlpComputeRelIntPoint(
+    set,
+    messagehdlr,
+    lp,
+    prob,
+    relaxrows,
+    inclobjcutoff,
+    timelimit,
+    iterlimit,
+    point,
+    success,
+)
+    ccall(
+        (:SCIPlpComputeRelIntPoint, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_SET},
+            Ptr{SCIP_MESSAGEHDLR},
+            Ptr{SCIP_LP},
+            Ptr{SCIP_PROB},
+            Cuint,
+            Cuint,
+            Cdouble,
+            Cint,
+            Ptr{Cdouble},
+            Ptr{Cuint},
+        ),
+        set,
+        messagehdlr,
+        lp,
+        prob,
+        relaxrows,
+        inclobjcutoff,
+        timelimit,
+        iterlimit,
+        point,
+        success,
+    )
+end
+
+function SCIPlpGetDualDegeneracy(lp, set, stat, degeneracy, varconsratio)
+    ccall(
+        (:SCIPlpGetDualDegeneracy, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_LP},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{Cdouble},
+            Ptr{Cdouble},
+        ),
+        lp,
+        set,
+        stat,
+        degeneracy,
+        varconsratio,
+    )
+end
+
+function SCIPlpGetCols(lp)
+    ccall((:SCIPlpGetCols, libscip), Ptr{Ptr{SCIP_COL}}, (Ptr{SCIP_LP},), lp)
+end
+
+function SCIPlpGetNCols(lp)
+    ccall((:SCIPlpGetNCols, libscip), Cint, (Ptr{SCIP_LP},), lp)
+end
+
+function SCIPlpGetNUnfixedCols(lp, eps)
+    ccall(
+        (:SCIPlpGetNUnfixedCols, libscip),
+        Cint,
+        (Ptr{SCIP_LP}, Cdouble),
+        lp,
+        eps,
+    )
+end
+
+function SCIPlpGetRows(lp)
+    ccall((:SCIPlpGetRows, libscip), Ptr{Ptr{SCIP_ROW}}, (Ptr{SCIP_LP},), lp)
+end
+
+function SCIPlpGetNRows(lp)
+    ccall((:SCIPlpGetNRows, libscip), Cint, (Ptr{SCIP_LP},), lp)
+end
+
+function SCIPlpGetNewcols(lp)
+    ccall((:SCIPlpGetNewcols, libscip), Ptr{Ptr{SCIP_COL}}, (Ptr{SCIP_LP},), lp)
+end
+
+function SCIPlpGetNNewcols(lp)
+    ccall((:SCIPlpGetNNewcols, libscip), Cint, (Ptr{SCIP_LP},), lp)
+end
+
+function SCIPlpGetNewrows(lp)
+    ccall((:SCIPlpGetNewrows, libscip), Ptr{Ptr{SCIP_ROW}}, (Ptr{SCIP_LP},), lp)
+end
+
+function SCIPlpGetNNewrows(lp)
+    ccall((:SCIPlpGetNNewrows, libscip), Cint, (Ptr{SCIP_LP},), lp)
+end
+
+function SCIPlpGetObjNorm(lp)
+    ccall((:SCIPlpGetObjNorm, libscip), Cdouble, (Ptr{SCIP_LP},), lp)
+end
+
+function SCIPlpGetRootObjval(lp)
+    ccall((:SCIPlpGetRootObjval, libscip), Cdouble, (Ptr{SCIP_LP},), lp)
+end
+
+function SCIPlpGetRootColumnObjval(lp)
+    ccall((:SCIPlpGetRootColumnObjval, libscip), Cdouble, (Ptr{SCIP_LP},), lp)
+end
+
+function SCIPlpGetRootLooseObjval(lp)
+    ccall((:SCIPlpGetRootLooseObjval, libscip), Cdouble, (Ptr{SCIP_LP},), lp)
+end
+
+function SCIPlpGetLPI(lp)
+    ccall((:SCIPlpGetLPI, libscip), Ptr{SCIP_LPI}, (Ptr{SCIP_LP},), lp)
+end
+
+function SCIPlpSetIsRelax(lp, relax)
+    ccall((:SCIPlpSetIsRelax, libscip), Cvoid, (Ptr{SCIP_LP}, Cuint), lp, relax)
+end
+
+function SCIPlpIsRelax(lp)
+    ccall((:SCIPlpIsRelax, libscip), Cuint, (Ptr{SCIP_LP},), lp)
+end
+
+function SCIPlpIsSolved(lp)
+    ccall((:SCIPlpIsSolved, libscip), Cuint, (Ptr{SCIP_LP},), lp)
+end
+
+function SCIPlpIsPrimalReliable(lp)
+    ccall((:SCIPlpIsPrimalReliable, libscip), Cuint, (Ptr{SCIP_LP},), lp)
+end
+
+function SCIPlpIsDualReliable(lp)
+    ccall((:SCIPlpIsDualReliable, libscip), Cuint, (Ptr{SCIP_LP},), lp)
+end
+
+function SCIPlpIsSolBasic(lp)
+    ccall((:SCIPlpIsSolBasic, libscip), Cuint, (Ptr{SCIP_LP},), lp)
+end
+
+function SCIPlpDiving(lp)
+    ccall((:SCIPlpDiving, libscip), Cuint, (Ptr{SCIP_LP},), lp)
+end
+
+function SCIPlpDivingObjChanged(lp)
+    ccall((:SCIPlpDivingObjChanged, libscip), Cuint, (Ptr{SCIP_LP},), lp)
+end
+
+function SCIPlpMarkDivingObjChanged(lp)
+    ccall((:SCIPlpMarkDivingObjChanged, libscip), Cvoid, (Ptr{SCIP_LP},), lp)
+end
+
+function SCIPlpUnmarkDivingObjChanged(lp)
+    ccall((:SCIPlpUnmarkDivingObjChanged, libscip), Cvoid, (Ptr{SCIP_LP},), lp)
+end
+
+function SCIPlpDivingRowsChanged(lp)
+    ccall((:SCIPlpDivingRowsChanged, libscip), Cuint, (Ptr{SCIP_LP},), lp)
+end
+
+function SCIPlpIsFeasEQ(set, lp, val1, val2)
+    ccall(
+        (:SCIPlpIsFeasEQ, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Ptr{SCIP_LP}, Cdouble, Cdouble),
+        set,
+        lp,
+        val1,
+        val2,
+    )
+end
+
+function SCIPlpIsFeasLT(set, lp, val1, val2)
+    ccall(
+        (:SCIPlpIsFeasLT, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Ptr{SCIP_LP}, Cdouble, Cdouble),
+        set,
+        lp,
+        val1,
+        val2,
+    )
+end
+
+function SCIPlpIsFeasLE(set, lp, val1, val2)
+    ccall(
+        (:SCIPlpIsFeasLE, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Ptr{SCIP_LP}, Cdouble, Cdouble),
+        set,
+        lp,
+        val1,
+        val2,
+    )
+end
+
+function SCIPlpIsFeasGT(set, lp, val1, val2)
+    ccall(
+        (:SCIPlpIsFeasGT, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Ptr{SCIP_LP}, Cdouble, Cdouble),
+        set,
+        lp,
+        val1,
+        val2,
+    )
+end
+
+function SCIPlpIsFeasGE(set, lp, val1, val2)
+    ccall(
+        (:SCIPlpIsFeasGE, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Ptr{SCIP_LP}, Cdouble, Cdouble),
+        set,
+        lp,
+        val1,
+        val2,
+    )
+end
+
+function SCIPlpIsFeasZero(lp, val)
+    ccall((:SCIPlpIsFeasZero, libscip), Cuint, (Ptr{SCIP_LP}, Cdouble), lp, val)
+end
+
+function SCIPlpIsFeasPositive(lp, val)
+    ccall(
+        (:SCIPlpIsFeasPositive, libscip),
+        Cuint,
+        (Ptr{SCIP_LP}, Cdouble),
+        lp,
+        val,
+    )
+end
+
+function SCIPlpIsFeasNegative(lp, val)
+    ccall(
+        (:SCIPlpIsFeasNegative, libscip),
+        Cuint,
+        (Ptr{SCIP_LP}, Cdouble),
+        lp,
+        val,
+    )
+end
+
+function SCIPrationalCreate(rational)
+    ccall(
+        (:SCIPrationalCreate, libscip),
+        SCIP_RETCODE,
+        (Ptr{Ptr{SCIP_RATIONAL}},),
+        rational,
+    )
+end
+
+function SCIPrationalCreateBuffer(bufmem, rational)
+    ccall(
+        (:SCIPrationalCreateBuffer, libscip),
+        SCIP_RETCODE,
+        (Ptr{BMS_BUFMEM}, Ptr{Ptr{SCIP_RATIONAL}}),
+        bufmem,
+        rational,
+    )
+end
+
+function SCIPrationalCreateBlock(blkmem, rational)
+    ccall(
+        (:SCIPrationalCreateBlock, libscip),
+        SCIP_RETCODE,
+        (Ptr{BMS_BLKMEM}, Ptr{Ptr{SCIP_RATIONAL}}),
+        blkmem,
+        rational,
+    )
+end
+
+function SCIPrationalCopy(result, src)
+    ccall(
+        (:SCIPrationalCopy, libscip),
+        SCIP_RETCODE,
+        (Ptr{Ptr{SCIP_RATIONAL}}, Ptr{SCIP_RATIONAL}),
+        result,
+        src,
+    )
+end
+
+function SCIPrationalCopyBlock(mem, result, src)
+    ccall(
+        (:SCIPrationalCopyBlock, libscip),
+        SCIP_RETCODE,
+        (Ptr{BMS_BLKMEM}, Ptr{Ptr{SCIP_RATIONAL}}, Ptr{SCIP_RATIONAL}),
+        mem,
+        result,
+        src,
+    )
+end
+
+function SCIPrationalCopyBuffer(bufmem, result, src)
+    ccall(
+        (:SCIPrationalCopyBuffer, libscip),
+        SCIP_RETCODE,
+        (Ptr{BMS_BUFMEM}, Ptr{Ptr{SCIP_RATIONAL}}, Ptr{SCIP_RATIONAL}),
+        bufmem,
+        result,
+        src,
+    )
+end
+
+function SCIPrationalCreateArray(rational, size)
+    ccall(
+        (:SCIPrationalCreateArray, libscip),
+        SCIP_RETCODE,
+        (Ptr{Ptr{Ptr{SCIP_RATIONAL}}}, Cint),
+        rational,
+        size,
+    )
+end
+
+function SCIPrationalCreateBlockArray(mem, rational, size)
+    ccall(
+        (:SCIPrationalCreateBlockArray, libscip),
+        SCIP_RETCODE,
+        (Ptr{BMS_BLKMEM}, Ptr{Ptr{Ptr{SCIP_RATIONAL}}}, Cint),
+        mem,
+        rational,
+        size,
+    )
+end
+
+function SCIPrationalCreateBufferArray(mem, rational, size)
+    ccall(
+        (:SCIPrationalCreateBufferArray, libscip),
+        SCIP_RETCODE,
+        (Ptr{BMS_BUFMEM}, Ptr{Ptr{Ptr{SCIP_RATIONAL}}}, Cint),
+        mem,
+        rational,
+        size,
+    )
+end
+
+function SCIPrationalCopyArray(target, src, len)
+    ccall(
+        (:SCIPrationalCopyArray, libscip),
+        SCIP_RETCODE,
+        (Ptr{Ptr{Ptr{SCIP_RATIONAL}}}, Ptr{Ptr{SCIP_RATIONAL}}, Cint),
+        target,
+        src,
+        len,
+    )
+end
+
+function SCIPrationalCopyBlockArray(mem, target, src, len)
+    ccall(
+        (:SCIPrationalCopyBlockArray, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{BMS_BLKMEM},
+            Ptr{Ptr{Ptr{SCIP_RATIONAL}}},
+            Ptr{Ptr{SCIP_RATIONAL}},
+            Cint,
+        ),
+        mem,
+        target,
+        src,
+        len,
+    )
+end
+
+function SCIPrationalCopyBufferArray(mem, result, src, len)
+    ccall(
+        (:SCIPrationalCopyBufferArray, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{BMS_BUFMEM},
+            Ptr{Ptr{Ptr{SCIP_RATIONAL}}},
+            Ptr{Ptr{SCIP_RATIONAL}},
+            Cint,
+        ),
+        mem,
+        result,
+        src,
+        len,
+    )
+end
+
+function SCIPrationalReallocArray(result, oldlen, newlen)
+    ccall(
+        (:SCIPrationalReallocArray, libscip),
+        SCIP_RETCODE,
+        (Ptr{Ptr{Ptr{SCIP_RATIONAL}}}, Cint, Cint),
+        result,
+        oldlen,
+        newlen,
+    )
+end
+
+function SCIPrationalReallocBufferArray(mem, result, oldlen, newlen)
+    ccall(
+        (:SCIPrationalReallocBufferArray, libscip),
+        SCIP_RETCODE,
+        (Ptr{BMS_BUFMEM}, Ptr{Ptr{Ptr{SCIP_RATIONAL}}}, Cint, Cint),
+        mem,
+        result,
+        oldlen,
+        newlen,
+    )
+end
+
+function SCIPrationalReallocBlockArray(mem, result, oldlen, newlen)
+    ccall(
+        (:SCIPrationalReallocBlockArray, libscip),
+        SCIP_RETCODE,
+        (Ptr{BMS_BLKMEM}, Ptr{Ptr{Ptr{SCIP_RATIONAL}}}, Cint, Cint),
+        mem,
+        result,
+        oldlen,
+        newlen,
+    )
+end
+
+function SCIPrationalFree(rational)
+    ccall(
+        (:SCIPrationalFree, libscip),
+        Cvoid,
+        (Ptr{Ptr{SCIP_RATIONAL}},),
+        rational,
+    )
+end
+
+function SCIPrationalFreeBlock(mem, rational)
+    ccall(
+        (:SCIPrationalFreeBlock, libscip),
+        Cvoid,
+        (Ptr{BMS_BLKMEM}, Ptr{Ptr{SCIP_RATIONAL}}),
+        mem,
+        rational,
+    )
+end
+
+function SCIPrationalFreeBuffer(bufmem, rational)
+    ccall(
+        (:SCIPrationalFreeBuffer, libscip),
+        Cvoid,
+        (Ptr{BMS_BUFMEM}, Ptr{Ptr{SCIP_RATIONAL}}),
+        bufmem,
+        rational,
+    )
+end
+
+function SCIPrationalFreeArray(ratarray, size)
+    ccall(
+        (:SCIPrationalFreeArray, libscip),
+        Cvoid,
+        (Ptr{Ptr{Ptr{SCIP_RATIONAL}}}, Cint),
+        ratarray,
+        size,
+    )
+end
+
+function SCIPrationalFreeBlockArray(mem, ratblockarray, size)
+    ccall(
+        (:SCIPrationalFreeBlockArray, libscip),
+        Cvoid,
+        (Ptr{BMS_BLKMEM}, Ptr{Ptr{Ptr{SCIP_RATIONAL}}}, Cint),
+        mem,
+        ratblockarray,
+        size,
+    )
+end
+
+function SCIPrationalFreeBufferArray(mem, ratbufarray, size)
+    ccall(
+        (:SCIPrationalFreeBufferArray, libscip),
+        Cvoid,
+        (Ptr{BMS_BUFMEM}, Ptr{Ptr{Ptr{SCIP_RATIONAL}}}, Cint),
+        mem,
+        ratbufarray,
+        size,
+    )
+end
+
+function SCIPrationalSetRational(res, src)
+    ccall(
+        (:SCIPrationalSetRational, libscip),
+        Cvoid,
+        (Ptr{SCIP_RATIONAL}, Ptr{SCIP_RATIONAL}),
+        res,
+        src,
+    )
+end
+
+function SCIPrationalSetFraction(res, nom, denom)
+    ccall(
+        (:SCIPrationalSetFraction, libscip),
+        Cvoid,
+        (Ptr{SCIP_RATIONAL}, Clonglong, Clonglong),
+        res,
+        nom,
+        denom,
+    )
+end
+
+function SCIPrationalSetReal(res, real)
+    ccall(
+        (:SCIPrationalSetReal, libscip),
+        Cvoid,
+        (Ptr{SCIP_RATIONAL}, Cdouble),
+        res,
+        real,
+    )
+end
+
+function SCIPrationalSetInfinity(res)
+    ccall(
+        (:SCIPrationalSetInfinity, libscip),
+        Cvoid,
+        (Ptr{SCIP_RATIONAL},),
+        res,
+    )
+end
+
+function SCIPrationalSetNegInfinity(res)
+    ccall(
+        (:SCIPrationalSetNegInfinity, libscip),
+        Cvoid,
+        (Ptr{SCIP_RATIONAL},),
+        res,
+    )
+end
+
+function SCIPrationalIsString(desc)
+    ccall((:SCIPrationalIsString, libscip), Cuint, (Ptr{Cchar},), desc)
+end
+
+function SCIPrationalSetString(res, desc)
+    ccall(
+        (:SCIPrationalSetString, libscip),
+        Cvoid,
+        (Ptr{SCIP_RATIONAL}, Ptr{Cchar}),
+        res,
+        desc,
+    )
+end
+
+function SCIPrationalCreateString(mem, rational, desc)
+    ccall(
+        (:SCIPrationalCreateString, libscip),
+        SCIP_RETCODE,
+        (Ptr{BMS_BLKMEM}, Ptr{Ptr{SCIP_RATIONAL}}, Ptr{Cchar}),
+        mem,
+        rational,
+        desc,
+    )
+end
+
+function SCIPstrToRationalValue(desc, value, endptr)
+    ccall(
+        (:SCIPstrToRationalValue, libscip),
+        Cuint,
+        (Ptr{Cchar}, Ptr{SCIP_RATIONAL}, Ptr{Ptr{Cchar}}),
+        desc,
+        value,
+        endptr,
+    )
+end
+
+function SCIPrationalResetFloatingPointRepresentable(rat)
+    ccall(
+        (:SCIPrationalResetFloatingPointRepresentable, libscip),
+        Cvoid,
+        (Ptr{SCIP_RATIONAL},),
+        rat,
+    )
+end
+
+function SCIPrationalCanonicalize(rational)
+    ccall(
+        (:SCIPrationalCanonicalize, libscip),
+        Cvoid,
+        (Ptr{SCIP_RATIONAL},),
+        rational,
+    )
+end
+
+function SCIPrationalCheckInfByValue(rational)
+    ccall(
+        (:SCIPrationalCheckInfByValue, libscip),
+        Cvoid,
+        (Ptr{SCIP_RATIONAL},),
+        rational,
+    )
+end
+
+function SCIPrationalAdd(res, op1, op2)
+    ccall(
+        (:SCIPrationalAdd, libscip),
+        Cvoid,
+        (Ptr{SCIP_RATIONAL}, Ptr{SCIP_RATIONAL}, Ptr{SCIP_RATIONAL}),
+        res,
+        op1,
+        op2,
+    )
+end
+
+function SCIPrationalAddReal(res, rat, real)
+    ccall(
+        (:SCIPrationalAddReal, libscip),
+        Cvoid,
+        (Ptr{SCIP_RATIONAL}, Ptr{SCIP_RATIONAL}, Cdouble),
+        res,
+        rat,
+        real,
+    )
+end
+
+function SCIPrationalDiff(res, op1, op2)
+    ccall(
+        (:SCIPrationalDiff, libscip),
+        Cvoid,
+        (Ptr{SCIP_RATIONAL}, Ptr{SCIP_RATIONAL}, Ptr{SCIP_RATIONAL}),
+        res,
+        op1,
+        op2,
+    )
+end
+
+function SCIPrationalDiffReal(res, rat, real)
+    ccall(
+        (:SCIPrationalDiffReal, libscip),
+        Cvoid,
+        (Ptr{SCIP_RATIONAL}, Ptr{SCIP_RATIONAL}, Cdouble),
+        res,
+        rat,
+        real,
+    )
+end
+
+function SCIPrationalRelDiff(res, val1, val2)
+    ccall(
+        (:SCIPrationalRelDiff, libscip),
+        Cvoid,
+        (Ptr{SCIP_RATIONAL}, Ptr{SCIP_RATIONAL}, Ptr{SCIP_RATIONAL}),
+        res,
+        val1,
+        val2,
+    )
+end
+
+function SCIPrationalMult(res, op1, op2)
+    ccall(
+        (:SCIPrationalMult, libscip),
+        Cvoid,
+        (Ptr{SCIP_RATIONAL}, Ptr{SCIP_RATIONAL}, Ptr{SCIP_RATIONAL}),
+        res,
+        op1,
+        op2,
+    )
+end
+
+function SCIPrationalMultReal(res, op1, op2)
+    ccall(
+        (:SCIPrationalMultReal, libscip),
+        Cvoid,
+        (Ptr{SCIP_RATIONAL}, Ptr{SCIP_RATIONAL}, Cdouble),
+        res,
+        op1,
+        op2,
+    )
+end
+
+function SCIPrationalDiv(res, op1, op2)
+    ccall(
+        (:SCIPrationalDiv, libscip),
+        Cvoid,
+        (Ptr{SCIP_RATIONAL}, Ptr{SCIP_RATIONAL}, Ptr{SCIP_RATIONAL}),
+        res,
+        op1,
+        op2,
+    )
+end
+
+function SCIPrationalDivReal(res, op1, op2)
+    ccall(
+        (:SCIPrationalDivReal, libscip),
+        Cvoid,
+        (Ptr{SCIP_RATIONAL}, Ptr{SCIP_RATIONAL}, Cdouble),
+        res,
+        op1,
+        op2,
+    )
+end
+
+function SCIPrationalAddProd(res, op1, op2)
+    ccall(
+        (:SCIPrationalAddProd, libscip),
+        Cvoid,
+        (Ptr{SCIP_RATIONAL}, Ptr{SCIP_RATIONAL}, Ptr{SCIP_RATIONAL}),
+        res,
+        op1,
+        op2,
+    )
+end
+
+function SCIPrationalAddProdReal(res, op1, op2)
+    ccall(
+        (:SCIPrationalAddProdReal, libscip),
+        Cvoid,
+        (Ptr{SCIP_RATIONAL}, Ptr{SCIP_RATIONAL}, Cdouble),
+        res,
+        op1,
+        op2,
+    )
+end
+
+function SCIPrationalDiffProd(res, op1, op2)
+    ccall(
+        (:SCIPrationalDiffProd, libscip),
+        Cvoid,
+        (Ptr{SCIP_RATIONAL}, Ptr{SCIP_RATIONAL}, Ptr{SCIP_RATIONAL}),
+        res,
+        op1,
+        op2,
+    )
+end
+
+function SCIPrationalDiffProdReal(res, op1, op2)
+    ccall(
+        (:SCIPrationalDiffProdReal, libscip),
+        Cvoid,
+        (Ptr{SCIP_RATIONAL}, Ptr{SCIP_RATIONAL}, Cdouble),
+        res,
+        op1,
+        op2,
+    )
+end
+
+function SCIPrationalNegate(res, op)
+    ccall(
+        (:SCIPrationalNegate, libscip),
+        Cvoid,
+        (Ptr{SCIP_RATIONAL}, Ptr{SCIP_RATIONAL}),
+        res,
+        op,
+    )
+end
+
+function SCIPrationalAbs(res, op)
+    ccall(
+        (:SCIPrationalAbs, libscip),
+        Cvoid,
+        (Ptr{SCIP_RATIONAL}, Ptr{SCIP_RATIONAL}),
+        res,
+        op,
+    )
+end
+
+function SCIPrationalInvert(res, op)
+    ccall(
+        (:SCIPrationalInvert, libscip),
+        Cvoid,
+        (Ptr{SCIP_RATIONAL}, Ptr{SCIP_RATIONAL}),
+        res,
+        op,
+    )
+end
+
+function SCIPrationalMin(res, op1, op2)
+    ccall(
+        (:SCIPrationalMin, libscip),
+        Cvoid,
+        (Ptr{SCIP_RATIONAL}, Ptr{SCIP_RATIONAL}, Ptr{SCIP_RATIONAL}),
+        res,
+        op1,
+        op2,
+    )
+end
+
+function SCIPrationalMax(res, op1, op2)
+    ccall(
+        (:SCIPrationalMax, libscip),
+        Cvoid,
+        (Ptr{SCIP_RATIONAL}, Ptr{SCIP_RATIONAL}, Ptr{SCIP_RATIONAL}),
+        res,
+        op1,
+        op2,
+    )
+end
+
+function SCIPrationalIsEQ(rat1, rat2)
+    ccall(
+        (:SCIPrationalIsEQ, libscip),
+        Cuint,
+        (Ptr{SCIP_RATIONAL}, Ptr{SCIP_RATIONAL}),
+        rat1,
+        rat2,
+    )
+end
+
+function SCIPrationalIsAbsEQ(rat1, rat2)
+    ccall(
+        (:SCIPrationalIsAbsEQ, libscip),
+        Cuint,
+        (Ptr{SCIP_RATIONAL}, Ptr{SCIP_RATIONAL}),
+        rat1,
+        rat2,
+    )
+end
+
+function SCIPrationalIsEQReal(rat, real)
+    ccall(
+        (:SCIPrationalIsEQReal, libscip),
+        Cuint,
+        (Ptr{SCIP_RATIONAL}, Cdouble),
+        rat,
+        real,
+    )
+end
+
+function SCIPrationalIsApproxEQReal(set, rat, real, roundmode)
+    ccall(
+        (:SCIPrationalIsApproxEQReal, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Ptr{SCIP_RATIONAL}, Cdouble, SCIP_ROUNDMODE_RAT),
+        set,
+        rat,
+        real,
+        roundmode,
+    )
+end
+
+function SCIPrationalIsGT(rat1, rat2)
+    ccall(
+        (:SCIPrationalIsGT, libscip),
+        Cuint,
+        (Ptr{SCIP_RATIONAL}, Ptr{SCIP_RATIONAL}),
+        rat1,
+        rat2,
+    )
+end
+
+function SCIPrationalIsLT(rat1, rat2)
+    ccall(
+        (:SCIPrationalIsLT, libscip),
+        Cuint,
+        (Ptr{SCIP_RATIONAL}, Ptr{SCIP_RATIONAL}),
+        rat1,
+        rat2,
+    )
+end
+
+function SCIPrationalIsGE(rat1, rat2)
+    ccall(
+        (:SCIPrationalIsGE, libscip),
+        Cuint,
+        (Ptr{SCIP_RATIONAL}, Ptr{SCIP_RATIONAL}),
+        rat1,
+        rat2,
+    )
+end
+
+function SCIPrationalIsLE(rat1, rat2)
+    ccall(
+        (:SCIPrationalIsLE, libscip),
+        Cuint,
+        (Ptr{SCIP_RATIONAL}, Ptr{SCIP_RATIONAL}),
+        rat1,
+        rat2,
+    )
+end
+
+function SCIPrationalIsAbsGT(rat1, rat2)
+    ccall(
+        (:SCIPrationalIsAbsGT, libscip),
+        Cuint,
+        (Ptr{SCIP_RATIONAL}, Ptr{SCIP_RATIONAL}),
+        rat1,
+        rat2,
+    )
+end
+
+function SCIPrationalIsGTReal(rat, real)
+    ccall(
+        (:SCIPrationalIsGTReal, libscip),
+        Cuint,
+        (Ptr{SCIP_RATIONAL}, Cdouble),
+        rat,
+        real,
+    )
+end
+
+function SCIPrationalIsLTReal(rat, real)
+    ccall(
+        (:SCIPrationalIsLTReal, libscip),
+        Cuint,
+        (Ptr{SCIP_RATIONAL}, Cdouble),
+        rat,
+        real,
+    )
+end
+
+function SCIPrationalIsGEReal(rat, real)
+    ccall(
+        (:SCIPrationalIsGEReal, libscip),
+        Cuint,
+        (Ptr{SCIP_RATIONAL}, Cdouble),
+        rat,
+        real,
+    )
+end
+
+function SCIPrationalIsLEReal(rat, real)
+    ccall(
+        (:SCIPrationalIsLEReal, libscip),
+        Cuint,
+        (Ptr{SCIP_RATIONAL}, Cdouble),
+        rat,
+        real,
+    )
+end
+
+function SCIPrationalIsZero(rational)
+    ccall(
+        (:SCIPrationalIsZero, libscip),
+        Cuint,
+        (Ptr{SCIP_RATIONAL},),
+        rational,
+    )
+end
+
+function SCIPrationalIsPositive(rational)
+    ccall(
+        (:SCIPrationalIsPositive, libscip),
+        Cuint,
+        (Ptr{SCIP_RATIONAL},),
+        rational,
+    )
+end
+
+function SCIPrationalIsNegative(rational)
+    ccall(
+        (:SCIPrationalIsNegative, libscip),
+        Cuint,
+        (Ptr{SCIP_RATIONAL},),
+        rational,
+    )
+end
+
+function SCIPrationalIsInfinity(rational)
+    ccall(
+        (:SCIPrationalIsInfinity, libscip),
+        Cuint,
+        (Ptr{SCIP_RATIONAL},),
+        rational,
+    )
+end
+
+function SCIPrationalIsNegInfinity(rational)
+    ccall(
+        (:SCIPrationalIsNegInfinity, libscip),
+        Cuint,
+        (Ptr{SCIP_RATIONAL},),
+        rational,
+    )
+end
+
+function SCIPrationalIsAbsInfinity(rational)
+    ccall(
+        (:SCIPrationalIsAbsInfinity, libscip),
+        Cuint,
+        (Ptr{SCIP_RATIONAL},),
+        rational,
+    )
+end
+
+function SCIPrationalIsIntegral(rational)
+    ccall(
+        (:SCIPrationalIsIntegral, libscip),
+        Cuint,
+        (Ptr{SCIP_RATIONAL},),
+        rational,
+    )
+end
+
+function SCIPrationalIsFpRepresentable(rational)
+    ccall(
+        (:SCIPrationalIsFpRepresentable, libscip),
+        Cuint,
+        (Ptr{SCIP_RATIONAL},),
+        rational,
+    )
+end
+
+function SCIPrationalToString(rational, str, strlen)
+    ccall(
+        (:SCIPrationalToString, libscip),
+        Cint,
+        (Ptr{SCIP_RATIONAL}, Ptr{Cchar}, Cint),
+        rational,
+        str,
+        strlen,
+    )
+end
+
+function SCIPrationalStrLen(rational)
+    ccall((:SCIPrationalStrLen, libscip), Cint, (Ptr{SCIP_RATIONAL},), rational)
+end
+
+function SCIPrationalMessage(msg, file, rational)
+    ccall(
+        (:SCIPrationalMessage, libscip),
+        Cvoid,
+        (Ptr{SCIP_MESSAGEHDLR}, Ptr{Libc.FILE}, Ptr{SCIP_RATIONAL}),
+        msg,
+        file,
+        rational,
+    )
+end
+
+function SCIPrationalPrintVerbInfo(msg, verblevel, msgverblevel, rational)
+    ccall(
+        (:SCIPrationalPrintVerbInfo, libscip),
+        Cvoid,
+        (
+            Ptr{SCIP_MESSAGEHDLR},
+            SCIP_VERBLEVEL,
+            SCIP_VERBLEVEL,
+            Ptr{SCIP_RATIONAL},
+        ),
+        msg,
+        verblevel,
+        msgverblevel,
+        rational,
+    )
+end
+
+function SCIPrationalPrint(rational)
+    ccall((:SCIPrationalPrint, libscip), Cvoid, (Ptr{SCIP_RATIONAL},), rational)
+end
+
+function SCIPrationalNumerator(rational)
+    ccall(
+        (:SCIPrationalNumerator, libscip),
+        Clonglong,
+        (Ptr{SCIP_RATIONAL},),
+        rational,
+    )
+end
+
+function SCIPrationalDenominator(rational)
+    ccall(
+        (:SCIPrationalDenominator, libscip),
+        Clonglong,
+        (Ptr{SCIP_RATIONAL},),
+        rational,
+    )
+end
+
+function SCIPrationalDenominatorIsLE(rational, val)
+    ccall(
+        (:SCIPrationalDenominatorIsLE, libscip),
+        Cuint,
+        (Ptr{SCIP_RATIONAL}, Clonglong),
+        rational,
+        val,
+    )
+end
+
+function SCIPrationalGetSign(rational)
+    ccall(
+        (:SCIPrationalGetSign, libscip),
+        Cint,
+        (Ptr{SCIP_RATIONAL},),
+        rational,
+    )
+end
+
+function SCIPrationalGetFrac(res, src)
+    ccall(
+        (:SCIPrationalGetFrac, libscip),
+        Cvoid,
+        (Ptr{SCIP_RATIONAL}, Ptr{SCIP_RATIONAL}),
+        res,
+        src,
+    )
+end
+
+function SCIPrationalGetReal(rational)
+    ccall(
+        (:SCIPrationalGetReal, libscip),
+        Cdouble,
+        (Ptr{SCIP_RATIONAL},),
+        rational,
+    )
+end
+
+function SCIPrationalRoundReal(rational, roundmode)
+    ccall(
+        (:SCIPrationalRoundReal, libscip),
+        Cdouble,
+        (Ptr{SCIP_RATIONAL}, SCIP_ROUNDMODE_RAT),
+        rational,
+        roundmode,
+    )
+end
+
+function SCIPrationalRoundInteger(res, src, roundmode)
+    ccall(
+        (:SCIPrationalRoundInteger, libscip),
+        Cvoid,
+        (Ptr{SCIP_RATIONAL}, Ptr{SCIP_RATIONAL}, SCIP_ROUNDMODE_RAT),
+        res,
+        src,
+        roundmode,
+    )
+end
+
+function SCIPrationalRoundLong(res, src, roundmode)
+    ccall(
+        (:SCIPrationalRoundLong, libscip),
+        Cuint,
+        (Ptr{Clonglong}, Ptr{SCIP_RATIONAL}, SCIP_ROUNDMODE_RAT),
+        res,
+        src,
+        roundmode,
+    )
+end
+
+function SCIPrationalComputeApproximation(res, src, maxdenom, forcegreater)
+    ccall(
+        (:SCIPrationalComputeApproximation, libscip),
+        Cvoid,
+        (Ptr{SCIP_RATIONAL}, Ptr{SCIP_RATIONAL}, Clonglong, Cint),
+        res,
+        src,
+        maxdenom,
+        forcegreater,
+    )
+end
+
+function SCIPrationalarrayCreate(rationalarray, blkmem)
+    ccall(
+        (:SCIPrationalarrayCreate, libscip),
+        SCIP_RETCODE,
+        (Ptr{Ptr{SCIP_RATIONALARRAY}}, Ptr{BMS_BLKMEM}),
+        rationalarray,
+        blkmem,
+    )
+end
+
+function SCIPrationalarrayResize(rationalarray, newsize)
+    ccall(
+        (:SCIPrationalarrayResize, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_RATIONALARRAY}, Cint),
+        rationalarray,
+        newsize,
+    )
+end
+
+function SCIPrationalarrayCopy(rationalarray, blkmem, sourcerationalarray)
+    ccall(
+        (:SCIPrationalarrayCopy, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{Ptr{SCIP_RATIONALARRAY}},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_RATIONALARRAY},
+        ),
+        rationalarray,
+        blkmem,
+        sourcerationalarray,
+    )
+end
+
+function SCIPrationalarrayFree(rationalarray, blkmem)
+    ccall(
+        (:SCIPrationalarrayFree, libscip),
+        SCIP_RETCODE,
+        (Ptr{Ptr{SCIP_RATIONALARRAY}}, Ptr{BMS_BLKMEM}),
+        rationalarray,
+        blkmem,
+    )
+end
+
+function SCIPrationalarrayGetVal(rationalarray, idx, result)
+    ccall(
+        (:SCIPrationalarrayGetVal, libscip),
+        Cvoid,
+        (Ptr{SCIP_RATIONALARRAY}, Cint, Ptr{SCIP_RATIONAL}),
+        rationalarray,
+        idx,
+        result,
+    )
+end
+
+function SCIPrationalarraySetVal(rationalarray, idx, val)
+    ccall(
+        (:SCIPrationalarraySetVal, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_RATIONALARRAY}, Cint, Ptr{SCIP_RATIONAL}),
+        rationalarray,
+        idx,
+        val,
+    )
+end
+
+function SCIPrationalarrayIncVal(rationalarray, idx, incval)
+    ccall(
+        (:SCIPrationalarrayIncVal, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_RATIONALARRAY}, Cint, Ptr{SCIP_RATIONAL}),
+        rationalarray,
+        idx,
+        incval,
+    )
+end
+
+function SCIPrationalarrayPrint(rationalarray)
+    ccall(
+        (:SCIPrationalarrayPrint, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_RATIONALARRAY},),
+        rationalarray,
+    )
+end
+
+function SCIPrationalarrayGetMinIdx(rationalarray)
+    ccall(
+        (:SCIPrationalarrayGetMinIdx, libscip),
+        Cint,
+        (Ptr{SCIP_RATIONALARRAY},),
+        rationalarray,
+    )
+end
+
+function SCIPrationalarrayGetMaxIdx(rationalarray)
+    ccall(
+        (:SCIPrationalarrayGetMaxIdx, libscip),
+        Cint,
+        (Ptr{SCIP_RATIONALARRAY},),
+        rationalarray,
+    )
+end
+
+function SCIPrationalChgInfinity(inf)
+    ccall((:SCIPrationalChgInfinity, libscip), Cvoid, (Cdouble,), inf)
+end
+
+function SCIPrationalGetInfinity()
+    ccall((:SCIPrationalGetInfinity, libscip), Cdouble, ())
+end
+
+function SCIPcolExactCreate(
+    col,
+    fpcol,
+    blkmem,
+    set,
+    stat,
+    var,
+    len,
+    rows,
+    vals,
+    removable,
+)
+    ccall(
+        (:SCIPcolExactCreate, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{Ptr{SCIP_COLEXACT}},
+            Ptr{SCIP_COL},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_VAR},
+            Cint,
+            Ptr{Ptr{SCIP_ROWEXACT}},
+            Ptr{Ptr{SCIP_RATIONAL}},
+            Cuint,
+        ),
+        col,
+        fpcol,
+        blkmem,
+        set,
+        stat,
+        var,
+        len,
+        rows,
+        vals,
+        removable,
+    )
+end
+
+function SCIPcolExactFree(col, blkmem)
+    ccall(
+        (:SCIPcolExactFree, libscip),
+        SCIP_RETCODE,
+        (Ptr{Ptr{SCIP_COLEXACT}}, Ptr{BMS_BLKMEM}),
+        col,
+        blkmem,
+    )
+end
+
+function SCIPcolExactPrint(col, messagehdlr, file)
+    ccall(
+        (:SCIPcolExactPrint, libscip),
+        Cvoid,
+        (Ptr{SCIP_COLEXACT}, Ptr{SCIP_MESSAGEHDLR}, Ptr{Libc.FILE}),
+        col,
+        messagehdlr,
+        file,
+    )
+end
+
+function SCIPcolExactAddCoef(col, blkmem, set, eventqueue, lpexact, row, val)
+    ccall(
+        (:SCIPcolExactAddCoef, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_COLEXACT},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_LPEXACT},
+            Ptr{SCIP_ROWEXACT},
+            Ptr{SCIP_RATIONAL},
+        ),
+        col,
+        blkmem,
+        set,
+        eventqueue,
+        lpexact,
+        row,
+        val,
+    )
+end
+
+function SCIPcolExactDelCoef(col, set, lpexact, row)
+    ccall(
+        (:SCIPcolExactDelCoef, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_COLEXACT},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_LPEXACT},
+            Ptr{SCIP_ROWEXACT},
+        ),
+        col,
+        set,
+        lpexact,
+        row,
+    )
+end
+
+function SCIPcolExactChgCoef(col, blkmem, set, eventqueue, lpexact, row, val)
+    ccall(
+        (:SCIPcolExactChgCoef, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_COLEXACT},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_LPEXACT},
+            Ptr{SCIP_ROWEXACT},
+            Ptr{SCIP_RATIONAL},
+        ),
+        col,
+        blkmem,
+        set,
+        eventqueue,
+        lpexact,
+        row,
+        val,
+    )
+end
+
+function SCIPcolExactIncCoef(col, blkmem, set, eventqueue, lpexact, row, incval)
+    ccall(
+        (:SCIPcolExactIncCoef, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_COLEXACT},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_LPEXACT},
+            Ptr{SCIP_ROWEXACT},
+            Ptr{SCIP_RATIONAL},
+        ),
+        col,
+        blkmem,
+        set,
+        eventqueue,
+        lpexact,
+        row,
+        incval,
+    )
+end
+
+function SCIPcolExactChgObj(col, set, lpexact, newobj)
+    ccall(
+        (:SCIPcolExactChgObj, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_COLEXACT},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_LPEXACT},
+            Ptr{SCIP_RATIONAL},
+        ),
+        col,
+        set,
+        lpexact,
+        newobj,
+    )
+end
+
+function SCIPcolExactChgLb(col, set, lpexact, newlb)
+    ccall(
+        (:SCIPcolExactChgLb, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_COLEXACT},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_LPEXACT},
+            Ptr{SCIP_RATIONAL},
+        ),
+        col,
+        set,
+        lpexact,
+        newlb,
+    )
+end
+
+function SCIPcolExactChgUb(col, set, lpexact, newub)
+    ccall(
+        (:SCIPcolExactChgUb, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_COLEXACT},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_LPEXACT},
+            Ptr{SCIP_RATIONAL},
+        ),
+        col,
+        set,
+        lpexact,
+        newub,
+    )
+end
+
+function SCIProwExactCapture(row)
+    ccall((:SCIProwExactCapture, libscip), Cvoid, (Ptr{SCIP_ROWEXACT},), row)
+end
+
+function SCIProwExactPrint(row, messagehdlr, file)
+    ccall(
+        (:SCIProwExactPrint, libscip),
+        Cvoid,
+        (Ptr{SCIP_ROWEXACT}, Ptr{SCIP_MESSAGEHDLR}, Ptr{Libc.FILE}),
+        row,
+        messagehdlr,
+        file,
+    )
+end
+
+function SCIProwExactGetIndex(row)
+    ccall((:SCIProwExactGetIndex, libscip), Cint, (Ptr{SCIP_ROWEXACT},), row)
+end
+
+function SCIProwExactIsModifiable(row)
+    ccall(
+        (:SCIProwExactIsModifiable, libscip),
+        Cuint,
+        (Ptr{SCIP_ROWEXACT},),
+        row,
+    )
+end
+
+function SCIProwHasExRow(lpexact, row)
+    ccall(
+        (:SCIProwHasExRow, libscip),
+        Cuint,
+        (Ptr{SCIP_LPEXACT}, Ptr{SCIP_ROW}),
+        lpexact,
+        row,
+    )
+end
+
+function SCIProwExactChgLhs(rowexact, set, lpexact, lhs)
+    ccall(
+        (:SCIProwExactChgLhs, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_ROWEXACT},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_LPEXACT},
+            Ptr{SCIP_RATIONAL},
+        ),
+        rowexact,
+        set,
+        lpexact,
+        lhs,
+    )
+end
+
+function SCIProwExactChgRhs(rowexact, set, lpexact, rhs)
+    ccall(
+        (:SCIProwExactChgRhs, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_ROWEXACT},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_LPEXACT},
+            Ptr{SCIP_RATIONAL},
+        ),
+        rowexact,
+        set,
+        lpexact,
+        rhs,
+    )
+end
+
+function SCIPcolGetColExact(col)
+    ccall(
+        (:SCIPcolGetColExact, libscip),
+        Ptr{SCIP_COLEXACT},
+        (Ptr{SCIP_COL},),
+        col,
+    )
+end
+
+function SCIPcolExactCalcFarkasRedcostCoef(col, set, result, dual, usefarkas)
+    ccall(
+        (:SCIPcolExactCalcFarkasRedcostCoef, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_COLEXACT},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_RATIONAL},
+            Ptr{Ptr{SCIP_RATIONAL}},
+            Cuint,
+        ),
+        col,
+        set,
+        result,
+        dual,
+        usefarkas,
+    )
+end
+
+function SCIProwExactCreate(
+    row,
+    fprow,
+    fprowrhs,
+    blkmem,
+    set,
+    stat,
+    lpexact,
+    len,
+    cols,
+    vals,
+    lhs,
+    rhs,
+    isfprelaxable,
+)
+    ccall(
+        (:SCIProwExactCreate, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{Ptr{SCIP_ROWEXACT}},
+            Ptr{SCIP_ROW},
+            Ptr{SCIP_ROW},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_LPEXACT},
+            Cint,
+            Ptr{Ptr{SCIP_COLEXACT}},
+            Ptr{Ptr{SCIP_RATIONAL}},
+            Ptr{SCIP_RATIONAL},
+            Ptr{SCIP_RATIONAL},
+            Cuint,
+        ),
+        row,
+        fprow,
+        fprowrhs,
+        blkmem,
+        set,
+        stat,
+        lpexact,
+        len,
+        cols,
+        vals,
+        lhs,
+        rhs,
+        isfprelaxable,
+    )
+end
+
+function SCIProwExactCreateFromRow(
+    fprow,
+    blkmem,
+    set,
+    stat,
+    eventqueue,
+    prob,
+    lpexact,
+)
+    ccall(
+        (:SCIProwExactCreateFromRow, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_ROW},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_LPEXACT},
+        ),
+        fprow,
+        blkmem,
+        set,
+        stat,
+        eventqueue,
+        prob,
+        lpexact,
+    )
+end
+
+function SCIProwExactGenerateFpRows(
+    blkmem,
+    set,
+    stat,
+    eventqueue,
+    lpexact,
+    prob,
+    row,
+    rowlhs,
+    rowrhs,
+    onerowrelax,
+    hasfprelax,
+)
+    ccall(
+        (:SCIProwExactGenerateFpRows, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_LPEXACT},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_ROWEXACT},
+            Ptr{SCIP_ROW},
+            Ptr{SCIP_ROW},
+            Ptr{Cuint},
+            Ptr{Cuint},
+        ),
+        blkmem,
+        set,
+        stat,
+        eventqueue,
+        lpexact,
+        prob,
+        row,
+        rowlhs,
+        rowrhs,
+        onerowrelax,
+        hasfprelax,
+    )
+end
+
+function SCIPlpExactFlush(lpexact, blkmem, set, eventqueue)
+    ccall(
+        (:SCIPlpExactFlush, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_LPEXACT},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_EVENTQUEUE},
+        ),
+        lpexact,
+        blkmem,
+        set,
+        eventqueue,
+    )
+end
+
+function SCIPlpExactLink(lpexact, blkmem, set, eventqueue)
+    ccall(
+        (:SCIPlpExactLink, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_LPEXACT},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_EVENTQUEUE},
+        ),
+        lpexact,
+        blkmem,
+        set,
+        eventqueue,
+    )
+end
+
+function SCIPlpExactBoundShiftUseful(lpexact)
+    ccall(
+        (:SCIPlpExactBoundShiftUseful, libscip),
+        Cuint,
+        (Ptr{SCIP_LPEXACT},),
+        lpexact,
+    )
+end
+
+function SCIPlpExactProjectShiftPossible(lpexact)
+    ccall(
+        (:SCIPlpExactProjectShiftPossible, libscip),
+        Cuint,
+        (Ptr{SCIP_LPEXACT},),
+        lpexact,
+    )
+end
+
+function SCIPlpExactIsSynced(lpexact, set, msg)
+    ccall(
+        (:SCIPlpExactIsSynced, libscip),
+        Cuint,
+        (Ptr{SCIP_LPEXACT}, Ptr{SCIP_SET}, Ptr{SCIP_MESSAGEHDLR}),
+        lpexact,
+        set,
+        msg,
+    )
+end
+
+function SCIPlpExactCreate(lpexact, blkmem, fplp, set, messagehdlr, stat, name)
+    ccall(
+        (:SCIPlpExactCreate, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{Ptr{SCIP_LPEXACT}},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_LP},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_MESSAGEHDLR},
+            Ptr{SCIP_STAT},
+            Ptr{Cchar},
+        ),
+        lpexact,
+        blkmem,
+        fplp,
+        set,
+        messagehdlr,
+        stat,
+        name,
+    )
+end
+
+function SCIPlpExactFree(lpexact, blkmem, set)
+    ccall(
+        (:SCIPlpExactFree, libscip),
+        SCIP_RETCODE,
+        (Ptr{Ptr{SCIP_LPEXACT}}, Ptr{BMS_BLKMEM}, Ptr{SCIP_SET}),
+        lpexact,
+        blkmem,
+        set,
+    )
+end
+
+function SCIPlpExactAddCol(lpexact, set, col)
+    ccall(
+        (:SCIPlpExactAddCol, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_LPEXACT}, Ptr{SCIP_SET}, Ptr{SCIP_COLEXACT}),
+        lpexact,
+        set,
+        col,
+    )
+end
+
+function SCIPlpExactAddRow(lpexact, set, rowexact)
+    ccall(
+        (:SCIPlpExactAddRow, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_LPEXACT}, Ptr{SCIP_SET}, Ptr{SCIP_ROWEXACT}),
+        lpexact,
+        set,
+        rowexact,
+    )
+end
+
+function SCIProwExactGetSolFeasibility(row, set, stat, sol, result)
+    ccall(
+        (:SCIProwExactGetSolFeasibility, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_ROWEXACT},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_SOL},
+            Ptr{SCIP_RATIONAL},
+        ),
+        row,
+        set,
+        stat,
+        sol,
+        result,
+    )
+end
+
+function SCIProwExactGetSolActivityWithErrorbound(
+    rowexact,
+    set,
+    stat,
+    sol,
+    activity,
+    errorbound,
+)
+    ccall(
+        (:SCIProwExactGetSolActivityWithErrorbound, libscip),
+        Cuint,
+        (
+            Ptr{SCIP_ROWEXACT},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_SOL},
+            Ptr{Cdouble},
+            Ptr{Cdouble},
+        ),
+        rowexact,
+        set,
+        stat,
+        sol,
+        activity,
+        errorbound,
+    )
+end
+
+function SCIProwExactGetSolActivity(rowexact, set, stat, sol, useexact, result)
+    ccall(
+        (:SCIProwExactGetSolActivity, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_ROWEXACT},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_SOL},
+            Cuint,
+            Ptr{SCIP_RATIONAL},
+        ),
+        rowexact,
+        set,
+        stat,
+        sol,
+        useexact,
+        result,
+    )
+end
+
+function SCIProwExactRelease(row, blkmem, set, lpexact)
+    ccall(
+        (:SCIProwExactRelease, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{Ptr{SCIP_ROWEXACT}},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_LPEXACT},
+        ),
+        row,
+        blkmem,
+        set,
+        lpexact,
+    )
+end
+
+function SCIProwExactFree(row, blkmem, set, lpexact)
+    ccall(
+        (:SCIProwExactFree, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{Ptr{SCIP_ROWEXACT}},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_LPEXACT},
+        ),
+        row,
+        blkmem,
+        set,
+        lpexact,
+    )
+end
+
+function SCIProwExactEnsureSize(row, blkmem, set, num)
+    ccall(
+        (:SCIProwExactEnsureSize, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_ROWEXACT}, Ptr{BMS_BLKMEM}, Ptr{SCIP_SET}, Cint),
+        row,
+        blkmem,
+        set,
+        num,
+    )
+end
+
+function SCIProwExactAddConstant(row, set, stat, lpexact, addval)
+    ccall(
+        (:SCIProwExactAddConstant, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_ROWEXACT},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_LPEXACT},
+            Ptr{SCIP_RATIONAL},
+        ),
+        row,
+        set,
+        stat,
+        lpexact,
+        addval,
+    )
+end
+
+function SCIProwExactAddCoef(
+    rowexact,
+    blkmem,
+    set,
+    eventqueue,
+    lpexact,
+    colexact,
+    val,
+)
+    ccall(
+        (:SCIProwExactAddCoef, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_ROWEXACT},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_LPEXACT},
+            Ptr{SCIP_COLEXACT},
+            Ptr{SCIP_RATIONAL},
+        ),
+        rowexact,
+        blkmem,
+        set,
+        eventqueue,
+        lpexact,
+        colexact,
+        val,
+    )
+end
+
+function SCIProwExactDelCoef(row, set, lpexact, col)
+    ccall(
+        (:SCIProwExactDelCoef, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_ROWEXACT},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_LPEXACT},
+            Ptr{SCIP_COLEXACT},
+        ),
+        row,
+        set,
+        lpexact,
+        col,
+    )
+end
+
+function SCIProwExactChgCoef(row, blkmem, set, eventqueue, lpexact, col, val)
+    ccall(
+        (:SCIProwExactChgCoef, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_ROWEXACT},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_LPEXACT},
+            Ptr{SCIP_COLEXACT},
+            Ptr{SCIP_RATIONAL},
+        ),
+        row,
+        blkmem,
+        set,
+        eventqueue,
+        lpexact,
+        col,
+        val,
+    )
+end
+
+function SCIProwExactIncCoef(row, blkmem, set, eventqueue, lpexact, col, incval)
+    ccall(
+        (:SCIProwExactIncCoef, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_ROWEXACT},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_LPEXACT},
+            Ptr{SCIP_COLEXACT},
+            Ptr{SCIP_RATIONAL},
+        ),
+        row,
+        blkmem,
+        set,
+        eventqueue,
+        lpexact,
+        col,
+        incval,
+    )
+end
+
+function SCIProwExactChgConstant(row, stat, lpexact, constant)
+    ccall(
+        (:SCIProwExactChgConstant, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_ROWEXACT},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_LPEXACT},
+            Ptr{SCIP_RATIONAL},
+        ),
+        row,
+        stat,
+        lpexact,
+        constant,
+    )
+end
+
+function SCIProwExactGetLPFeasibility(row, set, stat, lpexact, result)
+    ccall(
+        (:SCIProwExactGetLPFeasibility, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_ROWEXACT},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_LPEXACT},
+            Ptr{SCIP_RATIONAL},
+        ),
+        row,
+        set,
+        stat,
+        lpexact,
+        result,
+    )
+end
+
+function SCIProwExactGetPseudoFeasibility(row, set, stat, result)
+    ccall(
+        (:SCIProwExactGetPseudoFeasibility, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_ROWEXACT}, Ptr{SCIP_SET}, Ptr{SCIP_STAT}, Ptr{SCIP_RATIONAL}),
+        row,
+        set,
+        stat,
+        result,
+    )
+end
+
+function SCIProwExactGetLPActivity(row, stat, lpexact)
+    ccall(
+        (:SCIProwExactGetLPActivity, libscip),
+        Ptr{SCIP_RATIONAL},
+        (Ptr{SCIP_ROWEXACT}, Ptr{SCIP_STAT}, Ptr{SCIP_LPEXACT}),
+        row,
+        stat,
+        lpexact,
+    )
+end
+
+function SCIProwExactGetPseudoActivity(row, stat)
+    ccall(
+        (:SCIProwExactGetPseudoActivity, libscip),
+        Ptr{SCIP_RATIONAL},
+        (Ptr{SCIP_ROWEXACT}, Ptr{SCIP_STAT}),
+        row,
+        stat,
+    )
+end
+
+function SCIProwExactDelaySort(rowexact)
+    ccall(
+        (:SCIProwExactDelaySort, libscip),
+        Cvoid,
+        (Ptr{SCIP_ROWEXACT},),
+        rowexact,
+    )
+end
+
+function SCIProwExactForceSort(rowexact, set)
+    ccall(
+        (:SCIProwExactForceSort, libscip),
+        Cvoid,
+        (Ptr{SCIP_ROWEXACT}, Ptr{SCIP_SET}),
+        rowexact,
+        set,
+    )
+end
+
+function SCIProwExactRecalcLPActivity(rowexact, stat)
+    ccall(
+        (:SCIProwExactRecalcLPActivity, libscip),
+        Cvoid,
+        (Ptr{SCIP_ROWEXACT}, Ptr{SCIP_STAT}),
+        rowexact,
+        stat,
+    )
+end
+
+function SCIProwExactRecalcPseudoActivity(rowexact, stat)
+    ccall(
+        (:SCIProwExactRecalcPseudoActivity, libscip),
+        Cvoid,
+        (Ptr{SCIP_ROWEXACT}, Ptr{SCIP_STAT}),
+        rowexact,
+        stat,
+    )
+end
+
+function SCIPcolExactGetObj(col)
+    ccall(
+        (:SCIPcolExactGetObj, libscip),
+        Ptr{SCIP_RATIONAL},
+        (Ptr{SCIP_COLEXACT},),
+        col,
+    )
+end
+
+function SCIPcolExactGetLb(col)
+    ccall(
+        (:SCIPcolExactGetLb, libscip),
+        Ptr{SCIP_RATIONAL},
+        (Ptr{SCIP_COLEXACT},),
+        col,
+    )
+end
+
+function SCIPcolExactGetUb(col)
+    ccall(
+        (:SCIPcolExactGetUb, libscip),
+        Ptr{SCIP_RATIONAL},
+        (Ptr{SCIP_COLEXACT},),
+        col,
+    )
+end
+
+function SCIPcolExactGetBestBound(col)
+    ccall(
+        (:SCIPcolExactGetBestBound, libscip),
+        Ptr{SCIP_RATIONAL},
+        (Ptr{SCIP_COLEXACT},),
+        col,
+    )
+end
+
+function SCIPcolExactGetPrimsol(col)
+    ccall(
+        (:SCIPcolExactGetPrimsol, libscip),
+        Ptr{SCIP_RATIONAL},
+        (Ptr{SCIP_COLEXACT},),
+        col,
+    )
+end
+
+function SCIPlpExactUpdateVarObj(set, lpexact, var, oldobj, newobj)
+    ccall(
+        (:SCIPlpExactUpdateVarObj, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_SET},
+            Ptr{SCIP_LPEXACT},
+            Ptr{SCIP_VAR},
+            Ptr{SCIP_RATIONAL},
+            Ptr{SCIP_RATIONAL},
+        ),
+        set,
+        lpexact,
+        var,
+        oldobj,
+        newobj,
+    )
+end
+
+function SCIPlpExactUpdateVarLbGlobal(lpexact, set, var, oldlb, newlb)
+    ccall(
+        (:SCIPlpExactUpdateVarLbGlobal, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_LPEXACT},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_VAR},
+            Ptr{SCIP_RATIONAL},
+            Ptr{SCIP_RATIONAL},
+        ),
+        lpexact,
+        set,
+        var,
+        oldlb,
+        newlb,
+    )
+end
+
+function SCIPlpExactUpdateVarLb(lpexact, set, var, oldlb, newlb)
+    ccall(
+        (:SCIPlpExactUpdateVarLb, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_LPEXACT},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_VAR},
+            Ptr{SCIP_RATIONAL},
+            Ptr{SCIP_RATIONAL},
+        ),
+        lpexact,
+        set,
+        var,
+        oldlb,
+        newlb,
+    )
+end
+
+function SCIPlpExactUpdateVarUbGlobal(lpexact, set, var, oldub, newub)
+    ccall(
+        (:SCIPlpExactUpdateVarUbGlobal, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_LPEXACT},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_VAR},
+            Ptr{SCIP_RATIONAL},
+            Ptr{SCIP_RATIONAL},
+        ),
+        lpexact,
+        set,
+        var,
+        oldub,
+        newub,
+    )
+end
+
+function SCIPlpExactUpdateVarUb(lpexact, set, var, oldub, newub)
+    ccall(
+        (:SCIPlpExactUpdateVarUb, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_LPEXACT},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_VAR},
+            Ptr{SCIP_RATIONAL},
+            Ptr{SCIP_RATIONAL},
+        ),
+        lpexact,
+        set,
+        var,
+        oldub,
+        newub,
+    )
+end
+
+function SCIPlpExactUpdateAddVar(lpexact, set, var)
+    ccall(
+        (:SCIPlpExactUpdateAddVar, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_LPEXACT}, Ptr{SCIP_SET}, Ptr{SCIP_VAR}),
+        lpexact,
+        set,
+        var,
+    )
+end
+
+function SCIPlpExactUpdateDelVar(lpexact, set, var)
+    ccall(
+        (:SCIPlpExactUpdateDelVar, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_LPEXACT}, Ptr{SCIP_SET}, Ptr{SCIP_VAR}),
+        lpexact,
+        set,
+        var,
+    )
+end
+
+function SCIPlpExactUpdateVarColumn(lpexact, set, var)
+    ccall(
+        (:SCIPlpExactUpdateVarColumn, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_LPEXACT}, Ptr{SCIP_SET}, Ptr{SCIP_VAR}),
+        lpexact,
+        set,
+        var,
+    )
+end
+
+function SCIPlpExactUpdateVarLoose(lpexact, set, var)
+    ccall(
+        (:SCIPlpExactUpdateVarLoose, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_LPEXACT}, Ptr{SCIP_SET}, Ptr{SCIP_VAR}),
+        lpexact,
+        set,
+        var,
+    )
+end
+
+function SCIPlpExactDecNLoosevars(lpexact)
+    ccall(
+        (:SCIPlpExactDecNLoosevars, libscip),
+        Cvoid,
+        (Ptr{SCIP_LPEXACT},),
+        lpexact,
+    )
+end
+
+function SCIPlpExactGetNRows(lpexact)
+    ccall((:SCIPlpExactGetNRows, libscip), Cint, (Ptr{SCIP_LPEXACT},), lpexact)
+end
+
+function SCIPlpExactGetSol(
+    lpexact,
+    set,
+    stat,
+    primalfeasible,
+    dualfeasible,
+    overwritefplp,
+)
+    ccall(
+        (:SCIPlpExactGetSol, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_LPEXACT},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{Cuint},
+            Ptr{Cuint},
+            Cuint,
+        ),
+        lpexact,
+        set,
+        stat,
+        primalfeasible,
+        dualfeasible,
+        overwritefplp,
+    )
+end
+
+function SCIPlpExactGetUnboundedSol(
+    lpexact,
+    set,
+    stat,
+    primalfeasible,
+    rayfeasible,
+)
+    ccall(
+        (:SCIPlpExactGetUnboundedSol, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_LPEXACT},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{Cuint},
+            Ptr{Cuint},
+        ),
+        lpexact,
+        set,
+        stat,
+        primalfeasible,
+        rayfeasible,
+    )
+end
+
+function SCIPlpExactGetPrimalRay(lpexact, set, ray)
+    ccall(
+        (:SCIPlpExactGetPrimalRay, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_LPEXACT}, Ptr{SCIP_SET}, Ptr{Ptr{SCIP_RATIONAL}}),
+        lpexact,
+        set,
+        ray,
+    )
+end
+
+function SCIPlpExactGetDualfarkas(lpexact, set, stat, valid, overwritefplp)
+    ccall(
+        (:SCIPlpExactGetDualfarkas, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_LPEXACT}, Ptr{SCIP_SET}, Ptr{SCIP_STAT}, Ptr{Cuint}, Cuint),
+        lpexact,
+        set,
+        stat,
+        valid,
+        overwritefplp,
+    )
+end
+
+function SCIPlpExactGetIterations(lpexact, iterations)
+    ccall(
+        (:SCIPlpExactGetIterations, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_LPEXACT}, Ptr{Cint}),
+        lpexact,
+        iterations,
+    )
+end
+
+function SCIPlpExactGetObjval(lpexact, set, res)
+    ccall(
+        (:SCIPlpExactGetObjval, libscip),
+        Cvoid,
+        (Ptr{SCIP_LPEXACT}, Ptr{SCIP_SET}, Ptr{SCIP_RATIONAL}),
+        lpexact,
+        set,
+        res,
+    )
+end
+
+function SCIPlpExactGetPseudoObjval(lpexact, set, res)
+    ccall(
+        (:SCIPlpExactGetPseudoObjval, libscip),
+        Cvoid,
+        (Ptr{SCIP_LPEXACT}, Ptr{SCIP_SET}, Ptr{SCIP_RATIONAL}),
+        lpexact,
+        set,
+        res,
+    )
+end
+
+function SCIPlpExactShrinkCols(lpexact, set, newncols)
+    ccall(
+        (:SCIPlpExactShrinkCols, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_LPEXACT}, Ptr{SCIP_SET}, Cint),
+        lpexact,
+        set,
+        newncols,
+    )
+end
+
+function SCIPlpExactShrinkRows(lpexact, blkmem, set, newnrows)
+    ccall(
+        (:SCIPlpExactShrinkRows, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_LPEXACT}, Ptr{BMS_BLKMEM}, Ptr{SCIP_SET}, Cint),
+        lpexact,
+        blkmem,
+        set,
+        newnrows,
+    )
+end
+
+function SCIPlpExactDelRowset(lpexact, blkmem, set, rowdstat)
+    ccall(
+        (:SCIPlpExactDelRowset, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_LPEXACT}, Ptr{BMS_BLKMEM}, Ptr{SCIP_SET}, Ptr{Cint}),
+        lpexact,
+        blkmem,
+        set,
+        rowdstat,
+    )
+end
+
+function SCIPlpExactReset(lpexact, blkmem, set, stat, eventqueue)
+    ccall(
+        (:SCIPlpExactReset, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_LPEXACT},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_EVENTQUEUE},
+        ),
+        lpexact,
+        blkmem,
+        set,
+        stat,
+        eventqueue,
+    )
+end
+
+function SCIPlpExactClear(lpexact, blkmem, set)
+    ccall(
+        (:SCIPlpExactClear, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_LPEXACT}, Ptr{BMS_BLKMEM}, Ptr{SCIP_SET}),
+        lpexact,
+        blkmem,
+        set,
+    )
+end
+
+function SCIPlpExactForceExactSolve(lpexact, set)
+    ccall(
+        (:SCIPlpExactForceExactSolve, libscip),
+        Cvoid,
+        (Ptr{SCIP_LPEXACT}, Ptr{SCIP_SET}),
+        lpexact,
+        set,
+    )
+end
+
+function SCIPlpExactForceSafeBound(lpexact, set)
+    ccall(
+        (:SCIPlpExactForceSafeBound, libscip),
+        Cvoid,
+        (Ptr{SCIP_LPEXACT}, Ptr{SCIP_SET}),
+        lpexact,
+        set,
+    )
+end
+
+function SCIPlpExactAllowExactSolve(lpexact, set, allowexact)
+    ccall(
+        (:SCIPlpExactAllowExactSolve, libscip),
+        Cvoid,
+        (Ptr{SCIP_LPEXACT}, Ptr{SCIP_SET}, Cuint),
+        lpexact,
+        set,
+        allowexact,
+    )
+end
+
+function SCIPlpExactGetSolstat(lpexact)
+    ccall(
+        (:SCIPlpExactGetSolstat, libscip),
+        SCIP_LPSOLSTAT,
+        (Ptr{SCIP_LPEXACT},),
+        lpexact,
+    )
+end
+
+function SCIPlpExactSetCutoffbound(lpexact, set, cutoffbound)
+    ccall(
+        (:SCIPlpExactSetCutoffbound, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_LPEXACT}, Ptr{SCIP_SET}, Cdouble),
+        lpexact,
+        set,
+        cutoffbound,
+    )
+end
+
+function SCIPlpExactSolveAndEval(
+    lpexact,
+    lp,
+    set,
+    messagehdlr,
+    blkmem,
+    stat,
+    eventqueue,
+    prob,
+    itlim,
+    lperror,
+    usefarkas,
+)
+    ccall(
+        (:SCIPlpExactSolveAndEval, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_LPEXACT},
+            Ptr{SCIP_LP},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_MESSAGEHDLR},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_PROB},
+            Clonglong,
+            Ptr{Cuint},
+            Cuint,
+        ),
+        lpexact,
+        lp,
+        set,
+        messagehdlr,
+        blkmem,
+        stat,
+        eventqueue,
+        prob,
+        itlim,
+        lperror,
+        usefarkas,
+    )
+end
+
+function SCIPlpExactGetState(lpexact, blkmem, lpistate)
+    ccall(
+        (:SCIPlpExactGetState, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_LPEXACT}, Ptr{BMS_BLKMEM}, Ptr{Ptr{SCIP_LPISTATE}}),
+        lpexact,
+        blkmem,
+        lpistate,
+    )
+end
+
+function SCIPlpExactSetState(
+    lpexact,
+    blkmem,
+    set,
+    eventqueue,
+    lpistate,
+    wasprimfeas,
+    wasprimchecked,
+    wasdualfeas,
+    wasdualchecked,
+)
+    ccall(
+        (:SCIPlpExactSetState, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_LPEXACT},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_LPISTATE},
+            Cuint,
+            Cuint,
+            Cuint,
+            Cuint,
+        ),
+        lpexact,
+        blkmem,
+        set,
+        eventqueue,
+        lpistate,
+        wasprimfeas,
+        wasprimchecked,
+        wasdualfeas,
+        wasdualchecked,
+    )
+end
+
+function SCIPlpExactFreeState(lpexact, blkmem, lpistate)
+    ccall(
+        (:SCIPlpExactFreeState, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_LPEXACT}, Ptr{BMS_BLKMEM}, Ptr{Ptr{SCIP_LPISTATE}}),
+        lpexact,
+        blkmem,
+        lpistate,
+    )
+end
+
+function SCIPlpExactStartDive(lpexact, blkmem, set, stat)
+    ccall(
+        (:SCIPlpExactStartDive, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_LPEXACT}, Ptr{BMS_BLKMEM}, Ptr{SCIP_SET}, Ptr{SCIP_STAT}),
+        lpexact,
+        blkmem,
+        set,
+        stat,
+    )
+end
+
+function SCIPlpExactEndDive(lpexact, blkmem, set, stat, eventqueue, vars, nvars)
+    ccall(
+        (:SCIPlpExactEndDive, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_LPEXACT},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{Ptr{SCIP_VAR}},
+            Cint,
+        ),
+        lpexact,
+        blkmem,
+        set,
+        stat,
+        eventqueue,
+        vars,
+        nvars,
+    )
+end
+
+function SCIPlpExactWrite(lpexact, fname)
+    ccall(
+        (:SCIPlpExactWrite, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_LPEXACT}, Ptr{Cchar}),
+        lpexact,
+        fname,
+    )
+end
+
+function SCIPlpExactOverwriteFpDualSol(lpexact, dualfarkas)
+    ccall(
+        (:SCIPlpExactOverwriteFpDualSol, libscip),
+        Cvoid,
+        (Ptr{SCIP_LPEXACT}, Cuint),
+        lpexact,
+        dualfarkas,
+    )
+end
+
+function SCIPlpExactSyncLPs(lpexact, blkmem, set)
+    ccall(
+        (:SCIPlpExactSyncLPs, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_LPEXACT}, Ptr{BMS_BLKMEM}, Ptr{SCIP_SET}),
+        lpexact,
+        blkmem,
+        set,
+    )
+end
+
+function SCIPcreateEmptyRowConsExact(
+    scip,
+    rowexact,
+    fprow,
+    fprowrhs,
+    lhs,
+    rhs,
+    isfprelaxable,
+)
+    ccall(
+        (:SCIPcreateEmptyRowConsExact, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP},
+            Ptr{Ptr{SCIP_ROWEXACT}},
+            Ptr{SCIP_ROW},
+            Ptr{SCIP_ROW},
+            Ptr{SCIP_RATIONAL},
+            Ptr{SCIP_RATIONAL},
+            Cuint,
+        ),
+        scip,
+        rowexact,
+        fprow,
+        fprowrhs,
+        lhs,
+        rhs,
+        isfprelaxable,
+    )
+end
+
+function SCIPcreateRowExact(
+    scip,
+    row,
+    fprow,
+    len,
+    cols,
+    vals,
+    lhs,
+    rhs,
+    isfprelaxable,
+)
+    ccall(
+        (:SCIPcreateRowExact, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP},
+            Ptr{Ptr{SCIP_ROWEXACT}},
+            Ptr{SCIP_ROW},
+            Cint,
+            Ptr{Ptr{SCIP_COLEXACT}},
+            Ptr{Ptr{SCIP_RATIONAL}},
+            Ptr{SCIP_RATIONAL},
+            Ptr{SCIP_RATIONAL},
+            Cuint,
+        ),
+        scip,
+        row,
+        fprow,
+        len,
+        cols,
+        vals,
+        lhs,
+        rhs,
+        isfprelaxable,
+    )
+end
+
+function SCIPcreateRowExactFromRow(scip, fprow)
+    ccall(
+        (:SCIPcreateRowExactFromRow, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_ROW}),
+        scip,
+        fprow,
+    )
+end
+
+function SCIPgenerateFpRowsFromRowExact(
+    scip,
+    row,
+    rowlhs,
+    rowrhs,
+    onerowrelax,
+    hasfprelax,
+)
+    ccall(
+        (:SCIPgenerateFpRowsFromRowExact, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP},
+            Ptr{SCIP_ROWEXACT},
+            Ptr{SCIP_ROW},
+            Ptr{SCIP_ROW},
+            Ptr{Cuint},
+            Ptr{Cuint},
+        ),
+        scip,
+        row,
+        rowlhs,
+        rowrhs,
+        onerowrelax,
+        hasfprelax,
+    )
+end
+
+function SCIPcaptureRowExact(scip, row)
+    ccall(
+        (:SCIPcaptureRowExact, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_ROWEXACT}),
+        scip,
+        row,
+    )
+end
+
+function SCIPreleaseRowExact(scip, row)
+    ccall(
+        (:SCIPreleaseRowExact, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{Ptr{SCIP_ROWEXACT}}),
+        scip,
+        row,
+    )
+end
+
+function SCIPchgRowExactLhs(scip, row, lhs)
+    ccall(
+        (:SCIPchgRowExactLhs, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_ROWEXACT}, Ptr{SCIP_RATIONAL}),
+        scip,
+        row,
+        lhs,
+    )
+end
+
+function SCIPchgRowExactRhs(scip, row, rhs)
+    ccall(
+        (:SCIPchgRowExactRhs, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_ROWEXACT}, Ptr{SCIP_RATIONAL}),
+        scip,
+        row,
+        rhs,
+    )
+end
+
+function SCIPaddVarsToRowExact(scip, row, nvars, vars, vals)
+    ccall(
+        (:SCIPaddVarsToRowExact, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP},
+            Ptr{SCIP_ROWEXACT},
+            Cint,
+            Ptr{Ptr{SCIP_VAR}},
+            Ptr{Ptr{SCIP_RATIONAL}},
+        ),
+        scip,
+        row,
+        nvars,
+        vars,
+        vals,
+    )
+end
+
+function SCIPgetRowSolActivityWithErrorboundExact(
+    scip,
+    row,
+    sol,
+    activity,
+    errorbound,
+)
+    ccall(
+        (:SCIPgetRowSolActivityWithErrorboundExact, libscip),
+        Cuint,
+        (
+            Ptr{SCIP},
+            Ptr{SCIP_ROWEXACT},
+            Ptr{SCIP_SOL},
+            Ptr{Cdouble},
+            Ptr{Cdouble},
+        ),
+        scip,
+        row,
+        sol,
+        activity,
+        errorbound,
+    )
+end
+
+function SCIPgetRowSolActivityExact(scip, row, sol, useexact, result)
+    ccall(
+        (:SCIPgetRowSolActivityExact, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP},
+            Ptr{SCIP_ROWEXACT},
+            Ptr{SCIP_SOL},
+            Cuint,
+            Ptr{SCIP_RATIONAL},
+        ),
+        scip,
+        row,
+        sol,
+        useexact,
+        result,
+    )
+end
+
+function SCIPgetRowSolFeasibilityExact(scip, row, sol, result)
+    ccall(
+        (:SCIPgetRowSolFeasibilityExact, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_ROWEXACT}, Ptr{SCIP_SOL}, Ptr{SCIP_RATIONAL}),
+        scip,
+        row,
+        sol,
+        result,
+    )
+end
+
+function SCIPprintRowExact(scip, row, file)
+    ccall(
+        (:SCIPprintRowExact, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_ROWEXACT}, Ptr{Libc.FILE}),
+        scip,
+        row,
+        file,
+    )
+end
+
+function SCIPlpExactIsSolved(scip)
+    ccall((:SCIPlpExactIsSolved, libscip), Cuint, (Ptr{SCIP},), scip)
+end
+
+function SCIPgetLPExactSolstat(scip)
+    ccall((:SCIPgetLPExactSolstat, libscip), SCIP_LPSOLSTAT, (Ptr{SCIP},), scip)
+end
+
+function SCIPgetLPExactObjval(scip, result)
+    ccall(
+        (:SCIPgetLPExactObjval, libscip),
+        Cvoid,
+        (Ptr{SCIP}, Ptr{SCIP_RATIONAL}),
+        scip,
+        result,
+    )
+end
+
+function SCIPchgVarLbExactDive(scip, var, newbound)
+    ccall(
+        (:SCIPchgVarLbExactDive, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_VAR}, Ptr{SCIP_RATIONAL}),
+        scip,
+        var,
+        newbound,
+    )
+end
+
+function SCIPchgVarUbExactDive(scip, var, newbound)
+    ccall(
+        (:SCIPchgVarUbExactDive, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_VAR}, Ptr{SCIP_RATIONAL}),
+        scip,
+        var,
+        newbound,
+    )
+end
+
+function SCIPsolveExactDiveLP(scip, itlim, lperror, cutoff)
+    ccall(
+        (:SCIPsolveExactDiveLP, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Cint, Ptr{Cuint}, Ptr{Cuint}),
+        scip,
+        itlim,
+        lperror,
+        cutoff,
+    )
+end
+
+function SCIPstartExactDive(scip)
+    ccall((:SCIPstartExactDive, libscip), SCIP_RETCODE, (Ptr{SCIP},), scip)
+end
+
+function SCIPisExactDivePossible(scip)
+    ccall((:SCIPisExactDivePossible, libscip), Cuint, (Ptr{SCIP},), scip)
+end
+
+function SCIPinExactDive(scip)
+    ccall((:SCIPinExactDive, libscip), Cuint, (Ptr{SCIP},), scip)
+end
+
+function SCIPendExactDive(scip)
+    ccall((:SCIPendExactDive, libscip), SCIP_RETCODE, (Ptr{SCIP},), scip)
+end
+
+function SCIPwriteLPexact(scip, filename)
+    ccall(
+        (:SCIPwriteLPexact, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{Cchar}),
+        scip,
+        filename,
+    )
+end
+
+function SCIPsetCopyPlugins(
+    sourceset,
+    targetset,
+    copyreaders,
+    copypricers,
+    copyconshdlrs,
+    copyconflicthdlrs,
+    copypresolvers,
+    copyrelaxators,
+    copyseparators,
+    copycutselectors,
+    copypropagators,
+    copyheuristics,
+    copyeventhdlrs,
+    copynodeselectors,
+    copybranchrules,
+    copyiisfinders,
+    copydisplays,
+    copydialogs,
+    copytables,
+    copyexprhdlrs,
+    copynlpis,
+    allvalid,
+)
+    ccall(
+        (:SCIPsetCopyPlugins, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_SET},
+            Ptr{SCIP_SET},
+            Cuint,
+            Cuint,
+            Cuint,
+            Cuint,
+            Cuint,
+            Cuint,
+            Cuint,
+            Cuint,
+            Cuint,
+            Cuint,
+            Cuint,
+            Cuint,
+            Cuint,
+            Cuint,
+            Cuint,
+            Cuint,
+            Cuint,
+            Cuint,
+            Cuint,
+            Ptr{Cuint},
+        ),
+        sourceset,
+        targetset,
+        copyreaders,
+        copypricers,
+        copyconshdlrs,
+        copyconflicthdlrs,
+        copypresolvers,
+        copyrelaxators,
+        copyseparators,
+        copycutselectors,
+        copypropagators,
+        copyheuristics,
+        copyeventhdlrs,
+        copynodeselectors,
+        copybranchrules,
+        copyiisfinders,
+        copydisplays,
+        copydialogs,
+        copytables,
+        copyexprhdlrs,
+        copynlpis,
+        allvalid,
+    )
+end
+
+function SCIPsetCopyParams(sourceset, targetset, messagehdlr)
+    ccall(
+        (:SCIPsetCopyParams, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{SCIP_SET}, Ptr{SCIP_MESSAGEHDLR}),
+        sourceset,
+        targetset,
+        messagehdlr,
+    )
+end
+
+function SCIPsetCreate(set, messagehdlr, blkmem, scip)
+    ccall(
+        (:SCIPsetCreate, libscip),
+        SCIP_RETCODE,
+        (Ptr{Ptr{SCIP_SET}}, Ptr{SCIP_MESSAGEHDLR}, Ptr{BMS_BLKMEM}, Ptr{SCIP}),
+        set,
+        messagehdlr,
+        blkmem,
+        scip,
+    )
+end
+
+function SCIPsetFree(set, blkmem)
+    ccall(
+        (:SCIPsetFree, libscip),
+        SCIP_RETCODE,
+        (Ptr{Ptr{SCIP_SET}}, Ptr{BMS_BLKMEM}),
+        set,
+        blkmem,
+    )
+end
+
+function SCIPsetGetStage(set)
+    ccall((:SCIPsetGetStage, libscip), SCIP_STAGE, (Ptr{SCIP_SET},), set)
+end
+
+function SCIPsetAddBoolParam(
+    set,
+    messagehdlr,
+    blkmem,
+    name,
+    desc,
+    valueptr,
+    isadvanced,
+    defaultvalue,
+    paramchgd,
+    paramdata,
+)
+    ccall(
+        (:SCIPsetAddBoolParam, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_SET},
+            Ptr{SCIP_MESSAGEHDLR},
+            Ptr{BMS_BLKMEM},
+            Ptr{Cchar},
+            Ptr{Cchar},
+            Ptr{Cuint},
+            Cuint,
+            Cuint,
+            Ptr{Cvoid},
+            Ptr{SCIP_PARAMDATA},
+        ),
+        set,
+        messagehdlr,
+        blkmem,
+        name,
+        desc,
+        valueptr,
+        isadvanced,
+        defaultvalue,
+        paramchgd,
+        paramdata,
+    )
+end
+
+function SCIPsetAddIntParam(
+    set,
+    messagehdlr,
+    blkmem,
+    name,
+    desc,
+    valueptr,
+    isadvanced,
+    defaultvalue,
+    minvalue,
+    maxvalue,
+    paramchgd,
+    paramdata,
+)
+    ccall(
+        (:SCIPsetAddIntParam, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_SET},
+            Ptr{SCIP_MESSAGEHDLR},
+            Ptr{BMS_BLKMEM},
+            Ptr{Cchar},
+            Ptr{Cchar},
+            Ptr{Cint},
+            Cuint,
+            Cint,
+            Cint,
+            Cint,
+            Ptr{Cvoid},
+            Ptr{SCIP_PARAMDATA},
+        ),
+        set,
+        messagehdlr,
+        blkmem,
+        name,
+        desc,
+        valueptr,
+        isadvanced,
+        defaultvalue,
+        minvalue,
+        maxvalue,
+        paramchgd,
+        paramdata,
+    )
+end
+
+function SCIPsetAddLongintParam(
+    set,
+    messagehdlr,
+    blkmem,
+    name,
+    desc,
+    valueptr,
+    isadvanced,
+    defaultvalue,
+    minvalue,
+    maxvalue,
+    paramchgd,
+    paramdata,
+)
+    ccall(
+        (:SCIPsetAddLongintParam, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_SET},
+            Ptr{SCIP_MESSAGEHDLR},
+            Ptr{BMS_BLKMEM},
+            Ptr{Cchar},
+            Ptr{Cchar},
+            Ptr{Clonglong},
+            Cuint,
+            Clonglong,
+            Clonglong,
+            Clonglong,
+            Ptr{Cvoid},
+            Ptr{SCIP_PARAMDATA},
+        ),
+        set,
+        messagehdlr,
+        blkmem,
+        name,
+        desc,
+        valueptr,
+        isadvanced,
+        defaultvalue,
+        minvalue,
+        maxvalue,
+        paramchgd,
+        paramdata,
+    )
+end
+
+function SCIPsetAddRealParam(
+    set,
+    messagehdlr,
+    blkmem,
+    name,
+    desc,
+    valueptr,
+    isadvanced,
+    defaultvalue,
+    minvalue,
+    maxvalue,
+    paramchgd,
+    paramdata,
+)
+    ccall(
+        (:SCIPsetAddRealParam, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_SET},
+            Ptr{SCIP_MESSAGEHDLR},
+            Ptr{BMS_BLKMEM},
+            Ptr{Cchar},
+            Ptr{Cchar},
+            Ptr{Cdouble},
+            Cuint,
+            Cdouble,
+            Cdouble,
+            Cdouble,
+            Ptr{Cvoid},
+            Ptr{SCIP_PARAMDATA},
+        ),
+        set,
+        messagehdlr,
+        blkmem,
+        name,
+        desc,
+        valueptr,
+        isadvanced,
+        defaultvalue,
+        minvalue,
+        maxvalue,
+        paramchgd,
+        paramdata,
+    )
+end
+
+function SCIPsetAddCharParam(
+    set,
+    messagehdlr,
+    blkmem,
+    name,
+    desc,
+    valueptr,
+    isadvanced,
+    defaultvalue,
+    allowedvalues,
+    paramchgd,
+    paramdata,
+)
+    ccall(
+        (:SCIPsetAddCharParam, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_SET},
+            Ptr{SCIP_MESSAGEHDLR},
+            Ptr{BMS_BLKMEM},
+            Ptr{Cchar},
+            Ptr{Cchar},
+            Ptr{Cchar},
+            Cuint,
+            Cchar,
+            Ptr{Cchar},
+            Ptr{Cvoid},
+            Ptr{SCIP_PARAMDATA},
+        ),
+        set,
+        messagehdlr,
+        blkmem,
+        name,
+        desc,
+        valueptr,
+        isadvanced,
+        defaultvalue,
+        allowedvalues,
+        paramchgd,
+        paramdata,
+    )
+end
+
+function SCIPsetAddStringParam(
+    set,
+    messagehdlr,
+    blkmem,
+    name,
+    desc,
+    valueptr,
+    isadvanced,
+    defaultvalue,
+    paramchgd,
+    paramdata,
+)
+    ccall(
+        (:SCIPsetAddStringParam, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_SET},
+            Ptr{SCIP_MESSAGEHDLR},
+            Ptr{BMS_BLKMEM},
+            Ptr{Cchar},
+            Ptr{Cchar},
+            Ptr{Ptr{Cchar}},
+            Cuint,
+            Ptr{Cchar},
+            Ptr{Cvoid},
+            Ptr{SCIP_PARAMDATA},
+        ),
+        set,
+        messagehdlr,
+        blkmem,
+        name,
+        desc,
+        valueptr,
+        isadvanced,
+        defaultvalue,
+        paramchgd,
+        paramdata,
+    )
+end
+
+function SCIPsetIsParamFixed(set, name)
+    ccall(
+        (:SCIPsetIsParamFixed, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Ptr{Cchar}),
+        set,
+        name,
+    )
+end
+
+function SCIPsetGetParam(set, name)
+    ccall(
+        (:SCIPsetGetParam, libscip),
+        Ptr{SCIP_PARAM},
+        (Ptr{SCIP_SET}, Ptr{Cchar}),
+        set,
+        name,
+    )
+end
+
+function SCIPsetGetBoolParam(set, name, value)
+    ccall(
+        (:SCIPsetGetBoolParam, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{Cchar}, Ptr{Cuint}),
+        set,
+        name,
+        value,
+    )
+end
+
+function SCIPsetGetIntParam(set, name, value)
+    ccall(
+        (:SCIPsetGetIntParam, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{Cchar}, Ptr{Cint}),
+        set,
+        name,
+        value,
+    )
+end
+
+function SCIPsetGetLongintParam(set, name, value)
+    ccall(
+        (:SCIPsetGetLongintParam, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{Cchar}, Ptr{Clonglong}),
+        set,
+        name,
+        value,
+    )
+end
+
+function SCIPsetGetRealParam(set, name, value)
+    ccall(
+        (:SCIPsetGetRealParam, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{Cchar}, Ptr{Cdouble}),
+        set,
+        name,
+        value,
+    )
+end
+
+function SCIPsetGetCharParam(set, name, value)
+    ccall(
+        (:SCIPsetGetCharParam, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{Cchar}, Ptr{Cchar}),
+        set,
+        name,
+        value,
+    )
+end
+
+function SCIPsetGetStringParam(set, name, value)
+    ccall(
+        (:SCIPsetGetStringParam, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{Cchar}, Ptr{Ptr{Cchar}}),
+        set,
+        name,
+        value,
+    )
+end
+
+function SCIPsetChgParamFixed(set, name, fixed)
+    ccall(
+        (:SCIPsetChgParamFixed, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{Cchar}, Cuint),
+        set,
+        name,
+        fixed,
+    )
+end
+
+function SCIPsetChgBoolParam(set, messagehdlr, param, value)
+    ccall(
+        (:SCIPsetChgBoolParam, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{SCIP_MESSAGEHDLR}, Ptr{SCIP_PARAM}, Cuint),
+        set,
+        messagehdlr,
+        param,
+        value,
+    )
+end
+
+function SCIPsetSetBoolParam(set, messagehdlr, name, value)
+    ccall(
+        (:SCIPsetSetBoolParam, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{SCIP_MESSAGEHDLR}, Ptr{Cchar}, Cuint),
+        set,
+        messagehdlr,
+        name,
+        value,
+    )
+end
+
+function SCIPsetSetDefaultBoolParam(set, name, defaultvalue)
+    ccall(
+        (:SCIPsetSetDefaultBoolParam, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{Cchar}, Cuint),
+        set,
+        name,
+        defaultvalue,
+    )
+end
+
+function SCIPsetChgIntParam(set, messagehdlr, param, value)
+    ccall(
+        (:SCIPsetChgIntParam, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{SCIP_MESSAGEHDLR}, Ptr{SCIP_PARAM}, Cint),
+        set,
+        messagehdlr,
+        param,
+        value,
+    )
+end
+
+function SCIPsetSetIntParam(set, messagehdlr, name, value)
+    ccall(
+        (:SCIPsetSetIntParam, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{SCIP_MESSAGEHDLR}, Ptr{Cchar}, Cint),
+        set,
+        messagehdlr,
+        name,
+        value,
+    )
+end
+
+function SCIPsetSetDefaultIntParam(set, name, defaultvalue)
+    ccall(
+        (:SCIPsetSetDefaultIntParam, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{Cchar}, Cint),
+        set,
+        name,
+        defaultvalue,
+    )
+end
+
+function SCIPsetChgLongintParam(set, messagehdlr, param, value)
+    ccall(
+        (:SCIPsetChgLongintParam, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{SCIP_MESSAGEHDLR}, Ptr{SCIP_PARAM}, Clonglong),
+        set,
+        messagehdlr,
+        param,
+        value,
+    )
+end
+
+function SCIPsetSetLongintParam(set, messagehdlr, name, value)
+    ccall(
+        (:SCIPsetSetLongintParam, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{SCIP_MESSAGEHDLR}, Ptr{Cchar}, Clonglong),
+        set,
+        messagehdlr,
+        name,
+        value,
+    )
+end
+
+function SCIPsetChgRealParam(set, messagehdlr, param, value)
+    ccall(
+        (:SCIPsetChgRealParam, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{SCIP_MESSAGEHDLR}, Ptr{SCIP_PARAM}, Cdouble),
+        set,
+        messagehdlr,
+        param,
+        value,
+    )
+end
+
+function SCIPsetSetRealParam(set, messagehdlr, name, value)
+    ccall(
+        (:SCIPsetSetRealParam, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{SCIP_MESSAGEHDLR}, Ptr{Cchar}, Cdouble),
+        set,
+        messagehdlr,
+        name,
+        value,
+    )
+end
+
+function SCIPsetChgCharParam(set, messagehdlr, param, value)
+    ccall(
+        (:SCIPsetChgCharParam, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{SCIP_MESSAGEHDLR}, Ptr{SCIP_PARAM}, Cchar),
+        set,
+        messagehdlr,
+        param,
+        value,
+    )
+end
+
+function SCIPsetSetCharParam(set, messagehdlr, name, value)
+    ccall(
+        (:SCIPsetSetCharParam, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{SCIP_MESSAGEHDLR}, Ptr{Cchar}, Cchar),
+        set,
+        messagehdlr,
+        name,
+        value,
+    )
+end
+
+function SCIPsetChgStringParam(set, messagehdlr, param, value)
+    ccall(
+        (:SCIPsetChgStringParam, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{SCIP_MESSAGEHDLR}, Ptr{SCIP_PARAM}, Ptr{Cchar}),
+        set,
+        messagehdlr,
+        param,
+        value,
+    )
+end
+
+function SCIPsetSetStringParam(set, messagehdlr, name, value)
+    ccall(
+        (:SCIPsetSetStringParam, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{SCIP_MESSAGEHDLR}, Ptr{Cchar}, Ptr{Cchar}),
+        set,
+        messagehdlr,
+        name,
+        value,
+    )
+end
+
+function SCIPsetSetParam(set, messagehdlr, name, value)
+    ccall(
+        (:SCIPsetSetParam, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{SCIP_MESSAGEHDLR}, Ptr{Cchar}, Ptr{Cchar}),
+        set,
+        messagehdlr,
+        name,
+        value,
+    )
+end
+
+function SCIPsetReadParams(set, messagehdlr, filename)
+    ccall(
+        (:SCIPsetReadParams, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{SCIP_MESSAGEHDLR}, Ptr{Cchar}),
+        set,
+        messagehdlr,
+        filename,
+    )
+end
+
+function SCIPsetWriteParams(set, messagehdlr, filename, comments, onlychanged)
+    ccall(
+        (:SCIPsetWriteParams, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{SCIP_MESSAGEHDLR}, Ptr{Cchar}, Cuint, Cuint),
+        set,
+        messagehdlr,
+        filename,
+        comments,
+        onlychanged,
+    )
+end
+
+function SCIPsetResetParam(set, messagehdlr, name)
+    ccall(
+        (:SCIPsetResetParam, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{SCIP_MESSAGEHDLR}, Ptr{Cchar}),
+        set,
+        messagehdlr,
+        name,
+    )
+end
+
+function SCIPsetResetParams(set, messagehdlr)
+    ccall(
+        (:SCIPsetResetParams, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{SCIP_MESSAGEHDLR}),
+        set,
+        messagehdlr,
+    )
+end
+
+function SCIPsetCheckParamValuePtrUnique(set)
+    ccall(
+        (:SCIPsetCheckParamValuePtrUnique, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET},),
+        set,
+    )
+end
+
+function SCIPsetSetEmphasis(set, messagehdlr, paramemphasis, quiet)
+    ccall(
+        (:SCIPsetSetEmphasis, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{SCIP_MESSAGEHDLR}, SCIP_PARAMEMPHASIS, Cuint),
+        set,
+        messagehdlr,
+        paramemphasis,
+        quiet,
+    )
+end
+
+function SCIPsetSetReoptimizationParams(set, messagehdlr)
+    ccall(
+        (:SCIPsetSetReoptimizationParams, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{SCIP_MESSAGEHDLR}),
+        set,
+        messagehdlr,
+    )
+end
+
+function SCIPsetEnableOrDisablePluginClocks(set, enabled)
+    ccall(
+        (:SCIPsetEnableOrDisablePluginClocks, libscip),
+        Cvoid,
+        (Ptr{SCIP_SET}, Cuint),
+        set,
+        enabled,
+    )
+end
+
+function SCIPsetSetSubscipsOff(set, messagehdlr, quiet)
+    ccall(
+        (:SCIPsetSetSubscipsOff, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{SCIP_MESSAGEHDLR}, Cuint),
+        set,
+        messagehdlr,
+        quiet,
+    )
+end
+
+function SCIPsetSetHeuristics(set, messagehdlr, paramsetting, quiet)
+    ccall(
+        (:SCIPsetSetHeuristics, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{SCIP_MESSAGEHDLR}, SCIP_PARAMSETTING, Cuint),
+        set,
+        messagehdlr,
+        paramsetting,
+        quiet,
+    )
+end
+
+function SCIPsetSetPresolving(set, messagehdlr, paramsetting, quiet)
+    ccall(
+        (:SCIPsetSetPresolving, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{SCIP_MESSAGEHDLR}, SCIP_PARAMSETTING, Cuint),
+        set,
+        messagehdlr,
+        paramsetting,
+        quiet,
+    )
+end
+
+function SCIPsetSetSeparating(set, messagehdlr, paramsetting, quiet)
+    ccall(
+        (:SCIPsetSetSeparating, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{SCIP_MESSAGEHDLR}, SCIP_PARAMSETTING, Cuint),
+        set,
+        messagehdlr,
+        paramsetting,
+        quiet,
+    )
+end
+
+function SCIPsetGetParams(set)
+    ccall(
+        (:SCIPsetGetParams, libscip),
+        Ptr{Ptr{SCIP_PARAM}},
+        (Ptr{SCIP_SET},),
+        set,
+    )
+end
+
+function SCIPsetGetNParams(set)
+    ccall((:SCIPsetGetNParams, libscip), Cint, (Ptr{SCIP_SET},), set)
+end
+
+function SCIPsetIncludeReader(set, reader)
+    ccall(
+        (:SCIPsetIncludeReader, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{SCIP_READER}),
+        set,
+        reader,
+    )
+end
+
+function SCIPsetFindReader(set, name)
+    ccall(
+        (:SCIPsetFindReader, libscip),
+        Ptr{SCIP_READER},
+        (Ptr{SCIP_SET}, Ptr{Cchar}),
+        set,
+        name,
+    )
+end
+
+function SCIPsetIncludePricer(set, pricer)
+    ccall(
+        (:SCIPsetIncludePricer, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{SCIP_PRICER}),
+        set,
+        pricer,
+    )
+end
+
+function SCIPsetFindPricer(set, name)
+    ccall(
+        (:SCIPsetFindPricer, libscip),
+        Ptr{SCIP_PRICER},
+        (Ptr{SCIP_SET}, Ptr{Cchar}),
+        set,
+        name,
+    )
+end
+
+function SCIPsetSortPricers(set)
+    ccall((:SCIPsetSortPricers, libscip), Cvoid, (Ptr{SCIP_SET},), set)
+end
+
+function SCIPsetSortPricersName(set)
+    ccall((:SCIPsetSortPricersName, libscip), Cvoid, (Ptr{SCIP_SET},), set)
+end
+
+function SCIPsetIncludeBenders(set, benders)
+    ccall(
+        (:SCIPsetIncludeBenders, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{SCIP_BENDERS}),
+        set,
+        benders,
+    )
+end
+
+function SCIPsetFindBenders(set, name)
+    ccall(
+        (:SCIPsetFindBenders, libscip),
+        Ptr{SCIP_BENDERS},
+        (Ptr{SCIP_SET}, Ptr{Cchar}),
+        set,
+        name,
+    )
+end
+
+function SCIPsetSortBenders(set)
+    ccall((:SCIPsetSortBenders, libscip), Cvoid, (Ptr{SCIP_SET},), set)
+end
+
+function SCIPsetSortBendersName(set)
+    ccall((:SCIPsetSortBendersName, libscip), Cvoid, (Ptr{SCIP_SET},), set)
+end
+
+function SCIPsetIncludeConshdlr(set, conshdlr)
+    ccall(
+        (:SCIPsetIncludeConshdlr, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{SCIP_CONSHDLR}),
+        set,
+        conshdlr,
+    )
+end
+
+function SCIPsetReinsertConshdlrSepaPrio(set, conshdlr, oldpriority)
+    ccall(
+        (:SCIPsetReinsertConshdlrSepaPrio, libscip),
+        Cvoid,
+        (Ptr{SCIP_SET}, Ptr{SCIP_CONSHDLR}, Cint),
+        set,
+        conshdlr,
+        oldpriority,
+    )
+end
+
+function SCIPsetFindConshdlr(set, name)
+    ccall(
+        (:SCIPsetFindConshdlr, libscip),
+        Ptr{SCIP_CONSHDLR},
+        (Ptr{SCIP_SET}, Ptr{Cchar}),
+        set,
+        name,
+    )
+end
+
+function SCIPsetIncludeConflicthdlr(set, conflicthdlr)
+    ccall(
+        (:SCIPsetIncludeConflicthdlr, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{SCIP_CONFLICTHDLR}),
+        set,
+        conflicthdlr,
+    )
+end
+
+function SCIPsetFindConflicthdlr(set, name)
+    ccall(
+        (:SCIPsetFindConflicthdlr, libscip),
+        Ptr{SCIP_CONFLICTHDLR},
+        (Ptr{SCIP_SET}, Ptr{Cchar}),
+        set,
+        name,
+    )
+end
+
+function SCIPsetSortConflicthdlrs(set)
+    ccall((:SCIPsetSortConflicthdlrs, libscip), Cvoid, (Ptr{SCIP_SET},), set)
+end
+
+function SCIPsetSortConflicthdlrsName(set)
+    ccall(
+        (:SCIPsetSortConflicthdlrsName, libscip),
+        Cvoid,
+        (Ptr{SCIP_SET},),
+        set,
+    )
+end
+
+function SCIPsetIncludePresol(set, presol)
+    ccall(
+        (:SCIPsetIncludePresol, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{SCIP_PRESOL}),
+        set,
+        presol,
+    )
+end
+
+function SCIPsetFindPresol(set, name)
+    ccall(
+        (:SCIPsetFindPresol, libscip),
+        Ptr{SCIP_PRESOL},
+        (Ptr{SCIP_SET}, Ptr{Cchar}),
+        set,
+        name,
+    )
+end
+
+function SCIPsetSortPresols(set)
+    ccall((:SCIPsetSortPresols, libscip), Cvoid, (Ptr{SCIP_SET},), set)
+end
+
+function SCIPsetSortPresolsName(set)
+    ccall((:SCIPsetSortPresolsName, libscip), Cvoid, (Ptr{SCIP_SET},), set)
+end
+
+function SCIPsetIncludeRelax(set, relax)
+    ccall(
+        (:SCIPsetIncludeRelax, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{SCIP_RELAX}),
+        set,
+        relax,
+    )
+end
+
+function SCIPsetFindRelax(set, name)
+    ccall(
+        (:SCIPsetFindRelax, libscip),
+        Ptr{SCIP_RELAX},
+        (Ptr{SCIP_SET}, Ptr{Cchar}),
+        set,
+        name,
+    )
+end
+
+function SCIPsetSortRelaxs(set)
+    ccall((:SCIPsetSortRelaxs, libscip), Cvoid, (Ptr{SCIP_SET},), set)
+end
+
+function SCIPsetSortRelaxsName(set)
+    ccall((:SCIPsetSortRelaxsName, libscip), Cvoid, (Ptr{SCIP_SET},), set)
+end
+
+function SCIPsetIncludeSepa(set, sepa)
+    ccall(
+        (:SCIPsetIncludeSepa, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{SCIP_SEPA}),
+        set,
+        sepa,
+    )
+end
+
+function SCIPsetFindSepa(set, name)
+    ccall(
+        (:SCIPsetFindSepa, libscip),
+        Ptr{SCIP_SEPA},
+        (Ptr{SCIP_SET}, Ptr{Cchar}),
+        set,
+        name,
+    )
+end
+
+function SCIPsetSortSepas(set)
+    ccall((:SCIPsetSortSepas, libscip), Cvoid, (Ptr{SCIP_SET},), set)
+end
+
+function SCIPsetSortSepasName(set)
+    ccall((:SCIPsetSortSepasName, libscip), Cvoid, (Ptr{SCIP_SET},), set)
+end
+
+function SCIPsetIncludeCutsel(set, cutsel)
+    ccall(
+        (:SCIPsetIncludeCutsel, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{SCIP_CUTSEL}),
+        set,
+        cutsel,
+    )
+end
+
+function SCIPsetFindCutsel(set, name)
+    ccall(
+        (:SCIPsetFindCutsel, libscip),
+        Ptr{SCIP_CUTSEL},
+        (Ptr{SCIP_SET}, Ptr{Cchar}),
+        set,
+        name,
+    )
+end
+
+function SCIPsetSortCutsels(set)
+    ccall((:SCIPsetSortCutsels, libscip), Cvoid, (Ptr{SCIP_SET},), set)
+end
+
+function SCIPsetIncludeProp(set, prop)
+    ccall(
+        (:SCIPsetIncludeProp, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{SCIP_PROP}),
+        set,
+        prop,
+    )
+end
+
+function SCIPsetFindProp(set, name)
+    ccall(
+        (:SCIPsetFindProp, libscip),
+        Ptr{SCIP_PROP},
+        (Ptr{SCIP_SET}, Ptr{Cchar}),
+        set,
+        name,
+    )
+end
+
+function SCIPsetSortProps(set)
+    ccall((:SCIPsetSortProps, libscip), Cvoid, (Ptr{SCIP_SET},), set)
+end
+
+function SCIPsetSortPropsPresol(set)
+    ccall((:SCIPsetSortPropsPresol, libscip), Cvoid, (Ptr{SCIP_SET},), set)
+end
+
+function SCIPsetSortPropsName(set)
+    ccall((:SCIPsetSortPropsName, libscip), Cvoid, (Ptr{SCIP_SET},), set)
+end
+
+function SCIPsetIncludeConcsolverType(set, concsolvertype)
+    ccall(
+        (:SCIPsetIncludeConcsolverType, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{SCIP_CONCSOLVERTYPE}),
+        set,
+        concsolvertype,
+    )
+end
+
+function SCIPsetFindConcsolverType(set, name)
+    ccall(
+        (:SCIPsetFindConcsolverType, libscip),
+        Ptr{SCIP_CONCSOLVERTYPE},
+        (Ptr{SCIP_SET}, Ptr{Cchar}),
+        set,
+        name,
+    )
+end
+
+function SCIPsetIncludeConcsolver(set, concsolver)
+    ccall(
+        (:SCIPsetIncludeConcsolver, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{SCIP_CONCSOLVER}),
+        set,
+        concsolver,
+    )
+end
+
+function SCIPsetFreeConcsolvers(set)
+    ccall(
+        (:SCIPsetFreeConcsolvers, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET},),
+        set,
+    )
+end
+
+function SCIPsetIncludeHeur(set, heur)
+    ccall(
+        (:SCIPsetIncludeHeur, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{SCIP_HEUR}),
+        set,
+        heur,
+    )
+end
+
+function SCIPsetFindHeur(set, name)
+    ccall(
+        (:SCIPsetFindHeur, libscip),
+        Ptr{SCIP_HEUR},
+        (Ptr{SCIP_SET}, Ptr{Cchar}),
+        set,
+        name,
+    )
+end
+
+function SCIPsetSortHeurs(set)
+    ccall((:SCIPsetSortHeurs, libscip), Cvoid, (Ptr{SCIP_SET},), set)
+end
+
+function SCIPsetSortHeursName(set)
+    ccall((:SCIPsetSortHeursName, libscip), Cvoid, (Ptr{SCIP_SET},), set)
+end
+
+function SCIPsetIncludeCompr(set, compr)
+    ccall(
+        (:SCIPsetIncludeCompr, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{SCIP_COMPR}),
+        set,
+        compr,
+    )
+end
+
+function SCIPsetFindCompr(set, name)
+    ccall(
+        (:SCIPsetFindCompr, libscip),
+        Ptr{SCIP_COMPR},
+        (Ptr{SCIP_SET}, Ptr{Cchar}),
+        set,
+        name,
+    )
+end
+
+function SCIPsetSortComprs(set)
+    ccall((:SCIPsetSortComprs, libscip), Cvoid, (Ptr{SCIP_SET},), set)
+end
+
+function SCIPsetSortComprsName(set)
+    ccall((:SCIPsetSortComprsName, libscip), Cvoid, (Ptr{SCIP_SET},), set)
+end
+
+function SCIPsetIncludeEventhdlr(set, eventhdlr)
+    ccall(
+        (:SCIPsetIncludeEventhdlr, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{SCIP_EVENTHDLR}),
+        set,
+        eventhdlr,
+    )
+end
+
+function SCIPsetFindEventhdlr(set, name)
+    ccall(
+        (:SCIPsetFindEventhdlr, libscip),
+        Ptr{SCIP_EVENTHDLR},
+        (Ptr{SCIP_SET}, Ptr{Cchar}),
+        set,
+        name,
+    )
+end
+
+function SCIPsetIncludeNodesel(set, nodesel)
+    ccall(
+        (:SCIPsetIncludeNodesel, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{SCIP_NODESEL}),
+        set,
+        nodesel,
+    )
+end
+
+function SCIPsetFindNodesel(set, name)
+    ccall(
+        (:SCIPsetFindNodesel, libscip),
+        Ptr{SCIP_NODESEL},
+        (Ptr{SCIP_SET}, Ptr{Cchar}),
+        set,
+        name,
+    )
+end
+
+function SCIPsetGetNodesel(set, stat)
+    ccall(
+        (:SCIPsetGetNodesel, libscip),
+        Ptr{SCIP_NODESEL},
+        (Ptr{SCIP_SET}, Ptr{SCIP_STAT}),
+        set,
+        stat,
+    )
+end
+
+function SCIPsetIncludeBranchrule(set, branchrule)
+    ccall(
+        (:SCIPsetIncludeBranchrule, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{SCIP_BRANCHRULE}),
+        set,
+        branchrule,
+    )
+end
+
+function SCIPsetFindBranchrule(set, name)
+    ccall(
+        (:SCIPsetFindBranchrule, libscip),
+        Ptr{SCIP_BRANCHRULE},
+        (Ptr{SCIP_SET}, Ptr{Cchar}),
+        set,
+        name,
+    )
+end
+
+function SCIPsetSortBranchrules(set)
+    ccall((:SCIPsetSortBranchrules, libscip), Cvoid, (Ptr{SCIP_SET},), set)
+end
+
+function SCIPsetSortBranchrulesName(set)
+    ccall((:SCIPsetSortBranchrulesName, libscip), Cvoid, (Ptr{SCIP_SET},), set)
+end
+
+function SCIPsetIncludeIISfinder(set, iisfinder)
+    ccall(
+        (:SCIPsetIncludeIISfinder, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{SCIP_IISFINDER}),
+        set,
+        iisfinder,
+    )
+end
+
+function SCIPsetFindIISfinder(set, name)
+    ccall(
+        (:SCIPsetFindIISfinder, libscip),
+        Ptr{SCIP_IISFINDER},
+        (Ptr{SCIP_SET}, Ptr{Cchar}),
+        set,
+        name,
+    )
+end
+
+function SCIPsetSortIISfinders(set)
+    ccall((:SCIPsetSortIISfinders, libscip), Cvoid, (Ptr{SCIP_SET},), set)
+end
+
+function SCIPsetIncludeDisp(set, disp)
+    ccall(
+        (:SCIPsetIncludeDisp, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{SCIP_DISP}),
+        set,
+        disp,
+    )
+end
+
+function SCIPsetFindDisp(set, name)
+    ccall(
+        (:SCIPsetFindDisp, libscip),
+        Ptr{SCIP_DISP},
+        (Ptr{SCIP_SET}, Ptr{Cchar}),
+        set,
+        name,
+    )
+end
+
+function SCIPsetIncludeTable(set, table)
+    ccall(
+        (:SCIPsetIncludeTable, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{SCIP_TABLE}),
+        set,
+        table,
+    )
+end
+
+function SCIPsetFindTable(set, name)
+    ccall(
+        (:SCIPsetFindTable, libscip),
+        Ptr{SCIP_TABLE},
+        (Ptr{SCIP_SET}, Ptr{Cchar}),
+        set,
+        name,
+    )
+end
+
+function SCIPsetIncludeDialog(set, dialog)
+    ccall(
+        (:SCIPsetIncludeDialog, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{SCIP_DIALOG}),
+        set,
+        dialog,
+    )
+end
+
+function SCIPsetExistsDialog(set, dialog)
+    ccall(
+        (:SCIPsetExistsDialog, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Ptr{SCIP_DIALOG}),
+        set,
+        dialog,
+    )
+end
+
+function SCIPsetIncludeExprhdlr(set, exprhdlr)
+    ccall(
+        (:SCIPsetIncludeExprhdlr, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{SCIP_EXPRHDLR}),
+        set,
+        exprhdlr,
+    )
+end
+
+function SCIPsetFindExprhdlr(set, name)
+    ccall(
+        (:SCIPsetFindExprhdlr, libscip),
+        Ptr{SCIP_EXPRHDLR},
+        (Ptr{SCIP_SET}, Ptr{Cchar}),
+        set,
+        name,
+    )
+end
+
+function SCIPsetSortExprhdlrs(set)
+    ccall((:SCIPsetSortExprhdlrs, libscip), Cvoid, (Ptr{SCIP_SET},), set)
+end
+
+function SCIPsetIncludeNlpi(set, nlpi)
+    ccall(
+        (:SCIPsetIncludeNlpi, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{SCIP_NLPI}),
+        set,
+        nlpi,
+    )
+end
+
+function SCIPsetFindNlpi(set, name)
+    ccall(
+        (:SCIPsetFindNlpi, libscip),
+        Ptr{SCIP_NLPI},
+        (Ptr{SCIP_SET}, Ptr{Cchar}),
+        set,
+        name,
+    )
+end
+
+function SCIPsetSortNlpis(set)
+    ccall((:SCIPsetSortNlpis, libscip), Cvoid, (Ptr{SCIP_SET},), set)
+end
+
+function SCIPsetSetPriorityNlpi(set, nlpi, priority)
+    ccall(
+        (:SCIPsetSetPriorityNlpi, libscip),
+        Cvoid,
+        (Ptr{SCIP_SET}, Ptr{SCIP_NLPI}, Cint),
+        set,
+        nlpi,
+        priority,
+    )
+end
+
+function SCIPsetIncludeExternalCode(set, name, description)
+    ccall(
+        (:SCIPsetIncludeExternalCode, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{Cchar}, Ptr{Cchar}),
+        set,
+        name,
+        description,
+    )
+end
+
+function SCIPsetIncludeBanditvtable(set, banditvtable)
+    ccall(
+        (:SCIPsetIncludeBanditvtable, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{SCIP_BANDITVTABLE}),
+        set,
+        banditvtable,
+    )
+end
+
+function SCIPsetFindBanditvtable(set, name)
+    ccall(
+        (:SCIPsetFindBanditvtable, libscip),
+        Ptr{SCIP_BANDITVTABLE},
+        (Ptr{SCIP_SET}, Ptr{Cchar}),
+        set,
+        name,
+    )
+end
+
+function SCIPsetInitPlugins(set, blkmem, stat)
+    ccall(
+        (:SCIPsetInitPlugins, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{BMS_BLKMEM}, Ptr{SCIP_STAT}),
+        set,
+        blkmem,
+        stat,
+    )
+end
+
+function SCIPsetExitPlugins(set, blkmem, stat)
+    ccall(
+        (:SCIPsetExitPlugins, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{BMS_BLKMEM}, Ptr{SCIP_STAT}),
+        set,
+        blkmem,
+        stat,
+    )
+end
+
+function SCIPsetInitprePlugins(set, blkmem, stat)
+    ccall(
+        (:SCIPsetInitprePlugins, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{BMS_BLKMEM}, Ptr{SCIP_STAT}),
+        set,
+        blkmem,
+        stat,
+    )
+end
+
+function SCIPsetExitprePlugins(set, blkmem, stat)
+    ccall(
+        (:SCIPsetExitprePlugins, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{BMS_BLKMEM}, Ptr{SCIP_STAT}),
+        set,
+        blkmem,
+        stat,
+    )
+end
+
+function SCIPsetInitsolPlugins(set, blkmem, stat)
+    ccall(
+        (:SCIPsetInitsolPlugins, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{BMS_BLKMEM}, Ptr{SCIP_STAT}),
+        set,
+        blkmem,
+        stat,
+    )
+end
+
+function SCIPsetExitsolPlugins(set, blkmem, stat, restart)
+    ccall(
+        (:SCIPsetExitsolPlugins, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{BMS_BLKMEM}, Ptr{SCIP_STAT}, Cuint),
+        set,
+        blkmem,
+        stat,
+        restart,
+    )
+end
+
+function SCIPsetCalcMemGrowSize(set, num)
+    ccall(
+        (:SCIPsetCalcMemGrowSize, libscip),
+        Cint,
+        (Ptr{SCIP_SET}, Cint),
+        set,
+        num,
+    )
+end
+
+function SCIPsetCalcTreeGrowSize(set, num)
+    ccall(
+        (:SCIPsetCalcTreeGrowSize, libscip),
+        Cint,
+        (Ptr{SCIP_SET}, Cint),
+        set,
+        num,
+    )
+end
+
+function SCIPsetCalcPathGrowSize(set, num)
+    ccall(
+        (:SCIPsetCalcPathGrowSize, libscip),
+        Cint,
+        (Ptr{SCIP_SET}, Cint),
+        set,
+        num,
+    )
+end
+
+function SCIPsetSetVerbLevel(set, verblevel)
+    ccall(
+        (:SCIPsetSetVerbLevel, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, SCIP_VERBLEVEL),
+        set,
+        verblevel,
+    )
+end
+
+function SCIPsetSetFeastol(set, lp, feastol)
+    ccall(
+        (:SCIPsetSetFeastol, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Ptr{SCIP_LP}, Cdouble),
+        set,
+        lp,
+        feastol,
+    )
+end
+
+function SCIPsetSetDualfeastol(set, dualfeastol)
+    ccall(
+        (:SCIPsetSetDualfeastol, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Cdouble),
+        set,
+        dualfeastol,
+    )
+end
+
+function SCIPsetSetBarrierconvtol(set, barrierconvtol)
+    ccall(
+        (:SCIPsetSetBarrierconvtol, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SET}, Cdouble),
+        set,
+        barrierconvtol,
+    )
+end
+
+function SCIPsetSetRelaxfeastol(set, relaxfeastol)
+    ccall(
+        (:SCIPsetSetRelaxfeastol, libscip),
+        Cdouble,
+        (Ptr{SCIP_SET}, Cdouble),
+        set,
+        relaxfeastol,
+    )
+end
+
+function SCIPsetSetLimitChanged(set)
+    ccall((:SCIPsetSetLimitChanged, libscip), Cvoid, (Ptr{SCIP_SET},), set)
+end
+
+function SCIPsetGetPriceMaxvars(set, root)
+    ccall(
+        (:SCIPsetGetPriceMaxvars, libscip),
+        Cint,
+        (Ptr{SCIP_SET}, Cuint),
+        set,
+        root,
+    )
+end
+
+function SCIPsetGetSepaMaxcutsGenFactor(set, root)
+    ccall(
+        (:SCIPsetGetSepaMaxcutsGenFactor, libscip),
+        Cdouble,
+        (Ptr{SCIP_SET}, Cuint),
+        set,
+        root,
+    )
+end
+
+function SCIPsetGetSepaMaxcuts(set, root)
+    ccall(
+        (:SCIPsetGetSepaMaxcuts, libscip),
+        Cint,
+        (Ptr{SCIP_SET}, Cuint),
+        set,
+        root,
+    )
+end
+
+function SCIPsetGetSepaMaxCoefRatioRowprep(set)
+    ccall(
+        (:SCIPsetGetSepaMaxCoefRatioRowprep, libscip),
+        Cdouble,
+        (Ptr{SCIP_SET},),
+        set,
+    )
+end
+
+function SCIPsetGetReferencevalue(set)
+    ccall((:SCIPsetGetReferencevalue, libscip), Cdouble, (Ptr{SCIP_SET},), set)
+end
+
+function SCIPsetGetDebugSolData(set)
+    ccall(
+        (:SCIPsetGetDebugSolData, libscip),
+        Ptr{SCIP_DEBUGSOLDATA},
+        (Ptr{SCIP_SET},),
+        set,
+    )
+end
+
+function SCIPsetIsUpdateUnreliable(set, newvalue, oldvalue)
+    ccall(
+        (:SCIPsetIsUpdateUnreliable, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Cdouble, Cdouble),
+        set,
+        newvalue,
+        oldvalue,
+    )
+end
+
+function SCIPsetInitializeRandomSeed(set, initialseedvalue)
+    ccall(
+        (:SCIPsetInitializeRandomSeed, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Cuint),
+        set,
+        initialseedvalue,
+    )
+end
+
+function SCIPsetInfinity(set)
+    ccall((:SCIPsetInfinity, libscip), Cdouble, (Ptr{SCIP_SET},), set)
+end
+
+function SCIPsetGetHugeValue(set)
+    ccall((:SCIPsetGetHugeValue, libscip), Cdouble, (Ptr{SCIP_SET},), set)
+end
+
+function SCIPsetEpsilon(set)
+    ccall((:SCIPsetEpsilon, libscip), Cdouble, (Ptr{SCIP_SET},), set)
+end
+
+function SCIPsetSumepsilon(set)
+    ccall((:SCIPsetSumepsilon, libscip), Cdouble, (Ptr{SCIP_SET},), set)
+end
+
+function SCIPsetFeastol(set)
+    ccall((:SCIPsetFeastol, libscip), Cdouble, (Ptr{SCIP_SET},), set)
+end
+
+function SCIPsetLPFeastolFactor(set)
+    ccall((:SCIPsetLPFeastolFactor, libscip), Cdouble, (Ptr{SCIP_SET},), set)
+end
+
+function SCIPsetDualfeastol(set)
+    ccall((:SCIPsetDualfeastol, libscip), Cdouble, (Ptr{SCIP_SET},), set)
+end
+
+function SCIPsetBarrierconvtol(set)
+    ccall((:SCIPsetBarrierconvtol, libscip), Cdouble, (Ptr{SCIP_SET},), set)
+end
+
+function SCIPsetPseudocosteps(set)
+    ccall((:SCIPsetPseudocosteps, libscip), Cdouble, (Ptr{SCIP_SET},), set)
+end
+
+function SCIPsetPseudocostdelta(set)
+    ccall((:SCIPsetPseudocostdelta, libscip), Cdouble, (Ptr{SCIP_SET},), set)
+end
+
+function SCIPsetCutoffbounddelta(set)
+    ccall((:SCIPsetCutoffbounddelta, libscip), Cdouble, (Ptr{SCIP_SET},), set)
+end
+
+function SCIPsetRelaxfeastol(set)
+    ccall((:SCIPsetRelaxfeastol, libscip), Cdouble, (Ptr{SCIP_SET},), set)
+end
+
+function SCIPsetRecompfac(set)
+    ccall((:SCIPsetRecompfac, libscip), Cdouble, (Ptr{SCIP_SET},), set)
+end
+
+function SCIPsetIsEQ(set, val1, val2)
+    ccall(
+        (:SCIPsetIsEQ, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Cdouble, Cdouble),
+        set,
+        val1,
+        val2,
+    )
+end
+
+function SCIPsetIsLT(set, val1, val2)
+    ccall(
+        (:SCIPsetIsLT, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Cdouble, Cdouble),
+        set,
+        val1,
+        val2,
+    )
+end
+
+function SCIPsetIsLE(set, val1, val2)
+    ccall(
+        (:SCIPsetIsLE, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Cdouble, Cdouble),
+        set,
+        val1,
+        val2,
+    )
+end
+
+function SCIPsetIsGT(set, val1, val2)
+    ccall(
+        (:SCIPsetIsGT, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Cdouble, Cdouble),
+        set,
+        val1,
+        val2,
+    )
+end
+
+function SCIPsetIsGE(set, val1, val2)
+    ccall(
+        (:SCIPsetIsGE, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Cdouble, Cdouble),
+        set,
+        val1,
+        val2,
+    )
+end
+
+function SCIPsetIsInfinity(set, val)
+    ccall(
+        (:SCIPsetIsInfinity, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Cdouble),
+        set,
+        val,
+    )
+end
+
+function SCIPsetIsHugeValue(set, val)
+    ccall(
+        (:SCIPsetIsHugeValue, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Cdouble),
+        set,
+        val,
+    )
+end
+
+function SCIPsetIsZero(set, val)
+    ccall((:SCIPsetIsZero, libscip), Cuint, (Ptr{SCIP_SET}, Cdouble), set, val)
+end
+
+function SCIPsetIsPositive(set, val)
+    ccall(
+        (:SCIPsetIsPositive, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Cdouble),
+        set,
+        val,
+    )
+end
+
+function SCIPsetIsNegative(set, val)
+    ccall(
+        (:SCIPsetIsNegative, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Cdouble),
+        set,
+        val,
+    )
+end
+
+function SCIPsetIsIntegral(set, val)
+    ccall(
+        (:SCIPsetIsIntegral, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Cdouble),
+        set,
+        val,
+    )
+end
+
+function SCIPsetIsScalingIntegral(set, val, scalar)
+    ccall(
+        (:SCIPsetIsScalingIntegral, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Cdouble, Cdouble),
+        set,
+        val,
+        scalar,
+    )
+end
+
+function SCIPsetIsFracIntegral(set, val)
+    ccall(
+        (:SCIPsetIsFracIntegral, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Cdouble),
+        set,
+        val,
+    )
+end
+
+function SCIPsetFloor(set, val)
+    ccall((:SCIPsetFloor, libscip), Cdouble, (Ptr{SCIP_SET}, Cdouble), set, val)
+end
+
+function SCIPsetCeil(set, val)
+    ccall((:SCIPsetCeil, libscip), Cdouble, (Ptr{SCIP_SET}, Cdouble), set, val)
+end
+
+function SCIPsetRound(set, val)
+    ccall((:SCIPsetRound, libscip), Cdouble, (Ptr{SCIP_SET}, Cdouble), set, val)
+end
+
+function SCIPsetFrac(set, val)
+    ccall((:SCIPsetFrac, libscip), Cdouble, (Ptr{SCIP_SET}, Cdouble), set, val)
+end
+
+function SCIPsetIsSumEQ(set, val1, val2)
+    ccall(
+        (:SCIPsetIsSumEQ, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Cdouble, Cdouble),
+        set,
+        val1,
+        val2,
+    )
+end
+
+function SCIPsetIsSumLT(set, val1, val2)
+    ccall(
+        (:SCIPsetIsSumLT, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Cdouble, Cdouble),
+        set,
+        val1,
+        val2,
+    )
+end
+
+function SCIPsetIsSumLE(set, val1, val2)
+    ccall(
+        (:SCIPsetIsSumLE, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Cdouble, Cdouble),
+        set,
+        val1,
+        val2,
+    )
+end
+
+function SCIPsetIsSumGT(set, val1, val2)
+    ccall(
+        (:SCIPsetIsSumGT, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Cdouble, Cdouble),
+        set,
+        val1,
+        val2,
+    )
+end
+
+function SCIPsetIsSumGE(set, val1, val2)
+    ccall(
+        (:SCIPsetIsSumGE, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Cdouble, Cdouble),
+        set,
+        val1,
+        val2,
+    )
+end
+
+function SCIPsetIsSumZero(set, val)
+    ccall(
+        (:SCIPsetIsSumZero, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Cdouble),
+        set,
+        val,
+    )
+end
+
+function SCIPsetIsSumPositive(set, val)
+    ccall(
+        (:SCIPsetIsSumPositive, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Cdouble),
+        set,
+        val,
+    )
+end
+
+function SCIPsetIsSumNegative(set, val)
+    ccall(
+        (:SCIPsetIsSumNegative, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Cdouble),
+        set,
+        val,
+    )
+end
+
+function SCIPsetSumFloor(set, val)
+    ccall(
+        (:SCIPsetSumFloor, libscip),
+        Cdouble,
+        (Ptr{SCIP_SET}, Cdouble),
+        set,
+        val,
+    )
+end
+
+function SCIPsetSumCeil(set, val)
+    ccall(
+        (:SCIPsetSumCeil, libscip),
+        Cdouble,
+        (Ptr{SCIP_SET}, Cdouble),
+        set,
+        val,
+    )
+end
+
+function SCIPsetSumRound(set, val)
+    ccall(
+        (:SCIPsetSumRound, libscip),
+        Cdouble,
+        (Ptr{SCIP_SET}, Cdouble),
+        set,
+        val,
+    )
+end
+
+function SCIPsetSumFrac(set, val)
+    ccall(
+        (:SCIPsetSumFrac, libscip),
+        Cdouble,
+        (Ptr{SCIP_SET}, Cdouble),
+        set,
+        val,
+    )
+end
+
+function SCIPsetIsFeasEQ(set, val1, val2)
+    ccall(
+        (:SCIPsetIsFeasEQ, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Cdouble, Cdouble),
+        set,
+        val1,
+        val2,
+    )
+end
+
+function SCIPsetIsFeasLT(set, val1, val2)
+    ccall(
+        (:SCIPsetIsFeasLT, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Cdouble, Cdouble),
+        set,
+        val1,
+        val2,
+    )
+end
+
+function SCIPsetIsFeasLE(set, val1, val2)
+    ccall(
+        (:SCIPsetIsFeasLE, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Cdouble, Cdouble),
+        set,
+        val1,
+        val2,
+    )
+end
+
+function SCIPsetIsFeasGT(set, val1, val2)
+    ccall(
+        (:SCIPsetIsFeasGT, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Cdouble, Cdouble),
+        set,
+        val1,
+        val2,
+    )
+end
+
+function SCIPsetIsFeasGE(set, val1, val2)
+    ccall(
+        (:SCIPsetIsFeasGE, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Cdouble, Cdouble),
+        set,
+        val1,
+        val2,
+    )
+end
+
+function SCIPsetIsFeasZero(set, val)
+    ccall(
+        (:SCIPsetIsFeasZero, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Cdouble),
+        set,
+        val,
+    )
+end
+
+function SCIPsetIsFeasPositive(set, val)
+    ccall(
+        (:SCIPsetIsFeasPositive, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Cdouble),
+        set,
+        val,
+    )
+end
+
+function SCIPsetIsFeasNegative(set, val)
+    ccall(
+        (:SCIPsetIsFeasNegative, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Cdouble),
+        set,
+        val,
+    )
+end
+
+function SCIPsetIsFeasIntegral(set, val)
+    ccall(
+        (:SCIPsetIsFeasIntegral, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Cdouble),
+        set,
+        val,
+    )
+end
+
+function SCIPsetIsFeasFracIntegral(set, val)
+    ccall(
+        (:SCIPsetIsFeasFracIntegral, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Cdouble),
+        set,
+        val,
+    )
+end
+
+function SCIPsetFeasFloor(set, val)
+    ccall(
+        (:SCIPsetFeasFloor, libscip),
+        Cdouble,
+        (Ptr{SCIP_SET}, Cdouble),
+        set,
+        val,
+    )
+end
+
+function SCIPsetFeasCeil(set, val)
+    ccall(
+        (:SCIPsetFeasCeil, libscip),
+        Cdouble,
+        (Ptr{SCIP_SET}, Cdouble),
+        set,
+        val,
+    )
+end
+
+function SCIPsetFeasRound(set, val)
+    ccall(
+        (:SCIPsetFeasRound, libscip),
+        Cdouble,
+        (Ptr{SCIP_SET}, Cdouble),
+        set,
+        val,
+    )
+end
+
+function SCIPsetFeasFrac(set, val)
+    ccall(
+        (:SCIPsetFeasFrac, libscip),
+        Cdouble,
+        (Ptr{SCIP_SET}, Cdouble),
+        set,
+        val,
+    )
+end
+
+function SCIPsetIsDualfeasEQ(set, val1, val2)
+    ccall(
+        (:SCIPsetIsDualfeasEQ, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Cdouble, Cdouble),
+        set,
+        val1,
+        val2,
+    )
+end
+
+function SCIPsetIsDualfeasLT(set, val1, val2)
+    ccall(
+        (:SCIPsetIsDualfeasLT, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Cdouble, Cdouble),
+        set,
+        val1,
+        val2,
+    )
+end
+
+function SCIPsetIsDualfeasLE(set, val1, val2)
+    ccall(
+        (:SCIPsetIsDualfeasLE, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Cdouble, Cdouble),
+        set,
+        val1,
+        val2,
+    )
+end
+
+function SCIPsetIsDualfeasGT(set, val1, val2)
+    ccall(
+        (:SCIPsetIsDualfeasGT, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Cdouble, Cdouble),
+        set,
+        val1,
+        val2,
+    )
+end
+
+function SCIPsetIsDualfeasGE(set, val1, val2)
+    ccall(
+        (:SCIPsetIsDualfeasGE, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Cdouble, Cdouble),
+        set,
+        val1,
+        val2,
+    )
+end
+
+function SCIPsetIsDualfeasZero(set, val)
+    ccall(
+        (:SCIPsetIsDualfeasZero, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Cdouble),
+        set,
+        val,
+    )
+end
+
+function SCIPsetIsDualfeasPositive(set, val)
+    ccall(
+        (:SCIPsetIsDualfeasPositive, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Cdouble),
+        set,
+        val,
+    )
+end
+
+function SCIPsetIsDualfeasNegative(set, val)
+    ccall(
+        (:SCIPsetIsDualfeasNegative, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Cdouble),
+        set,
+        val,
+    )
+end
+
+function SCIPsetIsDualfeasIntegral(set, val)
+    ccall(
+        (:SCIPsetIsDualfeasIntegral, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Cdouble),
+        set,
+        val,
+    )
+end
+
+function SCIPsetIsDualfeasFracIntegral(set, val)
+    ccall(
+        (:SCIPsetIsDualfeasFracIntegral, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Cdouble),
+        set,
+        val,
+    )
+end
+
+function SCIPsetDualfeasFloor(set, val)
+    ccall(
+        (:SCIPsetDualfeasFloor, libscip),
+        Cdouble,
+        (Ptr{SCIP_SET}, Cdouble),
+        set,
+        val,
+    )
+end
+
+function SCIPsetDualfeasCeil(set, val)
+    ccall(
+        (:SCIPsetDualfeasCeil, libscip),
+        Cdouble,
+        (Ptr{SCIP_SET}, Cdouble),
+        set,
+        val,
+    )
+end
+
+function SCIPsetDualfeasRound(set, val)
+    ccall(
+        (:SCIPsetDualfeasRound, libscip),
+        Cdouble,
+        (Ptr{SCIP_SET}, Cdouble),
+        set,
+        val,
+    )
+end
+
+function SCIPsetDualfeasFrac(set, val)
+    ccall(
+        (:SCIPsetDualfeasFrac, libscip),
+        Cdouble,
+        (Ptr{SCIP_SET}, Cdouble),
+        set,
+        val,
+    )
+end
+
+function SCIPsetIsLbBetter(set, newlb, oldlb, oldub)
+    ccall(
+        (:SCIPsetIsLbBetter, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Cdouble, Cdouble, Cdouble),
+        set,
+        newlb,
+        oldlb,
+        oldub,
+    )
+end
+
+function SCIPsetIsUbBetter(set, newub, oldlb, oldub)
+    ccall(
+        (:SCIPsetIsUbBetter, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Cdouble, Cdouble, Cdouble),
+        set,
+        newub,
+        oldlb,
+        oldub,
+    )
+end
+
+function SCIPsetIsEfficacious(set, root, efficacy)
+    ccall(
+        (:SCIPsetIsEfficacious, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Cuint, Cdouble),
+        set,
+        root,
+        efficacy,
+    )
+end
+
+function SCIPsetIsRelEQ(set, val1, val2)
+    ccall(
+        (:SCIPsetIsRelEQ, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Cdouble, Cdouble),
+        set,
+        val1,
+        val2,
+    )
+end
+
+function SCIPsetIsRelLT(set, val1, val2)
+    ccall(
+        (:SCIPsetIsRelLT, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Cdouble, Cdouble),
+        set,
+        val1,
+        val2,
+    )
+end
+
+function SCIPsetIsRelLE(set, val1, val2)
+    ccall(
+        (:SCIPsetIsRelLE, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Cdouble, Cdouble),
+        set,
+        val1,
+        val2,
+    )
+end
+
+function SCIPsetIsRelGT(set, val1, val2)
+    ccall(
+        (:SCIPsetIsRelGT, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Cdouble, Cdouble),
+        set,
+        val1,
+        val2,
+    )
+end
+
+function SCIPsetIsRelGE(set, val1, val2)
+    ccall(
+        (:SCIPsetIsRelGE, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Cdouble, Cdouble),
+        set,
+        val1,
+        val2,
+    )
+end
+
+function SCIPsetIsSumRelEQ(set, val1, val2)
+    ccall(
+        (:SCIPsetIsSumRelEQ, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Cdouble, Cdouble),
+        set,
+        val1,
+        val2,
+    )
+end
+
+function SCIPsetIsSumRelLT(set, val1, val2)
+    ccall(
+        (:SCIPsetIsSumRelLT, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Cdouble, Cdouble),
+        set,
+        val1,
+        val2,
+    )
+end
+
+function SCIPsetIsSumRelLE(set, val1, val2)
+    ccall(
+        (:SCIPsetIsSumRelLE, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Cdouble, Cdouble),
+        set,
+        val1,
+        val2,
+    )
+end
+
+function SCIPsetIsSumRelGT(set, val1, val2)
+    ccall(
+        (:SCIPsetIsSumRelGT, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Cdouble, Cdouble),
+        set,
+        val1,
+        val2,
+    )
+end
+
+function SCIPsetIsSumRelGE(set, val1, val2)
+    ccall(
+        (:SCIPsetIsSumRelGE, libscip),
+        Cuint,
+        (Ptr{SCIP_SET}, Cdouble, Cdouble),
+        set,
+        val1,
+        val2,
+    )
+end
+
+function SCIPsetGetSubscipsOff(set)
+    ccall((:SCIPsetGetSubscipsOff, libscip), Cuint, (Ptr{SCIP_SET},), set)
+end
+
+function SCIPsolCreate(sol, blkmem, set, stat, primal, tree, heur)
+    ccall(
+        (:SCIPsolCreate, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{Ptr{SCIP_SOL}},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_PRIMAL},
+            Ptr{SCIP_TREE},
+            Ptr{SCIP_HEUR},
+        ),
+        sol,
+        blkmem,
+        set,
+        stat,
+        primal,
+        tree,
+        heur,
+    )
+end
+
+function SCIPsolCreateExact(sol, blkmem, set, stat, primal, tree, heur)
+    ccall(
+        (:SCIPsolCreateExact, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{Ptr{SCIP_SOL}},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_PRIMAL},
+            Ptr{SCIP_TREE},
+            Ptr{SCIP_HEUR},
+        ),
+        sol,
+        blkmem,
+        set,
+        stat,
+        primal,
+        tree,
+        heur,
+    )
+end
+
+function SCIPsolCreateOriginal(
+    sol,
+    blkmem,
+    set,
+    stat,
+    origprob,
+    primal,
+    tree,
+    heur,
+)
+    ccall(
+        (:SCIPsolCreateOriginal, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{Ptr{SCIP_SOL}},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_PRIMAL},
+            Ptr{SCIP_TREE},
+            Ptr{SCIP_HEUR},
+        ),
+        sol,
+        blkmem,
+        set,
+        stat,
+        origprob,
+        primal,
+        tree,
+        heur,
+    )
+end
+
+function SCIPsolCreateOriginalExact(
+    sol,
+    blkmem,
+    set,
+    stat,
+    origprob,
+    primal,
+    tree,
+    heur,
+)
+    ccall(
+        (:SCIPsolCreateOriginalExact, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{Ptr{SCIP_SOL}},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_PRIMAL},
+            Ptr{SCIP_TREE},
+            Ptr{SCIP_HEUR},
+        ),
+        sol,
+        blkmem,
+        set,
+        stat,
+        origprob,
+        primal,
+        tree,
+        heur,
+    )
+end
+
+function SCIPsolCopy(sol, blkmem, set, stat, primal, sourcesol)
+    ccall(
+        (:SCIPsolCopy, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{Ptr{SCIP_SOL}},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_PRIMAL},
+            Ptr{SCIP_SOL},
+        ),
+        sol,
+        blkmem,
+        set,
+        stat,
+        primal,
+        sourcesol,
+    )
+end
+
+function SCIPsolTransform(sol, transsol, blkmem, set, primal)
+    ccall(
+        (:SCIPsolTransform, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_SOL},
+            Ptr{Ptr{SCIP_SOL}},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_PRIMAL},
+        ),
+        sol,
+        transsol,
+        blkmem,
+        set,
+        primal,
+    )
+end
+
+function SCIPsolAdjustImplicitSolVals(sol, set, stat, prob, tree, uselprows)
+    ccall(
+        (:SCIPsolAdjustImplicitSolVals, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_SOL},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_TREE},
+            Cuint,
+        ),
+        sol,
+        set,
+        stat,
+        prob,
+        tree,
+        uselprows,
+    )
+end
+
+function SCIPsolCreateLPSol(
+    sol,
+    blkmem,
+    set,
+    stat,
+    prob,
+    primal,
+    tree,
+    lp,
+    heur,
+)
+    ccall(
+        (:SCIPsolCreateLPSol, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{Ptr{SCIP_SOL}},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_PRIMAL},
+            Ptr{SCIP_TREE},
+            Ptr{SCIP_LP},
+            Ptr{SCIP_HEUR},
+        ),
+        sol,
+        blkmem,
+        set,
+        stat,
+        prob,
+        primal,
+        tree,
+        lp,
+        heur,
+    )
+end
+
+function SCIPsolCreateLPSolExact(sol, blkmem, set, stat, primal, tree, lp, heur)
+    ccall(
+        (:SCIPsolCreateLPSolExact, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{Ptr{SCIP_SOL}},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_PRIMAL},
+            Ptr{SCIP_TREE},
+            Ptr{SCIP_LPEXACT},
+            Ptr{SCIP_HEUR},
+        ),
+        sol,
+        blkmem,
+        set,
+        stat,
+        primal,
+        tree,
+        lp,
+        heur,
+    )
+end
+
+function SCIPsolCreateNLPSol(sol, blkmem, set, stat, primal, tree, nlp, heur)
+    ccall(
+        (:SCIPsolCreateNLPSol, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{Ptr{SCIP_SOL}},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_PRIMAL},
+            Ptr{SCIP_TREE},
+            Ptr{SCIP_NLP},
+            Ptr{SCIP_HEUR},
+        ),
+        sol,
+        blkmem,
+        set,
+        stat,
+        primal,
+        tree,
+        nlp,
+        heur,
+    )
+end
+
+function SCIPsolCreateRelaxSol(
+    sol,
+    blkmem,
+    set,
+    stat,
+    primal,
+    tree,
+    relaxation,
+    heur,
+)
+    ccall(
+        (:SCIPsolCreateRelaxSol, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{Ptr{SCIP_SOL}},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_PRIMAL},
+            Ptr{SCIP_TREE},
+            Ptr{SCIP_RELAXATION},
+            Ptr{SCIP_HEUR},
+        ),
+        sol,
+        blkmem,
+        set,
+        stat,
+        primal,
+        tree,
+        relaxation,
+        heur,
+    )
+end
+
+function SCIPsolCreatePseudoSol(
+    sol,
+    blkmem,
+    set,
+    stat,
+    prob,
+    primal,
+    tree,
+    lp,
+    heur,
+)
+    ccall(
+        (:SCIPsolCreatePseudoSol, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{Ptr{SCIP_SOL}},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_PRIMAL},
+            Ptr{SCIP_TREE},
+            Ptr{SCIP_LP},
+            Ptr{SCIP_HEUR},
+        ),
+        sol,
+        blkmem,
+        set,
+        stat,
+        prob,
+        primal,
+        tree,
+        lp,
+        heur,
+    )
+end
+
+function SCIPsolCreatePseudoSolExact(
+    sol,
+    blkmem,
+    set,
+    stat,
+    primal,
+    tree,
+    lp,
+    heur,
+)
+    ccall(
+        (:SCIPsolCreatePseudoSolExact, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{Ptr{SCIP_SOL}},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_PRIMAL},
+            Ptr{SCIP_TREE},
+            Ptr{SCIP_LPEXACT},
+            Ptr{SCIP_HEUR},
+        ),
+        sol,
+        blkmem,
+        set,
+        stat,
+        primal,
+        tree,
+        lp,
+        heur,
+    )
+end
+
+function SCIPsolCreateCurrentSol(
+    sol,
+    blkmem,
+    set,
+    stat,
+    prob,
+    primal,
+    tree,
+    lp,
+    heur,
+)
+    ccall(
+        (:SCIPsolCreateCurrentSol, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{Ptr{SCIP_SOL}},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_PRIMAL},
+            Ptr{SCIP_TREE},
+            Ptr{SCIP_LP},
+            Ptr{SCIP_HEUR},
+        ),
+        sol,
+        blkmem,
+        set,
+        stat,
+        prob,
+        primal,
+        tree,
+        lp,
+        heur,
+    )
+end
+
+function SCIPsolCreateCurrentSolExact(
+    sol,
+    blkmem,
+    set,
+    stat,
+    primal,
+    tree,
+    lp,
+    heur,
+)
+    ccall(
+        (:SCIPsolCreateCurrentSolExact, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{Ptr{SCIP_SOL}},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_PRIMAL},
+            Ptr{SCIP_TREE},
+            Ptr{SCIP_LPEXACT},
+            Ptr{SCIP_HEUR},
+        ),
+        sol,
+        blkmem,
+        set,
+        stat,
+        primal,
+        tree,
+        lp,
+        heur,
+    )
+end
+
+function SCIPsolCreatePartial(sol, blkmem, set, stat, primal, heur)
+    ccall(
+        (:SCIPsolCreatePartial, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{Ptr{SCIP_SOL}},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_PRIMAL},
+            Ptr{SCIP_HEUR},
+        ),
+        sol,
+        blkmem,
+        set,
+        stat,
+        primal,
+        heur,
+    )
+end
+
+function SCIPsolCreateUnknown(sol, blkmem, set, stat, primal, tree, heur)
+    ccall(
+        (:SCIPsolCreateUnknown, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{Ptr{SCIP_SOL}},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_PRIMAL},
+            Ptr{SCIP_TREE},
+            Ptr{SCIP_HEUR},
+        ),
+        sol,
+        blkmem,
+        set,
+        stat,
+        primal,
+        tree,
+        heur,
+    )
+end
+
+function SCIPsolFree(sol, blkmem, primal)
+    ccall(
+        (:SCIPsolFree, libscip),
+        SCIP_RETCODE,
+        (Ptr{Ptr{SCIP_SOL}}, Ptr{BMS_BLKMEM}, Ptr{SCIP_PRIMAL}),
+        sol,
+        blkmem,
+        primal,
+    )
+end
+
+function SCIPsolLinkLPSol(sol, set, stat, prob, tree, lp)
+    ccall(
+        (:SCIPsolLinkLPSol, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_SOL},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_TREE},
+            Ptr{SCIP_LP},
+        ),
+        sol,
+        set,
+        stat,
+        prob,
+        tree,
+        lp,
+    )
+end
+
+function SCIPsolLinkLPSolExact(sol, set, lp)
+    ccall(
+        (:SCIPsolLinkLPSolExact, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SOL}, Ptr{SCIP_SET}, Ptr{SCIP_LPEXACT}),
+        sol,
+        set,
+        lp,
+    )
+end
+
+function SCIPsolLinkNLPSol(sol, stat, tree, nlp)
+    ccall(
+        (:SCIPsolLinkNLPSol, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SOL}, Ptr{SCIP_STAT}, Ptr{SCIP_TREE}, Ptr{SCIP_NLP}),
+        sol,
+        stat,
+        tree,
+        nlp,
+    )
+end
+
+function SCIPsolLinkRelaxSol(sol, set, stat, tree, relaxation)
+    ccall(
+        (:SCIPsolLinkRelaxSol, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_SOL},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_TREE},
+            Ptr{SCIP_RELAXATION},
+        ),
+        sol,
+        set,
+        stat,
+        tree,
+        relaxation,
+    )
+end
+
+function SCIPsolLinkPseudoSol(sol, set, stat, prob, tree, lp)
+    ccall(
+        (:SCIPsolLinkPseudoSol, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_SOL},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_TREE},
+            Ptr{SCIP_LP},
+        ),
+        sol,
+        set,
+        stat,
+        prob,
+        tree,
+        lp,
+    )
+end
+
+function SCIPsolLinkPseudoSolExact(sol, set, lp)
+    ccall(
+        (:SCIPsolLinkPseudoSolExact, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SOL}, Ptr{SCIP_SET}, Ptr{SCIP_LPEXACT}),
+        sol,
+        set,
+        lp,
+    )
+end
+
+function SCIPsolLinkCurrentSol(sol, set, stat, prob, tree, lp)
+    ccall(
+        (:SCIPsolLinkCurrentSol, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_SOL},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_TREE},
+            Ptr{SCIP_LP},
+        ),
+        sol,
+        set,
+        stat,
+        prob,
+        tree,
+        lp,
+    )
+end
+
+function SCIPsolClear(sol, stat, tree)
+    ccall(
+        (:SCIPsolClear, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SOL}, Ptr{SCIP_STAT}, Ptr{SCIP_TREE}),
+        sol,
+        stat,
+        tree,
+    )
+end
+
+function SCIPsolSetUnknown(sol, stat, tree)
+    ccall(
+        (:SCIPsolSetUnknown, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SOL}, Ptr{SCIP_STAT}, Ptr{SCIP_TREE}),
+        sol,
+        stat,
+        tree,
+    )
+end
+
+function SCIPsolUnlink(sol, set, prob)
+    ccall(
+        (:SCIPsolUnlink, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SOL}, Ptr{SCIP_SET}, Ptr{SCIP_PROB}),
+        sol,
+        set,
+        prob,
+    )
+end
+
+function SCIPsolUnlinkExact(sol, set, prob)
+    ccall(
+        (:SCIPsolUnlinkExact, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_SOL}, Ptr{SCIP_SET}, Ptr{SCIP_PROB}),
+        sol,
+        set,
+        prob,
+    )
+end
+
+function SCIPsolSetVal(sol, set, stat, tree, var, val)
+    ccall(
+        (:SCIPsolSetVal, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_SOL},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_TREE},
+            Ptr{SCIP_VAR},
+            Cdouble,
+        ),
+        sol,
+        set,
+        stat,
+        tree,
+        var,
+        val,
+    )
+end
+
+function SCIPsolSetValExact(sol, set, stat, tree, var, val)
+    ccall(
+        (:SCIPsolSetValExact, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_SOL},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_TREE},
+            Ptr{SCIP_VAR},
+            Ptr{SCIP_RATIONAL},
+        ),
+        sol,
+        set,
+        stat,
+        tree,
+        var,
+        val,
+    )
+end
+
+function SCIPsolIncVal(sol, set, stat, tree, var, incval)
+    ccall(
+        (:SCIPsolIncVal, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_SOL},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_TREE},
+            Ptr{SCIP_VAR},
+            Cdouble,
+        ),
+        sol,
+        set,
+        stat,
+        tree,
+        var,
+        incval,
+    )
+end
+
+function SCIPsolGetVal(sol, set, stat, var)
+    ccall(
+        (:SCIPsolGetVal, libscip),
+        Cdouble,
+        (Ptr{SCIP_SOL}, Ptr{SCIP_SET}, Ptr{SCIP_STAT}, Ptr{SCIP_VAR}),
+        sol,
+        set,
+        stat,
+        var,
+    )
+end
+
+function SCIPsolGetValExact(res, sol, set, stat, var)
+    ccall(
+        (:SCIPsolGetValExact, libscip),
+        Cvoid,
+        (
+            Ptr{SCIP_RATIONAL},
+            Ptr{SCIP_SOL},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_VAR},
+        ),
+        res,
+        sol,
+        set,
+        stat,
+        var,
+    )
+end
+
+function SCIPsolGetRayVal(sol, set, stat, var)
+    ccall(
+        (:SCIPsolGetRayVal, libscip),
+        Cdouble,
+        (Ptr{SCIP_SOL}, Ptr{SCIP_SET}, Ptr{SCIP_STAT}, Ptr{SCIP_VAR}),
+        sol,
+        set,
+        stat,
+        var,
+    )
+end
+
+function SCIPsolGetObj(sol, set, transprob, origprob)
+    ccall(
+        (:SCIPsolGetObj, libscip),
+        Cdouble,
+        (Ptr{SCIP_SOL}, Ptr{SCIP_SET}, Ptr{SCIP_PROB}, Ptr{SCIP_PROB}),
+        sol,
+        set,
+        transprob,
+        origprob,
+    )
+end
+
+function SCIPsolGetObjExact(sol, set, transprob, origprob, objval)
+    ccall(
+        (:SCIPsolGetObjExact, libscip),
+        Cvoid,
+        (
+            Ptr{SCIP_SOL},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_RATIONAL},
+        ),
+        sol,
+        set,
+        transprob,
+        origprob,
+        objval,
+    )
+end
+
+function SCIPsolUpdateVarObj(sol, var, oldobj, newobj)
+    ccall(
+        (:SCIPsolUpdateVarObj, libscip),
+        Cvoid,
+        (Ptr{SCIP_SOL}, Ptr{SCIP_VAR}, Cdouble, Cdouble),
+        sol,
+        var,
+        oldobj,
+        newobj,
+    )
+end
+
+function SCIPsolMarkPartial(sol, set, stat, vars, nvars)
+    ccall(
+        (:SCIPsolMarkPartial, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_SOL},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{Ptr{SCIP_VAR}},
+            Cint,
+        ),
+        sol,
+        set,
+        stat,
+        vars,
+        nvars,
+    )
+end
+
+function SCIPsolCheckOrig(
+    sol,
+    set,
+    messagehdlr,
+    blkmem,
+    stat,
+    prob,
+    primal,
+    printreason,
+    completely,
+    checkbounds,
+    checkintegrality,
+    checklprows,
+    checkmodifiable,
+    feasible,
+)
+    ccall(
+        (:SCIPsolCheckOrig, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_SOL},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_MESSAGEHDLR},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_PRIMAL},
+            Cuint,
+            Cuint,
+            Cuint,
+            Cuint,
+            Cuint,
+            Cuint,
+            Ptr{Cuint},
+        ),
+        sol,
+        set,
+        messagehdlr,
+        blkmem,
+        stat,
+        prob,
+        primal,
+        printreason,
+        completely,
+        checkbounds,
+        checkintegrality,
+        checklprows,
+        checkmodifiable,
+        feasible,
+    )
+end
+
+function SCIPsolCheck(
+    sol,
+    set,
+    messagehdlr,
+    blkmem,
+    stat,
+    prob,
+    printreason,
+    completely,
+    checkbounds,
+    checkintegrality,
+    checklprows,
+    feasible,
+)
+    ccall(
+        (:SCIPsolCheck, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_SOL},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_MESSAGEHDLR},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_PROB},
+            Cuint,
+            Cuint,
+            Cuint,
+            Cuint,
+            Cuint,
+            Ptr{Cuint},
+        ),
+        sol,
+        set,
+        messagehdlr,
+        blkmem,
+        stat,
+        prob,
+        printreason,
+        completely,
+        checkbounds,
+        checkintegrality,
+        checklprows,
+        feasible,
+    )
+end
+
+function SCIPsolRound(sol, set, stat, prob, tree, success)
+    ccall(
+        (:SCIPsolRound, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_SOL},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_TREE},
+            Ptr{Cuint},
+        ),
+        sol,
+        set,
+        stat,
+        prob,
+        tree,
+        success,
+    )
+end
+
+function SCIPsolMakeExact(sol, blkmem, set, stat, prob)
+    ccall(
+        (:SCIPsolMakeExact, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_SOL},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_PROB},
+        ),
+        sol,
+        blkmem,
+        set,
+        stat,
+        prob,
+    )
+end
+
+function SCIPsolMakeReal(sol, blkmem, set, stat, prob)
+    ccall(
+        (:SCIPsolMakeReal, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_SOL},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_PROB},
+        ),
+        sol,
+        blkmem,
+        set,
+        stat,
+        prob,
+    )
+end
+
+function SCIPsolUpdateVarsum(sol, set, stat, prob, weight)
+    ccall(
+        (:SCIPsolUpdateVarsum, libscip),
+        Cvoid,
+        (Ptr{SCIP_SOL}, Ptr{SCIP_SET}, Ptr{SCIP_STAT}, Ptr{SCIP_PROB}, Cdouble),
+        sol,
+        set,
+        stat,
+        prob,
+        weight,
+    )
+end
+
+function SCIPsolRetransform(sol, set, stat, origprob, transprob, hasinfval)
+    ccall(
+        (:SCIPsolRetransform, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_SOL},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_PROB},
+            Ptr{Cuint},
+        ),
+        sol,
+        set,
+        stat,
+        origprob,
+        transprob,
+        hasinfval,
+    )
+end
+
+function SCIPsolRetransformExact(sol, set, stat, origprob, transprob, hasinfval)
+    ccall(
+        (:SCIPsolRetransformExact, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_SOL},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_PROB},
+            Ptr{Cuint},
+        ),
+        sol,
+        set,
+        stat,
+        origprob,
+        transprob,
+        hasinfval,
+    )
+end
+
+function SCIPsolRecomputeObj(sol, set, stat, origprob)
+    ccall(
+        (:SCIPsolRecomputeObj, libscip),
+        Cvoid,
+        (Ptr{SCIP_SOL}, Ptr{SCIP_SET}, Ptr{SCIP_STAT}, Ptr{SCIP_PROB}),
+        sol,
+        set,
+        stat,
+        origprob,
+    )
+end
+
+function SCIPsolRecomputeInternObjExact(sol, set, stat, prob)
+    ccall(
+        (:SCIPsolRecomputeInternObjExact, libscip),
+        Cvoid,
+        (Ptr{SCIP_SOL}, Ptr{SCIP_SET}, Ptr{SCIP_STAT}, Ptr{SCIP_PROB}),
+        sol,
+        set,
+        stat,
+        prob,
+    )
+end
+
+function SCIPsolsAreEqual(sol1, sol2, set, stat, origprob, transprob)
+    ccall(
+        (:SCIPsolsAreEqual, libscip),
+        Cuint,
+        (
+            Ptr{SCIP_SOL},
+            Ptr{SCIP_SOL},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_PROB},
+        ),
+        sol1,
+        sol2,
+        set,
+        stat,
+        origprob,
+        transprob,
+    )
+end
+
+function SCIPsolPrint(
+    sol,
+    set,
+    messagehdlr,
+    stat,
+    prob,
+    transprob,
+    file,
+    mipstart,
+    printzeros,
+)
+    ccall(
+        (:SCIPsolPrint, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_SOL},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_MESSAGEHDLR},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_PROB},
+            Ptr{Libc.FILE},
+            Cuint,
+            Cuint,
+        ),
+        sol,
+        set,
+        messagehdlr,
+        stat,
+        prob,
+        transprob,
+        file,
+        mipstart,
+        printzeros,
+    )
+end
+
+function SCIPsolPrintExact(
+    sol,
+    set,
+    messagehdlr,
+    stat,
+    prob,
+    transprob,
+    file,
+    mipstart,
+    printzeros,
+)
+    ccall(
+        (:SCIPsolPrintExact, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_SOL},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_MESSAGEHDLR},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_PROB},
+            Ptr{Libc.FILE},
+            Cuint,
+            Cuint,
+        ),
+        sol,
+        set,
+        messagehdlr,
+        stat,
+        prob,
+        transprob,
+        file,
+        mipstart,
+        printzeros,
+    )
+end
+
+function SCIPsolPrintRay(
+    sol,
+    set,
+    messagehdlr,
+    stat,
+    prob,
+    transprob,
+    file,
+    printzeros,
+)
+    ccall(
+        (:SCIPsolPrintRay, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_SOL},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_MESSAGEHDLR},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_PROB},
+            Ptr{Libc.FILE},
+            Cuint,
+        ),
+        sol,
+        set,
+        messagehdlr,
+        stat,
+        prob,
+        transprob,
+        file,
+        printzeros,
+    )
+end
+
+function SCIPsolSetOrigin(sol, origin)
+    ccall(
+        (:SCIPsolSetOrigin, libscip),
+        Cvoid,
+        (Ptr{SCIP_SOL}, SCIP_SOLORIGIN),
+        sol,
+        origin,
+    )
+end
+
+function SCIPsolResetViolations(sol)
+    ccall((:SCIPsolResetViolations, libscip), Cvoid, (Ptr{SCIP_SOL},), sol)
+end
+
+function SCIPsolUpdateIntegralityViolation(sol, absviolintegrality)
+    ccall(
+        (:SCIPsolUpdateIntegralityViolation, libscip),
+        Cvoid,
+        (Ptr{SCIP_SOL}, Cdouble),
+        sol,
+        absviolintegrality,
+    )
+end
+
+function SCIPsolUpdateBoundViolation(sol, absviolbounds, relviolbounds)
+    ccall(
+        (:SCIPsolUpdateBoundViolation, libscip),
+        Cvoid,
+        (Ptr{SCIP_SOL}, Cdouble, Cdouble),
+        sol,
+        absviolbounds,
+        relviolbounds,
+    )
+end
+
+function SCIPsolUpdateLPRowViolation(sol, absviollprows, relviollprows)
+    ccall(
+        (:SCIPsolUpdateLPRowViolation, libscip),
+        Cvoid,
+        (Ptr{SCIP_SOL}, Cdouble, Cdouble),
+        sol,
+        absviollprows,
+        relviollprows,
+    )
+end
+
+function SCIPsolUpdateConsViolation(sol, absviolcons, relviolcons)
+    ccall(
+        (:SCIPsolUpdateConsViolation, libscip),
+        Cvoid,
+        (Ptr{SCIP_SOL}, Cdouble, Cdouble),
+        sol,
+        absviolcons,
+        relviolcons,
+    )
+end
+
+function SCIPsolUpdateLPConsViolation(sol, absviol, relviol)
+    ccall(
+        (:SCIPsolUpdateLPConsViolation, libscip),
+        Cvoid,
+        (Ptr{SCIP_SOL}, Cdouble, Cdouble),
+        sol,
+        absviol,
+        relviol,
+    )
+end
+
+function SCIPsolGetOrigObjExact(sol)
+    ccall(
+        (:SCIPsolGetOrigObjExact, libscip),
+        Ptr{SCIP_RATIONAL},
+        (Ptr{SCIP_SOL},),
+        sol,
+    )
+end
+
+function SCIPsolOverwriteFPSolWithExact(
+    sol,
+    set,
+    stat,
+    origprob,
+    transprob,
+    tree,
+)
+    ccall(
+        (:SCIPsolOverwriteFPSolWithExact, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_SOL},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_TREE},
+        ),
+        sol,
+        set,
+        stat,
+        origprob,
+        transprob,
+        tree,
+    )
+end
+
+function SCIPvalsExactCopy(valsexact, blkmem, sourcevals)
+    ccall(
+        (:SCIPvalsExactCopy, libscip),
+        SCIP_RETCODE,
+        (Ptr{Ptr{SCIP_VALSEXACT}}, Ptr{BMS_BLKMEM}, Ptr{SCIP_VALSEXACT}),
+        valsexact,
+        blkmem,
+        sourcevals,
+    )
+end
+
+function SCIPsolOrigAddObjval(sol, addval)
+    ccall(
+        (:SCIPsolOrigAddObjval, libscip),
+        Cvoid,
+        (Ptr{SCIP_SOL}, Cdouble),
+        sol,
+        addval,
+    )
+end
+
+function SCIPsolGetPrimalIndex(sol)
+    ccall((:SCIPsolGetPrimalIndex, libscip), Cint, (Ptr{SCIP_SOL},), sol)
+end
+
+function SCIPsolSetPrimalIndex(sol, primalindex)
+    ccall(
+        (:SCIPsolSetPrimalIndex, libscip),
+        Cvoid,
+        (Ptr{SCIP_SOL}, Cint),
+        sol,
+        primalindex,
+    )
+end
+
+function SCIPnodepqCreate(nodepq, set, nodesel)
+    ccall(
+        (:SCIPnodepqCreate, libscip),
+        SCIP_RETCODE,
+        (Ptr{Ptr{SCIP_NODEPQ}}, Ptr{SCIP_SET}, Ptr{SCIP_NODESEL}),
+        nodepq,
+        set,
+        nodesel,
+    )
+end
+
+function SCIPnodepqDestroy(nodepq)
+    ccall(
+        (:SCIPnodepqDestroy, libscip),
+        Cvoid,
+        (Ptr{Ptr{SCIP_NODEPQ}},),
+        nodepq,
+    )
+end
+
+function SCIPnodepqFree(
+    nodepq,
+    blkmem,
+    set,
+    stat,
+    eventqueue,
+    eventfilter,
+    tree,
+    lp,
+)
+    ccall(
+        (:SCIPnodepqFree, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{Ptr{SCIP_NODEPQ}},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_EVENTFILTER},
+            Ptr{SCIP_TREE},
+            Ptr{SCIP_LP},
+        ),
+        nodepq,
+        blkmem,
+        set,
+        stat,
+        eventqueue,
+        eventfilter,
+        tree,
+        lp,
+    )
+end
+
+function SCIPnodepqClear(
+    nodepq,
+    blkmem,
+    set,
+    stat,
+    eventqueue,
+    eventfilter,
+    tree,
+    lp,
+)
+    ccall(
+        (:SCIPnodepqClear, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_NODEPQ},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_EVENTFILTER},
+            Ptr{SCIP_TREE},
+            Ptr{SCIP_LP},
+        ),
+        nodepq,
+        blkmem,
+        set,
+        stat,
+        eventqueue,
+        eventfilter,
+        tree,
+        lp,
+    )
+end
+
+function SCIPnodepqGetNodesel(nodepq)
+    ccall(
+        (:SCIPnodepqGetNodesel, libscip),
+        Ptr{SCIP_NODESEL},
+        (Ptr{SCIP_NODEPQ},),
+        nodepq,
+    )
+end
+
+function SCIPnodepqSetNodesel(nodepq, set, nodesel)
+    ccall(
+        (:SCIPnodepqSetNodesel, libscip),
+        SCIP_RETCODE,
+        (Ptr{Ptr{SCIP_NODEPQ}}, Ptr{SCIP_SET}, Ptr{SCIP_NODESEL}),
+        nodepq,
+        set,
+        nodesel,
+    )
+end
+
+function SCIPnodepqCompare(nodepq, set, node1, node2)
+    ccall(
+        (:SCIPnodepqCompare, libscip),
+        Cint,
+        (Ptr{SCIP_NODEPQ}, Ptr{SCIP_SET}, Ptr{SCIP_NODE}, Ptr{SCIP_NODE}),
+        nodepq,
+        set,
+        node1,
+        node2,
+    )
+end
+
+function SCIPnodepqInsert(nodepq, set, node)
+    ccall(
+        (:SCIPnodepqInsert, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_NODEPQ}, Ptr{SCIP_SET}, Ptr{SCIP_NODE}),
+        nodepq,
+        set,
+        node,
+    )
+end
+
+function SCIPnodepqRemove(nodepq, set, node)
+    ccall(
+        (:SCIPnodepqRemove, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_NODEPQ}, Ptr{SCIP_SET}, Ptr{SCIP_NODE}),
+        nodepq,
+        set,
+        node,
+    )
+end
+
+function SCIPnodepqFirst(nodepq)
+    ccall(
+        (:SCIPnodepqFirst, libscip),
+        Ptr{SCIP_NODE},
+        (Ptr{SCIP_NODEPQ},),
+        nodepq,
+    )
+end
+
+function SCIPnodepqNodes(nodepq)
+    ccall(
+        (:SCIPnodepqNodes, libscip),
+        Ptr{Ptr{SCIP_NODE}},
+        (Ptr{SCIP_NODEPQ},),
+        nodepq,
+    )
+end
+
+function SCIPnodepqLen(nodepq)
+    ccall((:SCIPnodepqLen, libscip), Cint, (Ptr{SCIP_NODEPQ},), nodepq)
+end
+
+function SCIPnodepqGetLowerbound(nodepq, set)
+    ccall(
+        (:SCIPnodepqGetLowerbound, libscip),
+        Cdouble,
+        (Ptr{SCIP_NODEPQ}, Ptr{SCIP_SET}),
+        nodepq,
+        set,
+    )
+end
+
+function SCIPnodepqGetLowerboundExact(nodepq, set)
+    ccall(
+        (:SCIPnodepqGetLowerboundExact, libscip),
+        Ptr{SCIP_RATIONAL},
+        (Ptr{SCIP_NODEPQ}, Ptr{SCIP_SET}),
+        nodepq,
+        set,
+    )
+end
+
+function SCIPnodepqGetLowerboundNode(nodepq, set)
+    ccall(
+        (:SCIPnodepqGetLowerboundNode, libscip),
+        Ptr{SCIP_NODE},
+        (Ptr{SCIP_NODEPQ}, Ptr{SCIP_SET}),
+        nodepq,
+        set,
+    )
+end
+
+function SCIPnodepqGetLowerboundSum(nodepq)
+    ccall(
+        (:SCIPnodepqGetLowerboundSum, libscip),
+        Cdouble,
+        (Ptr{SCIP_NODEPQ},),
+        nodepq,
+    )
+end
+
+function SCIPnodepqBound(
+    nodepq,
+    blkmem,
+    set,
+    stat,
+    eventqueue,
+    eventfilter,
+    tree,
+    reopt,
+    lp,
+    cutoffbound,
+)
+    ccall(
+        (:SCIPnodepqBound, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_NODEPQ},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_EVENTFILTER},
+            Ptr{SCIP_TREE},
+            Ptr{SCIP_REOPT},
+            Ptr{SCIP_LP},
+            Cdouble,
+        ),
+        nodepq,
+        blkmem,
+        set,
+        stat,
+        eventqueue,
+        eventfilter,
+        tree,
+        reopt,
+        lp,
+        cutoffbound,
+    )
+end
+
+function SCIPnodeselCopyInclude(nodesel, set)
+    ccall(
+        (:SCIPnodeselCopyInclude, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_NODESEL}, Ptr{SCIP_SET}),
+        nodesel,
+        set,
+    )
+end
+
+function SCIPnodeselCreate(
+    nodesel,
+    set,
+    messagehdlr,
+    blkmem,
+    name,
+    desc,
+    stdpriority,
+    memsavepriority,
+    nodeselcopy,
+    nodeselfree,
+    nodeselinit,
+    nodeselexit,
+    nodeselinitsol,
+    nodeselexitsol,
+    nodeselselect,
+    nodeselcomp,
+    nodeseldata,
+)
+    ccall(
+        (:SCIPnodeselCreate, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{Ptr{SCIP_NODESEL}},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_MESSAGEHDLR},
+            Ptr{BMS_BLKMEM},
+            Ptr{Cchar},
+            Ptr{Cchar},
+            Cint,
+            Cint,
+            Ptr{Cvoid},
+            Ptr{Cvoid},
+            Ptr{Cvoid},
+            Ptr{Cvoid},
+            Ptr{Cvoid},
+            Ptr{Cvoid},
+            Ptr{Cvoid},
+            Ptr{Cvoid},
+            Ptr{SCIP_NODESELDATA},
+        ),
+        nodesel,
+        set,
+        messagehdlr,
+        blkmem,
+        name,
+        desc,
+        stdpriority,
+        memsavepriority,
+        nodeselcopy,
+        nodeselfree,
+        nodeselinit,
+        nodeselexit,
+        nodeselinitsol,
+        nodeselexitsol,
+        nodeselselect,
+        nodeselcomp,
+        nodeseldata,
+    )
+end
+
+function SCIPnodeselFree(nodesel, set)
+    ccall(
+        (:SCIPnodeselFree, libscip),
+        SCIP_RETCODE,
+        (Ptr{Ptr{SCIP_NODESEL}}, Ptr{SCIP_SET}),
+        nodesel,
+        set,
+    )
+end
+
+function SCIPnodeselInit(nodesel, set)
+    ccall(
+        (:SCIPnodeselInit, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_NODESEL}, Ptr{SCIP_SET}),
+        nodesel,
+        set,
+    )
+end
+
+function SCIPnodeselExit(nodesel, set)
+    ccall(
+        (:SCIPnodeselExit, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_NODESEL}, Ptr{SCIP_SET}),
+        nodesel,
+        set,
+    )
+end
+
+function SCIPnodeselInitsol(nodesel, set)
+    ccall(
+        (:SCIPnodeselInitsol, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_NODESEL}, Ptr{SCIP_SET}),
+        nodesel,
+        set,
+    )
+end
+
+function SCIPnodeselExitsol(nodesel, set)
+    ccall(
+        (:SCIPnodeselExitsol, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_NODESEL}, Ptr{SCIP_SET}),
+        nodesel,
+        set,
+    )
+end
+
+function SCIPnodeselSelect(nodesel, set, selnode)
+    ccall(
+        (:SCIPnodeselSelect, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_NODESEL}, Ptr{SCIP_SET}, Ptr{Ptr{SCIP_NODE}}),
+        nodesel,
+        set,
+        selnode,
+    )
+end
+
+function SCIPnodeselCompare(nodesel, set, node1, node2)
+    ccall(
+        (:SCIPnodeselCompare, libscip),
+        Cint,
+        (Ptr{SCIP_NODESEL}, Ptr{SCIP_SET}, Ptr{SCIP_NODE}, Ptr{SCIP_NODE}),
+        nodesel,
+        set,
+        node1,
+        node2,
+    )
+end
+
+function SCIPnodeselSetStdPriority(nodesel, set, priority)
+    ccall(
+        (:SCIPnodeselSetStdPriority, libscip),
+        Cvoid,
+        (Ptr{SCIP_NODESEL}, Ptr{SCIP_SET}, Cint),
+        nodesel,
+        set,
+        priority,
+    )
+end
+
+function SCIPnodeselSetMemsavePriority(nodesel, set, priority)
+    ccall(
+        (:SCIPnodeselSetMemsavePriority, libscip),
+        Cvoid,
+        (Ptr{SCIP_NODESEL}, Ptr{SCIP_SET}, Cint),
+        nodesel,
+        set,
+        priority,
+    )
+end
+
+function SCIPnodeselSetCopy(nodesel, nodeselcopy)
+    ccall(
+        (:SCIPnodeselSetCopy, libscip),
+        Cvoid,
+        (Ptr{SCIP_NODESEL}, Ptr{Cvoid}),
+        nodesel,
+        nodeselcopy,
+    )
+end
+
+function SCIPnodeselSetFree(nodesel, nodeselfree)
+    ccall(
+        (:SCIPnodeselSetFree, libscip),
+        Cvoid,
+        (Ptr{SCIP_NODESEL}, Ptr{Cvoid}),
+        nodesel,
+        nodeselfree,
+    )
+end
+
+function SCIPnodeselSetInit(nodesel, nodeselinit)
+    ccall(
+        (:SCIPnodeselSetInit, libscip),
+        Cvoid,
+        (Ptr{SCIP_NODESEL}, Ptr{Cvoid}),
+        nodesel,
+        nodeselinit,
+    )
+end
+
+function SCIPnodeselSetExit(nodesel, nodeselexit)
+    ccall(
+        (:SCIPnodeselSetExit, libscip),
+        Cvoid,
+        (Ptr{SCIP_NODESEL}, Ptr{Cvoid}),
+        nodesel,
+        nodeselexit,
+    )
+end
+
+function SCIPnodeselSetInitsol(nodesel, nodeselinitsol)
+    ccall(
+        (:SCIPnodeselSetInitsol, libscip),
+        Cvoid,
+        (Ptr{SCIP_NODESEL}, Ptr{Cvoid}),
+        nodesel,
+        nodeselinitsol,
+    )
+end
+
+function SCIPnodeselSetExitsol(nodesel, nodeselexitsol)
+    ccall(
+        (:SCIPnodeselSetExitsol, libscip),
+        Cvoid,
+        (Ptr{SCIP_NODESEL}, Ptr{Cvoid}),
+        nodesel,
+        nodeselexitsol,
+    )
+end
+
+function SCIPnodeselEnableOrDisableClocks(nodesel, enable)
+    ccall(
+        (:SCIPnodeselEnableOrDisableClocks, libscip),
+        Cvoid,
+        (Ptr{SCIP_NODESEL}, Cuint),
+        nodesel,
+        enable,
+    )
+end
+
+function SCIPnodeCreateChild(
+    node,
+    blkmem,
+    set,
+    stat,
+    tree,
+    nodeselprio,
+    estimate,
+)
+    ccall(
+        (:SCIPnodeCreateChild, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{Ptr{SCIP_NODE}},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_TREE},
+            Cdouble,
+            Cdouble,
+        ),
+        node,
+        blkmem,
+        set,
+        stat,
+        tree,
+        nodeselprio,
+        estimate,
+    )
+end
+
+function SCIPnodeFree(
+    node,
+    blkmem,
+    set,
+    stat,
+    eventqueue,
+    eventfilter,
+    tree,
+    lp,
+)
+    ccall(
+        (:SCIPnodeFree, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{Ptr{SCIP_NODE}},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_EVENTFILTER},
+            Ptr{SCIP_TREE},
+            Ptr{SCIP_LP},
+        ),
+        node,
+        blkmem,
+        set,
+        stat,
+        eventqueue,
+        eventfilter,
+        tree,
+        lp,
+    )
+end
+
+function SCIPnodeCaptureLPIState(node, nuses)
+    ccall(
+        (:SCIPnodeCaptureLPIState, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_NODE}, Cint),
+        node,
+        nuses,
+    )
+end
+
+function SCIPnodeReleaseLPIState(node, blkmem, lp)
+    ccall(
+        (:SCIPnodeReleaseLPIState, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_NODE}, Ptr{BMS_BLKMEM}, Ptr{SCIP_LP}),
+        node,
+        blkmem,
+        lp,
+    )
+end
+
+function SCIPnodeFocus(
+    node,
+    blkmem,
+    set,
+    messagehdlr,
+    stat,
+    transprob,
+    origprob,
+    primal,
+    tree,
+    reopt,
+    lp,
+    branchcand,
+    conflict,
+    conflictstore,
+    eventqueue,
+    eventfilter,
+    cliquetable,
+    cutoff,
+    postponed,
+    exitsolve,
+)
+    ccall(
+        (:SCIPnodeFocus, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{Ptr{SCIP_NODE}},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_MESSAGEHDLR},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_PRIMAL},
+            Ptr{SCIP_TREE},
+            Ptr{SCIP_REOPT},
+            Ptr{SCIP_LP},
+            Ptr{SCIP_BRANCHCAND},
+            Ptr{SCIP_CONFLICT},
+            Ptr{SCIP_CONFLICTSTORE},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_EVENTFILTER},
+            Ptr{SCIP_CLIQUETABLE},
+            Ptr{Cuint},
+            Cuint,
+            Cuint,
+        ),
+        node,
+        blkmem,
+        set,
+        messagehdlr,
+        stat,
+        transprob,
+        origprob,
+        primal,
+        tree,
+        reopt,
+        lp,
+        branchcand,
+        conflict,
+        conflictstore,
+        eventqueue,
+        eventfilter,
+        cliquetable,
+        cutoff,
+        postponed,
+        exitsolve,
+    )
+end
+
+function SCIPnodeCutoff(
+    node,
+    set,
+    stat,
+    eventfilter,
+    tree,
+    transprob,
+    origprob,
+    reopt,
+    lp,
+    blkmem,
+)
+    ccall(
+        (:SCIPnodeCutoff, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_NODE},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_EVENTFILTER},
+            Ptr{SCIP_TREE},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_REOPT},
+            Ptr{SCIP_LP},
+            Ptr{BMS_BLKMEM},
+        ),
+        node,
+        set,
+        stat,
+        eventfilter,
+        tree,
+        transprob,
+        origprob,
+        reopt,
+        lp,
+        blkmem,
+    )
+end
+
+function SCIPnodePropagateAgain(node, set, stat, tree)
+    ccall(
+        (:SCIPnodePropagateAgain, libscip),
+        Cvoid,
+        (Ptr{SCIP_NODE}, Ptr{SCIP_SET}, Ptr{SCIP_STAT}, Ptr{SCIP_TREE}),
+        node,
+        set,
+        stat,
+        tree,
+    )
+end
+
+function SCIPnodeMarkPropagated(node, tree)
+    ccall(
+        (:SCIPnodeMarkPropagated, libscip),
+        Cvoid,
+        (Ptr{SCIP_NODE}, Ptr{SCIP_TREE}),
+        node,
+        tree,
+    )
+end
+
+function SCIPnodeAddCons(node, blkmem, set, stat, tree, cons)
+    ccall(
+        (:SCIPnodeAddCons, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_NODE},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_TREE},
+            Ptr{SCIP_CONS},
+        ),
+        node,
+        blkmem,
+        set,
+        stat,
+        tree,
+        cons,
+    )
+end
+
+function SCIPnodeDelCons(node, blkmem, set, stat, tree, cons)
+    ccall(
+        (:SCIPnodeDelCons, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_NODE},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_TREE},
+            Ptr{SCIP_CONS},
+        ),
+        node,
+        blkmem,
+        set,
+        stat,
+        tree,
+        cons,
+    )
+end
+
+function SCIPnodeGetPropsBeforeDual(
+    node,
+    vars,
+    varbounds,
+    varboundtypes,
+    npropvars,
+    propvarssize,
+)
+    ccall(
+        (:SCIPnodeGetPropsBeforeDual, libscip),
+        Cvoid,
+        (
+            Ptr{SCIP_NODE},
+            Ptr{Ptr{SCIP_VAR}},
+            Ptr{Cdouble},
+            Ptr{SCIP_BOUNDTYPE},
+            Ptr{Cint},
+            Cint,
+        ),
+        node,
+        vars,
+        varbounds,
+        varboundtypes,
+        npropvars,
+        propvarssize,
+    )
+end
+
+function SCIPnodeGetPropsAfterDual(
+    node,
+    vars,
+    varbounds,
+    varboundtypes,
+    nvars,
+    varssize,
+)
+    ccall(
+        (:SCIPnodeGetPropsAfterDual, libscip),
+        Cvoid,
+        (
+            Ptr{SCIP_NODE},
+            Ptr{Ptr{SCIP_VAR}},
+            Ptr{Cdouble},
+            Ptr{SCIP_BOUNDTYPE},
+            Ptr{Cint},
+            Cint,
+        ),
+        node,
+        vars,
+        varbounds,
+        varboundtypes,
+        nvars,
+        varssize,
+    )
+end
+
+function SCIPnodeAddBoundinfer(
+    node,
+    blkmem,
+    set,
+    stat,
+    transprob,
+    origprob,
+    tree,
+    reopt,
+    lp,
+    branchcand,
+    eventqueue,
+    eventfilter,
+    cliquetable,
+    var,
+    newbound,
+    boundtype,
+    infercons,
+    inferprop,
+    inferinfo,
+    probingchange,
+)
+    ccall(
+        (:SCIPnodeAddBoundinfer, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_NODE},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_TREE},
+            Ptr{SCIP_REOPT},
+            Ptr{SCIP_LP},
+            Ptr{SCIP_BRANCHCAND},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_EVENTFILTER},
+            Ptr{SCIP_CLIQUETABLE},
+            Ptr{SCIP_VAR},
+            Cdouble,
+            SCIP_BOUNDTYPE,
+            Ptr{SCIP_CONS},
+            Ptr{SCIP_PROP},
+            Cint,
+            Cuint,
+        ),
+        node,
+        blkmem,
+        set,
+        stat,
+        transprob,
+        origprob,
+        tree,
+        reopt,
+        lp,
+        branchcand,
+        eventqueue,
+        eventfilter,
+        cliquetable,
+        var,
+        newbound,
+        boundtype,
+        infercons,
+        inferprop,
+        inferinfo,
+        probingchange,
+    )
+end
+
+function SCIPnodeAddBoundinferExact(
+    node,
+    blkmem,
+    set,
+    stat,
+    transprob,
+    origprob,
+    tree,
+    reopt,
+    lpexact,
+    branchcand,
+    eventqueue,
+    eventfilter,
+    cliquetable,
+    var,
+    newbound,
+    boundtype,
+    infercons,
+    inferprop,
+    inferinfo,
+    probingchange,
+)
+    ccall(
+        (:SCIPnodeAddBoundinferExact, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_NODE},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_TREE},
+            Ptr{SCIP_REOPT},
+            Ptr{SCIP_LPEXACT},
+            Ptr{SCIP_BRANCHCAND},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_EVENTFILTER},
+            Ptr{SCIP_CLIQUETABLE},
+            Ptr{SCIP_VAR},
+            Ptr{SCIP_RATIONAL},
+            SCIP_BOUNDTYPE,
+            Ptr{SCIP_CONS},
+            Ptr{SCIP_PROP},
+            Cint,
+            Cuint,
+        ),
+        node,
+        blkmem,
+        set,
+        stat,
+        transprob,
+        origprob,
+        tree,
+        reopt,
+        lpexact,
+        branchcand,
+        eventqueue,
+        eventfilter,
+        cliquetable,
+        var,
+        newbound,
+        boundtype,
+        infercons,
+        inferprop,
+        inferinfo,
+        probingchange,
+    )
+end
+
+function SCIPnodeAddBoundchg(
+    node,
+    blkmem,
+    set,
+    stat,
+    transprob,
+    origprob,
+    tree,
+    reopt,
+    lp,
+    branchcand,
+    eventqueue,
+    eventfilter,
+    cliquetable,
+    var,
+    newbound,
+    boundtype,
+    probingchange,
+)
+    ccall(
+        (:SCIPnodeAddBoundchg, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_NODE},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_TREE},
+            Ptr{SCIP_REOPT},
+            Ptr{SCIP_LP},
+            Ptr{SCIP_BRANCHCAND},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_EVENTFILTER},
+            Ptr{SCIP_CLIQUETABLE},
+            Ptr{SCIP_VAR},
+            Cdouble,
+            SCIP_BOUNDTYPE,
+            Cuint,
+        ),
+        node,
+        blkmem,
+        set,
+        stat,
+        transprob,
+        origprob,
+        tree,
+        reopt,
+        lp,
+        branchcand,
+        eventqueue,
+        eventfilter,
+        cliquetable,
+        var,
+        newbound,
+        boundtype,
+        probingchange,
+    )
+end
+
+function SCIPnodeAddBoundchgExact(
+    node,
+    blkmem,
+    set,
+    stat,
+    transprob,
+    origprob,
+    tree,
+    reopt,
+    lpexact,
+    branchcand,
+    eventqueue,
+    eventfilter,
+    cliquetable,
+    var,
+    newbound,
+    boundtype,
+    probingchange,
+)
+    ccall(
+        (:SCIPnodeAddBoundchgExact, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_NODE},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_TREE},
+            Ptr{SCIP_REOPT},
+            Ptr{SCIP_LPEXACT},
+            Ptr{SCIP_BRANCHCAND},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_EVENTFILTER},
+            Ptr{SCIP_CLIQUETABLE},
+            Ptr{SCIP_VAR},
+            Ptr{SCIP_RATIONAL},
+            SCIP_BOUNDTYPE,
+            Cuint,
+        ),
+        node,
+        blkmem,
+        set,
+        stat,
+        transprob,
+        origprob,
+        tree,
+        reopt,
+        lpexact,
+        branchcand,
+        eventqueue,
+        eventfilter,
+        cliquetable,
+        var,
+        newbound,
+        boundtype,
+        probingchange,
+    )
+end
+
+function SCIPnodeAddHoleinfer(
+    node,
+    blkmem,
+    set,
+    stat,
+    tree,
+    eventqueue,
+    var,
+    left,
+    right,
+    infercons,
+    inferprop,
+    inferinfo,
+    probingchange,
+    added,
+)
+    ccall(
+        (:SCIPnodeAddHoleinfer, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_NODE},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_TREE},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_VAR},
+            Cdouble,
+            Cdouble,
+            Ptr{SCIP_CONS},
+            Ptr{SCIP_PROP},
+            Cint,
+            Cuint,
+            Ptr{Cuint},
+        ),
+        node,
+        blkmem,
+        set,
+        stat,
+        tree,
+        eventqueue,
+        var,
+        left,
+        right,
+        infercons,
+        inferprop,
+        inferinfo,
+        probingchange,
+        added,
+    )
+end
+
+function SCIPnodeAddHolechg(
+    node,
+    blkmem,
+    set,
+    stat,
+    tree,
+    eventqueue,
+    var,
+    left,
+    right,
+    probingchange,
+    added,
+)
+    ccall(
+        (:SCIPnodeAddHolechg, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_NODE},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_TREE},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_VAR},
+            Cdouble,
+            Cdouble,
+            Cuint,
+            Ptr{Cuint},
+        ),
+        node,
+        blkmem,
+        set,
+        stat,
+        tree,
+        eventqueue,
+        var,
+        left,
+        right,
+        probingchange,
+        added,
+    )
+end
+
+function SCIPnodeUpdateLowerbound(
+    node,
+    stat,
+    set,
+    eventfilter,
+    tree,
+    transprob,
+    origprob,
+    newbound,
+    newboundexact,
+)
+    ccall(
+        (:SCIPnodeUpdateLowerbound, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_NODE},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_EVENTFILTER},
+            Ptr{SCIP_TREE},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_PROB},
+            Cdouble,
+            Ptr{SCIP_RATIONAL},
+        ),
+        node,
+        stat,
+        set,
+        eventfilter,
+        tree,
+        transprob,
+        origprob,
+        newbound,
+        newboundexact,
+    )
+end
+
+function SCIPnodeUpdateLowerboundLP(
+    node,
+    set,
+    stat,
+    messagehdlr,
+    eventfilter,
+    tree,
+    transprob,
+    origprob,
+    lp,
+)
+    ccall(
+        (:SCIPnodeUpdateLowerboundLP, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_NODE},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_MESSAGEHDLR},
+            Ptr{SCIP_EVENTFILTER},
+            Ptr{SCIP_TREE},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_LP},
+        ),
+        node,
+        set,
+        stat,
+        messagehdlr,
+        eventfilter,
+        tree,
+        transprob,
+        origprob,
+        lp,
+    )
+end
+
+function SCIPchildChgNodeselPrio(tree, child, priority)
+    ccall(
+        (:SCIPchildChgNodeselPrio, libscip),
+        Cvoid,
+        (Ptr{SCIP_TREE}, Ptr{SCIP_NODE}, Cdouble),
+        tree,
+        child,
+        priority,
+    )
+end
+
+function SCIPnodeSetEstimate(node, set, newestimate)
+    ccall(
+        (:SCIPnodeSetEstimate, libscip),
+        Cvoid,
+        (Ptr{SCIP_NODE}, Ptr{SCIP_SET}, Cdouble),
+        node,
+        set,
+        newestimate,
+    )
+end
+
+function SCIPnodePropagateImplics(
+    node,
+    blkmem,
+    set,
+    stat,
+    transprob,
+    origprob,
+    tree,
+    reopt,
+    lp,
+    branchcand,
+    eventqueue,
+    eventfilter,
+    cliquetable,
+    cutoff,
+)
+    ccall(
+        (:SCIPnodePropagateImplics, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_NODE},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_TREE},
+            Ptr{SCIP_REOPT},
+            Ptr{SCIP_LP},
+            Ptr{SCIP_BRANCHCAND},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_EVENTFILTER},
+            Ptr{SCIP_CLIQUETABLE},
+            Ptr{Cuint},
+        ),
+        node,
+        blkmem,
+        set,
+        stat,
+        transprob,
+        origprob,
+        tree,
+        reopt,
+        lp,
+        branchcand,
+        eventqueue,
+        eventfilter,
+        cliquetable,
+        cutoff,
+    )
+end
+
+function SCIPnodeGetDualBoundchgs(
+    node,
+    vars,
+    bounds,
+    boundtypes,
+    nvars,
+    varssize,
+)
+    ccall(
+        (:SCIPnodeGetDualBoundchgs, libscip),
+        Cvoid,
+        (
+            Ptr{SCIP_NODE},
+            Ptr{Ptr{SCIP_VAR}},
+            Ptr{Cdouble},
+            Ptr{SCIP_BOUNDTYPE},
+            Ptr{Cint},
+            Cint,
+        ),
+        node,
+        vars,
+        bounds,
+        boundtypes,
+        nvars,
+        varssize,
+    )
+end
+
+function SCIPnodeGetNDualBndchgs(node)
+    ccall((:SCIPnodeGetNDualBndchgs, libscip), Cint, (Ptr{SCIP_NODE},), node)
+end
+
+function SCIPtreeCreate(tree, blkmem, set, nodesel)
+    ccall(
+        (:SCIPtreeCreate, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{Ptr{SCIP_TREE}},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_NODESEL},
+        ),
+        tree,
+        blkmem,
+        set,
+        nodesel,
+    )
+end
+
+function SCIPtreeFree(tree, blkmem, set, stat, eventqueue, eventfilter, lp)
+    ccall(
+        (:SCIPtreeFree, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{Ptr{SCIP_TREE}},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_EVENTFILTER},
+            Ptr{SCIP_LP},
+        ),
+        tree,
+        blkmem,
+        set,
+        stat,
+        eventqueue,
+        eventfilter,
+        lp,
+    )
+end
+
+function SCIPtreeClear(tree, blkmem, set, stat, eventqueue, eventfilter, lp)
+    ccall(
+        (:SCIPtreeClear, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_TREE},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_EVENTFILTER},
+            Ptr{SCIP_LP},
+        ),
+        tree,
+        blkmem,
+        set,
+        stat,
+        eventqueue,
+        eventfilter,
+        lp,
+    )
+end
+
+function SCIPtreeCreateRoot(
+    tree,
+    reopt,
+    blkmem,
+    set,
+    stat,
+    eventqueue,
+    eventfilter,
+    lp,
+)
+    ccall(
+        (:SCIPtreeCreateRoot, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_TREE},
+            Ptr{SCIP_REOPT},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_EVENTFILTER},
+            Ptr{SCIP_LP},
+        ),
+        tree,
+        reopt,
+        blkmem,
+        set,
+        stat,
+        eventqueue,
+        eventfilter,
+        lp,
+    )
+end
+
+function SCIPtreeCreatePresolvingRoot(
+    tree,
+    reopt,
+    blkmem,
+    set,
+    messagehdlr,
+    stat,
+    transprob,
+    origprob,
+    primal,
+    lp,
+    branchcand,
+    conflict,
+    conflictstore,
+    eventqueue,
+    eventfilter,
+    cliquetable,
+)
+    ccall(
+        (:SCIPtreeCreatePresolvingRoot, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_TREE},
+            Ptr{SCIP_REOPT},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_MESSAGEHDLR},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_PRIMAL},
+            Ptr{SCIP_LP},
+            Ptr{SCIP_BRANCHCAND},
+            Ptr{SCIP_CONFLICT},
+            Ptr{SCIP_CONFLICTSTORE},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_EVENTFILTER},
+            Ptr{SCIP_CLIQUETABLE},
+        ),
+        tree,
+        reopt,
+        blkmem,
+        set,
+        messagehdlr,
+        stat,
+        transprob,
+        origprob,
+        primal,
+        lp,
+        branchcand,
+        conflict,
+        conflictstore,
+        eventqueue,
+        eventfilter,
+        cliquetable,
+    )
+end
+
+function SCIPtreeFreePresolvingRoot(
+    tree,
+    reopt,
+    blkmem,
+    set,
+    messagehdlr,
+    stat,
+    transprob,
+    origprob,
+    primal,
+    lp,
+    branchcand,
+    conflict,
+    conflictstore,
+    eventqueue,
+    eventfilter,
+    cliquetable,
+)
+    ccall(
+        (:SCIPtreeFreePresolvingRoot, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_TREE},
+            Ptr{SCIP_REOPT},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_MESSAGEHDLR},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_PRIMAL},
+            Ptr{SCIP_LP},
+            Ptr{SCIP_BRANCHCAND},
+            Ptr{SCIP_CONFLICT},
+            Ptr{SCIP_CONFLICTSTORE},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_EVENTFILTER},
+            Ptr{SCIP_CLIQUETABLE},
+        ),
+        tree,
+        reopt,
+        blkmem,
+        set,
+        messagehdlr,
+        stat,
+        transprob,
+        origprob,
+        primal,
+        lp,
+        branchcand,
+        conflict,
+        conflictstore,
+        eventqueue,
+        eventfilter,
+        cliquetable,
+    )
+end
+
+function SCIPtreeGetNodesel(tree)
+    ccall(
+        (:SCIPtreeGetNodesel, libscip),
+        Ptr{SCIP_NODESEL},
+        (Ptr{SCIP_TREE},),
+        tree,
+    )
+end
+
+function SCIPtreeSetNodesel(tree, set, messagehdlr, stat, nodesel)
+    ccall(
+        (:SCIPtreeSetNodesel, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_TREE},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_MESSAGEHDLR},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_NODESEL},
+        ),
+        tree,
+        set,
+        messagehdlr,
+        stat,
+        nodesel,
+    )
+end
+
+function SCIPtreeCutoff(
+    tree,
+    reopt,
+    blkmem,
+    set,
+    stat,
+    eventqueue,
+    eventfilter,
+    lp,
+    cutoffbound,
+)
+    ccall(
+        (:SCIPtreeCutoff, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_TREE},
+            Ptr{SCIP_REOPT},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_EVENTFILTER},
+            Ptr{SCIP_LP},
+            Cdouble,
+        ),
+        tree,
+        reopt,
+        blkmem,
+        set,
+        stat,
+        eventqueue,
+        eventfilter,
+        lp,
+        cutoffbound,
+    )
+end
+
+function SCIPtreeLoadLP(
+    tree,
+    blkmem,
+    set,
+    eventqueue,
+    eventfilter,
+    lp,
+    initroot,
+)
+    ccall(
+        (:SCIPtreeLoadLP, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_TREE},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_EVENTFILTER},
+            Ptr{SCIP_LP},
+            Ptr{Cuint},
+        ),
+        tree,
+        blkmem,
+        set,
+        eventqueue,
+        eventfilter,
+        lp,
+        initroot,
+    )
+end
+
+function SCIPtreeLoadLPState(tree, blkmem, set, prob, stat, eventqueue, lp)
+    ccall(
+        (:SCIPtreeLoadLPState, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_TREE},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_LP},
+        ),
+        tree,
+        blkmem,
+        set,
+        prob,
+        stat,
+        eventqueue,
+        lp,
+    )
+end
+
+function SCIPtreeCalcNodeselPriority(
+    tree,
+    set,
+    stat,
+    var,
+    branchdir,
+    targetvalue,
+)
+    ccall(
+        (:SCIPtreeCalcNodeselPriority, libscip),
+        Cdouble,
+        (
+            Ptr{SCIP_TREE},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_VAR},
+            SCIP_BRANCHDIR,
+            Cdouble,
+        ),
+        tree,
+        set,
+        stat,
+        var,
+        branchdir,
+        targetvalue,
+    )
+end
+
+function SCIPtreeCalcChildEstimate(tree, set, stat, var, targetvalue)
+    ccall(
+        (:SCIPtreeCalcChildEstimate, libscip),
+        Cdouble,
+        (Ptr{SCIP_TREE}, Ptr{SCIP_SET}, Ptr{SCIP_STAT}, Ptr{SCIP_VAR}, Cdouble),
+        tree,
+        set,
+        stat,
+        var,
+        targetvalue,
+    )
+end
+
+function SCIPtreeBranchVar(
+    tree,
+    reopt,
+    blkmem,
+    set,
+    stat,
+    transprob,
+    origprob,
+    lp,
+    branchcand,
+    eventqueue,
+    eventfilter,
+    var,
+    val,
+    downchild,
+    eqchild,
+    upchild,
+)
+    ccall(
+        (:SCIPtreeBranchVar, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_TREE},
+            Ptr{SCIP_REOPT},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_LP},
+            Ptr{SCIP_BRANCHCAND},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_EVENTFILTER},
+            Ptr{SCIP_VAR},
+            Cdouble,
+            Ptr{Ptr{SCIP_NODE}},
+            Ptr{Ptr{SCIP_NODE}},
+            Ptr{Ptr{SCIP_NODE}},
+        ),
+        tree,
+        reopt,
+        blkmem,
+        set,
+        stat,
+        transprob,
+        origprob,
+        lp,
+        branchcand,
+        eventqueue,
+        eventfilter,
+        var,
+        val,
+        downchild,
+        eqchild,
+        upchild,
+    )
+end
+
+function SCIPtreeBranchVarExact(
+    tree,
+    reopt,
+    blkmem,
+    set,
+    stat,
+    transprob,
+    origprob,
+    lp,
+    branchcand,
+    eventqueue,
+    eventfilter,
+    var,
+    downchild,
+    upchild,
+)
+    ccall(
+        (:SCIPtreeBranchVarExact, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_TREE},
+            Ptr{SCIP_REOPT},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_LP},
+            Ptr{SCIP_BRANCHCAND},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_EVENTFILTER},
+            Ptr{SCIP_VAR},
+            Ptr{Ptr{SCIP_NODE}},
+            Ptr{Ptr{SCIP_NODE}},
+        ),
+        tree,
+        reopt,
+        blkmem,
+        set,
+        stat,
+        transprob,
+        origprob,
+        lp,
+        branchcand,
+        eventqueue,
+        eventfilter,
+        var,
+        downchild,
+        upchild,
+    )
+end
+
+function SCIPtreeBranchVarHole(
+    tree,
+    reopt,
+    blkmem,
+    set,
+    stat,
+    transprob,
+    origprob,
+    lp,
+    branchcand,
+    eventqueue,
+    eventfilter,
+    var,
+    left,
+    right,
+    downchild,
+    upchild,
+)
+    ccall(
+        (:SCIPtreeBranchVarHole, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_TREE},
+            Ptr{SCIP_REOPT},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_LP},
+            Ptr{SCIP_BRANCHCAND},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_EVENTFILTER},
+            Ptr{SCIP_VAR},
+            Cdouble,
+            Cdouble,
+            Ptr{Ptr{SCIP_NODE}},
+            Ptr{Ptr{SCIP_NODE}},
+        ),
+        tree,
+        reopt,
+        blkmem,
+        set,
+        stat,
+        transprob,
+        origprob,
+        lp,
+        branchcand,
+        eventqueue,
+        eventfilter,
+        var,
+        left,
+        right,
+        downchild,
+        upchild,
+    )
+end
+
+function SCIPtreeBranchVarNary(
+    tree,
+    reopt,
+    blkmem,
+    set,
+    stat,
+    transprob,
+    origprob,
+    lp,
+    branchcand,
+    eventqueue,
+    eventfilter,
+    var,
+    val,
+    n,
+    minwidth,
+    widthfactor,
+    nchildren,
+)
+    ccall(
+        (:SCIPtreeBranchVarNary, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_TREE},
+            Ptr{SCIP_REOPT},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_LP},
+            Ptr{SCIP_BRANCHCAND},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_EVENTFILTER},
+            Ptr{SCIP_VAR},
+            Cdouble,
+            Cint,
+            Cdouble,
+            Cdouble,
+            Ptr{Cint},
+        ),
+        tree,
+        reopt,
+        blkmem,
+        set,
+        stat,
+        transprob,
+        origprob,
+        lp,
+        branchcand,
+        eventqueue,
+        eventfilter,
+        var,
+        val,
+        n,
+        minwidth,
+        widthfactor,
+        nchildren,
+    )
+end
+
+function SCIPtreeAddDiveBoundChange(tree, blkmem, var, dir, value, preferred)
+    ccall(
+        (:SCIPtreeAddDiveBoundChange, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_TREE},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_VAR},
+            SCIP_BRANCHDIR,
+            Cdouble,
+            Cuint,
+        ),
+        tree,
+        blkmem,
+        var,
+        dir,
+        value,
+        preferred,
+    )
+end
+
+function SCIPtreeGetDiveBoundChangeData(
+    tree,
+    variables,
+    directions,
+    values,
+    ndivebdchgs,
+    preferred,
+)
+    ccall(
+        (:SCIPtreeGetDiveBoundChangeData, libscip),
+        Cvoid,
+        (
+            Ptr{SCIP_TREE},
+            Ptr{Ptr{Ptr{SCIP_VAR}}},
+            Ptr{Ptr{SCIP_BRANCHDIR}},
+            Ptr{Ptr{Cdouble}},
+            Ptr{Cint},
+            Cuint,
+        ),
+        tree,
+        variables,
+        directions,
+        values,
+        ndivebdchgs,
+        preferred,
+    )
+end
+
+function SCIPtreeClearDiveBoundChanges(tree)
+    ccall(
+        (:SCIPtreeClearDiveBoundChanges, libscip),
+        Cvoid,
+        (Ptr{SCIP_TREE},),
+        tree,
+    )
+end
+
+function SCIPtreeStartProbing(
+    tree,
+    blkmem,
+    set,
+    lp,
+    relaxation,
+    transprob,
+    strongbranching,
+)
+    ccall(
+        (:SCIPtreeStartProbing, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_TREE},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_LP},
+            Ptr{SCIP_RELAXATION},
+            Ptr{SCIP_PROB},
+            Cuint,
+        ),
+        tree,
+        blkmem,
+        set,
+        lp,
+        relaxation,
+        transprob,
+        strongbranching,
+    )
+end
+
+function SCIPtreeCreateProbingNode(tree, blkmem, set, lp)
+    ccall(
+        (:SCIPtreeCreateProbingNode, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_TREE}, Ptr{BMS_BLKMEM}, Ptr{SCIP_SET}, Ptr{SCIP_LP}),
+        tree,
+        blkmem,
+        set,
+        lp,
+    )
+end
+
+function SCIPtreeSetProbingLPState(
+    tree,
+    blkmem,
+    lp,
+    lpistate,
+    lpinorms,
+    primalfeas,
+    dualfeas,
+)
+    ccall(
+        (:SCIPtreeSetProbingLPState, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_TREE},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_LP},
+            Ptr{Ptr{SCIP_LPISTATE}},
+            Ptr{Ptr{SCIP_LPINORMS}},
+            Cuint,
+            Cuint,
+        ),
+        tree,
+        blkmem,
+        lp,
+        lpistate,
+        lpinorms,
+        primalfeas,
+        dualfeas,
+    )
+end
+
+function SCIPtreeLoadProbingLPState(tree, blkmem, set, prob, eventqueue, lp)
+    ccall(
+        (:SCIPtreeLoadProbingLPState, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_TREE},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_LP},
+        ),
+        tree,
+        blkmem,
+        set,
+        prob,
+        eventqueue,
+        lp,
+    )
+end
+
+function SCIPtreeMarkProbingNodeHasLP(tree, blkmem, lp)
+    ccall(
+        (:SCIPtreeMarkProbingNodeHasLP, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_TREE}, Ptr{BMS_BLKMEM}, Ptr{SCIP_LP}),
+        tree,
+        blkmem,
+        lp,
+    )
+end
+
+function SCIPtreeBacktrackProbing(
+    tree,
+    reopt,
+    blkmem,
+    set,
+    stat,
+    transprob,
+    origprob,
+    lp,
+    primal,
+    branchcand,
+    eventqueue,
+    eventfilter,
+    cliquetable,
+    probingdepth,
+)
+    ccall(
+        (:SCIPtreeBacktrackProbing, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_TREE},
+            Ptr{SCIP_REOPT},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_LP},
+            Ptr{SCIP_PRIMAL},
+            Ptr{SCIP_BRANCHCAND},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_EVENTFILTER},
+            Ptr{SCIP_CLIQUETABLE},
+            Cint,
+        ),
+        tree,
+        reopt,
+        blkmem,
+        set,
+        stat,
+        transprob,
+        origprob,
+        lp,
+        primal,
+        branchcand,
+        eventqueue,
+        eventfilter,
+        cliquetable,
+        probingdepth,
+    )
+end
+
+function SCIPtreeEndProbing(
+    tree,
+    reopt,
+    blkmem,
+    set,
+    messagehdlr,
+    stat,
+    transprob,
+    origprob,
+    lp,
+    relaxation,
+    primal,
+    branchcand,
+    eventqueue,
+    eventfilter,
+    cliquetable,
+)
+    ccall(
+        (:SCIPtreeEndProbing, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP_TREE},
+            Ptr{SCIP_REOPT},
+            Ptr{BMS_BLKMEM},
+            Ptr{SCIP_SET},
+            Ptr{SCIP_MESSAGEHDLR},
+            Ptr{SCIP_STAT},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_PROB},
+            Ptr{SCIP_LP},
+            Ptr{SCIP_RELAXATION},
+            Ptr{SCIP_PRIMAL},
+            Ptr{SCIP_BRANCHCAND},
+            Ptr{SCIP_EVENTQUEUE},
+            Ptr{SCIP_EVENTFILTER},
+            Ptr{SCIP_CLIQUETABLE},
+        ),
+        tree,
+        reopt,
+        blkmem,
+        set,
+        messagehdlr,
+        stat,
+        transprob,
+        origprob,
+        lp,
+        relaxation,
+        primal,
+        branchcand,
+        eventqueue,
+        eventfilter,
+        cliquetable,
+    )
+end
+
+function SCIPtreeStoreRelaxSol(tree, set, relaxation, transprob)
+    ccall(
+        (:SCIPtreeStoreRelaxSol, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_TREE}, Ptr{SCIP_SET}, Ptr{SCIP_RELAXATION}, Ptr{SCIP_PROB}),
+        tree,
+        set,
+        relaxation,
+        transprob,
+    )
+end
+
+function SCIPtreeRestoreRelaxSol(tree, set, relaxation, transprob)
+    ccall(
+        (:SCIPtreeRestoreRelaxSol, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_TREE}, Ptr{SCIP_SET}, Ptr{SCIP_RELAXATION}, Ptr{SCIP_PROB}),
+        tree,
+        set,
+        relaxation,
+        transprob,
+    )
+end
+
+function SCIPtreeGetNChildren(tree)
+    ccall((:SCIPtreeGetNChildren, libscip), Cint, (Ptr{SCIP_TREE},), tree)
+end
+
+function SCIPtreeGetNSiblings(tree)
+    ccall((:SCIPtreeGetNSiblings, libscip), Cint, (Ptr{SCIP_TREE},), tree)
+end
+
+function SCIPtreeGetNLeaves(tree)
+    ccall((:SCIPtreeGetNLeaves, libscip), Cint, (Ptr{SCIP_TREE},), tree)
+end
+
+function SCIPtreeGetNNodes(tree)
+    ccall((:SCIPtreeGetNNodes, libscip), Cint, (Ptr{SCIP_TREE},), tree)
+end
+
+function SCIPtreeIsPathComplete(tree)
+    ccall((:SCIPtreeIsPathComplete, libscip), Cuint, (Ptr{SCIP_TREE},), tree)
+end
+
+function SCIPtreeProbing(tree)
+    ccall((:SCIPtreeProbing, libscip), Cuint, (Ptr{SCIP_TREE},), tree)
+end
+
+function SCIPtreeGetProbingRoot(tree)
+    ccall(
+        (:SCIPtreeGetProbingRoot, libscip),
+        Ptr{SCIP_NODE},
+        (Ptr{SCIP_TREE},),
+        tree,
+    )
+end
+
+function SCIPtreeGetProbingDepth(tree)
+    ccall((:SCIPtreeGetProbingDepth, libscip), Cint, (Ptr{SCIP_TREE},), tree)
+end
+
+function SCIPtreeGetFocusNode(tree)
+    ccall(
+        (:SCIPtreeGetFocusNode, libscip),
+        Ptr{SCIP_NODE},
+        (Ptr{SCIP_TREE},),
+        tree,
+    )
+end
+
+function SCIPtreeGetFocusDepth(tree)
+    ccall((:SCIPtreeGetFocusDepth, libscip), Cint, (Ptr{SCIP_TREE},), tree)
+end
+
+function SCIPtreeHasFocusNodeLP(tree)
+    ccall((:SCIPtreeHasFocusNodeLP, libscip), Cuint, (Ptr{SCIP_TREE},), tree)
+end
+
+function SCIPtreeSetFocusNodeLP(tree, solvelp)
+    ccall(
+        (:SCIPtreeSetFocusNodeLP, libscip),
+        Cvoid,
+        (Ptr{SCIP_TREE}, Cuint),
+        tree,
+        solvelp,
+    )
+end
+
+function SCIPtreeIsFocusNodeLPConstructed(tree)
+    ccall(
+        (:SCIPtreeIsFocusNodeLPConstructed, libscip),
+        Cuint,
+        (Ptr{SCIP_TREE},),
+        tree,
+    )
+end
+
+function SCIPtreeInRepropagation(tree)
+    ccall((:SCIPtreeInRepropagation, libscip), Cuint, (Ptr{SCIP_TREE},), tree)
+end
+
+function SCIPtreeGetCurrentNode(tree)
+    ccall(
+        (:SCIPtreeGetCurrentNode, libscip),
+        Ptr{SCIP_NODE},
+        (Ptr{SCIP_TREE},),
+        tree,
+    )
+end
+
+function SCIPtreeGetCurrentDepth(tree)
+    ccall((:SCIPtreeGetCurrentDepth, libscip), Cint, (Ptr{SCIP_TREE},), tree)
+end
+
+function SCIPtreeHasCurrentNodeLP(tree)
+    ccall((:SCIPtreeHasCurrentNodeLP, libscip), Cuint, (Ptr{SCIP_TREE},), tree)
+end
+
+function SCIPtreeGetEffectiveRootDepth(tree)
+    ccall(
+        (:SCIPtreeGetEffectiveRootDepth, libscip),
+        Cint,
+        (Ptr{SCIP_TREE},),
+        tree,
+    )
+end
+
+function SCIPtreeGetRootNode(tree)
+    ccall(
+        (:SCIPtreeGetRootNode, libscip),
+        Ptr{SCIP_NODE},
+        (Ptr{SCIP_TREE},),
+        tree,
+    )
+end
+
+function SCIPtreeProbingObjChanged(tree)
+    ccall((:SCIPtreeProbingObjChanged, libscip), Cuint, (Ptr{SCIP_TREE},), tree)
+end
+
+function SCIPtreeMarkProbingObjChanged(tree)
+    ccall(
+        (:SCIPtreeMarkProbingObjChanged, libscip),
+        Cvoid,
+        (Ptr{SCIP_TREE},),
+        tree,
+    )
+end
+
+function SCIPtreeGetPrioChild(tree)
+    ccall(
+        (:SCIPtreeGetPrioChild, libscip),
+        Ptr{SCIP_NODE},
+        (Ptr{SCIP_TREE},),
+        tree,
+    )
+end
+
+function SCIPtreeGetPrioSibling(tree)
+    ccall(
+        (:SCIPtreeGetPrioSibling, libscip),
+        Ptr{SCIP_NODE},
+        (Ptr{SCIP_TREE},),
+        tree,
+    )
+end
+
+function SCIPtreeGetBestChild(tree, set)
+    ccall(
+        (:SCIPtreeGetBestChild, libscip),
+        Ptr{SCIP_NODE},
+        (Ptr{SCIP_TREE}, Ptr{SCIP_SET}),
+        tree,
+        set,
+    )
+end
+
+function SCIPtreeGetBestSibling(tree, set)
+    ccall(
+        (:SCIPtreeGetBestSibling, libscip),
+        Ptr{SCIP_NODE},
+        (Ptr{SCIP_TREE}, Ptr{SCIP_SET}),
+        tree,
+        set,
+    )
+end
+
+function SCIPtreeGetBestLeaf(tree)
+    ccall(
+        (:SCIPtreeGetBestLeaf, libscip),
+        Ptr{SCIP_NODE},
+        (Ptr{SCIP_TREE},),
+        tree,
+    )
+end
+
+function SCIPtreeGetBestNode(tree, set)
+    ccall(
+        (:SCIPtreeGetBestNode, libscip),
+        Ptr{SCIP_NODE},
+        (Ptr{SCIP_TREE}, Ptr{SCIP_SET}),
+        tree,
+        set,
+    )
+end
+
+function SCIPtreeGetLowerbound(tree, set)
+    ccall(
+        (:SCIPtreeGetLowerbound, libscip),
+        Cdouble,
+        (Ptr{SCIP_TREE}, Ptr{SCIP_SET}),
+        tree,
+        set,
+    )
+end
+
+function SCIPtreeGetLowerboundExact(tree, set)
+    ccall(
+        (:SCIPtreeGetLowerboundExact, libscip),
+        Ptr{SCIP_RATIONAL},
+        (Ptr{SCIP_TREE}, Ptr{SCIP_SET}),
+        tree,
+        set,
+    )
+end
+
+function SCIPtreeGetLowerboundNode(tree, set)
+    ccall(
+        (:SCIPtreeGetLowerboundNode, libscip),
+        Ptr{SCIP_NODE},
+        (Ptr{SCIP_TREE}, Ptr{SCIP_SET}),
+        tree,
+        set,
+    )
+end
+
+function SCIPtreeGetAvgLowerbound(tree, cutoffbound)
+    ccall(
+        (:SCIPtreeGetAvgLowerbound, libscip),
+        Cdouble,
+        (Ptr{SCIP_TREE}, Cdouble),
+        tree,
+        cutoffbound,
+    )
+end
+
+function SCIPtreeWasNodeLastBranchParent(tree, node)
+    ccall(
+        (:SCIPtreeWasNodeLastBranchParent, libscip),
+        Cuint,
+        (Ptr{SCIP_TREE}, Ptr{SCIP_NODE}),
+        tree,
+        node,
+    )
+end
+
+function SCIPincludeConshdlrExactSol(scip)
+    ccall(
+        (:SCIPincludeConshdlrExactSol, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP},),
+        scip,
     )
 end
 
@@ -26338,6 +42283,16 @@ function SCIPgetRowLogicor(scip, cons)
     )
 end
 
+function SCIPcreateRowLogicor(scip, cons)
+    ccall(
+        (:SCIPcreateRowLogicor, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_CONS}),
+        scip,
+        cons,
+    )
+end
+
 function SCIPcleanupConssLogicor(
     scip,
     onlychecked,
@@ -26367,25 +42322,33 @@ end
 
 const SCIP_CONSNONLINEAR_AUXEXPR = SCIP_ConsNonlinear_Auxexpr
 
-struct __JL_Ctag_674
+struct __JL_Ctag_88
     data::NTuple{8,UInt8}
 end
 
-function Base.getproperty(x::Ptr{__JL_Ctag_674}, f::Symbol)
+function Base.getproperty(x::Ptr{__JL_Ctag_88}, f::Symbol)
     f === :exprs && return Ptr{Ptr{Ptr{SCIP_CONSNONLINEAR_AUXEXPR}}}(x + 0)
     f === :var && return Ptr{Ptr{SCIP_VAR}}(x + 0)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::__JL_Ctag_674, f::Symbol)
-    r = Ref{__JL_Ctag_674}(x)
-    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_674}, r)
+function Base.getproperty(x::__JL_Ctag_88, f::Symbol)
+    r = Ref{__JL_Ctag_88}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_88}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{__JL_Ctag_674}, f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_88}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::__JL_Ctag_88, private::Bool=false)
+    (:exprs, :var, if private
+        fieldnames(typeof(x))
+    else
+        ()
+    end...)
 end
 
 struct SCIP_ConsNonlinear_BilinTerm
@@ -26395,7 +42358,7 @@ end
 function Base.getproperty(x::Ptr{SCIP_ConsNonlinear_BilinTerm}, f::Symbol)
     f === :x && return Ptr{Ptr{SCIP_VAR}}(x + 0)
     f === :y && return Ptr{Ptr{SCIP_VAR}}(x + 8)
-    f === :aux && return Ptr{__JL_Ctag_674}(x + 16)
+    f === :aux && return Ptr{__JL_Ctag_88}(x + 16)
     f === :nauxexprs && return Ptr{Cint}(x + 24)
     f === :auxexprssize && return Ptr{Cint}(x + 28)
     f === :nlockspos && return Ptr{Cint}(x + 32)
@@ -26413,6 +42376,27 @@ end
 
 function Base.setproperty!(x::Ptr{SCIP_ConsNonlinear_BilinTerm}, f::Symbol, v)
     unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(
+    x::SCIP_ConsNonlinear_BilinTerm,
+    private::Bool=false,
+)
+    (
+        :x,
+        :y,
+        :aux,
+        :nauxexprs,
+        :auxexprssize,
+        :nlockspos,
+        :nlocksneg,
+        :existing,
+        if private
+            fieldnames(typeof(x))
+        else
+            ()
+        end...,
+    )
 end
 
 const SCIP_CONSNONLINEAR_BILINTERM = SCIP_ConsNonlinear_BilinTerm
@@ -26640,6 +42624,49 @@ function SCIPcreateConsBasicQuadraticNonlinear(
     )
 end
 
+function SCIPcreateConsBasicSOCNonlinear(
+    scip,
+    cons,
+    name,
+    nvars,
+    vars,
+    coefs,
+    offsets,
+    constant,
+    rhsvar,
+    rhscoeff,
+    rhsoffset,
+)
+    ccall(
+        (:SCIPcreateConsBasicSOCNonlinear, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP},
+            Ptr{Ptr{SCIP_CONS}},
+            Ptr{Cchar},
+            Cint,
+            Ptr{Ptr{SCIP_VAR}},
+            Ptr{Cdouble},
+            Ptr{Cdouble},
+            Cdouble,
+            Ptr{SCIP_VAR},
+            Cdouble,
+            Cdouble,
+        ),
+        scip,
+        cons,
+        name,
+        nvars,
+        vars,
+        coefs,
+        offsets,
+        constant,
+        rhsvar,
+        rhscoeff,
+        rhsoffset,
+    )
+end
+
 function SCIPcreateConsBasicSignpowerNonlinear(
     scip,
     cons,
@@ -26763,6 +42790,15 @@ function SCIPprocessRowprepNonlinear(
         inenforcement,
         sol,
         result,
+    )
+end
+
+function SCIPassumeConvexNonlinear(conshdlr)
+    ccall(
+        (:SCIPassumeConvexNonlinear, libscip),
+        Cuint,
+        (Ptr{SCIP_CONSHDLR},),
+        conshdlr,
     )
 end
 
@@ -27231,6 +43267,18 @@ function SCIPregisterExprUsageNonlinear(
     )
 end
 
+function SCIPgetExprActivityNonlinear(scip, cons, sol, activity)
+    ccall(
+        (:SCIPgetExprActivityNonlinear, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_CONS}, Ptr{SCIP_SOL}, Ptr{Cdouble}),
+        scip,
+        cons,
+        sol,
+        activity,
+    )
+end
+
 function SCIPgetExprAbsOrigViolationNonlinear(
     scip,
     expr,
@@ -27478,6 +43526,24 @@ function SCIPincludeNlhdlrNonlinear(
         detect,
         evalaux,
         nlhdlrdata,
+    )
+end
+
+function SCIPgetNNlhdlrsNonlinear(conshdlr)
+    ccall(
+        (:SCIPgetNNlhdlrsNonlinear, libscip),
+        Cint,
+        (Ptr{SCIP_CONSHDLR},),
+        conshdlr,
+    )
+end
+
+function SCIPgetNlhdlrsNonlinear(conshdlr)
+    ccall(
+        (:SCIPgetNlhdlrsNonlinear, libscip),
+        Ptr{Ptr{SCIP_NLHDLR}},
+        (Ptr{SCIP_CONSHDLR},),
+        conshdlr,
     )
 end
 
@@ -27760,50 +43826,50 @@ end
 
 const SYM_SPEC = UInt32
 
-@enum SYM_Rhssense::UInt32 begin
-    SYM_SENSE_UNKOWN = 0
-    SYM_SENSE_INEQUALITY = 1
-    SYM_SENSE_EQUATION = 2
-    SYM_SENSE_XOR = 3
-    SYM_SENSE_AND = 4
-    SYM_SENSE_OR = 5
-    SYM_SENSE_BOUNDIS_TYPE_1 = 6
-    SYM_SENSE_BOUNDIS_TYPE_2 = 7
+@enum SYM_Symtype::UInt32 begin
+    SYM_SYMTYPE_PERM = 0
+    SYM_SYMTYPE_SIGNPERM = 1
 end
 
-const SYM_RHSSENSE = SYM_Rhssense
+const SYM_SYMTYPE = SYM_Symtype
+
+@enum SYM_Nodetype::UInt32 begin
+    SYM_NODETYPE_OPERATOR = 0
+    SYM_NODETYPE_VAL = 1
+    SYM_NODETYPE_CONS = 2
+    SYM_NODETYPE_VAR = 3
+end
+
+const SYM_NODETYPE = SYM_Nodetype
+
+@enum SYM_Consoptype::UInt32 begin
+    SYM_CONSOPTYPE_UNKNOWN = 0
+    SYM_CONSOPTYPE_BDDISJ = 1
+    SYM_CONSOPTYPE_EQ = 2
+    SYM_CONSOPTYPE_SOS2_TUPLE = 3
+    SYM_CONSOPTYPE_SUM = 4
+    SYM_CONSOPTYPE_SLACK = 5
+    SYM_CONSOPTYPE_COEF = 6
+    SYM_CONSOPTYPE_SQDIFF = 7
+    SYM_CONSOPTYPE_CARD_TUPLE = 8
+    SYM_CONSOPTYPE_PB_AND = 9
+    SYM_CONSOPTYPE_PB_LINEAR = 10
+    SYM_CONSOPTYPE_PB_SOFT = 11
+    SYM_CONSOPTYPE_PB_OBJ = 12
+    SYM_CONSOPTYPE_AND = 13
+    SYM_CONSOPTYPE_OR = 14
+    SYM_CONSOPTYPE_XORINT = 15
+    SYM_CONSOPTYPE_LAST = 16
+end
+
+const SYM_CONSOPTYPE = SYM_Consoptype
 
 const SYM_HANDLETYPE = UInt32
-
-const SYM_Vartype = Cvoid
-
-const SYM_VARTYPE = SYM_Vartype
-
-const SYM_Optype = Cvoid
-
-const SYM_OPTYPE = SYM_Optype
-
-const SYM_Consttype = Cvoid
-
-const SYM_CONSTTYPE = SYM_Consttype
-
-const SYM_Rhstype = Cvoid
-
-const SYM_RHSTYPE = SYM_Rhstype
-
-const SYM_Matrixdata = Cvoid
-
-const SYM_MATRIXDATA = SYM_Matrixdata
-
-const SYM_Exprdata = Cvoid
-
-const SYM_EXPRDATA = SYM_Exprdata
 
 @enum SCIP_LeaderRule::UInt32 begin
     SCIP_LEADERRULE_FIRSTINORBIT = 0
     SCIP_LEADERRULE_LASTINORBIT = 1
     SCIP_LEADERRULE_MAXCONFLICTSINORBIT = 2
-    SCIP_LEADERRULE_MAXCONFLICTS = 3
 end
 
 const SCIP_LEADERRULE = SCIP_LeaderRule
@@ -27817,8 +43883,7 @@ end
 @enum SCIP_SSTType::UInt32 begin
     SCIP_SSTTYPE_BINARY = 1
     SCIP_SSTTYPE_INTEGER = 2
-    SCIP_SSTTYPE_IMPLINT = 4
-    SCIP_SSTTYPE_CONTINUOUS = 8
+    SCIP_SSTTYPE_CONTINUOUS = 4
 end
 
 const SCIP_SSTTYPE = SCIP_SSTType
@@ -27830,14 +43895,6 @@ const SCIP_SSTTYPE = SCIP_SSTType
 end
 
 const SCIP_ORBITOPETYPE = SCIP_OrbitopeType
-
-@enum SCIP_RecomputesymType::UInt32 begin
-    SCIP_RECOMPUTESYM_NEVER = 0
-    SCIP_RECOMPUTESYM_ALWAYS = 1
-    SCIP_RECOMPUTESYM_OFFOUNDRED = 2
-end
-
-const SCIP_RECOMPUTESYMTYPE = SCIP_RecomputesymType
 
 function SCIPincludeConshdlrOrbitope(scip)
     ccall(
@@ -27854,12 +43911,11 @@ function SCIPcreateConsOrbitope(
     name,
     vars,
     orbitopetype,
-    nspcons,
-    nblocks,
-    usedynamicprop,
-    mayinteract,
+    nrows,
+    ncols,
     resolveprop,
     ismodelcons,
+    checkpporbitope,
     initial,
     separate,
     enforce,
@@ -27895,19 +43951,17 @@ function SCIPcreateConsOrbitope(
             Cuint,
             Cuint,
             Cuint,
-            Cuint,
         ),
         scip,
         cons,
         name,
         vars,
         orbitopetype,
-        nspcons,
-        nblocks,
-        usedynamicprop,
-        mayinteract,
+        nrows,
+        ncols,
         resolveprop,
         ismodelcons,
+        checkpporbitope,
         initial,
         separate,
         enforce,
@@ -27927,12 +43981,11 @@ function SCIPcreateConsBasicOrbitope(
     name,
     vars,
     orbitopetype,
-    nspcons,
-    nblocks,
-    usedynamicprop,
+    nrows,
+    ncols,
     resolveprop,
     ismodelcons,
-    mayinteract,
+    checkpporbitope,
 )
     ccall(
         (:SCIPcreateConsBasicOrbitope, libscip),
@@ -27948,19 +44001,17 @@ function SCIPcreateConsBasicOrbitope(
             Cuint,
             Cuint,
             Cuint,
-            Cuint,
         ),
         scip,
         cons,
         name,
         vars,
         orbitopetype,
-        nspcons,
-        nblocks,
-        usedynamicprop,
+        nrows,
+        ncols,
         resolveprop,
         ismodelcons,
-        mayinteract,
+        checkpporbitope,
     )
 end
 
@@ -27995,7 +44046,6 @@ function SCIPcreateConsPseudobooleanWithConss(
     indvar,
     weight,
     issoftcons,
-    intvar,
     lhs,
     rhs,
     initial,
@@ -28024,7 +44074,6 @@ function SCIPcreateConsPseudobooleanWithConss(
             Ptr{SCIP_VAR},
             Cdouble,
             Cuint,
-            Ptr{SCIP_VAR},
             Cdouble,
             Cdouble,
             Cuint,
@@ -28049,7 +44098,6 @@ function SCIPcreateConsPseudobooleanWithConss(
         indvar,
         weight,
         issoftcons,
-        intvar,
         lhs,
         rhs,
         initial,
@@ -28079,7 +44127,6 @@ function SCIPcreateConsPseudoboolean(
     indvar,
     weight,
     issoftcons,
-    intvar,
     lhs,
     rhs,
     initial,
@@ -28110,7 +44157,6 @@ function SCIPcreateConsPseudoboolean(
             Ptr{SCIP_VAR},
             Cdouble,
             Cuint,
-            Ptr{SCIP_VAR},
             Cdouble,
             Cdouble,
             Cuint,
@@ -28137,7 +44183,6 @@ function SCIPcreateConsPseudoboolean(
         indvar,
         weight,
         issoftcons,
-        intvar,
         lhs,
         rhs,
         initial,
@@ -28167,7 +44212,6 @@ function SCIPcreateConsBasicPseudoboolean(
     indvar,
     weight,
     issoftcons,
-    intvar,
     lhs,
     rhs,
 )
@@ -28188,7 +44232,6 @@ function SCIPcreateConsBasicPseudoboolean(
             Ptr{SCIP_VAR},
             Cdouble,
             Cuint,
-            Ptr{SCIP_VAR},
             Cdouble,
             Cdouble,
         ),
@@ -28205,7 +44248,6 @@ function SCIPcreateConsBasicPseudoboolean(
         indvar,
         weight,
         issoftcons,
-        intvar,
         lhs,
         rhs,
     )
@@ -28658,6 +44700,16 @@ function SCIPgetRowSetppc(scip, cons)
     ccall(
         (:SCIPgetRowSetppc, libscip),
         Ptr{SCIP_ROW},
+        (Ptr{SCIP}, Ptr{SCIP_CONS}),
+        scip,
+        cons,
+    )
+end
+
+function SCIPcreateRowSetppc(scip, cons)
+    ccall(
+        (:SCIPcreateRowSetppc, libscip),
+        SCIP_RETCODE,
         (Ptr{SCIP}, Ptr{SCIP_CONS}),
         scip,
         cons,
@@ -29511,6 +45563,16 @@ function SCIPgetRowVarbound(scip, cons)
     )
 end
 
+function SCIPcreateRowVarbound(scip, cons)
+    ccall(
+        (:SCIPcreateRowVarbound, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_CONS}),
+        scip,
+        cons,
+    )
+end
+
 function SCIPcleanupConssVarbound(
     scip,
     onlychecked,
@@ -29962,6 +46024,23 @@ function SCIPdialogExecDisplayHeuristics(scip, dialog, dialoghdlr, nextdialog)
     )
 end
 
+function SCIPdialogExecDisplayIIS(scip, dialog, dialoghdlr, nextdialog)
+    ccall(
+        (:SCIPdialogExecDisplayIIS, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP},
+            Ptr{SCIP_DIALOG},
+            Ptr{SCIP_DIALOGHDLR},
+            Ptr{Ptr{SCIP_DIALOG}},
+        ),
+        scip,
+        dialog,
+        dialoghdlr,
+        nextdialog,
+    )
+end
+
 function SCIPdialogExecDisplayMemory(scip, dialog, dialoghdlr, nextdialog)
     ccall(
         (:SCIPdialogExecDisplayMemory, libscip),
@@ -30278,6 +46357,23 @@ function SCIPdialogExecDisplayStatistics(scip, dialog, dialoghdlr, nextdialog)
     )
 end
 
+function SCIPdialogExecDisplaySymmetry(scip, dialog, dialoghdlr, nextdialog)
+    ccall(
+        (:SCIPdialogExecDisplaySymmetry, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP},
+            Ptr{SCIP_DIALOG},
+            Ptr{SCIP_DIALOGHDLR},
+            Ptr{Ptr{SCIP_DIALOG}},
+        ),
+        scip,
+        dialog,
+        dialoghdlr,
+        nextdialog,
+    )
+end
+
 function SCIPdialogExecDisplayReoptStatistics(
     scip,
     dialog,
@@ -30505,6 +46601,23 @@ end
 function SCIPdialogExecPresolve(scip, dialog, dialoghdlr, nextdialog)
     ccall(
         (:SCIPdialogExecPresolve, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP},
+            Ptr{SCIP_DIALOG},
+            Ptr{SCIP_DIALOGHDLR},
+            Ptr{Ptr{SCIP_DIALOG}},
+        ),
+        scip,
+        dialog,
+        dialoghdlr,
+        nextdialog,
+    )
+end
+
+function SCIPdialogExecIIS(scip, dialog, dialoghdlr, nextdialog)
+    ccall(
+        (:SCIPdialogExecIIS, libscip),
         SCIP_RETCODE,
         (
             Ptr{SCIP},
@@ -31230,6 +47343,16 @@ function SCIPcreateExprAbs(scip, expr, child, ownercreate, ownercreatedata)
     )
 end
 
+function SCIPisExprAbs(scip, expr)
+    ccall(
+        (:SCIPisExprAbs, libscip),
+        Cuint,
+        (Ptr{SCIP}, Ptr{SCIP_EXPR}),
+        scip,
+        expr,
+    )
+end
+
 function SCIPincludeExprhdlrAbs(scip)
     ccall((:SCIPincludeExprhdlrAbs, libscip), SCIP_RETCODE, (Ptr{SCIP},), scip)
 end
@@ -31259,6 +47382,16 @@ function SCIPcreateExprEntropy(scip, expr, child, ownercreate, ownercreatedata)
         child,
         ownercreate,
         ownercreatedata,
+    )
+end
+
+function SCIPisExprEntropy(scip, expr)
+    ccall(
+        (:SCIPisExprEntropy, libscip),
+        Cuint,
+        (Ptr{SCIP}, Ptr{SCIP_EXPR}),
+        scip,
+        expr,
     )
 end
 
@@ -31469,6 +47602,46 @@ function SCIPaddSquareSecant(
     )
 end
 
+function SCIPestimateRoot(
+    scip,
+    exponent,
+    overestimate,
+    xlb,
+    xub,
+    xref,
+    constant,
+    slope,
+    islocal,
+    success,
+)
+    ccall(
+        (:SCIPestimateRoot, libscip),
+        Cvoid,
+        (
+            Ptr{SCIP},
+            Cdouble,
+            Cuint,
+            Cdouble,
+            Cdouble,
+            Cdouble,
+            Ptr{Cdouble},
+            Ptr{Cdouble},
+            Ptr{Cuint},
+            Ptr{Cuint},
+        ),
+        scip,
+        exponent,
+        overestimate,
+        xlb,
+        xub,
+        xref,
+        constant,
+        slope,
+        islocal,
+        success,
+    )
+end
+
 function SCIPincludeExprhdlrProduct(scip)
     ccall(
         (:SCIPincludeExprhdlrProduct, libscip),
@@ -31579,6 +47752,68 @@ function SCIPmultiplyByConstantExprSum(expr, constant)
     )
 end
 
+function SCIPmultiplyBySumExprSum(
+    scip,
+    product,
+    factor1,
+    factor2,
+    simplify,
+    ownercreate,
+    ownercreatedata,
+)
+    ccall(
+        (:SCIPmultiplyBySumExprSum, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP},
+            Ptr{Ptr{SCIP_EXPR}},
+            Ptr{SCIP_EXPR},
+            Ptr{SCIP_EXPR},
+            Cuint,
+            Ptr{Cvoid},
+            Ptr{Cvoid},
+        ),
+        scip,
+        product,
+        factor1,
+        factor2,
+        simplify,
+        ownercreate,
+        ownercreatedata,
+    )
+end
+
+function SCIPpowerExprSum(
+    scip,
+    result,
+    base,
+    exponent,
+    simplify,
+    ownercreate,
+    ownercreatedata,
+)
+    ccall(
+        (:SCIPpowerExprSum, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP},
+            Ptr{Ptr{SCIP_EXPR}},
+            Ptr{SCIP_EXPR},
+            Cint,
+            Cuint,
+            Ptr{Cvoid},
+            Ptr{Cvoid},
+        ),
+        scip,
+        result,
+        base,
+        exponent,
+        simplify,
+        ownercreate,
+        ownercreatedata,
+    )
+end
+
 function SCIPincludeExprhdlrSin(scip)
     ccall((:SCIPincludeExprhdlrSin, libscip), SCIP_RETCODE, (Ptr{SCIP},), scip)
 end
@@ -31622,6 +47857,26 @@ function SCIPcreateExprCos(scip, expr, child, ownercreate, ownercreatedata)
         child,
         ownercreate,
         ownercreatedata,
+    )
+end
+
+function SCIPisExprSin(scip, expr)
+    ccall(
+        (:SCIPisExprSin, libscip),
+        Cuint,
+        (Ptr{SCIP}, Ptr{SCIP_EXPR}),
+        scip,
+        expr,
+    )
+end
+
+function SCIPisExprCos(scip, expr)
+    ccall(
+        (:SCIPisExprCos, libscip),
+        Cuint,
+        (Ptr{SCIP}, Ptr{SCIP_EXPR}),
+        scip,
+        expr,
     )
 end
 
@@ -31739,6 +47994,10 @@ function SCIPincludeHeurDistributiondiving(scip)
     )
 end
 
+function SCIPincludeHeurDKS(scip)
+    ccall((:SCIPincludeHeurDKS, libscip), SCIP_RETCODE, (Ptr{SCIP},), scip)
+end
+
 function SCIPincludeHeurDps(scip)
     ccall((:SCIPincludeHeurDps, libscip), SCIP_RETCODE, (Ptr{SCIP},), scip)
 end
@@ -31830,6 +48089,15 @@ function SCIPheurPassIndicator(scip, heur, nindconss, indconss, solcand, obj)
         indconss,
         solcand,
         obj,
+    )
+end
+
+function SCIPincludeHeurIndicatordiving(scip)
+    ccall(
+        (:SCIPincludeHeurIndicatordiving, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP},),
+        scip,
     )
 end
 
@@ -32099,6 +48367,15 @@ function SCIPincludeHeurRounding(scip)
     ccall((:SCIPincludeHeurRounding, libscip), SCIP_RETCODE, (Ptr{SCIP},), scip)
 end
 
+function SCIPincludeHeurScheduler(scip)
+    ccall(
+        (:SCIPincludeHeurScheduler, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP},),
+        scip,
+    )
+end
+
 function SCIPincludeHeurShiftandpropagate(scip)
     ccall(
         (:SCIPincludeHeurShiftandpropagate, libscip),
@@ -32236,7 +48513,10 @@ function SCIPcomputeCoverUndercover(
     objlimit,
     globalbounds,
     onlyconvexify,
+    coverand,
     coverbd,
+    coverind,
+    covernl,
     coveringobj,
     success,
 )
@@ -32253,6 +48533,9 @@ function SCIPcomputeCoverUndercover(
             Cuint,
             Cuint,
             Cuint,
+            Cuint,
+            Cuint,
+            Cuint,
             Cchar,
             Ptr{Cuint},
         ),
@@ -32264,7 +48547,10 @@ function SCIPcomputeCoverUndercover(
         objlimit,
         globalbounds,
         onlyconvexify,
+        coverand,
         coverbd,
+        coverind,
+        covernl,
         coveringobj,
         success,
     )
@@ -32309,6 +48595,24 @@ function SCIPincludeHeurZirounding(scip)
     )
 end
 
+function SCIPincludeIISfinderGreedy(scip)
+    ccall(
+        (:SCIPincludeIISfinderGreedy, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP},),
+        scip,
+    )
+end
+
+function SCIPiisGreedyMakeIrreducible(iis)
+    ccall(
+        (:SCIPiisGreedyMakeIrreducible, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_IIS},),
+        iis,
+    )
+end
+
 function SCIPincludeNlhdlrBilinear(scip)
     ccall(
         (:SCIPincludeNlhdlrBilinear, libscip),
@@ -32318,34 +48622,20 @@ function SCIPincludeNlhdlrBilinear(scip)
     )
 end
 
-function SCIPgetNlhdlrBilinearExprs(nlhdlr)
+function SCIPgetExprsBilinear(nlhdlr)
     ccall(
-        (:SCIPgetNlhdlrBilinearExprs, libscip),
+        (:SCIPgetExprsBilinear, libscip),
         Ptr{Ptr{SCIP_EXPR}},
         (Ptr{SCIP_NLHDLR},),
         nlhdlr,
     )
 end
 
-function SCIPgetNlhdlrBilinearExprsdata(nlhdlr)
-    ccall(
-        (:SCIPgetNlhdlrBilinearExprsdata, libscip),
-        Ptr{Ptr{SCIP_NLHDLREXPRDATA}},
-        (Ptr{SCIP_NLHDLR},),
-        nlhdlr,
-    )
+function SCIPgetNExprsBilinear(nlhdlr)
+    ccall((:SCIPgetNExprsBilinear, libscip), Cint, (Ptr{SCIP_NLHDLR},), nlhdlr)
 end
 
-function SCIPgetNlhdlrBilinearNExprs(nlhdlr)
-    ccall(
-        (:SCIPgetNlhdlrBilinearNExprs, libscip),
-        Cint,
-        (Ptr{SCIP_NLHDLR},),
-        nlhdlr,
-    )
-end
-
-function SCIPaddNlhdlrBilinearIneq(
+function SCIPaddIneqBilinear(
     scip,
     nlhdlr,
     expr,
@@ -32355,7 +48645,7 @@ function SCIPaddNlhdlrBilinearIneq(
     success,
 )
     ccall(
-        (:SCIPaddNlhdlrBilinearIneq, libscip),
+        (:SCIPaddIneqBilinear, libscip),
         SCIP_RETCODE,
         (
             Ptr{SCIP},
@@ -32527,12 +48817,12 @@ function SCIPcomputeBilinEnvelope2(
     uby,
     refpointy,
     overestimate,
-    alpha1,
-    beta1,
-    gamma1,
-    alpha2,
-    beta2,
-    gamma2,
+    xcoef1,
+    ycoef1,
+    constant1,
+    xcoef2,
+    ycoef2,
+    constant2,
     lincoefx,
     lincoefy,
     linconstant,
@@ -32571,12 +48861,12 @@ function SCIPcomputeBilinEnvelope2(
         uby,
         refpointy,
         overestimate,
-        alpha1,
-        beta1,
-        gamma1,
-        alpha2,
-        beta2,
-        gamma2,
+        xcoef1,
+        ycoef1,
+        constant1,
+        xcoef2,
+        ycoef2,
+        constant2,
         lincoefx,
         lincoefy,
         linconstant,
@@ -32646,6 +48936,15 @@ end
 function SCIPincludeNlhdlrQuotient(scip)
     ccall(
         (:SCIPincludeNlhdlrQuotient, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP},),
+        scip,
+    )
+end
+
+function SCIPincludeNlhdlrSignomial(scip)
+    ccall(
+        (:SCIPincludeNlhdlrSignomial, libscip),
         SCIP_RETCODE,
         (Ptr{SCIP},),
         scip,
@@ -32851,6 +49150,15 @@ function SCIPincludePresolImplics(scip)
     )
 end
 
+function SCIPincludePresolImplint(scip)
+    ccall(
+        (:SCIPincludePresolImplint, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP},),
+        scip,
+    )
+end
+
 function SCIPincludePresolInttobinary(scip)
     ccall(
         (:SCIPincludePresolInttobinary, libscip),
@@ -32858,6 +49166,10 @@ function SCIPincludePresolInttobinary(scip)
         (Ptr{SCIP},),
         scip,
     )
+end
+
+function SCIPincludePresolMILP(scip)
+    ccall((:SCIPincludePresolMILP, libscip), SCIP_RETCODE, (Ptr{SCIP},), scip)
 end
 
 function SCIPincludePresolRedvub(scip)
@@ -32929,7 +49241,7 @@ function SCIPgenVBoundAdd(
     var,
     coefs,
     ncoefs,
-    coefprimalbound,
+    coefcutoffbound,
     constant,
     boundtype,
 )
@@ -32953,7 +49265,7 @@ function SCIPgenVBoundAdd(
         var,
         coefs,
         ncoefs,
-        coefprimalbound,
+        coefcutoffbound,
         constant,
         boundtype,
     )
@@ -33196,12 +49508,40 @@ function SCIPgetSymmetry(
     )
 end
 
-function SCIPisOrbitalfixingEnabled(scip)
-    ccall((:SCIPisOrbitalfixingEnabled, libscip), Cuint, (Ptr{SCIP},), scip)
-end
-
 function SCIPgetSymmetryNGenerators(scip)
     ccall((:SCIPgetSymmetryNGenerators, libscip), Cint, (Ptr{SCIP},), scip)
+end
+
+function SCIPdisplaySymmetryGenerators(scip, prop)
+    ccall(
+        (:SCIPdisplaySymmetryGenerators, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_PROP}),
+        scip,
+        prop,
+    )
+end
+
+function SCIPcreateSymOpNodeType(scip, opnodename, nodetype)
+    ccall(
+        (:SCIPcreateSymOpNodeType, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{Cchar}, Ptr{Cint}),
+        scip,
+        opnodename,
+        nodetype,
+    )
+end
+
+function SCIPgetSymOpNodeType(scip, opnodename, nodetype)
+    ccall(
+        (:SCIPgetSymOpNodeType, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{Cchar}, Ptr{Cint}),
+        scip,
+        opnodename,
+        nodetype,
+    )
 end
 
 function SCIPincludePropVbounds(scip)
@@ -33291,6 +49631,10 @@ function SCIPreadCor(scip, filename, result)
     )
 end
 
+function SCIPfreeReaderdataCor(scip)
+    ccall((:SCIPfreeReaderdataCor, libscip), SCIP_RETCODE, (Ptr{SCIP},), scip)
+end
+
 function SCIPcorHasRead(reader)
     ccall((:SCIPcorHasRead, libscip), Cuint, (Ptr{SCIP_READER},), reader)
 end
@@ -33339,64 +49683,6 @@ function SCIPreadDiff(scip, reader, filename, result)
         scip,
         reader,
         filename,
-        result,
-    )
-end
-
-function SCIPwriteDiff(
-    scip,
-    file,
-    name,
-    transformed,
-    objsense,
-    objscale,
-    objoffset,
-    vars,
-    nvars,
-    nbinvars,
-    nintvars,
-    nimplvars,
-    ncontvars,
-    conss,
-    nconss,
-    result,
-)
-    ccall(
-        (:SCIPwriteDiff, libscip),
-        SCIP_RETCODE,
-        (
-            Ptr{SCIP},
-            Ptr{Libc.FILE},
-            Ptr{Cchar},
-            Cuint,
-            SCIP_OBJSENSE,
-            Cdouble,
-            Cdouble,
-            Ptr{Ptr{SCIP_VAR}},
-            Cint,
-            Cint,
-            Cint,
-            Cint,
-            Cint,
-            Ptr{Ptr{SCIP_CONS}},
-            Cint,
-            Ptr{SCIP_RESULT},
-        ),
-        scip,
-        file,
-        name,
-        transformed,
-        objsense,
-        objscale,
-        objoffset,
-        vars,
-        nvars,
-        nbinvars,
-        nintvars,
-        nimplvars,
-        ncontvars,
-        conss,
-        nconss,
         result,
     )
 end
@@ -33504,8 +49790,10 @@ function SCIPwriteLp(
     name,
     transformed,
     objsense,
-    objscale,
     objoffset,
+    objscale,
+    objoffsetexact,
+    objscaleexact,
     vars,
     nvars,
     nbinvars,
@@ -33527,6 +49815,8 @@ function SCIPwriteLp(
             SCIP_OBJSENSE,
             Cdouble,
             Cdouble,
+            Ptr{SCIP_RATIONAL},
+            Ptr{SCIP_RATIONAL},
             Ptr{Ptr{SCIP_VAR}},
             Cint,
             Cint,
@@ -33542,8 +49832,10 @@ function SCIPwriteLp(
         name,
         transformed,
         objsense,
-        objscale,
         objoffset,
+        objscale,
+        objoffsetexact,
+        objscaleexact,
         vars,
         nvars,
         nbinvars,
@@ -33607,8 +49899,10 @@ function SCIPwriteMps(
     name,
     transformed,
     objsense,
-    objscale,
     objoffset,
+    objscale,
+    objoffsetexact,
+    objscaleexact,
     vars,
     nvars,
     nbinvars,
@@ -33633,6 +49927,8 @@ function SCIPwriteMps(
             SCIP_OBJSENSE,
             Cdouble,
             Cdouble,
+            Ptr{SCIP_RATIONAL},
+            Ptr{SCIP_RATIONAL},
             Ptr{Ptr{SCIP_VAR}},
             Cint,
             Cint,
@@ -33651,8 +49947,10 @@ function SCIPwriteMps(
         name,
         transformed,
         objsense,
-        objscale,
         objoffset,
+        objscale,
+        objoffsetexact,
+        objscaleexact,
         vars,
         nvars,
         nbinvars,
@@ -33701,8 +49999,10 @@ function SCIPwriteOpb(
     name,
     transformed,
     objsense,
-    objscale,
     objoffset,
+    objscale,
+    objoffsetexact,
+    objscaleexact,
     vars,
     nvars,
     nbinvars,
@@ -33727,6 +50027,8 @@ function SCIPwriteOpb(
             SCIP_OBJSENSE,
             Cdouble,
             Cdouble,
+            Ptr{SCIP_RATIONAL},
+            Ptr{SCIP_RATIONAL},
             Ptr{Ptr{SCIP_VAR}},
             Cint,
             Cint,
@@ -33745,8 +50047,10 @@ function SCIPwriteOpb(
         name,
         transformed,
         objsense,
-        objscale,
         objoffset,
+        objscale,
+        objoffsetexact,
+        objscaleexact,
         vars,
         nvars,
         nbinvars,
@@ -33952,66 +50256,12 @@ function SCIPreadSto(scip, filename, result)
     )
 end
 
-function SCIPwriteSto(
-    scip,
-    file,
-    name,
-    transformed,
-    objsense,
-    objscale,
-    objoffset,
-    vars,
-    nvars,
-    nbinvars,
-    nintvars,
-    nimplvars,
-    ncontvars,
-    conss,
-    nconss,
-    result,
-)
-    ccall(
-        (:SCIPwriteSto, libscip),
-        SCIP_RETCODE,
-        (
-            Ptr{SCIP},
-            Ptr{Libc.FILE},
-            Ptr{Cchar},
-            Cuint,
-            SCIP_OBJSENSE,
-            Cdouble,
-            Cdouble,
-            Ptr{Ptr{SCIP_VAR}},
-            Cint,
-            Cint,
-            Cint,
-            Cint,
-            Cint,
-            Ptr{Ptr{SCIP_CONS}},
-            Cint,
-            Ptr{SCIP_RESULT},
-        ),
-        scip,
-        file,
-        name,
-        transformed,
-        objsense,
-        objscale,
-        objoffset,
-        vars,
-        nvars,
-        nbinvars,
-        nintvars,
-        nimplvars,
-        ncontvars,
-        conss,
-        nconss,
-        result,
-    )
-end
-
 function SCIPstoGetNScenarios(scip)
     ccall((:SCIPstoGetNScenarios, libscip), Cint, (Ptr{SCIP},), scip)
+end
+
+function SCIPfreeReaderdataSto(scip)
+    ccall((:SCIPfreeReaderdataSto, libscip), SCIP_RETCODE, (Ptr{SCIP},), scip)
 end
 
 function SCIPincludeReaderTim(scip)
@@ -34027,6 +50277,10 @@ function SCIPreadTim(scip, filename, result)
         filename,
         result,
     )
+end
+
+function SCIPfreeReaderdataTim(scip)
+    ccall((:SCIPfreeReaderdataTim, libscip), SCIP_RETCODE, (Ptr{SCIP},), scip)
 end
 
 function SCIPtimHasRead(reader)
@@ -34173,6 +50427,10 @@ function SCIPincludeSepaDisjunctive(scip)
     )
 end
 
+function SCIPincludeSepaFlower(scip)
+    ccall((:SCIPincludeSepaFlower, libscip), SCIP_RETCODE, (Ptr{SCIP},), scip)
+end
+
 function SCIPincludeSepaGauge(scip)
     ccall((:SCIPincludeSepaGauge, libscip), SCIP_RETCODE, (Ptr{SCIP},), scip)
 end
@@ -34201,6 +50459,15 @@ end
 
 function SCIPincludeSepaIntobj(scip)
     ccall((:SCIPincludeSepaIntobj, libscip), SCIP_RETCODE, (Ptr{SCIP},), scip)
+end
+
+function SCIPincludeSepaLagromory(scip)
+    ccall(
+        (:SCIPincludeSepaLagromory, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP},),
+        scip,
+    )
 end
 
 function SCIPincludeSepaMcf(scip)
@@ -34259,8 +50526,18 @@ function SCIPrunShell(argc, argv, defaultsetname)
     )
 end
 
+function SCIPgetSymInferredVarType(var)
+    ccall(
+        (:SCIPgetSymInferredVarType, libscip),
+        SCIP_VARTYPE,
+        (Ptr{SCIP_VAR},),
+        var,
+    )
+end
+
 function SCIPcomputeOrbitsSym(
     scip,
+    issigned,
     permvars,
     npermvars,
     perms,
@@ -34274,6 +50551,7 @@ function SCIPcomputeOrbitsSym(
         SCIP_RETCODE,
         (
             Ptr{SCIP},
+            Cuint,
             Ptr{Ptr{SCIP_VAR}},
             Cint,
             Ptr{Ptr{Cint}},
@@ -34283,6 +50561,7 @@ function SCIPcomputeOrbitsSym(
             Ptr{Cint},
         ),
         scip,
+        issigned,
         permvars,
         npermvars,
         perms,
@@ -34481,6 +50760,7 @@ end
 
 function SCIPcomputeComponentsSym(
     scip,
+    symtype,
     perms,
     nperms,
     permvars,
@@ -34497,6 +50777,7 @@ function SCIPcomputeComponentsSym(
         SCIP_RETCODE,
         (
             Ptr{SCIP},
+            SYM_SYMTYPE,
             Ptr{Ptr{Cint}},
             Cint,
             Ptr{Ptr{SCIP_VAR}},
@@ -34509,6 +50790,7 @@ function SCIPcomputeComponentsSym(
             Ptr{Cint},
         ),
         scip,
+        symtype,
         perms,
         nperms,
         permvars,
@@ -34651,6 +50933,113 @@ function SCIPisPackingPartitioningOrbitope(
     )
 end
 
+function SCIPdetectSingleOrDoubleLexMatrices(
+    scip,
+    detectsinglelex,
+    perms,
+    nperms,
+    permlen,
+    success,
+    isorbitope,
+    lexmatrix,
+    nrows,
+    ncols,
+    lexrowsbegin,
+    lexcolsbegin,
+    nrowmatrices,
+    ncolmatrices,
+)
+    ccall(
+        (:SCIPdetectSingleOrDoubleLexMatrices, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP},
+            Cuint,
+            Ptr{Ptr{Cint}},
+            Cint,
+            Cint,
+            Ptr{Cuint},
+            Ptr{Cuint},
+            Ptr{Ptr{Ptr{Cint}}},
+            Ptr{Cint},
+            Ptr{Cint},
+            Ptr{Ptr{Cint}},
+            Ptr{Ptr{Cint}},
+            Ptr{Cint},
+            Ptr{Cint},
+        ),
+        scip,
+        detectsinglelex,
+        perms,
+        nperms,
+        permlen,
+        success,
+        isorbitope,
+        lexmatrix,
+        nrows,
+        ncols,
+        lexrowsbegin,
+        lexcolsbegin,
+        nrowmatrices,
+        ncolmatrices,
+    )
+end
+
+function SCIPsymEQ(scip, val1, val2)
+    ccall(
+        (:SCIPsymEQ, libscip),
+        Cuint,
+        (Ptr{SCIP}, Cdouble, Cdouble),
+        scip,
+        val1,
+        val2,
+    )
+end
+
+function SCIPsymLE(scip, val1, val2)
+    ccall(
+        (:SCIPsymLE, libscip),
+        Cuint,
+        (Ptr{SCIP}, Cdouble, Cdouble),
+        scip,
+        val1,
+        val2,
+    )
+end
+
+function SCIPsymGE(scip, val1, val2)
+    ccall(
+        (:SCIPsymGE, libscip),
+        Cuint,
+        (Ptr{SCIP}, Cdouble, Cdouble),
+        scip,
+        val1,
+        val2,
+    )
+end
+
+function SCIPsymLT(scip, val1, val2)
+    ccall(
+        (:SCIPsymLT, libscip),
+        Cuint,
+        (Ptr{SCIP}, Cdouble, Cdouble),
+        scip,
+        val1,
+        val2,
+    )
+end
+
+function SCIPsymGT(scip, val1, val2)
+    ccall(
+        (:SCIPsymGT, libscip),
+        Cuint,
+        (Ptr{SCIP}, Cdouble, Cdouble),
+        scip,
+        val1,
+        val2,
+    )
+end
+
 function SCIPincludeTableDefault(scip)
     ccall((:SCIPincludeTableDefault, libscip), SCIP_RETCODE, (Ptr{SCIP},), scip)
 end
@@ -34681,6 +51070,19 @@ function SCIPcreateBendersDefault(scip, subproblems, nsubproblems)
         scip,
         subproblems,
         nsubproblems,
+    )
+end
+
+function SCIPincludeRelaxBenders(scip)
+    ccall((:SCIPincludeRelaxBenders, libscip), SCIP_RETCODE, (Ptr{SCIP},), scip)
+end
+
+function SCIPgetMasterProblemRelaxBenders(scip)
+    ccall(
+        (:SCIPgetMasterProblemRelaxBenders, libscip),
+        Ptr{SCIP},
+        (Ptr{SCIP},),
+        scip,
     )
 end
 
@@ -34739,6 +51141,116 @@ function SCIPselectCutsHybrid(
         efficacyweight,
         objparalweight,
         intsupportweight,
+        ncuts,
+        nforcedcuts,
+        maxselectedcuts,
+        nselectedcuts,
+    )
+end
+
+function SCIPincludeCutselDynamic(scip)
+    ccall(
+        (:SCIPincludeCutselDynamic, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP},),
+        scip,
+    )
+end
+
+function SCIPselectCutsDynamic(
+    scip,
+    cuts,
+    forcedcuts,
+    randnumgen,
+    filtermode,
+    mingain,
+    maxparall,
+    dircutoffdistweight,
+    efficacyweight,
+    objparalweight,
+    intsupportweight,
+    ncuts,
+    nforcedcuts,
+    maxselectedcuts,
+    nselectedcuts,
+)
+    ccall(
+        (:SCIPselectCutsDynamic, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP},
+            Ptr{Ptr{SCIP_ROW}},
+            Ptr{Ptr{SCIP_ROW}},
+            Ptr{SCIP_RANDNUMGEN},
+            Cchar,
+            Cdouble,
+            Cdouble,
+            Cdouble,
+            Cdouble,
+            Cdouble,
+            Cdouble,
+            Cint,
+            Cint,
+            Cint,
+            Ptr{Cint},
+        ),
+        scip,
+        cuts,
+        forcedcuts,
+        randnumgen,
+        filtermode,
+        mingain,
+        maxparall,
+        dircutoffdistweight,
+        efficacyweight,
+        objparalweight,
+        intsupportweight,
+        ncuts,
+        nforcedcuts,
+        maxselectedcuts,
+        nselectedcuts,
+    )
+end
+
+function SCIPincludeCutselEnsemble(scip)
+    ccall(
+        (:SCIPincludeCutselEnsemble, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP},),
+        scip,
+    )
+end
+
+function SCIPselectCutsEnsemble(
+    scip,
+    cuts,
+    forcedcuts,
+    cutseldata,
+    root,
+    ncuts,
+    nforcedcuts,
+    maxselectedcuts,
+    nselectedcuts,
+)
+    ccall(
+        (:SCIPselectCutsEnsemble, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{SCIP},
+            Ptr{Ptr{SCIP_ROW}},
+            Ptr{Ptr{SCIP_ROW}},
+            Ptr{SCIP_CUTSELDATA},
+            Cuint,
+            Cint,
+            Cint,
+            Cint,
+            Ptr{Cint},
+        ),
+        scip,
+        cuts,
+        forcedcuts,
+        cutseldata,
+        root,
         ncuts,
         nforcedcuts,
         maxselectedcuts,
@@ -34890,6 +51402,40 @@ function SCIPisWorhpAvailableWorhp()
     ccall((:SCIPisWorhpAvailableWorhp, libscip), Cuint, ())
 end
 
+function SCIPincludeNlpSolverConopt(scip)
+    ccall(
+        (:SCIPincludeNlpSolverConopt, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP},),
+        scip,
+    )
+end
+
+function SCIPsetLicenseConopt(nlpi, integer_1, integer_2, integer_3, text)
+    ccall(
+        (:SCIPsetLicenseConopt, libscip),
+        Cvoid,
+        (Ptr{SCIP_NLPI}, Cint, Cint, Cint, Ptr{Cchar}),
+        nlpi,
+        integer_1,
+        integer_2,
+        integer_3,
+        text,
+    )
+end
+
+function SCIPgetSolverNameConopt()
+    ccall((:SCIPgetSolverNameConopt, libscip), Ptr{Cchar}, ())
+end
+
+function SCIPgetSolverDescConopt()
+    ccall((:SCIPgetSolverDescConopt, libscip), Ptr{Cchar}, ())
+end
+
+function SCIPisConoptAvailableConopt()
+    ccall((:SCIPisConoptAvailableConopt, libscip), Cuint, ())
+end
+
 function SCIPincludeNlpSolverAll(scip)
     ccall((:SCIPincludeNlpSolverAll, libscip), SCIP_RETCODE, (Ptr{SCIP},), scip)
 end
@@ -34951,6 +51497,7 @@ function SCIPcreateBanditEpsgreedy(
     epsgreedy,
     priorities,
     eps,
+    usemodification,
     preferrecent,
     decayfactor,
     avglim,
@@ -34959,12 +51506,13 @@ function SCIPcreateBanditEpsgreedy(
 )
     ccall(
         (:SCIPcreateBanditEpsgreedy, libscip),
-        SCIP_RETCODE,
+        Cint,
         (
             Ptr{SCIP},
             Ptr{Ptr{SCIP_BANDIT}},
             Ptr{Cdouble},
             Cdouble,
+            Cuint,
             Cuint,
             Cdouble,
             Cint,
@@ -34975,6 +51523,7 @@ function SCIPcreateBanditEpsgreedy(
         epsgreedy,
         priorities,
         eps,
+        usemodification,
         preferrecent,
         decayfactor,
         avglim,
@@ -35059,6 +51608,29 @@ function SCIPgetProbabilityExp3(exp3, action)
         Cdouble,
         (Ptr{SCIP_BANDIT}, Cint),
         exp3,
+        action,
+    )
+end
+
+function SCIPcreateBanditExp3IX(scip, exp3ix, priorities, nactions, initseed)
+    ccall(
+        (:SCIPcreateBanditExp3IX, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{Ptr{SCIP_BANDIT}}, Ptr{Cdouble}, Cint, Cuint),
+        scip,
+        exp3ix,
+        priorities,
+        nactions,
+        initseed,
+    )
+end
+
+function SCIPgetProbabilityExp3IX(exp3ix, action)
+    ccall(
+        (:SCIPgetProbabilityExp3IX, libscip),
+        Cdouble,
+        (Ptr{SCIP_BANDIT}, Cint),
+        exp3ix,
         action,
     )
 end
@@ -35262,6 +51834,15 @@ function SCIPbendersOnlyCheckConvexRelax(benders, subscipsoff)
     )
 end
 
+function SCIPbendersGetNLPParam(benders)
+    ccall(
+        (:SCIPbendersGetNLPParam, libscip),
+        SCIP_NLPPARAM,
+        (Ptr{SCIP_BENDERS},),
+        benders,
+    )
+end
+
 function SCIPbendersCutLP(benders)
     ccall((:SCIPbendersCutLP, libscip), Cuint, (Ptr{SCIP_BENDERS},), benders)
 end
@@ -35314,6 +51895,15 @@ function SCIPbendersSubproblemIsSetup(benders, probnumber)
     )
 end
 
+function SCIPbenderGetMasterAuxiliaryVar(benders)
+    ccall(
+        (:SCIPbenderGetMasterAuxiliaryVar, libscip),
+        Ptr{SCIP_VAR},
+        (Ptr{SCIP_BENDERS},),
+        benders,
+    )
+end
+
 function SCIPbendersGetAuxiliaryVar(benders, probnumber)
     ccall(
         (:SCIPbendersGetAuxiliaryVar, libscip),
@@ -35330,6 +51920,54 @@ function SCIPbendersGetAuxiliaryVars(benders)
         Ptr{Ptr{SCIP_VAR}},
         (Ptr{SCIP_BENDERS},),
         benders,
+    )
+end
+
+function SCIPbendersGetSubproblemMasterVars(benders, probnumber)
+    ccall(
+        (:SCIPbendersGetSubproblemMasterVars, libscip),
+        Ptr{Ptr{SCIP_VAR}},
+        (Ptr{SCIP_BENDERS}, Cint),
+        benders,
+        probnumber,
+    )
+end
+
+function SCIPbendersGetNSubproblemMasterVars(benders, probnumber)
+    ccall(
+        (:SCIPbendersGetNSubproblemMasterVars, libscip),
+        Cint,
+        (Ptr{SCIP_BENDERS}, Cint),
+        benders,
+        probnumber,
+    )
+end
+
+function SCIPbendersGetSubproblemMasterVarsData(
+    benders,
+    probnumber,
+    vars,
+    nvars,
+    nbinvars,
+    nintvars,
+)
+    ccall(
+        (:SCIPbendersGetSubproblemMasterVarsData, libscip),
+        Cvoid,
+        (
+            Ptr{SCIP_BENDERS},
+            Cint,
+            Ptr{Ptr{Ptr{SCIP_VAR}}},
+            Ptr{Cint},
+            Ptr{Cint},
+            Ptr{Cint},
+        ),
+        benders,
+        probnumber,
+        vars,
+        nvars,
+        nbinvars,
+        nintvars,
     )
 end
 
@@ -35577,9 +52215,27 @@ function SCIPbendersMasterIsNonlinear(benders)
     )
 end
 
+function SCIPbendersGetObjectiveType(benders)
+    ccall(
+        (:SCIPbendersGetObjectiveType, libscip),
+        SCIP_BENDERSOBJTYPE,
+        (Ptr{SCIP_BENDERS},),
+        benders,
+    )
+end
+
 function SCIPbendersInStrengthenRound(benders)
     ccall(
         (:SCIPbendersInStrengthenRound, libscip),
+        Cuint,
+        (Ptr{SCIP_BENDERS},),
+        benders,
+    )
+end
+
+function SCIPbendersSubproblemsAreInfeasible(benders)
+    ccall(
+        (:SCIPbendersSubproblemsAreInfeasible, libscip),
         Cuint,
         (Ptr{SCIP_BENDERS},),
         benders,
@@ -35854,6 +52510,15 @@ function SCIPbranchruleSetData(branchrule, branchruledata)
     )
 end
 
+function SCIPbranchruleMarkExact(branchrule)
+    ccall(
+        (:SCIPbranchruleMarkExact, libscip),
+        Cvoid,
+        (Ptr{SCIP_BRANCHRULE},),
+        branchrule,
+    )
+end
+
 function SCIPbranchruleGetName(branchrule)
     ccall(
         (:SCIPbranchruleGetName, libscip),
@@ -36037,8 +52702,8 @@ function SCIPcomprSetData(compr, comprdata)
     )
 end
 
-function SCIPcomprGetName(heur)
-    ccall((:SCIPcomprGetName, libscip), Ptr{Cchar}, (Ptr{SCIP_COMPR},), heur)
+function SCIPcomprGetName(compr)
+    ccall((:SCIPcomprGetName, libscip), Ptr{Cchar}, (Ptr{SCIP_COMPR},), compr)
 end
 
 function SCIPcomprGetDesc(compr)
@@ -36196,6 +52861,16 @@ function SCIPconshdlrCompCheck(elem1, elem2)
     )
 end
 
+function SCIPconsCompCheck(elem1, elem2)
+    ccall(
+        (:SCIPconsCompCheck, libscip),
+        Cint,
+        (Ptr{Cvoid}, Ptr{Cvoid}),
+        elem1,
+        elem2,
+    )
+end
+
 function SCIPconshdlrGetName(conshdlr)
     ccall(
         (:SCIPconshdlrGetName, libscip),
@@ -36230,6 +52905,24 @@ function SCIPconshdlrSetData(conshdlr, conshdlrdata)
         (Ptr{SCIP_CONSHDLR}, Ptr{SCIP_CONSHDLRDATA}),
         conshdlr,
         conshdlrdata,
+    )
+end
+
+function SCIPconshdlrIsExact(conshdlr)
+    ccall(
+        (:SCIPconshdlrIsExact, libscip),
+        Cuint,
+        (Ptr{SCIP_CONSHDLR},),
+        conshdlr,
+    )
+end
+
+function SCIPconshdlrMarkExact(conshdlr)
+    ccall(
+        (:SCIPconshdlrMarkExact, libscip),
+        Cvoid,
+        (Ptr{SCIP_CONSHDLR},),
+        conshdlr,
     )
 end
 
@@ -36760,6 +53453,16 @@ function SCIPconshdlrNeedsCons(conshdlr)
     )
 end
 
+function SCIPconshdlrSetNeedsCons(conshdlr, needscons)
+    ccall(
+        (:SCIPconshdlrSetNeedsCons, libscip),
+        Cvoid,
+        (Ptr{SCIP_CONSHDLR}, Cuint),
+        conshdlr,
+        needscons,
+    )
+end
+
 function SCIPconshdlrDoesPresolve(conshdlr)
     ccall(
         (:SCIPconshdlrDoesPresolve, libscip),
@@ -36878,6 +53581,24 @@ function SCIPconshdlrSetPresolTiming(conshdlr, presoltiming)
         (Ptr{SCIP_CONSHDLR}, SCIP_PRESOLTIMING),
         conshdlr,
         presoltiming,
+    )
+end
+
+function SCIPconshdlrSupportsPermsymDetection(conshdlr)
+    ccall(
+        (:SCIPconshdlrSupportsPermsymDetection, libscip),
+        Cuint,
+        (Ptr{SCIP_CONSHDLR},),
+        conshdlr,
+    )
+end
+
+function SCIPconshdlrSupportsSignedPermsymDetection(conshdlr)
+    ccall(
+        (:SCIPconshdlrSupportsSignedPermsymDetection, libscip),
+        Cuint,
+        (Ptr{SCIP_CONSHDLR},),
+        conshdlr,
     )
 end
 
@@ -37216,7 +53937,7 @@ end
 function SCIPcutpoolGetMaxNCuts(cutpool)
     ccall(
         (:SCIPcutpoolGetMaxNCuts, libscip),
-        Cint,
+        Clonglong,
         (Ptr{SCIP_CUTPOOL},),
         cutpool,
     )
@@ -37240,9 +53961,27 @@ function SCIPcutpoolGetNCalls(cutpool)
     )
 end
 
+function SCIPcutpoolGetNRootCalls(cutpool)
+    ccall(
+        (:SCIPcutpoolGetNRootCalls, libscip),
+        Clonglong,
+        (Ptr{SCIP_CUTPOOL},),
+        cutpool,
+    )
+end
+
 function SCIPcutpoolGetNCutsFound(cutpool)
     ccall(
         (:SCIPcutpoolGetNCutsFound, libscip),
+        Clonglong,
+        (Ptr{SCIP_CUTPOOL},),
+        cutpool,
+    )
+end
+
+function SCIPcutpoolGetNCutsAdded(cutpool)
+    ccall(
+        (:SCIPcutpoolGetNCutsAdded, libscip),
         Clonglong,
         (Ptr{SCIP_CUTPOOL},),
         cutpool,
@@ -37312,6 +54051,78 @@ function SCIPcutselGetTime(cutsel)
     ccall((:SCIPcutselGetTime, libscip), Cdouble, (Ptr{SCIP_CUTSEL},), cutsel)
 end
 
+function SCIPcutselGetNCalls(cutsel)
+    ccall(
+        (:SCIPcutselGetNCalls, libscip),
+        Clonglong,
+        (Ptr{SCIP_CUTSEL},),
+        cutsel,
+    )
+end
+
+function SCIPcutselGetNRootCalls(cutsel)
+    ccall(
+        (:SCIPcutselGetNRootCalls, libscip),
+        Clonglong,
+        (Ptr{SCIP_CUTSEL},),
+        cutsel,
+    )
+end
+
+function SCIPcutselGetNRootCuts(cutsel)
+    ccall(
+        (:SCIPcutselGetNRootCuts, libscip),
+        Clonglong,
+        (Ptr{SCIP_CUTSEL},),
+        cutsel,
+    )
+end
+
+function SCIPcutselGetNRootForcedCuts(cutsel)
+    ccall(
+        (:SCIPcutselGetNRootForcedCuts, libscip),
+        Clonglong,
+        (Ptr{SCIP_CUTSEL},),
+        cutsel,
+    )
+end
+
+function SCIPcutselGetNRootCutsFiltered(cutsel)
+    ccall(
+        (:SCIPcutselGetNRootCutsFiltered, libscip),
+        Clonglong,
+        (Ptr{SCIP_CUTSEL},),
+        cutsel,
+    )
+end
+
+function SCIPcutselGetNLocalCuts(cutsel)
+    ccall(
+        (:SCIPcutselGetNLocalCuts, libscip),
+        Clonglong,
+        (Ptr{SCIP_CUTSEL},),
+        cutsel,
+    )
+end
+
+function SCIPcutselGetNLocalForcedCuts(cutsel)
+    ccall(
+        (:SCIPcutselGetNLocalForcedCuts, libscip),
+        Clonglong,
+        (Ptr{SCIP_CUTSEL},),
+        cutsel,
+    )
+end
+
+function SCIPcutselGetNLocalCutsFiltered(cutsel)
+    ccall(
+        (:SCIPcutselGetNLocalCutsFiltered, libscip),
+        Clonglong,
+        (Ptr{SCIP_CUTSEL},),
+        cutsel,
+    )
+end
+
 function SCIPcutselComp(elem1, elem2)
     ccall(
         (:SCIPcutselComp, libscip),
@@ -37319,6 +54130,109 @@ function SCIPcutselComp(elem1, elem2)
         (Ptr{Cvoid}, Ptr{Cvoid}),
         elem1,
         elem2,
+    )
+end
+
+function SCIPdatatreeGetBool(datatree, name, value)
+    ccall(
+        (:SCIPdatatreeGetBool, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_DATATREE}, Ptr{Cchar}, Ptr{Cuint}),
+        datatree,
+        name,
+        value,
+    )
+end
+
+function SCIPdatatreeGetLong(datatree, name, value)
+    ccall(
+        (:SCIPdatatreeGetLong, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_DATATREE}, Ptr{Cchar}, Ptr{Clonglong}),
+        datatree,
+        name,
+        value,
+    )
+end
+
+function SCIPdatatreeGetReal(datatree, name, value)
+    ccall(
+        (:SCIPdatatreeGetReal, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_DATATREE}, Ptr{Cchar}, Ptr{Cdouble}),
+        datatree,
+        name,
+        value,
+    )
+end
+
+function SCIPdatatreeGetString(datatree, name, value)
+    ccall(
+        (:SCIPdatatreeGetString, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_DATATREE}, Ptr{Cchar}, Ptr{Ptr{Cchar}}),
+        datatree,
+        name,
+        value,
+    )
+end
+
+function SCIPdatatreeGetBoolArray(datatree, name, values, nvalues)
+    ccall(
+        (:SCIPdatatreeGetBoolArray, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_DATATREE}, Ptr{Cchar}, Ptr{Ptr{Cuint}}, Ptr{Cint}),
+        datatree,
+        name,
+        values,
+        nvalues,
+    )
+end
+
+function SCIPdatatreeGetLongArray(datatree, name, values, nvalues)
+    ccall(
+        (:SCIPdatatreeGetLongArray, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_DATATREE}, Ptr{Cchar}, Ptr{Ptr{Clonglong}}, Ptr{Cint}),
+        datatree,
+        name,
+        values,
+        nvalues,
+    )
+end
+
+function SCIPdatatreeGetRealArray(datatree, name, values, nvalues)
+    ccall(
+        (:SCIPdatatreeGetRealArray, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_DATATREE}, Ptr{Cchar}, Ptr{Ptr{Cdouble}}, Ptr{Cint}),
+        datatree,
+        name,
+        values,
+        nvalues,
+    )
+end
+
+function SCIPdatatreeGetStringArray(datatree, name, values, nvalues)
+    ccall(
+        (:SCIPdatatreeGetStringArray, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_DATATREE}, Ptr{Cchar}, Ptr{Ptr{Ptr{Cchar}}}, Ptr{Cint}),
+        datatree,
+        name,
+        values,
+        nvalues,
+    )
+end
+
+function SCIPdatatreeGetTree(datatree, name, value)
+    ccall(
+        (:SCIPdatatreeGetTree, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_DATATREE}, Ptr{Cchar}, Ptr{Ptr{SCIP_DATATREE}}),
+        datatree,
+        name,
+        value,
     )
 end
 
@@ -37390,25 +54304,25 @@ function SCIPdecompGetModularity(decomp)
     )
 end
 
-function SCIPdecompGetVarsSize(decomp, varssize, nblocks)
+function SCIPdecompGetVarsSize(decomp, varssize, nlabels)
     ccall(
         (:SCIPdecompGetVarsSize, libscip),
         SCIP_RETCODE,
         (Ptr{SCIP_DECOMP}, Ptr{Cint}, Cint),
         decomp,
         varssize,
-        nblocks,
+        nlabels,
     )
 end
 
-function SCIPdecompGetConssSize(decomp, consssize, nblocks)
+function SCIPdecompGetConssSize(decomp, consssize, nlabels)
     ccall(
         (:SCIPdecompGetConssSize, libscip),
         SCIP_RETCODE,
         (Ptr{SCIP_DECOMP}, Ptr{Cint}, Cint),
         decomp,
         consssize,
-        nblocks,
+        nlabels,
     )
 end
 
@@ -37762,6 +54676,14 @@ function SCIPdialogSetData(dialog, dialogdata)
     )
 end
 
+function SCIPdialogIsHidden(dialog)
+    ccall((:SCIPdialogIsHidden, libscip), Cuint, (Ptr{SCIP_DIALOG},), dialog)
+end
+
+function SCIPdialogSetHidden(dialog)
+    ccall((:SCIPdialogSetHidden, libscip), Cvoid, (Ptr{SCIP_DIALOG},), dialog)
+end
+
 function SCIPdialogWriteHistory(filename)
     ccall(
         (:SCIPdialogWriteHistory, libscip),
@@ -37943,6 +54865,15 @@ function SCIPeventGetOldbound(event)
     ccall((:SCIPeventGetOldbound, libscip), Cdouble, (Ptr{SCIP_EVENT},), event)
 end
 
+function SCIPeventGetOldboundExact(event)
+    ccall(
+        (:SCIPeventGetOldboundExact, libscip),
+        Ptr{SCIP_RATIONAL},
+        (Ptr{SCIP_EVENT},),
+        event,
+    )
+end
+
 function SCIPeventGetNewbound(event)
     ccall((:SCIPeventGetNewbound, libscip), Cdouble, (Ptr{SCIP_EVENT},), event)
 end
@@ -37960,6 +54891,24 @@ function SCIPeventGetNewtype(event)
     ccall(
         (:SCIPeventGetNewtype, libscip),
         SCIP_VARTYPE,
+        (Ptr{SCIP_EVENT},),
+        event,
+    )
+end
+
+function SCIPeventGetOldImpltype(event)
+    ccall(
+        (:SCIPeventGetOldImpltype, libscip),
+        SCIP_IMPLINTTYPE,
+        (Ptr{SCIP_EVENT},),
+        event,
+    )
+end
+
+function SCIPeventGetNewImpltype(event)
+    ccall(
+        (:SCIPeventGetNewImpltype, libscip),
+        SCIP_IMPLINTTYPE,
         (Ptr{SCIP_EVENT},),
         event,
     )
@@ -38207,6 +55156,16 @@ function SCIPexprhdlrSetEstimate(exprhdlr, initestimates, estimate)
     )
 end
 
+function SCIPexprhdlrSetGetSymdata(exprhdlr, getsymdata)
+    ccall(
+        (:SCIPexprhdlrSetGetSymdata, libscip),
+        Cvoid,
+        (Ptr{SCIP_EXPRHDLR}, Ptr{Cvoid}),
+        exprhdlr,
+        getsymdata,
+    )
+end
+
 function SCIPexprhdlrGetName(exprhdlr)
     ccall(
         (:SCIPexprhdlrGetName, libscip),
@@ -38327,6 +55286,15 @@ end
 function SCIPexprhdlrHasReverseProp(exprhdlr)
     ccall(
         (:SCIPexprhdlrHasReverseProp, libscip),
+        Cuint,
+        (Ptr{SCIP_EXPRHDLR},),
+        exprhdlr,
+    )
+end
+
+function SCIPexprhdlrHasGetSymData(exprhdlr)
+    ccall(
+        (:SCIPexprhdlrHasGetSymData, libscip),
         Cuint,
         (Ptr{SCIP_EXPRHDLR},),
         exprhdlr,
@@ -38605,17 +55573,26 @@ function SCIPexprSetCurvature(expr, curvature)
     )
 end
 
+function SCIPexprGetIntegrality(expr)
+    ccall(
+        (:SCIPexprGetIntegrality, libscip),
+        SCIP_IMPLINTTYPE,
+        (Ptr{SCIP_EXPR},),
+        expr,
+    )
+end
+
 function SCIPexprIsIntegral(expr)
     ccall((:SCIPexprIsIntegral, libscip), Cuint, (Ptr{SCIP_EXPR},), expr)
 end
 
-function SCIPexprSetIntegrality(expr, isintegral)
+function SCIPexprSetIntegrality(expr, integrality)
     ccall(
         (:SCIPexprSetIntegrality, libscip),
         Cvoid,
-        (Ptr{SCIP_EXPR}, Cuint),
+        (Ptr{SCIP_EXPR}, SCIP_IMPLINTTYPE),
         expr,
-        isintegral,
+        integrality,
     )
 end
 
@@ -39137,6 +56114,16 @@ function SCIPheurComp(elem1, elem2)
     )
 end
 
+function SCIPheurCompPriority(elem1, elem2)
+    ccall(
+        (:SCIPheurCompPriority, libscip),
+        Cint,
+        (Ptr{Cvoid}, Ptr{Cvoid}),
+        elem1,
+        elem2,
+    )
+end
+
 function SCIPheurCompName(elem1, elem2)
     ccall(
         (:SCIPheurCompName, libscip),
@@ -39164,6 +56151,10 @@ function SCIPheurSetData(heur, heurdata)
         heur,
         heurdata,
     )
+end
+
+function SCIPheurMarkExact(heur)
+    ccall((:SCIPheurMarkExact, libscip), Cvoid, (Ptr{SCIP_HEUR},), heur)
 end
 
 function SCIPheurGetName(heur)
@@ -39650,9 +56641,29 @@ function SCIPhistoryGetVSIDS(history, dir)
     )
 end
 
+function SCIPhistoryGetAvgConflictlength(history, dir)
+    ccall(
+        (:SCIPhistoryGetAvgConflictlength, libscip),
+        Cdouble,
+        (Ptr{SCIP_HISTORY}, SCIP_BRANCHDIR),
+        history,
+        dir,
+    )
+end
+
 function SCIPhistoryGetCutoffSum(history, dir)
     ccall(
         (:SCIPhistoryGetCutoffSum, libscip),
+        Cdouble,
+        (Ptr{SCIP_HISTORY}, SCIP_BRANCHDIR),
+        history,
+        dir,
+    )
+end
+
+function SCIPhistoryGetInferenceSum(history, dir)
+    ccall(
+        (:SCIPhistoryGetInferenceSum, libscip),
         Cdouble,
         (Ptr{SCIP_HISTORY}, SCIP_BRANCHDIR),
         history,
@@ -39684,6 +56695,140 @@ function SCIPvaluehistoryGetValues(valuehistory)
         Ptr{Cdouble},
         (Ptr{SCIP_VALUEHISTORY},),
         valuehistory,
+    )
+end
+
+function SCIPiisfinderGetName(iisfinder)
+    ccall(
+        (:SCIPiisfinderGetName, libscip),
+        Ptr{Cchar},
+        (Ptr{SCIP_IISFINDER},),
+        iisfinder,
+    )
+end
+
+function SCIPiisfinderGetData(iisfinder)
+    ccall(
+        (:SCIPiisfinderGetData, libscip),
+        Ptr{SCIP_IISFINDERDATA},
+        (Ptr{SCIP_IISFINDER},),
+        iisfinder,
+    )
+end
+
+function SCIPiisfinderGetDesc(iisfinder)
+    ccall(
+        (:SCIPiisfinderGetDesc, libscip),
+        Ptr{Cchar},
+        (Ptr{SCIP_IISFINDER},),
+        iisfinder,
+    )
+end
+
+function SCIPiisfinderGetPriority(iisfinder)
+    ccall(
+        (:SCIPiisfinderGetPriority, libscip),
+        Cint,
+        (Ptr{SCIP_IISFINDER},),
+        iisfinder,
+    )
+end
+
+function SCIPiisfinderSetData(iisfinder, iisfinderdata)
+    ccall(
+        (:SCIPiisfinderSetData, libscip),
+        Cvoid,
+        (Ptr{SCIP_IISFINDER}, Ptr{SCIP_IISFINDERDATA}),
+        iisfinder,
+        iisfinderdata,
+    )
+end
+
+function SCIPiisfinderGetTime(iisfinder)
+    ccall(
+        (:SCIPiisfinderGetTime, libscip),
+        Cdouble,
+        (Ptr{SCIP_IISFINDER},),
+        iisfinder,
+    )
+end
+
+function SCIPiisfinderInfoMessage(iis, printheaders)
+    ccall(
+        (:SCIPiisfinderInfoMessage, libscip),
+        Cvoid,
+        (Ptr{SCIP_IIS}, Cuint),
+        iis,
+        printheaders,
+    )
+end
+
+function SCIPiisGetTime(iis)
+    ccall((:SCIPiisGetTime, libscip), Cdouble, (Ptr{SCIP_IIS},), iis)
+end
+
+function SCIPiisIsSubscipInfeasible(iis)
+    ccall((:SCIPiisIsSubscipInfeasible, libscip), Cuint, (Ptr{SCIP_IIS},), iis)
+end
+
+function SCIPiisIsSubscipIrreducible(iis)
+    ccall((:SCIPiisIsSubscipIrreducible, libscip), Cuint, (Ptr{SCIP_IIS},), iis)
+end
+
+function SCIPiisGetNNodes(iis)
+    ccall((:SCIPiisGetNNodes, libscip), Clonglong, (Ptr{SCIP_IIS},), iis)
+end
+
+function SCIPiisSetSubscipInfeasible(iis, infeasible)
+    ccall(
+        (:SCIPiisSetSubscipInfeasible, libscip),
+        Cvoid,
+        (Ptr{SCIP_IIS}, Cuint),
+        iis,
+        infeasible,
+    )
+end
+
+function SCIPiisSetSubscipIrreducible(iis, irreducible)
+    ccall(
+        (:SCIPiisSetSubscipIrreducible, libscip),
+        Cvoid,
+        (Ptr{SCIP_IIS}, Cuint),
+        iis,
+        irreducible,
+    )
+end
+
+function SCIPiisAddNNodes(iis, nnodes)
+    ccall(
+        (:SCIPiisAddNNodes, libscip),
+        Cvoid,
+        (Ptr{SCIP_IIS}, Clonglong),
+        iis,
+        nnodes,
+    )
+end
+
+function SCIPiisGetRandnumgen(iis)
+    ccall(
+        (:SCIPiisGetRandnumgen, libscip),
+        Ptr{SCIP_RANDNUMGEN},
+        (Ptr{SCIP_IIS},),
+        iis,
+    )
+end
+
+function SCIPiisGetSubscip(iis)
+    ccall((:SCIPiisGetSubscip, libscip), Ptr{SCIP}, (Ptr{SCIP_IIS},), iis)
+end
+
+function SCIPiisfinderComp(elem1, elem2)
+    ccall(
+        (:SCIPiisfinderComp, libscip),
+        Cint,
+        (Ptr{Cvoid}, Ptr{Cvoid}),
+        elem1,
+        elem2,
     )
 end
 
@@ -39811,6 +56956,10 @@ end
 
 function SCIPcolIsIntegral(col)
     ccall((:SCIPcolIsIntegral, libscip), Cuint, (Ptr{SCIP_COL},), col)
+end
+
+function SCIPcolIsImpliedIntegral(col)
+    ccall((:SCIPcolIsImpliedIntegral, libscip), Cuint, (Ptr{SCIP_COL},), col)
 end
 
 function SCIPcolIsRemovable(col)
@@ -40073,6 +57222,125 @@ function SCIProwChgRank(row, rank)
     ccall((:SCIProwChgRank, libscip), Cvoid, (Ptr{SCIP_ROW}, Cint), row, rank)
 end
 
+function SCIProwGetRowExact(row)
+    ccall(
+        (:SCIProwGetRowExact, libscip),
+        Ptr{SCIP_ROWEXACT},
+        (Ptr{SCIP_ROW},),
+        row,
+    )
+end
+
+function SCIProwExactComp(elem1, elem2)
+    ccall(
+        (:SCIProwExactComp, libscip),
+        Cint,
+        (Ptr{Cvoid}, Ptr{Cvoid}),
+        elem1,
+        elem2,
+    )
+end
+
+function SCIPcolExactGetVar(col)
+    ccall(
+        (:SCIPcolExactGetVar, libscip),
+        Ptr{SCIP_VAR},
+        (Ptr{SCIP_COLEXACT},),
+        col,
+    )
+end
+
+function SCIProwExactGetLhs(row)
+    ccall(
+        (:SCIProwExactGetLhs, libscip),
+        Ptr{SCIP_RATIONAL},
+        (Ptr{SCIP_ROWEXACT},),
+        row,
+    )
+end
+
+function SCIProwExactGetRhs(row)
+    ccall(
+        (:SCIProwExactGetRhs, libscip),
+        Ptr{SCIP_RATIONAL},
+        (Ptr{SCIP_ROWEXACT},),
+        row,
+    )
+end
+
+function SCIProwExactGetConstant(row)
+    ccall(
+        (:SCIProwExactGetConstant, libscip),
+        Ptr{SCIP_RATIONAL},
+        (Ptr{SCIP_ROWEXACT},),
+        row,
+    )
+end
+
+function SCIProwExactGetNNonz(row)
+    ccall((:SCIProwExactGetNNonz, libscip), Cint, (Ptr{SCIP_ROWEXACT},), row)
+end
+
+function SCIProwExactGetVals(row)
+    ccall(
+        (:SCIProwExactGetVals, libscip),
+        Ptr{Ptr{SCIP_RATIONAL}},
+        (Ptr{SCIP_ROWEXACT},),
+        row,
+    )
+end
+
+function SCIProwExactIsInLP(row)
+    ccall((:SCIProwExactIsInLP, libscip), Cuint, (Ptr{SCIP_ROWEXACT},), row)
+end
+
+function SCIProwExactSort(row)
+    ccall((:SCIProwExactSort, libscip), Cvoid, (Ptr{SCIP_ROWEXACT},), row)
+end
+
+function SCIProwExactGetCols(row)
+    ccall(
+        (:SCIProwExactGetCols, libscip),
+        Ptr{Ptr{SCIP_COLEXACT}},
+        (Ptr{SCIP_ROWEXACT},),
+        row,
+    )
+end
+
+function SCIProwExactLock(row)
+    ccall((:SCIProwExactLock, libscip), Cvoid, (Ptr{SCIP_ROWEXACT},), row)
+end
+
+function SCIProwExactUnlock(row)
+    ccall((:SCIProwExactUnlock, libscip), Cvoid, (Ptr{SCIP_ROWEXACT},), row)
+end
+
+function SCIProwExactGetRow(row)
+    ccall(
+        (:SCIProwExactGetRow, libscip),
+        Ptr{SCIP_ROW},
+        (Ptr{SCIP_ROWEXACT},),
+        row,
+    )
+end
+
+function SCIProwExactGetRowRhs(row)
+    ccall(
+        (:SCIProwExactGetRowRhs, libscip),
+        Ptr{SCIP_ROW},
+        (Ptr{SCIP_ROWEXACT},),
+        row,
+    )
+end
+
+function SCIProwExactHasFpRelax(row)
+    ccall((:SCIProwExactHasFpRelax, libscip), Cuint, (Ptr{SCIP_ROWEXACT},), row)
+end
+
+function SCIPlpExactDiving(lpexact)
+    ccall((:SCIPlpExactDiving, libscip), Cuint, (Ptr{SCIP_LPEXACT},), lpexact)
+end
+
 function SCIPmatrixGetColValPtr(matrix, col)
     ccall(
         (:SCIPmatrixGetColValPtr, libscip),
@@ -40177,6 +57445,16 @@ function SCIPmatrixGetRowValPtr(matrix, row)
     )
 end
 
+function SCIPmatrixGetRowValPtrExact(matrix, row)
+    ccall(
+        (:SCIPmatrixGetRowValPtrExact, libscip),
+        Ptr{Ptr{SCIP_RATIONAL}},
+        (Ptr{SCIP_MATRIX}, Cint),
+        matrix,
+        row,
+    )
+end
+
 function SCIPmatrixGetRowIdxPtr(matrix, row)
     ccall(
         (:SCIPmatrixGetRowIdxPtr, libscip),
@@ -40225,6 +57503,26 @@ function SCIPmatrixGetRowRhs(matrix, row)
     ccall(
         (:SCIPmatrixGetRowRhs, libscip),
         Cdouble,
+        (Ptr{SCIP_MATRIX}, Cint),
+        matrix,
+        row,
+    )
+end
+
+function SCIPmatrixGetRowLhsExact(matrix, row)
+    ccall(
+        (:SCIPmatrixGetRowLhsExact, libscip),
+        Ptr{SCIP_RATIONAL},
+        (Ptr{SCIP_MATRIX}, Cint),
+        matrix,
+        row,
+    )
+end
+
+function SCIPmatrixGetRowRhsExact(matrix, row)
+    ccall(
+        (:SCIPmatrixGetRowRhsExact, libscip),
+        Ptr{SCIP_RATIONAL},
         (Ptr{SCIP_MATRIX}, Cint),
         matrix,
         row,
@@ -40777,6 +58075,40 @@ function SCIPgmlWriteClosing(file)
     ccall((:SCIPgmlWriteClosing, libscip), Cvoid, (Ptr{Libc.FILE},), file)
 end
 
+function SCIPdotWriteOpening(file)
+    ccall((:SCIPdotWriteOpening, libscip), Cvoid, (Ptr{Libc.FILE},), file)
+end
+
+function SCIPdotWriteNode(file, node, label, nodetype, fillcolor, bordercolor)
+    ccall(
+        (:SCIPdotWriteNode, libscip),
+        Cvoid,
+        (Ptr{Libc.FILE}, Cint, Ptr{Cchar}, Ptr{Cchar}, Ptr{Cchar}, Ptr{Cchar}),
+        file,
+        node,
+        label,
+        nodetype,
+        fillcolor,
+        bordercolor,
+    )
+end
+
+function SCIPdotWriteArc(file, source, target, color)
+    ccall(
+        (:SCIPdotWriteArc, libscip),
+        Cvoid,
+        (Ptr{Libc.FILE}, Cint, Cint, Ptr{Cchar}),
+        file,
+        source,
+        target,
+        color,
+    )
+end
+
+function SCIPdotWriteClosing(file)
+    ccall((:SCIPdotWriteClosing, libscip), Cvoid, (Ptr{Libc.FILE},), file)
+end
+
 function SCIPsparseSolCreate(sparsesol, vars, nvars, cleared)
     ccall(
         (:SCIPsparseSolCreate, libscip),
@@ -41031,15 +58363,6 @@ function SCIPhashtableFree(hashtable)
         (:SCIPhashtableFree, libscip),
         Cvoid,
         (Ptr{Ptr{SCIP_HASHTABLE}},),
-        hashtable,
-    )
-end
-
-function SCIPhashtableClear(hashtable)
-    ccall(
-        (:SCIPhashtableClear, libscip),
-        Cvoid,
-        (Ptr{SCIP_HASHTABLE},),
         hashtable,
     )
 end
@@ -41375,6 +58698,17 @@ function SCIPhashmapInsert(hashmap, origin, image)
     )
 end
 
+function SCIPhashmapInsertLong(hashmap, origin, image)
+    ccall(
+        (:SCIPhashmapInsertLong, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_HASHMAP}, Ptr{Cvoid}, Clonglong),
+        hashmap,
+        origin,
+        image,
+    )
+end
+
 function SCIPhashmapInsertInt(hashmap, origin, image)
     ccall(
         (:SCIPhashmapInsertInt, libscip),
@@ -41411,6 +58745,16 @@ function SCIPhashmapGetImageInt(hashmap, origin)
     ccall(
         (:SCIPhashmapGetImageInt, libscip),
         Cint,
+        (Ptr{SCIP_HASHMAP}, Ptr{Cvoid}),
+        hashmap,
+        origin,
+    )
+end
+
+function SCIPhashmapGetImageLong(hashmap, origin)
+    ccall(
+        (:SCIPhashmapGetImageLong, libscip),
+        Clonglong,
         (Ptr{SCIP_HASHMAP}, Ptr{Cvoid}),
         hashmap,
         origin,
@@ -41848,7 +59192,7 @@ function SCIPprofileFindLeft(profile, timepoint, pos)
     )
 end
 
-function SCIPprofileInsertCore(profile, left, right, height, pos, infeasible)
+function SCIPprofileInsertCore(profile, left, right, demand, pos, infeasible)
     ccall(
         (:SCIPprofileInsertCore, libscip),
         SCIP_RETCODE,
@@ -41856,13 +59200,13 @@ function SCIPprofileInsertCore(profile, left, right, height, pos, infeasible)
         profile,
         left,
         right,
-        height,
+        demand,
         pos,
         infeasible,
     )
 end
 
-function SCIPprofileDeleteCore(profile, left, right, height)
+function SCIPprofileDeleteCore(profile, left, right, demand)
     ccall(
         (:SCIPprofileDeleteCore, libscip),
         SCIP_RETCODE,
@@ -41870,7 +59214,7 @@ function SCIPprofileDeleteCore(profile, left, right, height)
         profile,
         left,
         right,
-        height,
+        demand,
     )
 end
 
@@ -41879,7 +59223,7 @@ function SCIPprofileGetEarliestFeasibleStart(
     est,
     lst,
     duration,
-    height,
+    demand,
     infeasible,
 )
     ccall(
@@ -41890,17 +59234,17 @@ function SCIPprofileGetEarliestFeasibleStart(
         est,
         lst,
         duration,
-        height,
+        demand,
         infeasible,
     )
 end
 
 function SCIPprofileGetLatestFeasibleStart(
     profile,
-    lb,
-    ub,
+    est,
+    lst,
     duration,
-    height,
+    demand,
     infeasible,
 )
     ccall(
@@ -41908,10 +59252,10 @@ function SCIPprofileGetLatestFeasibleStart(
         Cint,
         (Ptr{SCIP_PROFILE}, Cint, Cint, Cint, Cint, Ptr{Cuint}),
         profile,
-        lb,
-        ub,
+        est,
+        lst,
         duration,
-        height,
+        demand,
         infeasible,
     )
 end
@@ -42410,7 +59754,7 @@ function SCIPrealToRational(
     mindelta,
     maxdelta,
     maxdnom,
-    nominator,
+    numerator,
     denominator,
 )
     ccall(
@@ -42421,9 +59765,13 @@ function SCIPrealToRational(
         mindelta,
         maxdelta,
         maxdnom,
-        nominator,
+        numerator,
         denominator,
     )
+end
+
+function SCIPrealIsExactlyIntegral(val)
+    ccall((:SCIPrealIsExactlyIntegral, libscip), Cuint, (Cdouble,), val)
 end
 
 function SCIPcalcIntegralScalar(
@@ -42460,7 +59808,35 @@ function SCIPcalcIntegralScalar(
     )
 end
 
-function SCIPfindSimpleRational(lb, ub, maxdnom, nominator, denominator)
+function SCIPcalcIntegralScalarExact(
+    buffer,
+    vals,
+    nvals,
+    maxscale,
+    intscalar,
+    success,
+)
+    ccall(
+        (:SCIPcalcIntegralScalarExact, libscip),
+        SCIP_RETCODE,
+        (
+            Ptr{BMS_BUFMEM},
+            Ptr{Ptr{SCIP_RATIONAL}},
+            Cint,
+            Cdouble,
+            Ptr{SCIP_RATIONAL},
+            Ptr{Cuint},
+        ),
+        buffer,
+        vals,
+        nvals,
+        maxscale,
+        intscalar,
+        success,
+    )
+end
+
+function SCIPfindSimpleRational(lb, ub, maxdnom, numerator, denominator)
     ccall(
         (:SCIPfindSimpleRational, libscip),
         Cuint,
@@ -42468,7 +59844,7 @@ function SCIPfindSimpleRational(lb, ub, maxdnom, nominator, denominator)
         lb,
         ub,
         maxdnom,
-        nominator,
+        numerator,
         denominator,
     )
 end
@@ -42515,34 +59891,23 @@ function SCIPcomputeGap(eps, inf, primalbound, dualbound)
     )
 end
 
-function SCIPgetRandomInt(minrandval, maxrandval, seedp)
-    ccall(
-        (:SCIPgetRandomInt, libscip),
-        Cint,
-        (Cint, Cint, Ptr{Cuint}),
-        minrandval,
-        maxrandval,
-        seedp,
-    )
-end
-
-function SCIPrandomGetInt(randgen, minrandval, maxrandval)
+function SCIPrandomGetInt(randnumgen, minrandval, maxrandval)
     ccall(
         (:SCIPrandomGetInt, libscip),
         Cint,
         (Ptr{SCIP_RANDNUMGEN}, Cint, Cint),
-        randgen,
+        randnumgen,
         minrandval,
         maxrandval,
     )
 end
 
-function SCIPrandomGetSubset(randgen, set, nelems, subset, nsubelems)
+function SCIPrandomGetSubset(randnumgen, set, nelems, subset, nsubelems)
     ccall(
         (:SCIPrandomGetSubset, libscip),
         SCIP_RETCODE,
         (Ptr{SCIP_RANDNUMGEN}, Ptr{Ptr{Cvoid}}, Cint, Ptr{Ptr{Cvoid}}, Cint),
-        randgen,
+        randnumgen,
         set,
         nelems,
         subset,
@@ -42550,38 +59915,14 @@ function SCIPrandomGetSubset(randgen, set, nelems, subset, nsubelems)
     )
 end
 
-function SCIPrandomGetReal(randgen, minrandval, maxrandval)
+function SCIPrandomGetReal(randnumgen, minrandval, maxrandval)
     ccall(
         (:SCIPrandomGetReal, libscip),
         Cdouble,
         (Ptr{SCIP_RANDNUMGEN}, Cdouble, Cdouble),
-        randgen,
+        randnumgen,
         minrandval,
         maxrandval,
-    )
-end
-
-function SCIPgetRandomReal(minrandval, maxrandval, seedp)
-    ccall(
-        (:SCIPgetRandomReal, libscip),
-        Cdouble,
-        (Cdouble, Cdouble, Ptr{Cuint}),
-        minrandval,
-        maxrandval,
-        seedp,
-    )
-end
-
-function SCIPgetRandomSubset(set, nelems, subset, nsubelems, randseed)
-    ccall(
-        (:SCIPgetRandomSubset, libscip),
-        SCIP_RETCODE,
-        (Ptr{Ptr{Cvoid}}, Cint, Ptr{Ptr{Cvoid}}, Cint, Cuint),
-        set,
-        nelems,
-        subset,
-        nsubelems,
-        randseed,
     )
 end
 
@@ -42615,72 +59956,27 @@ function SCIPswapPointers(pointer1, pointer2)
     )
 end
 
-function SCIPpermuteIntArray(array, _begin, _end, randseed)
-    ccall(
-        (:SCIPpermuteIntArray, libscip),
-        Cvoid,
-        (Ptr{Cint}, Cint, Cint, Ptr{Cuint}),
-        array,
-        _begin,
-        _end,
-        randseed,
-    )
-end
-
-function SCIPrandomPermuteIntArray(randgen, array, _begin, _end)
+function SCIPrandomPermuteIntArray(randnumgen, array, _begin, _end)
     ccall(
         (:SCIPrandomPermuteIntArray, libscip),
         Cvoid,
         (Ptr{SCIP_RANDNUMGEN}, Ptr{Cint}, Cint, Cint),
-        randgen,
+        randnumgen,
         array,
         _begin,
         _end,
     )
 end
 
-function SCIPrandomPermuteArray(randgen, array, _begin, _end)
+function SCIPrandomPermuteArray(randnumgen, array, _begin, _end)
     ccall(
         (:SCIPrandomPermuteArray, libscip),
         Cvoid,
         (Ptr{SCIP_RANDNUMGEN}, Ptr{Ptr{Cvoid}}, Cint, Cint),
-        randgen,
+        randnumgen,
         array,
         _begin,
         _end,
-    )
-end
-
-function SCIPpermuteArray(array, _begin, _end, randseed)
-    ccall(
-        (:SCIPpermuteArray, libscip),
-        Cvoid,
-        (Ptr{Ptr{Cvoid}}, Cint, Cint, Ptr{Cuint}),
-        array,
-        _begin,
-        _end,
-        randseed,
-    )
-end
-
-function SCIPcomputeArraysIntersection(
-    array1,
-    narray1,
-    array2,
-    narray2,
-    intersectarray,
-    nintersectarray,
-)
-    ccall(
-        (:SCIPcomputeArraysIntersection, libscip),
-        SCIP_RETCODE,
-        (Ptr{Cint}, Cint, Ptr{Cint}, Cint, Ptr{Cint}, Ptr{Cint}),
-        array1,
-        narray1,
-        array2,
-        narray2,
-        intersectarray,
-        nintersectarray,
     )
 end
 
@@ -42733,27 +60029,6 @@ function SCIPcomputeArraysIntersectionPtr(
         ptrcomp,
         intersectarray,
         nintersectarray,
-    )
-end
-
-function SCIPcomputeArraysSetminus(
-    array1,
-    narray1,
-    array2,
-    narray2,
-    setminusarray,
-    nsetminusarray,
-)
-    ccall(
-        (:SCIPcomputeArraysSetminus, libscip),
-        SCIP_RETCODE,
-        (Ptr{Cint}, Cint, Ptr{Cint}, Cint, Ptr{Cint}, Ptr{Cint}),
-        array1,
-        narray1,
-        array2,
-        narray2,
-        setminusarray,
-        nsetminusarray,
     )
 end
 
@@ -42816,6 +60091,10 @@ function SCIPescapeString(t, bufsize, s)
     )
 end
 
+function SCIPskipSpace(s)
+    ccall((:SCIPskipSpace, libscip), SCIP_RETCODE, (Ptr{Ptr{Cchar}},), s)
+end
+
 function SCIPstrncpy(t, s, size)
     ccall(
         (:SCIPstrncpy, libscip),
@@ -42824,6 +60103,21 @@ function SCIPstrncpy(t, s, size)
         t,
         s,
         size,
+    )
+end
+
+function SCIPstrcasecmp(s1, s2)
+    ccall((:SCIPstrcasecmp, libscip), Cint, (Ptr{Cchar}, Ptr{Cchar}), s1, s2)
+end
+
+function SCIPstrncasecmp(s1, s2, length)
+    ccall(
+        (:SCIPstrncasecmp, libscip),
+        Cint,
+        (Ptr{Cchar}, Ptr{Cchar}, Cint),
+        s1,
+        s2,
+        length,
     )
 end
 
@@ -42919,11 +60213,46 @@ function SCIPconsGetLhs(scip, cons, success)
     )
 end
 
+function SCIPconsGetRhsExact(scip, cons, success)
+    ccall(
+        (:SCIPconsGetRhsExact, libscip),
+        Ptr{Cint},
+        (Ptr{SCIP}, Ptr{SCIP_CONS}, Ptr{Cuint}),
+        scip,
+        cons,
+        success,
+    )
+end
+
+function SCIPconsGetLhsExact(scip, cons, success)
+    ccall(
+        (:SCIPconsGetLhsExact, libscip),
+        Ptr{Cint},
+        (Ptr{SCIP}, Ptr{SCIP_CONS}, Ptr{Cuint}),
+        scip,
+        cons,
+        success,
+    )
+end
+
 function SCIPgetConsVals(scip, cons, vals, varssize, success)
     ccall(
         (:SCIPgetConsVals, libscip),
         SCIP_RETCODE,
         (Ptr{SCIP}, Ptr{SCIP_CONS}, Ptr{Cdouble}, Cint, Ptr{Cuint}),
+        scip,
+        cons,
+        vals,
+        varssize,
+        success,
+    )
+end
+
+function SCIPgetConsValsExact(scip, cons, vals, varssize, success)
+    ccall(
+        (:SCIPgetConsValsExact, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_CONS}, Ptr{Ptr{Cint}}, Cint, Ptr{Cuint}),
         scip,
         cons,
         vals,
@@ -42963,6 +60292,17 @@ function SCIPconsGetRow(scip, cons)
         (Ptr{SCIP}, Ptr{SCIP_CONS}),
         scip,
         cons,
+    )
+end
+
+function SCIPconsCreateRow(scip, cons, row)
+    ccall(
+        (:SCIPconsCreateRow, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP}, Ptr{SCIP_CONS}, Ptr{Ptr{SCIP_ROW}}),
+        scip,
+        cons,
+        row,
     )
 end
 
@@ -43084,6 +60424,17 @@ end
 
 function SCIProwprepReset(rowprep)
     ccall((:SCIProwprepReset, libscip), Cvoid, (Ptr{SCIP_ROWPREP},), rowprep)
+end
+
+function SCIProwprepSetCoef(rowprep, idx, newcoef)
+    ccall(
+        (:SCIProwprepSetCoef, libscip),
+        Cvoid,
+        (Ptr{SCIP_ROWPREP}, Cint, Cdouble),
+        rowprep,
+        idx,
+        newcoef,
+    )
 end
 
 function SCIProwprepAddSide(rowprep, side)
@@ -43932,61 +61283,6 @@ function SCIPselectWeightedPtrRealBool(
     )
 end
 
-function SCIPselectPtrRealReal(
-    ptrarray,
-    realarray1,
-    realarray2,
-    ptrcomp,
-    k,
-    len,
-)
-    ccall(
-        (:SCIPselectPtrRealReal, libscip),
-        Cvoid,
-        (Ptr{Ptr{Cvoid}}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}, Cint, Cint),
-        ptrarray,
-        realarray1,
-        realarray2,
-        ptrcomp,
-        k,
-        len,
-    )
-end
-
-function SCIPselectWeightedPtrRealReal(
-    ptrarray,
-    realarray1,
-    realarray2,
-    ptrcomp,
-    weights,
-    capacity,
-    len,
-    medianpos,
-)
-    ccall(
-        (:SCIPselectWeightedPtrRealReal, libscip),
-        Cvoid,
-        (
-            Ptr{Ptr{Cvoid}},
-            Ptr{Cdouble},
-            Ptr{Cdouble},
-            Ptr{Cvoid},
-            Ptr{Cdouble},
-            Cdouble,
-            Cint,
-            Ptr{Cint},
-        ),
-        ptrarray,
-        realarray1,
-        realarray2,
-        ptrcomp,
-        weights,
-        capacity,
-        len,
-        medianpos,
-    )
-end
-
 function SCIPselectPtrPtrInt(ptrarray1, ptrarray2, intarray, ptrcomp, k, len)
     ccall(
         (:SCIPselectPtrPtrInt, libscip),
@@ -44763,6 +62059,50 @@ function SCIPselectWeightedRealIntPtr(
         realarray,
         intarray,
         ptrarray,
+        weights,
+        capacity,
+        len,
+        medianpos,
+    )
+end
+
+function SCIPselectRealPtrPtr(realarray, ptrarray1, ptrarray2, k, len)
+    ccall(
+        (:SCIPselectRealPtrPtr, libscip),
+        Cvoid,
+        (Ptr{Cdouble}, Ptr{Ptr{Cvoid}}, Ptr{Ptr{Cvoid}}, Cint, Cint),
+        realarray,
+        ptrarray1,
+        ptrarray2,
+        k,
+        len,
+    )
+end
+
+function SCIPselectWeightedRealPtrPtr(
+    realarray,
+    ptrarray1,
+    ptrarray2,
+    weights,
+    capacity,
+    len,
+    medianpos,
+)
+    ccall(
+        (:SCIPselectWeightedRealPtrPtr, libscip),
+        Cvoid,
+        (
+            Ptr{Cdouble},
+            Ptr{Ptr{Cvoid}},
+            Ptr{Ptr{Cvoid}},
+            Ptr{Cdouble},
+            Cdouble,
+            Cint,
+            Ptr{Cint},
+        ),
+        realarray,
+        ptrarray1,
+        ptrarray2,
         weights,
         capacity,
         len,
@@ -45567,6 +62907,58 @@ function SCIPselectIntIntPtr(intarray1, intarray2, ptrarray, k, len)
     )
 end
 
+function SCIPselectIntIntPtrPtr(
+    intarray1,
+    intarray2,
+    ptrarray1,
+    ptrarray2,
+    k,
+    len,
+)
+    ccall(
+        (:SCIPselectIntIntPtrPtr, libscip),
+        Cvoid,
+        (Ptr{Cint}, Ptr{Cint}, Ptr{Ptr{Cvoid}}, Ptr{Ptr{Cvoid}}, Cint, Cint),
+        intarray1,
+        intarray2,
+        ptrarray1,
+        ptrarray2,
+        k,
+        len,
+    )
+end
+
+function SCIPselectIntIntPtrPtrInterval(
+    intarray1,
+    intarray2,
+    ptrarray1,
+    ptrarray2,
+    intervalarray,
+    k,
+    len,
+)
+    ccall(
+        (:SCIPselectIntIntPtrPtrInterval, libscip),
+        Cvoid,
+        (
+            Ptr{Cint},
+            Ptr{Cint},
+            Ptr{Ptr{Cvoid}},
+            Ptr{Ptr{Cvoid}},
+            Ptr{SCIP_INTERVAL},
+            Cint,
+            Cint,
+        ),
+        intarray1,
+        intarray2,
+        ptrarray1,
+        ptrarray2,
+        intervalarray,
+        k,
+        len,
+    )
+end
+
 function SCIPselectWeightedIntIntPtr(
     intarray1,
     intarray2,
@@ -45591,6 +62983,77 @@ function SCIPselectWeightedIntIntPtr(
         intarray1,
         intarray2,
         ptrarray,
+        weights,
+        capacity,
+        len,
+        medianpos,
+    )
+end
+
+function SCIPselectWeightedIntIntPtrPtr(
+    intarray1,
+    intarray2,
+    ptrarray1,
+    ptrarray2,
+    weights,
+    capacity,
+    len,
+    medianpos,
+)
+    ccall(
+        (:SCIPselectWeightedIntIntPtrPtr, libscip),
+        Cvoid,
+        (
+            Ptr{Cint},
+            Ptr{Cint},
+            Ptr{Ptr{Cvoid}},
+            Ptr{Ptr{Cvoid}},
+            Ptr{Cdouble},
+            Cdouble,
+            Cint,
+            Ptr{Cint},
+        ),
+        intarray1,
+        intarray2,
+        ptrarray1,
+        ptrarray2,
+        weights,
+        capacity,
+        len,
+        medianpos,
+    )
+end
+
+function SCIPselectWeightedIntIntPtrPtrInterval(
+    intarray1,
+    intarray2,
+    ptrarray1,
+    ptrarray2,
+    intervalarray,
+    weights,
+    capacity,
+    len,
+    medianpos,
+)
+    ccall(
+        (:SCIPselectWeightedIntIntPtrPtrInterval, libscip),
+        Cvoid,
+        (
+            Ptr{Cint},
+            Ptr{Cint},
+            Ptr{Ptr{Cvoid}},
+            Ptr{Ptr{Cvoid}},
+            Ptr{SCIP_INTERVAL},
+            Ptr{Cdouble},
+            Cdouble,
+            Cint,
+            Ptr{Cint},
+        ),
+        intarray1,
+        intarray2,
+        ptrarray1,
+        ptrarray2,
+        intervalarray,
         weights,
         capacity,
         len,
@@ -49533,6 +66996,28 @@ function SCIPsortCompInt(elem1, elem2)
     )
 end
 
+function SCIPsortArgsortInt(dataptr, ind1, ind2)
+    ccall(
+        (:SCIPsortArgsortInt, libscip),
+        Cint,
+        (Ptr{Cvoid}, Cint, Cint),
+        dataptr,
+        ind1,
+        ind2,
+    )
+end
+
+function SCIPsortArgsortPtr(dataptr, ind1, ind2)
+    ccall(
+        (:SCIPsortArgsortPtr, libscip),
+        Cint,
+        (Ptr{Cvoid}, Cint, Cint),
+        dataptr,
+        ind1,
+        ind2,
+    )
+end
+
 function SCIPsort(perm, indcomp, dataptr, len)
     ccall(
         (:SCIPsort, libscip),
@@ -49740,19 +67225,6 @@ function SCIPsortPtrRealBool(ptrarray, realarray, boolarray, ptrcomp, len)
         ptrarray,
         realarray,
         boolarray,
-        ptrcomp,
-        len,
-    )
-end
-
-function SCIPsortPtrRealReal(ptrarray, realarray1, realarray2, ptrcomp, len)
-    ccall(
-        (:SCIPsortPtrRealReal, libscip),
-        Cvoid,
-        (Ptr{Ptr{Cvoid}}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}, Cint),
-        ptrarray,
-        realarray1,
-        realarray2,
         ptrcomp,
         len,
     )
@@ -50018,6 +67490,18 @@ function SCIPsortRealIntPtr(realarray, intarray, ptrarray, len)
         realarray,
         intarray,
         ptrarray,
+        len,
+    )
+end
+
+function SCIPsortRealPtrPtr(realarray, ptrarray1, ptrarray2, len)
+    ccall(
+        (:SCIPsortRealPtrPtr, libscip),
+        Cvoid,
+        (Ptr{Cdouble}, Ptr{Ptr{Cvoid}}, Ptr{Ptr{Cvoid}}, Cint),
+        realarray,
+        ptrarray1,
+        ptrarray2,
         len,
     )
 end
@@ -50354,6 +67838,47 @@ function SCIPsortIntPtrIntReal(intarray1, ptrarray, intarray2, realarray, len)
         ptrarray,
         intarray2,
         realarray,
+        len,
+    )
+end
+
+function SCIPsortIntIntPtrPtr(intarray1, intarray2, ptrarray, ptrarray2, len)
+    ccall(
+        (:SCIPsortIntIntPtrPtr, libscip),
+        Cvoid,
+        (Ptr{Cint}, Ptr{Cint}, Ptr{Ptr{Cvoid}}, Ptr{Ptr{Cvoid}}, Cint),
+        intarray1,
+        intarray2,
+        ptrarray,
+        ptrarray2,
+        len,
+    )
+end
+
+function SCIPsortIntIntPtrPtrInterval(
+    intarray1,
+    intarray2,
+    ptrarray,
+    ptrarray2,
+    intervalarray,
+    len,
+)
+    ccall(
+        (:SCIPsortIntIntPtrPtrInterval, libscip),
+        Cvoid,
+        (
+            Ptr{Cint},
+            Ptr{Cint},
+            Ptr{Ptr{Cvoid}},
+            Ptr{Ptr{Cvoid}},
+            Ptr{SCIP_INTERVAL},
+            Cint,
+        ),
+        intarray1,
+        intarray2,
+        ptrarray,
+        ptrarray2,
+        intervalarray,
         len,
     )
 end
@@ -50986,6 +68511,18 @@ function SCIPsortDownRealIntPtr(realarray, intarray, ptrarray, len)
     )
 end
 
+function SCIPsortDownRealPtrPtr(realarray, ptrarray1, ptrarray2, len)
+    ccall(
+        (:SCIPsortDownRealPtrPtr, libscip),
+        Cvoid,
+        (Ptr{Cdouble}, Ptr{Ptr{Cvoid}}, Ptr{Ptr{Cvoid}}, Cint),
+        realarray,
+        ptrarray1,
+        ptrarray2,
+        len,
+    )
+end
+
 function SCIPsortDownRealRealInt(realarray1, realarray2, intarray, len)
     ccall(
         (:SCIPsortDownRealRealInt, libscip),
@@ -51148,18 +68685,6 @@ function SCIPsortDownRealRealRealPtr(
         realarray2,
         realarray3,
         ptrarray,
-        len,
-    )
-end
-
-function SCIPsortDownRealPtrPtr(realarray, ptrarray1, ptrarray2, len)
-    ccall(
-        (:SCIPsortDownRealPtrPtr, libscip),
-        Cvoid,
-        (Ptr{Cdouble}, Ptr{Ptr{Cvoid}}, Ptr{Ptr{Cvoid}}, Cint),
-        realarray,
-        ptrarray1,
-        ptrarray2,
         len,
     )
 end
@@ -52551,6 +70076,40 @@ function SCIPsortedvecInsertRealIntPtr(
     )
 end
 
+function SCIPsortedvecInsertRealPtrPtr(
+    realarray,
+    ptrarray1,
+    ptrarray2,
+    keyval,
+    field1val,
+    field2val,
+    len,
+    pos,
+)
+    ccall(
+        (:SCIPsortedvecInsertRealPtrPtr, libscip),
+        Cvoid,
+        (
+            Ptr{Cdouble},
+            Ptr{Ptr{Cvoid}},
+            Ptr{Ptr{Cvoid}},
+            Cdouble,
+            Ptr{Cvoid},
+            Ptr{Cvoid},
+            Ptr{Cint},
+            Ptr{Cint},
+        ),
+        realarray,
+        ptrarray1,
+        ptrarray2,
+        keyval,
+        field1val,
+        field2val,
+        len,
+        pos,
+    )
+end
+
 function SCIPsortedvecInsertRealRealPtr(
     realarray1,
     realarray2,
@@ -53135,6 +70694,92 @@ function SCIPsortedvecInsertIntIntPtr(
         keyval,
         field1val,
         field2val,
+        len,
+        pos,
+    )
+end
+
+function SCIPsortedvecInsertIntIntPtrPtr(
+    intarray1,
+    intarray2,
+    ptrarray1,
+    ptrarray2,
+    keyval,
+    field1val,
+    field2val,
+    field3val,
+    len,
+    pos,
+)
+    ccall(
+        (:SCIPsortedvecInsertIntIntPtrPtr, libscip),
+        Cvoid,
+        (
+            Ptr{Cint},
+            Ptr{Cint},
+            Ptr{Ptr{Cvoid}},
+            Ptr{Ptr{Cvoid}},
+            Cint,
+            Cint,
+            Ptr{Cvoid},
+            Ptr{Cvoid},
+            Ptr{Cint},
+            Ptr{Cint},
+        ),
+        intarray1,
+        intarray2,
+        ptrarray1,
+        ptrarray2,
+        keyval,
+        field1val,
+        field2val,
+        field3val,
+        len,
+        pos,
+    )
+end
+
+function SCIPsortedvecInsertIntIntPtrPtrInterval(
+    intarray1,
+    intarray2,
+    ptrarray1,
+    ptrarray2,
+    intervalarray,
+    keyval,
+    field1val,
+    field2val,
+    field3val,
+    field4val,
+    len,
+    pos,
+)
+    ccall(
+        (:SCIPsortedvecInsertIntIntPtrPtrInterval, libscip),
+        Cvoid,
+        (
+            Ptr{Cint},
+            Ptr{Cint},
+            Ptr{Ptr{Cvoid}},
+            Ptr{Ptr{Cvoid}},
+            Ptr{SCIP_INTERVAL},
+            Cint,
+            Cint,
+            Ptr{Cvoid},
+            Ptr{Cvoid},
+            SCIP_INTERVAL,
+            Ptr{Cint},
+            Ptr{Cint},
+        ),
+        intarray1,
+        intarray2,
+        ptrarray1,
+        ptrarray2,
+        intervalarray,
+        keyval,
+        field1val,
+        field2val,
+        field3val,
+        field4val,
         len,
         pos,
     )
@@ -54454,40 +72099,6 @@ function SCIPsortedvecInsertDownRealPtr(
     )
 end
 
-function SCIPsortedvecInsertDownRealPtrPtr(
-    realarray,
-    ptrarray1,
-    ptrarray2,
-    keyval,
-    field1val,
-    field2val,
-    len,
-    pos,
-)
-    ccall(
-        (:SCIPsortedvecInsertDownRealPtrPtr, libscip),
-        Cvoid,
-        (
-            Ptr{Cdouble},
-            Ptr{Ptr{Cvoid}},
-            Ptr{Ptr{Cvoid}},
-            Cdouble,
-            Ptr{Cvoid},
-            Ptr{Cvoid},
-            Ptr{Cint},
-            Ptr{Cint},
-        ),
-        realarray,
-        ptrarray1,
-        ptrarray2,
-        keyval,
-        field1val,
-        field2val,
-        len,
-        pos,
-    )
-end
-
 function SCIPsortedvecInsertDownRealInt(
     realarray,
     intarray,
@@ -54637,6 +72248,40 @@ function SCIPsortedvecInsertDownRealIntPtr(
         realarray,
         intarray,
         ptrarray,
+        keyval,
+        field1val,
+        field2val,
+        len,
+        pos,
+    )
+end
+
+function SCIPsortedvecInsertDownRealPtrPtr(
+    realarray,
+    ptrarray1,
+    ptrarray2,
+    keyval,
+    field1val,
+    field2val,
+    len,
+    pos,
+)
+    ccall(
+        (:SCIPsortedvecInsertDownRealPtrPtr, libscip),
+        Cvoid,
+        (
+            Ptr{Cdouble},
+            Ptr{Ptr{Cvoid}},
+            Ptr{Ptr{Cvoid}},
+            Cdouble,
+            Ptr{Cvoid},
+            Ptr{Cvoid},
+            Ptr{Cint},
+            Ptr{Cint},
+        ),
+        realarray,
+        ptrarray1,
+        ptrarray2,
         keyval,
         field1val,
         field2val,
@@ -56435,6 +74080,25 @@ function SCIPsortedvecDelPosRealIntPtr(realarray, intarray, ptrarray, pos, len)
     )
 end
 
+function SCIPsortedvecDelPosRealPtrPtr(
+    realarray,
+    ptrarray1,
+    ptrarray2,
+    pos,
+    len,
+)
+    ccall(
+        (:SCIPsortedvecDelPosRealPtrPtr, libscip),
+        Cvoid,
+        (Ptr{Cdouble}, Ptr{Ptr{Cvoid}}, Ptr{Ptr{Cvoid}}, Cint, Ptr{Cint}),
+        realarray,
+        ptrarray1,
+        ptrarray2,
+        pos,
+        len,
+    )
+end
+
 function SCIPsortedvecDelPosRealRealPtr(
     realarray1,
     realarray2,
@@ -56770,6 +74434,65 @@ function SCIPsortedvecDelPosIntIntPtr(intarray1, intarray2, ptrarray, pos, len)
         intarray1,
         intarray2,
         ptrarray,
+        pos,
+        len,
+    )
+end
+
+function SCIPsortedvecDelPosIntIntPtrPtr(
+    intarray1,
+    intarray2,
+    ptrarray1,
+    ptrarray2,
+    pos,
+    len,
+)
+    ccall(
+        (:SCIPsortedvecDelPosIntIntPtrPtr, libscip),
+        Cvoid,
+        (
+            Ptr{Cint},
+            Ptr{Cint},
+            Ptr{Ptr{Cvoid}},
+            Ptr{Ptr{Cvoid}},
+            Cint,
+            Ptr{Cint},
+        ),
+        intarray1,
+        intarray2,
+        ptrarray1,
+        ptrarray2,
+        pos,
+        len,
+    )
+end
+
+function SCIPsortedvecDelPosIntIntPtrPtrInterval(
+    intarray1,
+    intarray2,
+    ptrarray1,
+    ptrarray2,
+    intervalarray,
+    pos,
+    len,
+)
+    ccall(
+        (:SCIPsortedvecDelPosIntIntPtrPtrInterval, libscip),
+        Cvoid,
+        (
+            Ptr{Cint},
+            Ptr{Cint},
+            Ptr{Ptr{Cvoid}},
+            Ptr{Ptr{Cvoid}},
+            Ptr{SCIP_INTERVAL},
+            Cint,
+            Ptr{Cint},
+        ),
+        intarray1,
+        intarray2,
+        ptrarray1,
+        ptrarray2,
+        intervalarray,
         pos,
         len,
     )
@@ -57672,6 +75395,25 @@ function SCIPsortedvecDelPosDownRealIntPtr(
     )
 end
 
+function SCIPsortedvecDelPosDownRealPtrPtr(
+    realarray,
+    ptrarray1,
+    ptrarray2,
+    pos,
+    len,
+)
+    ccall(
+        (:SCIPsortedvecDelPosDownRealPtrPtr, libscip),
+        Cvoid,
+        (Ptr{Cdouble}, Ptr{Ptr{Cvoid}}, Ptr{Ptr{Cvoid}}, Cint, Ptr{Cint}),
+        realarray,
+        ptrarray1,
+        ptrarray2,
+        pos,
+        len,
+    )
+end
+
 function SCIPsortedvecDelPosDownRealRealInt(
     realarray1,
     realarray2,
@@ -57731,25 +75473,6 @@ function SCIPsortedvecDelPosDownRealRealPtrPtr(
         ),
         realarray1,
         realarray2,
-        ptrarray1,
-        ptrarray2,
-        pos,
-        len,
-    )
-end
-
-function SCIPsortedvecDelPosDownRealPtrPtr(
-    realarray,
-    ptrarray1,
-    ptrarray2,
-    pos,
-    len,
-)
-    ccall(
-        (:SCIPsortedvecDelPosDownRealPtrPtr, libscip),
-        Cvoid,
-        (Ptr{Cdouble}, Ptr{Ptr{Cvoid}}, Ptr{Ptr{Cvoid}}, Cint, Ptr{Cint}),
-        realarray,
         ptrarray1,
         ptrarray2,
         pos,
@@ -58584,6 +76307,160 @@ function SCIPsortedvecFindDownLong(longarray, val, len, pos)
     )
 end
 
+const SCIP_Netmatdec = Cvoid
+
+const SCIP_NETMATDEC = SCIP_Netmatdec
+
+function SCIPnetmatdecCreate(blkmem, pdec, nrows, ncols)
+    ccall(
+        (:SCIPnetmatdecCreate, libscip),
+        SCIP_RETCODE,
+        (Ptr{BMS_BLKMEM}, Ptr{Ptr{SCIP_NETMATDEC}}, Cint, Cint),
+        blkmem,
+        pdec,
+        nrows,
+        ncols,
+    )
+end
+
+function SCIPnetmatdecFree(pdec)
+    ccall(
+        (:SCIPnetmatdecFree, libscip),
+        Cvoid,
+        (Ptr{Ptr{SCIP_NETMATDEC}},),
+        pdec,
+    )
+end
+
+function SCIPnetmatdecTryAddCol(
+    dec,
+    column,
+    nonzrows,
+    nonzvals,
+    nnonzs,
+    success,
+)
+    ccall(
+        (:SCIPnetmatdecTryAddCol, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_NETMATDEC}, Cint, Ptr{Cint}, Ptr{Cdouble}, Cint, Ptr{Cuint}),
+        dec,
+        column,
+        nonzrows,
+        nonzvals,
+        nnonzs,
+        success,
+    )
+end
+
+function SCIPnetmatdecTryAddRow(dec, row, nonzcols, nonzvals, nnonzs, success)
+    ccall(
+        (:SCIPnetmatdecTryAddRow, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_NETMATDEC}, Cint, Ptr{Cint}, Ptr{Cdouble}, Cint, Ptr{Cuint}),
+        dec,
+        row,
+        nonzcols,
+        nonzvals,
+        nnonzs,
+        success,
+    )
+end
+
+function SCIPnetmatdecContainsRow(dec, row)
+    ccall(
+        (:SCIPnetmatdecContainsRow, libscip),
+        Cuint,
+        (Ptr{SCIP_NETMATDEC}, Cint),
+        dec,
+        row,
+    )
+end
+
+function SCIPnetmatdecContainsColumn(dec, column)
+    ccall(
+        (:SCIPnetmatdecContainsColumn, libscip),
+        Cuint,
+        (Ptr{SCIP_NETMATDEC}, Cint),
+        dec,
+        column,
+    )
+end
+
+function SCIPnetmatdecRemoveComponent(
+    dec,
+    componentrows,
+    nrows,
+    componentcols,
+    ncols,
+)
+    ccall(
+        (:SCIPnetmatdecRemoveComponent, libscip),
+        Cvoid,
+        (Ptr{SCIP_NETMATDEC}, Ptr{Cint}, Cint, Ptr{Cint}, Cint),
+        dec,
+        componentrows,
+        nrows,
+        componentcols,
+        ncols,
+    )
+end
+
+function SCIPnetmatdecIsMinimal(dec)
+    ccall(
+        (:SCIPnetmatdecIsMinimal, libscip),
+        Cuint,
+        (Ptr{SCIP_NETMATDEC},),
+        dec,
+    )
+end
+
+function SCIPnetmatdecVerifyCycle(
+    bufmem,
+    dec,
+    column,
+    nonzrowidx,
+    nonzvals,
+    nnonzs,
+    pathrowstorage,
+    pathsignstorage,
+)
+    ccall(
+        (:SCIPnetmatdecVerifyCycle, libscip),
+        Cuint,
+        (
+            Ptr{BMS_BUFMEM},
+            Ptr{SCIP_NETMATDEC},
+            Cint,
+            Ptr{Cint},
+            Ptr{Cdouble},
+            Cint,
+            Ptr{Cint},
+            Ptr{Cuint},
+        ),
+        bufmem,
+        dec,
+        column,
+        nonzrowidx,
+        nonzvals,
+        nnonzs,
+        pathrowstorage,
+        pathsignstorage,
+    )
+end
+
+function SCIPnetmatdecCreateDiGraph(dec, blkmem, pdigraph, createrowarcs)
+    ccall(
+        (:SCIPnetmatdecCreateDiGraph, libscip),
+        SCIP_RETCODE,
+        (Ptr{SCIP_NETMATDEC}, Ptr{BMS_BLKMEM}, Ptr{Ptr{SCIP_DIGRAPH}}, Cuint),
+        dec,
+        blkmem,
+        pdigraph,
+        createrowarcs,
+    )
+end
+
 function SCIPnlhdlrSetCopyHdlr(nlhdlr, copy)
     ccall(
         (:SCIPnlhdlrSetCopyHdlr, libscip),
@@ -58646,6 +76523,16 @@ function SCIPnlhdlrSetSepa(nlhdlr, initsepa, enfo, estimate, exitsepa)
         enfo,
         estimate,
         exitsepa,
+    )
+end
+
+function SCIPnlhdlrSetSollinearize(nlhdlr, sollinearize)
+    ccall(
+        (:SCIPnlhdlrSetSollinearize, libscip),
+        Cvoid,
+        (Ptr{SCIP_NLHDLR}, Ptr{Cvoid}),
+        nlhdlr,
+        sollinearize,
     )
 end
 
@@ -58727,6 +76614,15 @@ function SCIPnlhdlrHasEstimate(nlhdlr)
     ccall((:SCIPnlhdlrHasEstimate, libscip), Cuint, (Ptr{SCIP_NLHDLR},), nlhdlr)
 end
 
+function SCIPnlhdlrHasSollinearize(nlhdlr)
+    ccall(
+        (:SCIPnlhdlrHasSollinearize, libscip),
+        Cuint,
+        (Ptr{SCIP_NLHDLR},),
+        nlhdlr,
+    )
+end
+
 function SCIPnlhdlrComp(elem1, elem2)
     ccall(
         (:SCIPnlhdlrComp, libscip),
@@ -58786,16 +76682,6 @@ function SCIPnlrowGetCurvature(nlrow)
         SCIP_EXPRCURV,
         (Ptr{SCIP_NLROW},),
         nlrow,
-    )
-end
-
-function SCIPnlrowSetCurvature(nlrow, curvature)
-    ccall(
-        (:SCIPnlrowSetCurvature, libscip),
-        Cvoid,
-        (Ptr{SCIP_NLROW}, SCIP_EXPRCURV),
-        nlrow,
-        curvature,
     )
 end
 
@@ -59181,6 +77067,10 @@ function SCIPpresolSetData(presol, presoldata)
     )
 end
 
+function SCIPpresolMarkExact(presol)
+    ccall((:SCIPpresolMarkExact, libscip), Cvoid, (Ptr{SCIP_PRESOL},), presol)
+end
+
 function SCIPpresolGetName(presol)
     ccall(
         (:SCIPpresolGetName, libscip),
@@ -59346,6 +77236,10 @@ function SCIPpricerSetData(pricer, pricerdata)
     )
 end
 
+function SCIPpricerMarkExact(pricer)
+    ccall((:SCIPpricerMarkExact, libscip), Cvoid, (Ptr{SCIP_PRICER},), pricer)
+end
+
 function SCIPpricerGetName(pricer)
     ccall(
         (:SCIPpricerGetName, libscip),
@@ -59458,6 +77352,10 @@ function SCIPpropSetData(prop, propdata)
         prop,
         propdata,
     )
+end
+
+function SCIPpropMarkExact(prop)
+    ccall((:SCIPpropMarkExact, libscip), Cvoid, (Ptr{SCIP_PROP},), prop)
 end
 
 function SCIPpropGetName(prop)
@@ -59606,6 +77504,16 @@ function SCIPpropGetTimingmask(prop)
     )
 end
 
+function SCIPpropSetTimingmask(prop, timingmask)
+    ccall(
+        (:SCIPpropSetTimingmask, libscip),
+        Cvoid,
+        (Ptr{SCIP_PROP}, SCIP_PROPTIMING),
+        prop,
+        timingmask,
+    )
+end
+
 function SCIPpropDoesPresolve(prop)
     ccall((:SCIPpropDoesPresolve, libscip), Cuint, (Ptr{SCIP_PROP},), prop)
 end
@@ -59646,6 +77554,10 @@ function SCIPreaderSetData(reader, readerdata)
         reader,
         readerdata,
     )
+end
+
+function SCIPreaderMarkExact(reader)
+    ccall((:SCIPreaderMarkExact, libscip), Cvoid, (Ptr{SCIP_READER},), reader)
 end
 
 function SCIPreaderGetName(reader)
@@ -59720,6 +77632,10 @@ function SCIPrelaxSetData(relax, relaxdata)
         relax,
         relaxdata,
     )
+end
+
+function SCIPrelaxMarkExact(relax)
+    ccall((:SCIPrelaxMarkExact, libscip), Cvoid, (Ptr{SCIP_RELAX},), relax)
 end
 
 function SCIPrelaxGetName(relax)
@@ -59863,34 +77779,6 @@ function SCIPreoptnodeGetType(reoptnode)
         SCIP_REOPTTYPE,
         (Ptr{SCIP_REOPTNODE},),
         reoptnode,
-    )
-end
-
-function SCIPreoptnodeGetSplitCons(
-    reoptnode,
-    vars,
-    vals,
-    constype,
-    conssize,
-    nvars,
-)
-    ccall(
-        (:SCIPreoptnodeGetSplitCons, libscip),
-        Cvoid,
-        (
-            Ptr{SCIP_REOPTNODE},
-            Ptr{Ptr{SCIP_VAR}},
-            Ptr{Cdouble},
-            Ptr{REOPT_CONSTYPE},
-            Cint,
-            Ptr{Cint},
-        ),
-        reoptnode,
-        vars,
-        vals,
-        constype,
-        conssize,
-        nvars,
     )
 end
 
@@ -60097,6 +77985,10 @@ function SCIPsepaSetFreq(sepa, freq)
     )
 end
 
+function SCIPsepaMarkExact(sepa)
+    ccall((:SCIPsepaMarkExact, libscip), Cvoid, (Ptr{SCIP_SEPA},), sepa)
+end
+
 function SCIPsepaGetMaxbounddist(sepa)
     ccall((:SCIPsepaGetMaxbounddist, libscip), Cdouble, (Ptr{SCIP_SEPA},), sepa)
 end
@@ -60117,6 +78009,10 @@ function SCIPsepaGetNCalls(sepa)
     ccall((:SCIPsepaGetNCalls, libscip), Clonglong, (Ptr{SCIP_SEPA},), sepa)
 end
 
+function SCIPsepaGetNRootCalls(sepa)
+    ccall((:SCIPsepaGetNRootCalls, libscip), Clonglong, (Ptr{SCIP_SEPA},), sepa)
+end
+
 function SCIPsepaGetNCallsAtNode(sepa)
     ccall((:SCIPsepaGetNCallsAtNode, libscip), Cint, (Ptr{SCIP_SEPA},), sepa)
 end
@@ -60129,9 +78025,49 @@ function SCIPsepaGetNCutsFound(sepa)
     ccall((:SCIPsepaGetNCutsFound, libscip), Clonglong, (Ptr{SCIP_SEPA},), sepa)
 end
 
+function SCIPsepaGetNCutsAdded(sepa)
+    ccall((:SCIPsepaGetNCutsAdded, libscip), Clonglong, (Ptr{SCIP_SEPA},), sepa)
+end
+
+function SCIPsepaGetNCutsAddedViaPool(sepa)
+    ccall(
+        (:SCIPsepaGetNCutsAddedViaPool, libscip),
+        Clonglong,
+        (Ptr{SCIP_SEPA},),
+        sepa,
+    )
+end
+
+function SCIPsepaGetNCutsAddedDirect(sepa)
+    ccall(
+        (:SCIPsepaGetNCutsAddedDirect, libscip),
+        Clonglong,
+        (Ptr{SCIP_SEPA},),
+        sepa,
+    )
+end
+
 function SCIPsepaGetNCutsApplied(sepa)
     ccall(
         (:SCIPsepaGetNCutsApplied, libscip),
+        Clonglong,
+        (Ptr{SCIP_SEPA},),
+        sepa,
+    )
+end
+
+function SCIPsepaGetNCutsAppliedViaPool(sepa)
+    ccall(
+        (:SCIPsepaGetNCutsAppliedViaPool, libscip),
+        Clonglong,
+        (Ptr{SCIP_SEPA},),
+        sepa,
+    )
+end
+
+function SCIPsepaGetNCutsAppliedDirect(sepa)
+    ccall(
+        (:SCIPsepaGetNCutsAppliedDirect, libscip),
         Clonglong,
         (Ptr{SCIP_SEPA},),
         sepa,
@@ -60202,12 +78138,26 @@ function SCIPsolIsOriginal(sol)
     ccall((:SCIPsolIsOriginal, libscip), Cuint, (Ptr{SCIP_SOL},), sol)
 end
 
+function SCIPsolIsExact(sol)
+    ccall((:SCIPsolIsExact, libscip), Cuint, (Ptr{SCIP_SOL},), sol)
+end
+
 function SCIPsolIsPartial(sol)
     ccall((:SCIPsolIsPartial, libscip), Cuint, (Ptr{SCIP_SOL},), sol)
 end
 
 function SCIPsolGetOrigObj(sol)
     ccall((:SCIPsolGetOrigObj, libscip), Cdouble, (Ptr{SCIP_SOL},), sol)
+end
+
+function SCIPsolOrigAddObjvalExact(sol, addval)
+    ccall(
+        (:SCIPsolOrigAddObjvalExact, libscip),
+        Cvoid,
+        (Ptr{SCIP_SOL}, Ptr{SCIP_RATIONAL}),
+        sol,
+        addval,
+    )
 end
 
 function SCIPsolGetTime(sol)
@@ -60565,6 +78515,15 @@ function SCIPnodeGetLowerbound(node)
     ccall((:SCIPnodeGetLowerbound, libscip), Cdouble, (Ptr{SCIP_NODE},), node)
 end
 
+function SCIPnodeGetLowerboundExact(node)
+    ccall(
+        (:SCIPnodeGetLowerboundExact, libscip),
+        Ptr{SCIP_RATIONAL},
+        (Ptr{SCIP_NODE},),
+        node,
+    )
+end
+
 function SCIPnodeGetEstimate(node)
     ccall((:SCIPnodeGetEstimate, libscip), Cdouble, (Ptr{SCIP_NODE},), node)
 end
@@ -60822,6 +78781,17 @@ function SCIPvarGetProbvarBound(var, bound, boundtype)
     )
 end
 
+function SCIPvarGetProbvarBoundExact(var, bound, boundtype)
+    ccall(
+        (:SCIPvarGetProbvarBoundExact, libscip),
+        SCIP_RETCODE,
+        (Ptr{Ptr{SCIP_VAR}}, Ptr{SCIP_RATIONAL}, Ptr{SCIP_BOUNDTYPE}),
+        var,
+        bound,
+        boundtype,
+    )
+end
+
 function SCIPvarGetProbvarHole(var, left, right)
     ccall(
         (:SCIPvarGetProbvarHole, libscip),
@@ -60838,6 +78808,17 @@ function SCIPvarGetOrigvarSum(var, scalar, constant)
         (:SCIPvarGetOrigvarSum, libscip),
         SCIP_RETCODE,
         (Ptr{Ptr{SCIP_VAR}}, Ptr{Cdouble}, Ptr{Cdouble}),
+        var,
+        scalar,
+        constant,
+    )
+end
+
+function SCIPvarGetOrigvarSumExact(var, scalar, constant)
+    ccall(
+        (:SCIPvarGetOrigvarSumExact, libscip),
+        SCIP_RETCODE,
+        (Ptr{Ptr{SCIP_VAR}}, Ptr{SCIP_RATIONAL}, Ptr{SCIP_RATIONAL}),
         var,
         scalar,
         constant,
@@ -61074,6 +79055,19 @@ function SCIPvarGetStatus(var)
     ccall((:SCIPvarGetStatus, libscip), SCIP_VARSTATUS, (Ptr{SCIP_VAR},), var)
 end
 
+function SCIPvarGetStatusExact(var)
+    ccall(
+        (:SCIPvarGetStatusExact, libscip),
+        SCIP_VARSTATUS,
+        (Ptr{SCIP_VAR},),
+        var,
+    )
+end
+
+function SCIPvarIsExact(var)
+    ccall((:SCIPvarIsExact, libscip), Cuint, (Ptr{SCIP_VAR},), var)
+end
+
 function SCIPvarIsOriginal(var)
     ccall((:SCIPvarIsOriginal, libscip), Cuint, (Ptr{SCIP_VAR},), var)
 end
@@ -61090,12 +79084,29 @@ function SCIPvarGetType(var)
     ccall((:SCIPvarGetType, libscip), SCIP_VARTYPE, (Ptr{SCIP_VAR},), var)
 end
 
+function SCIPvarGetImplType(var)
+    ccall(
+        (:SCIPvarGetImplType, libscip),
+        SCIP_IMPLINTTYPE,
+        (Ptr{SCIP_VAR},),
+        var,
+    )
+end
+
 function SCIPvarIsBinary(var)
     ccall((:SCIPvarIsBinary, libscip), Cuint, (Ptr{SCIP_VAR},), var)
 end
 
 function SCIPvarIsIntegral(var)
     ccall((:SCIPvarIsIntegral, libscip), Cuint, (Ptr{SCIP_VAR},), var)
+end
+
+function SCIPvarIsImpliedIntegral(var)
+    ccall((:SCIPvarIsImpliedIntegral, libscip), Cuint, (Ptr{SCIP_VAR},), var)
+end
+
+function SCIPvarIsNonimpliedIntegral(var)
+    ccall((:SCIPvarIsNonimpliedIntegral, libscip), Cuint, (Ptr{SCIP_VAR},), var)
 end
 
 function SCIPvarIsInitial(var)
@@ -61143,6 +79154,76 @@ function SCIPvarGetProbindex(var)
     ccall((:SCIPvarGetProbindex, libscip), Cint, (Ptr{SCIP_VAR},), var)
 end
 
+function SCIPvarGetCertificateIndex(var)
+    ccall((:SCIPvarGetCertificateIndex, libscip), Cint, (Ptr{SCIP_VAR},), var)
+end
+
+function SCIPvarSetCertificateIndex(var, certidx)
+    ccall(
+        (:SCIPvarSetCertificateIndex, libscip),
+        Cvoid,
+        (Ptr{SCIP_VAR}, Cint),
+        var,
+        certidx,
+    )
+end
+
+function SCIPvarSetUbCertificateIndexGlobal(var, certidx)
+    ccall(
+        (:SCIPvarSetUbCertificateIndexGlobal, libscip),
+        Cvoid,
+        (Ptr{SCIP_VAR}, Clonglong),
+        var,
+        certidx,
+    )
+end
+
+function SCIPvarSetLbCertificateIndexGlobal(var, certidx)
+    ccall(
+        (:SCIPvarSetLbCertificateIndexGlobal, libscip),
+        Cvoid,
+        (Ptr{SCIP_VAR}, Clonglong),
+        var,
+        certidx,
+    )
+end
+
+function SCIPvarGetLbCertificateIndexLocal(var)
+    ccall(
+        (:SCIPvarGetLbCertificateIndexLocal, libscip),
+        Clonglong,
+        (Ptr{SCIP_VAR},),
+        var,
+    )
+end
+
+function SCIPvarGetUbCertificateIndexLocal(var)
+    ccall(
+        (:SCIPvarGetUbCertificateIndexLocal, libscip),
+        Clonglong,
+        (Ptr{SCIP_VAR},),
+        var,
+    )
+end
+
+function SCIPvarGetLbCertificateIndexGlobal(var)
+    ccall(
+        (:SCIPvarGetLbCertificateIndexGlobal, libscip),
+        Clonglong,
+        (Ptr{SCIP_VAR},),
+        var,
+    )
+end
+
+function SCIPvarGetUbCertificateIndexGlobal(var)
+    ccall(
+        (:SCIPvarGetUbCertificateIndexGlobal, libscip),
+        Clonglong,
+        (Ptr{SCIP_VAR},),
+        var,
+    )
+end
+
 function SCIPvarGetTransVar(var)
     ccall((:SCIPvarGetTransVar, libscip), Ptr{SCIP_VAR}, (Ptr{SCIP_VAR},), var)
 end
@@ -61151,8 +79232,25 @@ function SCIPvarGetCol(var)
     ccall((:SCIPvarGetCol, libscip), Ptr{SCIP_COL}, (Ptr{SCIP_VAR},), var)
 end
 
+function SCIPvarGetColExact(var)
+    ccall(
+        (:SCIPvarGetColExact, libscip),
+        Ptr{SCIP_COLEXACT},
+        (Ptr{SCIP_VAR},),
+        var,
+    )
+end
+
 function SCIPvarIsInLP(var)
     ccall((:SCIPvarIsInLP, libscip), Cuint, (Ptr{SCIP_VAR},), var)
+end
+
+function SCIPvarGetMinAggrCoef(var)
+    ccall((:SCIPvarGetMinAggrCoef, libscip), Cdouble, (Ptr{SCIP_VAR},), var)
+end
+
+function SCIPvarGetMaxAggrCoef(var)
+    ccall((:SCIPvarGetMaxAggrCoef, libscip), Cdouble, (Ptr{SCIP_VAR},), var)
 end
 
 function SCIPvarGetAggrVar(var)
@@ -61163,8 +79261,26 @@ function SCIPvarGetAggrScalar(var)
     ccall((:SCIPvarGetAggrScalar, libscip), Cdouble, (Ptr{SCIP_VAR},), var)
 end
 
+function SCIPvarGetAggrScalarExact(var)
+    ccall(
+        (:SCIPvarGetAggrScalarExact, libscip),
+        Ptr{SCIP_RATIONAL},
+        (Ptr{SCIP_VAR},),
+        var,
+    )
+end
+
 function SCIPvarGetAggrConstant(var)
     ccall((:SCIPvarGetAggrConstant, libscip), Cdouble, (Ptr{SCIP_VAR},), var)
+end
+
+function SCIPvarGetAggrConstantExact(var)
+    ccall(
+        (:SCIPvarGetAggrConstantExact, libscip),
+        Ptr{SCIP_RATIONAL},
+        (Ptr{SCIP_VAR},),
+        var,
+    )
 end
 
 function SCIPvarGetMultaggrNVars(var)
@@ -61189,10 +79305,28 @@ function SCIPvarGetMultaggrScalars(var)
     )
 end
 
+function SCIPvarGetMultaggrScalarsExact(var)
+    ccall(
+        (:SCIPvarGetMultaggrScalarsExact, libscip),
+        Ptr{Ptr{SCIP_RATIONAL}},
+        (Ptr{SCIP_VAR},),
+        var,
+    )
+end
+
 function SCIPvarGetMultaggrConstant(var)
     ccall(
         (:SCIPvarGetMultaggrConstant, libscip),
         Cdouble,
+        (Ptr{SCIP_VAR},),
+        var,
+    )
+end
+
+function SCIPvarGetMultaggrConstantExact(var)
+    ccall(
+        (:SCIPvarGetMultaggrConstantExact, libscip),
+        Ptr{SCIP_RATIONAL},
         (Ptr{SCIP_VAR},),
         var,
     )
@@ -61229,6 +79363,24 @@ function SCIPvarGetObj(var)
     ccall((:SCIPvarGetObj, libscip), Cdouble, (Ptr{SCIP_VAR},), var)
 end
 
+function SCIPvarGetObjExact(var)
+    ccall(
+        (:SCIPvarGetObjExact, libscip),
+        Ptr{SCIP_RATIONAL},
+        (Ptr{SCIP_VAR},),
+        var,
+    )
+end
+
+function SCIPvarGetObjInterval(var)
+    ccall(
+        (:SCIPvarGetObjInterval, libscip),
+        SCIP_INTERVAL,
+        (Ptr{SCIP_VAR},),
+        var,
+    )
+end
+
 function SCIPvarGetUnchangedObj(var)
     ccall((:SCIPvarGetUnchangedObj, libscip), Cdouble, (Ptr{SCIP_VAR},), var)
 end
@@ -61237,8 +79389,26 @@ function SCIPvarGetLbOriginal(var)
     ccall((:SCIPvarGetLbOriginal, libscip), Cdouble, (Ptr{SCIP_VAR},), var)
 end
 
+function SCIPvarGetLbOriginalExact(var)
+    ccall(
+        (:SCIPvarGetLbOriginalExact, libscip),
+        Ptr{SCIP_RATIONAL},
+        (Ptr{SCIP_VAR},),
+        var,
+    )
+end
+
 function SCIPvarGetUbOriginal(var)
     ccall((:SCIPvarGetUbOriginal, libscip), Cdouble, (Ptr{SCIP_VAR},), var)
+end
+
+function SCIPvarGetUbOriginalExact(var)
+    ccall(
+        (:SCIPvarGetUbOriginalExact, libscip),
+        Ptr{SCIP_RATIONAL},
+        (Ptr{SCIP_VAR},),
+        var,
+    )
 end
 
 function SCIPvarGetHolelistOriginal(var)
@@ -61254,8 +79424,26 @@ function SCIPvarGetLbGlobal(var)
     ccall((:SCIPvarGetLbGlobal, libscip), Cdouble, (Ptr{SCIP_VAR},), var)
 end
 
+function SCIPvarGetLbGlobalExact(var)
+    ccall(
+        (:SCIPvarGetLbGlobalExact, libscip),
+        Ptr{SCIP_RATIONAL},
+        (Ptr{SCIP_VAR},),
+        var,
+    )
+end
+
 function SCIPvarGetUbGlobal(var)
     ccall((:SCIPvarGetUbGlobal, libscip), Cdouble, (Ptr{SCIP_VAR},), var)
+end
+
+function SCIPvarGetUbGlobalExact(var)
+    ccall(
+        (:SCIPvarGetUbGlobalExact, libscip),
+        Ptr{SCIP_RATIONAL},
+        (Ptr{SCIP_VAR},),
+        var,
+    )
 end
 
 function SCIPvarGetHolelistGlobal(var)
@@ -61271,6 +79459,15 @@ function SCIPvarGetBestBoundGlobal(var)
     ccall((:SCIPvarGetBestBoundGlobal, libscip), Cdouble, (Ptr{SCIP_VAR},), var)
 end
 
+function SCIPvarGetBestBoundGlobalExact(var)
+    ccall(
+        (:SCIPvarGetBestBoundGlobalExact, libscip),
+        Ptr{SCIP_RATIONAL},
+        (Ptr{SCIP_VAR},),
+        var,
+    )
+end
+
 function SCIPvarGetWorstBoundGlobal(var)
     ccall(
         (:SCIPvarGetWorstBoundGlobal, libscip),
@@ -61280,12 +79477,39 @@ function SCIPvarGetWorstBoundGlobal(var)
     )
 end
 
+function SCIPvarGetWorstBoundGlobalExact(var)
+    ccall(
+        (:SCIPvarGetWorstBoundGlobalExact, libscip),
+        Ptr{SCIP_RATIONAL},
+        (Ptr{SCIP_VAR},),
+        var,
+    )
+end
+
 function SCIPvarGetLbLocal(var)
     ccall((:SCIPvarGetLbLocal, libscip), Cdouble, (Ptr{SCIP_VAR},), var)
 end
 
+function SCIPvarGetLbLocalExact(var)
+    ccall(
+        (:SCIPvarGetLbLocalExact, libscip),
+        Ptr{SCIP_RATIONAL},
+        (Ptr{SCIP_VAR},),
+        var,
+    )
+end
+
 function SCIPvarGetUbLocal(var)
     ccall((:SCIPvarGetUbLocal, libscip), Cdouble, (Ptr{SCIP_VAR},), var)
+end
+
+function SCIPvarGetUbLocalExact(var)
+    ccall(
+        (:SCIPvarGetUbLocalExact, libscip),
+        Ptr{SCIP_RATIONAL},
+        (Ptr{SCIP_VAR},),
+        var,
+    )
 end
 
 function SCIPvarGetHolelistLocal(var)
@@ -61301,8 +79525,26 @@ function SCIPvarGetBestBoundLocal(var)
     ccall((:SCIPvarGetBestBoundLocal, libscip), Cdouble, (Ptr{SCIP_VAR},), var)
 end
 
+function SCIPvarGetBestBoundLocalExact(var)
+    ccall(
+        (:SCIPvarGetBestBoundLocalExact, libscip),
+        Ptr{SCIP_RATIONAL},
+        (Ptr{SCIP_VAR},),
+        var,
+    )
+end
+
 function SCIPvarGetWorstBoundLocal(var)
     ccall((:SCIPvarGetWorstBoundLocal, libscip), Cdouble, (Ptr{SCIP_VAR},), var)
+end
+
+function SCIPvarGetWorstBoundLocalExact(var)
+    ccall(
+        (:SCIPvarGetWorstBoundLocalExact, libscip),
+        Ptr{SCIP_RATIONAL},
+        (Ptr{SCIP_VAR},),
+        var,
+    )
 end
 
 function SCIPvarGetBestBoundType(var)
@@ -61314,9 +79556,27 @@ function SCIPvarGetBestBoundType(var)
     )
 end
 
+function SCIPvarGetBestBoundTypeExact(var)
+    ccall(
+        (:SCIPvarGetBestBoundTypeExact, libscip),
+        SCIP_BOUNDTYPE,
+        (Ptr{SCIP_VAR},),
+        var,
+    )
+end
+
 function SCIPvarGetWorstBoundType(var)
     ccall(
         (:SCIPvarGetWorstBoundType, libscip),
+        SCIP_BOUNDTYPE,
+        (Ptr{SCIP_VAR},),
+        var,
+    )
+end
+
+function SCIPvarGetWorstBoundTypeExact(var)
+    ccall(
+        (:SCIPvarGetWorstBoundTypeExact, libscip),
         SCIP_BOUNDTYPE,
         (Ptr{SCIP_VAR},),
         var,
@@ -61474,6 +79734,16 @@ function SCIPvarGetLPSol(var)
     ccall((:SCIPvarGetLPSol, libscip), Cdouble, (Ptr{SCIP_VAR},), var)
 end
 
+function SCIPvarGetLPSolExact(var, res)
+    ccall(
+        (:SCIPvarGetLPSolExact, libscip),
+        Cvoid,
+        (Ptr{SCIP_VAR}, Ptr{SCIP_RATIONAL}),
+        var,
+        res,
+    )
+end
+
 function SCIPvarGetNLPSol(var)
     ccall((:SCIPvarGetNLPSol, libscip), Cdouble, (Ptr{SCIP_VAR},), var)
 end
@@ -61527,6 +79797,16 @@ function SCIPvarGetLPSol_rec(var)
     ccall((:SCIPvarGetLPSol_rec, libscip), Cdouble, (Ptr{SCIP_VAR},), var)
 end
 
+function SCIPvarGetLPSolExact_rec(var, res)
+    ccall(
+        (:SCIPvarGetLPSolExact_rec, libscip),
+        Cvoid,
+        (Ptr{SCIP_VAR}, Ptr{SCIP_RATIONAL}),
+        var,
+        res,
+    )
+end
+
 function SCIPvarGetNLPSol_rec(var)
     ccall((:SCIPvarGetNLPSol_rec, libscip), Cdouble, (Ptr{SCIP_VAR},), var)
 end
@@ -61535,12 +79815,32 @@ function SCIPvarGetPseudoSol(var)
     ccall((:SCIPvarGetPseudoSol, libscip), Cdouble, (Ptr{SCIP_VAR},), var)
 end
 
+function SCIPvarGetPseudoSolExact(var)
+    ccall(
+        (:SCIPvarGetPseudoSolExact, libscip),
+        Ptr{SCIP_RATIONAL},
+        (Ptr{SCIP_VAR},),
+        var,
+    )
+end
+
 function SCIPvarGetSol(var, getlpval)
     ccall(
         (:SCIPvarGetSol, libscip),
         Cdouble,
         (Ptr{SCIP_VAR}, Cuint),
         var,
+        getlpval,
+    )
+end
+
+function SCIPvarGetSolExact(var, res, getlpval)
+    ccall(
+        (:SCIPvarGetSolExact, libscip),
+        Cvoid,
+        (Ptr{SCIP_VAR}, Ptr{SCIP_RATIONAL}, Cuint),
+        var,
+        res,
         getlpval,
     )
 end
@@ -61616,51 +79916,6 @@ function SCIPvarGetBdchgInfo(var, boundtype, bdchgidx, after)
     )
 end
 
-function SCIPvarGetLbAtIndex(var, bdchgidx, after)
-    ccall(
-        (:SCIPvarGetLbAtIndex, libscip),
-        Cdouble,
-        (Ptr{SCIP_VAR}, Ptr{SCIP_BDCHGIDX}, Cuint),
-        var,
-        bdchgidx,
-        after,
-    )
-end
-
-function SCIPvarGetUbAtIndex(var, bdchgidx, after)
-    ccall(
-        (:SCIPvarGetUbAtIndex, libscip),
-        Cdouble,
-        (Ptr{SCIP_VAR}, Ptr{SCIP_BDCHGIDX}, Cuint),
-        var,
-        bdchgidx,
-        after,
-    )
-end
-
-function SCIPvarGetBdAtIndex(var, boundtype, bdchgidx, after)
-    ccall(
-        (:SCIPvarGetBdAtIndex, libscip),
-        Cdouble,
-        (Ptr{SCIP_VAR}, SCIP_BOUNDTYPE, Ptr{SCIP_BDCHGIDX}, Cuint),
-        var,
-        boundtype,
-        bdchgidx,
-        after,
-    )
-end
-
-function SCIPvarWasFixedAtIndex(var, bdchgidx, after)
-    ccall(
-        (:SCIPvarWasFixedAtIndex, libscip),
-        Cuint,
-        (Ptr{SCIP_VAR}, Ptr{SCIP_BDCHGIDX}, Cuint),
-        var,
-        bdchgidx,
-        after,
-    )
-end
-
 function SCIPvarGetLastBdchgIndex(var)
     ccall(
         (:SCIPvarGetLastBdchgIndex, libscip),
@@ -61681,6 +79936,40 @@ function SCIPvarWasFixedEarlier(var1, var2)
         (Ptr{SCIP_VAR}, Ptr{SCIP_VAR}),
         var1,
         var2,
+    )
+end
+
+function SCIPvarsCountTypes(
+    vars,
+    nvars,
+    nbinvars,
+    nintvars,
+    nbinimplvars,
+    nintimplvars,
+    ncontimplvars,
+    ncontvars,
+)
+    ccall(
+        (:SCIPvarsCountTypes, libscip),
+        Cvoid,
+        (
+            Ptr{Ptr{SCIP_VAR}},
+            Cint,
+            Ptr{Cint},
+            Ptr{Cint},
+            Ptr{Cint},
+            Ptr{Cint},
+            Ptr{Cint},
+            Ptr{Cint},
+        ),
+        vars,
+        nvars,
+        nbinvars,
+        nintvars,
+        nbinimplvars,
+        nintimplvars,
+        ncontimplvars,
+        ncontvars,
     )
 end
 
@@ -61852,6 +80141,15 @@ end
 function SCIPboundchgGetNewbound(boundchg)
     ccall(
         (:SCIPboundchgGetNewbound, libscip),
+        Cdouble,
+        (Ptr{SCIP_BOUNDCHG},),
+        boundchg,
+    )
+end
+
+function SCIPboundchgGetLPSolVal(boundchg)
+    ccall(
+        (:SCIPboundchgGetLPSolVal, libscip),
         Cdouble,
         (Ptr{SCIP_BOUNDCHG},),
         boundchg,
@@ -62227,19 +80525,6 @@ function BMScheckEmptyBlockMemory_call(blkmem)
     )
 end
 
-function BMSreallocBufferMemory_call(buffer, ptr, size, filename, line)
-    ccall(
-        (:BMSreallocBufferMemory_call, libscip),
-        Ptr{Cvoid},
-        (Ptr{BMS_BUFMEM}, Ptr{Cvoid}, Csize_t, Ptr{Cchar}, Cint),
-        buffer,
-        ptr,
-        size,
-        filename,
-        line,
-    )
-end
-
 function BMScreateBufferMemory_call(
     arraygrowfac,
     arraygrowinit,
@@ -62307,12 +80592,12 @@ function BMSgetNUsedBufferMemory(buffer)
     )
 end
 
-function BMSgetBufferMemoryUsed(bufmem)
+function BMSgetBufferMemoryUsed(buffer)
     ccall(
         (:BMSgetBufferMemoryUsed, libscip),
         Clonglong,
         (Ptr{BMS_BUFMEM},),
-        bufmem,
+        buffer,
     )
 end
 
@@ -63484,30 +81769,6 @@ function SCIPlpiWriteLP(lpi, fname)
     )
 end
 
-@enum SCIP_Pricing::UInt32 begin
-    SCIP_PRICING_LPIDEFAULT = 0
-    SCIP_PRICING_AUTO = 1
-    SCIP_PRICING_FULL = 2
-    SCIP_PRICING_PARTIAL = 3
-    SCIP_PRICING_STEEP = 4
-    SCIP_PRICING_STEEPQSTART = 5
-    SCIP_PRICING_DEVEX = 6
-end
-
-const SCIP_PRICING = SCIP_Pricing
-
-const CMAKE_BUILD_TYPE = "Release"
-
-const SCIP_VERSION_MAJOR = 7
-
-const SCIP_VERSION_MINOR = 0
-
-const SCIP_VERSION_PATCH = 3
-
-const SCIP_VERSION_SUB = 5
-
-const SCIP_VERSION_API = 77
-
 # Skipping MacroDefinition: SCIP_EXPORT __attribute__ ( ( visibility ( "default" ) ) )
 
 # Skipping MacroDefinition: SCIP_NO_EXPORT __attribute__ ( ( visibility ( "hidden" ) ) )
@@ -63562,41 +81823,45 @@ const SCIP_EVENTTYPE_IMPLADDED = UINT64_C(0x0000000000008000)
 
 const SCIP_EVENTTYPE_TYPECHANGED = UINT64_C(0x0000000000010000)
 
-const SCIP_EVENTTYPE_PRESOLVEROUND = UINT64_C(0x0000000000020000)
+const SCIP_EVENTTYPE_IMPLTYPECHANGED = UINT64_C(0x0000000000020000)
 
-const SCIP_EVENTTYPE_NODEFOCUSED = UINT64_C(0x0000000000040000)
+const SCIP_EVENTTYPE_PRESOLVEROUND = UINT64_C(0x0000000000040000)
 
-const SCIP_EVENTTYPE_NODEFEASIBLE = UINT64_C(0x0000000000080000)
+const SCIP_EVENTTYPE_NODEFOCUSED = UINT64_C(0x0000000000080000)
 
-const SCIP_EVENTTYPE_NODEINFEASIBLE = UINT64_C(0x0000000000100000)
+const SCIP_EVENTTYPE_NODEFEASIBLE = UINT64_C(0x0000000000100000)
 
-const SCIP_EVENTTYPE_NODEBRANCHED = UINT64_C(0x0000000000200000)
+const SCIP_EVENTTYPE_NODEINFEASIBLE = UINT64_C(0x0000000000200000)
 
-const SCIP_EVENTTYPE_NODEDELETE = UINT64_C(0x0000000000400000)
+const SCIP_EVENTTYPE_NODEBRANCHED = UINT64_C(0x0000000000400000)
 
-const SCIP_EVENTTYPE_FIRSTLPSOLVED = UINT64_C(0x0000000000800000)
+const SCIP_EVENTTYPE_NODEDELETE = UINT64_C(0x0000000000800000)
 
-const SCIP_EVENTTYPE_LPSOLVED = UINT64_C(0x0000000001000000)
+const SCIP_EVENTTYPE_DUALBOUNDIMPROVED = UINT64_C(0x0000000001000000)
 
-const SCIP_EVENTTYPE_POORSOLFOUND = UINT64_C(0x0000000002000000)
+const SCIP_EVENTTYPE_FIRSTLPSOLVED = UINT64_C(0x0000000002000000)
 
-const SCIP_EVENTTYPE_BESTSOLFOUND = UINT64_C(0x0000000004000000)
+const SCIP_EVENTTYPE_LPSOLVED = UINT64_C(0x0000000004000000)
 
-const SCIP_EVENTTYPE_ROWADDEDSEPA = UINT64_C(0x0000000008000000)
+const SCIP_EVENTTYPE_POORSOLFOUND = UINT64_C(0x0000000008000000)
 
-const SCIP_EVENTTYPE_ROWDELETEDSEPA = UINT64_C(0x0000000010000000)
+const SCIP_EVENTTYPE_BESTSOLFOUND = UINT64_C(0x0000000010000000)
 
-const SCIP_EVENTTYPE_ROWADDEDLP = UINT64_C(0x0000000020000000)
+const SCIP_EVENTTYPE_ROWADDEDSEPA = UINT64_C(0x0000000020000000)
 
-const SCIP_EVENTTYPE_ROWDELETEDLP = UINT64_C(0x0000000040000000)
+const SCIP_EVENTTYPE_ROWDELETEDSEPA = UINT64_C(0x0000000040000000)
 
-const SCIP_EVENTTYPE_ROWCOEFCHANGED = UINT64_C(0x0000000080000000)
+const SCIP_EVENTTYPE_ROWADDEDLP = UINT64_C(0x0000000080000000)
 
-const SCIP_EVENTTYPE_ROWCONSTCHANGED = UINT64_C(0x0000000100000000)
+const SCIP_EVENTTYPE_ROWDELETEDLP = UINT64_C(0x0000000100000000)
 
-const SCIP_EVENTTYPE_ROWSIDECHANGED = UINT64_C(0x0000000200000000)
+const SCIP_EVENTTYPE_ROWCOEFCHANGED = UINT64_C(0x0000000200000000)
 
-const SCIP_EVENTTYPE_SYNC = UINT64_C(0x0000000400000000)
+const SCIP_EVENTTYPE_ROWCONSTCHANGED = UINT64_C(0x0000000400000000)
+
+const SCIP_EVENTTYPE_ROWSIDECHANGED = UINT64_C(0x0000000800000000)
+
+const SCIP_EVENTTYPE_SYNC = UINT64_C(0x0000001000000000)
 
 const SCIP_EVENTTYPE_GBDCHANGED =
     SCIP_EVENTTYPE_GLBCHANGED | SCIP_EVENTTYPE_GUBCHANGED
@@ -63634,17 +81899,20 @@ const SCIP_EVENTTYPE_VARCHANGED =
             (
                 (
                     (
-                        (SCIP_EVENTTYPE_VARFIXED | SCIP_EVENTTYPE_VARUNLOCKED) |
-                        SCIP_EVENTTYPE_OBJCHANGED
-                    ) | SCIP_EVENTTYPE_GBDCHANGED
-                ) | SCIP_EVENTTYPE_DOMCHANGED
-            ) | SCIP_EVENTTYPE_IMPLADDED
-        ) | SCIP_EVENTTYPE_VARDELETED
-    ) | SCIP_EVENTTYPE_TYPECHANGED
+                        (
+                            (
+                                SCIP_EVENTTYPE_VARFIXED |
+                                SCIP_EVENTTYPE_VARUNLOCKED
+                            ) | SCIP_EVENTTYPE_OBJCHANGED
+                        ) | SCIP_EVENTTYPE_GBDCHANGED
+                    ) | SCIP_EVENTTYPE_DOMCHANGED
+                ) | SCIP_EVENTTYPE_IMPLADDED
+            ) | SCIP_EVENTTYPE_VARDELETED
+        ) | SCIP_EVENTTYPE_TYPECHANGED
+    ) | SCIP_EVENTTYPE_IMPLTYPECHANGED
 
 const SCIP_EVENTTYPE_VAREVENT =
-    (SCIP_EVENTTYPE_VARADDED | SCIP_EVENTTYPE_VARCHANGED) |
-    SCIP_EVENTTYPE_TYPECHANGED
+    SCIP_EVENTTYPE_VARADDED | SCIP_EVENTTYPE_VARCHANGED
 
 const SCIP_EVENTTYPE_NODESOLVED =
     (SCIP_EVENTTYPE_NODEFEASIBLE | SCIP_EVENTTYPE_NODEINFEASIBLE) |
@@ -63660,6 +81928,9 @@ const SCIP_EVENTTYPE_SOLFOUND =
     SCIP_EVENTTYPE_POORSOLFOUND | SCIP_EVENTTYPE_BESTSOLFOUND
 
 const SCIP_EVENTTYPE_SOLEVENT = SCIP_EVENTTYPE_SOLFOUND
+
+const SCIP_EVENTTYPE_GAPUPDATED =
+    SCIP_EVENTTYPE_BESTSOLFOUND | SCIP_EVENTTYPE_DUALBOUNDIMPROVED
 
 const SCIP_EVENTTYPE_ROWCHANGED =
     (SCIP_EVENTTYPE_ROWCOEFCHANGED | SCIP_EVENTTYPE_ROWCONSTCHANGED) |
@@ -63793,6 +82064,8 @@ const SCIP_PRESOLTIMING_MAX =
         SCIP_PRESOLTIMING_EXHAUSTIVE
     ) | SCIP_PRESOLTIMING_FINAL
 
+const SCIP_PROPTIMING_NONE = Cuint(0x0000)
+
 const SCIP_PROPTIMING_BEFORELP = Cuint(0x0001)
 
 const SCIP_PROPTIMING_DURINGLPLOOP = Cuint(0x0002)
@@ -63806,6 +82079,8 @@ const SCIP_PROPTIMING_ALWAYS =
         (SCIP_PROPTIMING_BEFORELP | SCIP_PROPTIMING_DURINGLPLOOP) |
         SCIP_PROPTIMING_AFTERLPLOOP
     ) | SCIP_PROPTIMING_AFTERLPNODE
+
+const SCIP_HEURTIMING_NONE = Cuint(0x0000)
 
 const SCIP_HEURTIMING_BEFORENODE = Cuint(0x0001)
 
@@ -63835,6 +82110,16 @@ const SCIP_HEURTIMING_AFTERNODE =
 const SCIP_HEURTIMING_AFTERPLUNGE =
     SCIP_HEURTIMING_AFTERLPPLUNGE | SCIP_HEURTIMING_AFTERPSEUDOPLUNGE
 
+const SCIP_DEPRECATED_VARTYPE_IMPLINT = SCIP_VARTYPE(2)
+
+const SCIP_VARTYPE_BINARY_CHAR = Cchar('B')
+
+const SCIP_VARTYPE_INTEGER_CHAR = Cchar('I')
+
+const SCIP_VARTYPE_CONTINUOUS_CHAR = Cchar('C')
+
+const SCIP_DEPRECATED_VARTYPE_IMPLINT_CHAR = Cchar('M')
+
 const NLOCKTYPES = 2
 
 const SCIP_HAVE_VARIADIC_MACROS = 1
@@ -63843,27 +82128,32 @@ const TRUE = 1
 
 const SCIP_Shortbool = uint8_t
 
-const SCIP_VERSION = 800
+const SCIP_VERSION_MAJOR = 10
 
-const SCIP_SUBVERSION = 1
+const SCIP_VERSION_MINOR = 0
 
-const SCIP_APIVERSION = 101
+const SCIP_VERSION_PATCH = 0
 
-const SCIP_COPYRIGHT = "Copyright (C) 2002-2021 Konrad-Zuse-Zentrum fuer Informationstechnik Berlin (ZIB)"
+const SCIP_VERSION =
+    100SCIP_VERSION_MAJOR + 10SCIP_VERSION_MINOR + SCIP_VERSION_PATCH
 
-const SCIP_VARTYPE_BINARY_CHAR = Cchar('B')
+const SCIP_VERSION_SUB = 0
 
-const SCIP_VARTYPE_INTEGER_CHAR = Cchar('I')
+const SCIP_SUBVERSION = SCIP_VERSION_SUB
 
-const SCIP_VARTYPE_IMPLINT_CHAR = Cchar('M')
+const SCIP_VERSION_API = 156
 
-const SCIP_VARTYPE_CONTINUOUS_CHAR = Cchar('C')
+const SCIP_APIVERSION = SCIP_VERSION_API
+
+const SCIP_COPYRIGHT = "Copyright (c) 2002-2025 Zuse Institute Berlin (ZIB)"
 
 const SCIP_LONGINT_MAX = LLONG_MAX
 
 const SCIP_LONGINT_MIN = LLONG_MIN
 
 const SCIP_LONGINT_FORMAT = "lld"
+
+const SCIP_REAL_UNITROUNDOFF = 1.0 ÷ 9007199254740992
 
 const SCIP_REAL_FORMAT = "lf"
 
@@ -63889,7 +82179,7 @@ const SCIP_DEFAULT_PSEUDOCOSTEPS = 0.1
 
 const SCIP_DEFAULT_PSEUDOCOSTDELTA = 0.0001
 
-const SCIP_DEFAULT_RECOMPFAC = 1.0e7
+const SCIP_DEFAULT_RECOMPFAC = 1.0e6
 
 const SCIP_DEFAULT_HUGEVAL = 1.0e15
 
@@ -63906,6 +82196,8 @@ const SCIP_INTERVAL_INFINITY = Float64(1.0e300)
 const COPYSIGN = copysign
 
 const SCIP_MAXSTRLEN = 1024
+
+const SCIP_SPACECONTROL = " tnvfr"
 
 const SCIP_MAXMEMSIZE = SIZE_MAX ÷ 2
 
@@ -63931,7 +82223,7 @@ const SCIP_DEFAULT_MEM_ARRAYGROWINIT = 4
 
 const SCIP_MEM_NOLIMIT = SCIP_Longint(SCIP_LONGINT_MAX >> 20)
 
-const SCIP_MAXTREEDEPTH = 65534
+const SCIP_MAXTREEDEPTH = 1073741822
 
 const SCIP_PROBINGSCORE_PENALTYRATIO = 2
 
@@ -63945,23 +82237,31 @@ const SYM_SPEC_BINARY = UINT32_C(0x00000002)
 
 const SYM_SPEC_REAL = UINT32_C(0x00000004)
 
-const SYM_COMPUTETIMING_BEFOREPRESOL = 0
+const SYM_TIMING_BEFOREPRESOL = 0
 
-const SYM_COMPUTETIMING_DURINGPRESOL = 1
+const SYM_TIMING_DURINGPRESOL = 1
 
-const SYM_COMPUTETIMING_AFTERPRESOL = 2
+const SYM_TIMING_AFTERPRESOL = 2
+
+const SYM_COMPUTETIMING_BEFOREPRESOL = SYM_TIMING_BEFOREPRESOL
+
+const SYM_COMPUTETIMING_DURINGPRESOL = SYM_TIMING_DURINGPRESOL
+
+const SYM_COMPUTETIMING_AFTERPRESOL = SYM_TIMING_AFTERPRESOL
 
 const SYM_HANDLETYPE_NONE = UINT32_C(0x00000000)
 
 const SYM_HANDLETYPE_SYMBREAK = UINT32_C(0x00000001)
 
-const SYM_HANDLETYPE_ORBITALFIXING = UINT32_C(0x00000002)
+const SYM_HANDLETYPE_ORBITALREDUCTION = UINT32_C(0x00000002)
 
 const SYM_HANDLETYPE_SST = UINT32_C(0x00000004)
 
 const SYM_HANDLETYPE_SYMCONS = SYM_HANDLETYPE_SYMBREAK | SYM_HANDLETYPE_SST
 
 const ARTIFICIALVARNAMEPREFIX = "andresultant_"
+
+const SCIP_BUILD_TYPE = "Release"
 
 # Skipping MacroDefinition: SCIPdebugMessage while ( FALSE ) /*lint -e{530}*/ printf
 
@@ -63974,7 +82274,7 @@ const ARTIFICIALVARNAMEPREFIX = "andresultant_"
 const SCIPisFinite = isfinite
 
 # exports
-const PREFIXES = ["SCIP", "BMS_"]
+const PREFIXES = ["SCIP_", "SCIP", "BMS_"]
 for name in names(@__MODULE__; all=true), prefix in PREFIXES
     if startswith(string(name), prefix)
         @eval export $name
