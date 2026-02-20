@@ -143,3 +143,107 @@ function MOI.get(
     slack_value = SCIPgetSolVal(o, sol, ptr)
     return slack_value > 0.5 ? MOI.IN_CONFLICT : MOI.NOT_IN_CONFLICT
 end
+
+## IIS & MOI conflicts
+
+
+function MOI.compute_conflict!(o::Optimizer)
+    for (F, S) in MOI.get(o, MOI.ListOfConstraintTypesPresent())
+        if F === MOI.VariableIndex
+            continue
+        end
+        for cidx in MOI.get(o, MOI.ListOfConstraintIndices{F,S}())
+            if MOI.get(o, MOI.ConstraintName(), cidx) === nothing
+                error("All constraints in the model should be named. Constraint $(cidx) is currently unnamed")
+            end
+        end
+    end
+    @SCIP_CALL SCIP.LibSCIP.SCIPgenerateIIS(o)
+    return
+end
+
+function MOI.get(o::Optimizer, ::MOI.ConflictStatus)
+    iis = SCIP.LibSCIP.SCIPgetIIS(o)
+    is_infeasible = SCIPiisIsSubscipInfeasible(iis)
+    st = MOI.get(o, MOI.TerminationStatus())
+    # we ignore MOI.NO_CONFLICT_FOUND for now
+    # this is not supposed to happen with a greedy method
+    if st != MOI.INFEASIBLE
+        return MOI.NO_CONFLICT_EXISTS
+    elseif is_infeasible == 0
+        return MOI.COMPUTE_CONFLICT_NOT_CALLED
+    else 
+        return MOI.CONFLICT_FOUND
+    end
+end
+
+# TODO variable bounds
+function MOI.get(
+    o::Optimizer,
+    ::MOI.ConstraintConflictStatus,
+    index::MOI.ConstraintIndex{MOI.VariableIndex,S},
+) where {S <: Union{MOI.LessThan, MOI.EqualTo, MOI.GreaterThan}}
+    if MOI.get(o, MOI.ConflictStatus()) != MOI.CONFLICT_FOUND
+        return MOI.NOT_IN_CONFLICT
+    end
+    set = MOI.get(o, MOI.ConstraintSet(), index)
+    bound_values = bounds(o, set)
+    index_var_name = MOI.get(o, MOI.VariableName(), MOI.VariableIndex(index.value))
+    nvars = SCIP.LibSCIP.SCIPgetNOrigVars(iis_subscip)
+    vars_ptr = SCIP.LibSCIP.SCIPgetOrigVars(iis_subscip)
+    raw_vars_vec = unsafe_wrap(Array, vars_ptr, nvars)
+    for var in raw_vars_vec
+        var_name = unsafe_string(SCIP.LibSCIP.SCIPvarGetName(var))
+        if var_name == index_var_name
+            lb = SCIP.LibSCIP.SCIPvarGetUbOriginal(var)
+            ub = SCIP.LibSCIP.SCIPvarGetUbOriginal(var)
+            if bound_values[1] ≈ lb && bound_values[2] ≈ ub
+                return MOI.IN_CONFLICT
+            end
+            return MOI.NOT_IN_CONFLICT
+        end
+    end
+    # variable not present in the IIS subproblem
+    return MOI.NOT_IN_CONFLICT
+end
+
+function MOI.get(
+    o::Optimizer,
+    ::MOI.ConstraintConflictStatus,
+    index::MOI.ConstraintIndex{F,S},
+) where {F <: Union{MOI.ScalarAffineFunction, MOI.VectorOfVariables, MOI.ScalarQuadraticFunction}, S}
+    if MOI.get(o, MOI.ConflictStatus()) != MOI.CONFLICT_FOUND
+        return MOI.NOT_IN_CONFLICT
+    end
+    c_name = MOI.get(o, MOI.ConstraintName(), index)
+    iis_subscip = SCIP.LibSCIP.SCIPiisGetSubscip(SCIP.LibSCIP.SCIPgetIIS(o))
+    n_cons = SCIP.LibSCIP.SCIPgetNOrigConss(iis_subscip)
+    cons_ptr = SCIP.LibSCIP.SCIPgetOrigConss(iis_subscip)
+    raw_cons_vec = unsafe_wrap(Array, cons_ptr, n_cons)
+    for cons in raw_cons_vec
+        cons_name = unsafe_string(SCIP.LibSCIP.SCIPconsGetName(cons))
+        if cons_name == c_name
+            return MOI.IN_CONFLICT
+        end
+    end
+    return MOI.NOT_IN_CONFLICT
+end
+
+function MOI.get(
+    o::Optimizer,
+    ::MOI.ConstraintConflictStatus,
+    index::MOI.ConstraintIndex{
+        MOI.VariableIndex,
+        <:Union{MOI.Integer,MOI.ZeroOne},
+    },
+)
+    if MOI.get(o, MOI.ConflictStatus()) != MOI.CONFLICT_FOUND
+        return MOI.NOT_IN_CONFLICT
+    end
+
+    # SCIP doesn't have the information of whether integrality was necessary to produce the IIS.
+    if !MOI.is_valid(model, index)
+        throw(MOI.InvalidIndex(index))
+    end
+    return MOI.MAYBE_IN_CONFLICT
+end
