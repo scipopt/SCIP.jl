@@ -54,7 +54,7 @@ system, `$SCIPOPTDIR/lib/libscip.so`, `$SCIPOPTDIR/lib/libscip.dylib`, or
 `$SCIPOPTDIR/bin/libscip.dll` must exist). Then, install `SCIP.jl` using `Pkg.add`
 and `Pkg.build` from the Julia command line:
 ```julia
-julia> ENV["SCIPOPTDIR"] = raw"C:\Program Files\SCIPOptSuite 9.1.1" # for Windows
+julia> ENV["SCIPOPTDIR"] = raw"C:\Program Files\SCIPOptSuite 10.0.0" # for Windows
 
 julia> import Pkg
 

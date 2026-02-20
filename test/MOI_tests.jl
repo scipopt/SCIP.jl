@@ -1692,6 +1692,55 @@ function test_fix_binary_variable()
     return
 end
 
+function test_SOS1_no_conflict()
+    model = SCIP.Optimizer()
+    MOI.set(model, MOI.Silent(), true)
+    x = MOI.add_variables(model, 2)
+    set = MOI.SOS1([1.0, 2.0])
+    c1 = MOI.add_constraint(model, MOI.VectorOfVariables(x), set)
+    SCIP.set_default_names!(model)
+    MOI.optimize!(model)
+    MOI.compute_conflict!(model)
+    @test MOI.get(model, MOI.ConstraintConflictStatus(), c1) ==
+          MOI.NOT_IN_CONFLICT
+    return
+end
+
+function test_SOS1_in_conflict()
+    model = SCIP.Optimizer()
+    MOI.set(model, MOI.Silent(), true)
+    x = MOI.add_variables(model, 2)
+    MOI.add_constraint.(model, x, MOI.GreaterThan(0.0))
+    MOI.add_constraint.(model, x, MOI.LessThan(1.0))
+    set = MOI.SOS1([1.0, 2.0])
+    c1 = MOI.add_constraint(model, MOI.VectorOfVariables(x), set)
+    c2 = MOI.add_constraint(model, 1.0 * x[1] + 1.0 * x[2], MOI.EqualTo(2.0))
+    SCIP.set_default_names!(model)
+    MOI.optimize!(model)
+    MOI.compute_conflict!(model)
+    @test MOI.get(model, MOI.ConstraintConflictStatus(), c1) == MOI.IN_CONFLICT
+    @test MOI.get(model, MOI.ConstraintConflictStatus(), c2) == MOI.IN_CONFLICT
+    return
+end
+
+function test_SOS2_not_in_conflict()
+    model = SCIP.Optimizer()
+    MOI.set(model, MOI.Silent(), true)
+    x = MOI.add_variables(model, 3)
+    MOI.add_constraint.(model, x, MOI.GreaterThan(0.0))
+    set = MOI.SOS2([1.0, 2.0, 3.0])
+    c1 = MOI.add_constraint(model, MOI.VectorOfVariables(x), set)
+    f = sum(1.0 * x[i] for i in 1:3)
+    c2 = MOI.add_constraint(model, f, MOI.EqualTo(-1.0))
+    SCIP.set_default_names!(model)
+    MOI.optimize!(model)
+    MOI.compute_conflict!(model)
+    @test MOI.get(model, MOI.ConstraintConflictStatus(), c1) ==
+          MOI.NOT_IN_CONFLICT
+    @test MOI.get(model, MOI.ConstraintConflictStatus(), c2) == MOI.IN_CONFLICT
+    return
+end
+
 end  # module TestMOIWrapper
 
 TestMOIWrapper.runtests()

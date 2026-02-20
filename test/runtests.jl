@@ -21,6 +21,7 @@ include("sepa_support.jl")
 
 @testset "SCIP" begin
     @testset "$file" for file in [
+        "iis.jl",
         "conshdlr.jl",
         "cutsel.jl",
         "direct_library_calls.jl",
