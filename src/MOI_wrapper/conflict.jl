@@ -292,7 +292,8 @@ function MOI.get(
     for var in raw_vars_vec
         var_name = unsafe_string(SCIP.LibSCIP.SCIPvarGetName(var))
         if var_name == index_var_name
-            if SCIP.LibSCIP.SCIPvarIsBinary(var) || SCIP.LibSCIP.SCIPvarIsIntegral(var)
+            if SCIP.LibSCIP.SCIPvarIsBinary(var) ||
+               SCIP.LibSCIP.SCIPvarIsIntegral(var)
                 # we cannot ensure the integrality constraint is in the conflict
                 return MOI.MAYBE_IN_CONFLICT
             end
