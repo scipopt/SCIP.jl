@@ -20,16 +20,23 @@ import MathOptInterface as MOI
     MOI.add_constraint(o, 1.0z + 1.2y, MOI.LessThan(1.3))
     MOI.add_constraint(o, 1.0w + 1.2x, MOI.LessThan(1.1))
 
-
-
     MOI.add_constraint(o, 1.0z + 0.9x + 1.2y, MOI.GreaterThan(2.0))
 
     for S in (MOI.LessThan{Float64}, MOI.GreaterThan{Float64})
-        for cidx in MOI.get(o, MOI.ListOfConstraintIndices{MOI.ScalarAffineFunction{Float64}, S}())
-            MOI.set(o, MOI.ConstraintName(), cidx, "c$(cidx.value)_$(length(string(S)))")
+        for cidx in MOI.get(
+            o,
+            MOI.ListOfConstraintIndices{MOI.ScalarAffineFunction{Float64},S}(),
+        )
+            MOI.set(
+                o,
+                MOI.ConstraintName(),
+                cidx,
+                "c$(cidx.value)_$(length(string(S)))",
+            )
         end
     end
 
+    @test SCIP.has_all_names(o)
 
     f_obj = 1.0 * x
     MOI.set(o, MOI.ObjectiveFunction{typeof(f_obj)}(), f_obj)
@@ -44,14 +51,3 @@ import MathOptInterface as MOI
     @test SCIP.LibSCIP.SCIPiisIsSubscipInfeasible(iis) == 1
     @test SCIP.LibSCIP.SCIPiisIsSubscipIrreducible(iis) == 1
 end
-
-# subscip_ptr = SCIP.LibSCIP.SCIPiisGetSubscip(iis)
-
-# SCIP.LibSCIP.SCIPwriteOrigProblem(subscip_ptr, "test.mps", C_NULL, false)
-
-
-# moi_temp = MOI.Utilities.UniversalFallback(MOI.Utilities.Model{Float64}())
-# moi_temp = MOI.Utilities.Model{Float64}()
-# MOI.read_from_file(moi_temp, "test.mps")
-
-

@@ -146,17 +146,51 @@ end
 
 ## IIS & MOI conflicts
 
-
-function MOI.compute_conflict!(o::Optimizer)
+function has_all_names(o::Optimizer)
+    for vidx in MOI.get(o, MOI.ListOfVariableIndices())
+        if MOI.get(o, MOI.VariableName(), vidx) == ""
+            return false
+        end
+    end
     for (F, S) in MOI.get(o, MOI.ListOfConstraintTypesPresent())
         if F === MOI.VariableIndex
             continue
         end
         for cidx in MOI.get(o, MOI.ListOfConstraintIndices{F,S}())
-            if MOI.get(o, MOI.ConstraintName(), cidx) === nothing
-                error("All constraints in the model should be named. Constraint $(cidx) is currently unnamed")
+            if MOI.get(o, MOI.ConstraintName(), cidx) === nothing ||
+               MOI.get(o, MOI.ConstraintName(), cidx) == ""
+                return false
             end
         end
+    end
+    return true
+end
+
+function set_default_names!(o::Optimizer)
+    for vidx in MOI.get(o, MOI.ListOfVariableIndices())
+        if MOI.get(o, MOI.VariableName(), vidx) == ""
+            MOI.set(o, MOI.VariableName(), vidx, "x$(vidx.value)")
+        end
+    end
+    for (F, S) in MOI.get(o, MOI.ListOfConstraintTypesPresent())
+        if F === MOI.VariableIndex
+            continue
+        end
+        for cidx in MOI.get(o, MOI.ListOfConstraintIndices{F,S}())
+            if MOI.get(o, MOI.ConstraintName(), cidx) === nothing ||
+               MOI.get(o, MOI.ConstraintName(), cidx) == ""
+                MOI.set(o, MOI.ConstraintName(), cidx, "$(string(cidx))")
+            end
+        end
+    end
+    return
+end
+
+function MOI.compute_conflict!(o::Optimizer)
+    if !has_all_names(o::Optimizer)
+        error(
+            "SCIP requires all variables and constraints to have a name set for the IIS to work.",
+        )
     end
     @SCIP_CALL SCIP.LibSCIP.SCIPgenerateIIS(o)
     return
@@ -172,7 +206,7 @@ function MOI.get(o::Optimizer, ::MOI.ConflictStatus)
         return MOI.NO_CONFLICT_EXISTS
     elseif is_infeasible == 0
         return MOI.COMPUTE_CONFLICT_NOT_CALLED
-    else 
+    else
         return MOI.CONFLICT_FOUND
     end
 end
@@ -182,13 +216,14 @@ function MOI.get(
     o::Optimizer,
     ::MOI.ConstraintConflictStatus,
     index::MOI.ConstraintIndex{MOI.VariableIndex,S},
-) where {S <: Union{MOI.LessThan, MOI.EqualTo, MOI.GreaterThan}}
+) where {S<:Union{MOI.LessThan,MOI.EqualTo,MOI.GreaterThan}}
     if MOI.get(o, MOI.ConflictStatus()) != MOI.CONFLICT_FOUND
         return MOI.NOT_IN_CONFLICT
     end
     set = MOI.get(o, MOI.ConstraintSet(), index)
     bound_values = bounds(o, set)
-    index_var_name = MOI.get(o, MOI.VariableName(), MOI.VariableIndex(index.value))
+    index_var_name =
+        MOI.get(o, MOI.VariableName(), MOI.VariableIndex(index.value))
     nvars = SCIP.LibSCIP.SCIPgetNOrigVars(iis_subscip)
     vars_ptr = SCIP.LibSCIP.SCIPgetOrigVars(iis_subscip)
     raw_vars_vec = unsafe_wrap(Array, vars_ptr, nvars)
@@ -211,7 +246,14 @@ function MOI.get(
     o::Optimizer,
     ::MOI.ConstraintConflictStatus,
     index::MOI.ConstraintIndex{F,S},
-) where {F <: Union{MOI.ScalarAffineFunction, MOI.VectorOfVariables, MOI.ScalarQuadraticFunction}, S}
+) where {
+    F<:Union{
+        MOI.ScalarAffineFunction,
+        MOI.VectorOfVariables,
+        MOI.ScalarQuadraticFunction,
+    },
+    S,
+}
     if MOI.get(o, MOI.ConflictStatus()) != MOI.CONFLICT_FOUND
         return MOI.NOT_IN_CONFLICT
     end
