@@ -198,7 +198,7 @@ end
 
 function MOI.get(o::Optimizer, ::MOI.ConflictStatus)
     iis = SCIP.LibSCIP.SCIPgetIIS(o)
-    is_infeasible = SCIPiisIsSubscipInfeasible(iis)
+    is_infeasible = SCIP.LibSCIP.SCIPiisIsSubscipInfeasible(iis)
     st = MOI.get(o, MOI.TerminationStatus())
     # we ignore MOI.NO_CONFLICT_FOUND for now
     # this is not supposed to happen with a greedy method
@@ -211,7 +211,6 @@ function MOI.get(o::Optimizer, ::MOI.ConflictStatus)
     end
 end
 
-# TODO variable bounds
 function MOI.get(
     o::Optimizer,
     ::MOI.ConstraintConflictStatus,
@@ -282,10 +281,24 @@ function MOI.get(
     if MOI.get(o, MOI.ConflictStatus()) != MOI.CONFLICT_FOUND
         return MOI.NOT_IN_CONFLICT
     end
-
-    # SCIP doesn't have the information of whether integrality was necessary to produce the IIS.
     if !MOI.is_valid(model, index)
         throw(MOI.InvalidIndex(index))
     end
+    index_var_name =
+        MOI.get(o, MOI.VariableName(), MOI.VariableIndex(index.value))
+    nvars = SCIP.LibSCIP.SCIPgetNOrigVars(iis_subscip)
+    vars_ptr = SCIP.LibSCIP.SCIPgetOrigVars(iis_subscip)
+    raw_vars_vec = unsafe_wrap(Array, vars_ptr, nvars)
+    for var in raw_vars_vec
+        var_name = unsafe_string(SCIP.LibSCIP.SCIPvarGetName(var))
+        if var_name == index_var_name
+            if SCIP.LibSCIP.SCIPvarIsBinary(var) || SCIP.LibSCIP.SCIPvarIsIntegral(var)
+                # we cannot ensure the integrality constraint is in the conflict
+                return MOI.MAYBE_IN_CONFLICT
+            end
+            return MOI.NOT_IN_CONFLICT
+        end
+    end
+
     return MOI.MAYBE_IN_CONFLICT
 end
